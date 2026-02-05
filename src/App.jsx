@@ -35,7 +35,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="min-h-screen bg-gray-50 text-gray-900">
+        <div className="min-h-screen text-gray-900">
           <Header />
           <div className="container mx-auto px-4 pb-12">
             <Routes>

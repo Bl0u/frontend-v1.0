@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
-import { FaUserCircle, FaSignOutAlt, FaCommentDots } from 'react-icons/fa';
+import { FaSignOutAlt, FaInbox, FaCommentDots, FaStar } from 'react-icons/fa';
 import axios from 'axios';
 import chatService from '../features/chat/chatService';
 
@@ -49,93 +49,140 @@ const Header = () => {
     };
 
     return (
-        <header className="bg-white shadow-md mb-8">
-            <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-                <div className="text-xl font-bold text-blue-600">
-                    <Link to="/">GradProject</Link>
-                </div>
+        <header className="sticky top-4 z-50">
+            <div className="max-w-6xl mx-auto px-4">
+                <div className="bg-gradient-to-r from-[#590d22] via-[#800f2f] to-[#590d22] text-white shadow-2xl rounded-3xl backdrop-blur-md transition-all duration-300 hover:shadow-[#590d22]/50 px-12 py-4">
+                    <div className="flex justify-between items-center">
+                        {/* Logo */}
+                        <Link to="/" className="text-3xl font-bold hover:scale-105 transition-transform duration-300">
+                            <span className="bg-gradient-to-r from-[#ff4d6d] via-[#ff758f] to-[#ffb3c1] bg-clip-text text-transparent">
+                                LearnCrew
+                            </span>
+                        </Link>
 
-                <nav>
-                    <ul className="flex space-x-6 items-center">
-                        <li>
-                            <Link to="/" className="text-gray-600 hover:text-blue-500">Home</Link>
-                        </li>
-                        <li>
-                            <Link to="/resources" className="text-gray-600 hover:text-blue-500">Resources</Link>
-                        </li>
-                        <li>
-                            <Link to="/partners" className="text-gray-600 hover:text-blue-500">Partners</Link>
-                        </li>
-                        <li>
-                            <Link to="/mentors" className="text-gray-600 hover:text-indigo-500 transition-colors">Mentors</Link>
-                        </li>
-                        <li>
-                            <Link to="/mentorship-request" className="flex items-center gap-1 text-gray-600 hover:text-indigo-500 transition-colors font-medium">
-                                <span className="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">Hub</span>
-                                Pitch Hub
-                            </Link>
-                        </li>
-                        {user ? (
-                            <>
+                        {/* Navigation */}
+                        <nav>
+                            <ul className="flex space-x-8 items-center">
                                 <li>
-                                    <Link to="/requests" className="flex items-center text-gray-600 hover:text-blue-500 relative">
-                                        <span className="mr-1">Inbox</span>
-                                        {unreadCount > 0 && (
-                                            <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
-                                                {unreadCount > 9 ? '9+' : unreadCount}
-                                            </span>
-                                        )}
+                                    <Link to="/" className="text-[#ffccd5] hover:text-white font-medium transition-colors duration-300">
+                                        Home
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link to="/chat" className="text-gray-600 hover:text-blue-500 flex items-center gap-1 font-medium relative">
-                                        Chat
-                                        {chatUnreadCount > 0 && (
-                                            <span className="absolute -top-2 -right-3 bg-red-500 text-white text-[10px] font-black w-4 h-4 flex items-center justify-center rounded-full animate-pulse">
-                                                +{chatUnreadCount > 9 ? '9' : chatUnreadCount}
-                                            </span>
-                                        )}
-                                    </Link>
-                                </li>
-                                {/* V2.0: Stars Display */}
-                                <li className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-amber-50 to-yellow-50 rounded-lg border border-amber-200">
-                                    <span className="text-amber-500 text-lg">⭐</span>
-                                    <span className="font-black text-amber-700">{user.stars || 0}</span>
-                                </li>
-                                <li>
-                                    <Link to="/top-up" className="text-blue-600 hover:text-blue-700 font-bold underline">
-                                        Top Up
+                                    <Link to="/resources" className="text-[#ffccd5] hover:text-white font-medium transition-colors duration-300">
+                                        Resources
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link to="/dashboard" className="flex items-center text-gray-600 hover:text-blue-500 font-bold">
-                                        Dashboard
+                                    <Link to="/partners" className="text-[#ffccd5] hover:text-white font-medium transition-colors duration-300">
+                                        Partners
                                     </Link>
                                 </li>
                                 <li>
-                                    <button onClick={onLogout} className="flex items-center text-red-500 hover:text-red-700">
-                                        <FaSignOutAlt className="mr-1" /> Logout
-                                    </button>
-                                </li>
-                            </>
-                        ) : (
-                            <>
-                                <li>
-                                    <Link to="/login" className="text-gray-600 hover:text-blue-500">Login</Link>
-                                </li>
-                                <li>
-                                    <Link to="/register" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                                        Register
+                                    <Link to="/mentors" className="text-[#ffccd5] hover:text-white font-medium transition-colors duration-300">
+                                        Mentors
                                     </Link>
                                 </li>
-                            </>
-                        )}
-                    </ul>
-                </nav>
+                                <li>
+                                    <Link
+                                        to="/mentorship-request"
+                                        className="flex items-center gap-2 text-[#ffccd5] hover:text-white font-medium transition-colors duration-300"
+                                    >
+                                        <span className="bg-[#ff4d6d] text-white px-2 py-1 rounded-md text-xs font-bold uppercase">New</span>
+                                        Pitch Hub
+                                    </Link>
+                                </li>
+
+                                {user ? (
+                                    <>
+                                        {/* Inbox */}
+                                        <li>
+                                            <Link to="/requests" className="flex items-center text-[#ffccd5] hover:text-white relative transition-colors duration-300">
+                                                <FaInbox className="text-lg" />
+                                                {unreadCount > 0 && (
+                                                    <span className="absolute -top-2 -right-2 bg-[#ff4d6d] text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full animate-pulse">
+                                                        {unreadCount > 9 ? '9+' : unreadCount}
+                                                    </span>
+                                                )}
+                                            </Link>
+                                        </li>
+
+                                        {/* Chat */}
+                                        <li>
+                                            <Link to="/chat" className="flex items-center text-[#ffccd5] hover:text-white relative transition-colors duration-300">
+                                                <FaCommentDots className="text-lg" />
+                                                {chatUnreadCount > 0 && (
+                                                    <span className="absolute -top-2 -right-2 bg-[#ff4d6d] text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full animate-pulse">
+                                                        {chatUnreadCount > 9 ? '9+' : chatUnreadCount}
+                                                    </span>
+                                                )}
+                                            </Link>
+                                        </li>
+
+                                        {/* Stars Display */}
+                                        <li className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-lg border border-[#ffccd5]/30 hover:bg-white/20 transition-all duration-300">
+                                            <span className="text-xl">⭐</span>
+                                            <span className="font-black text-[#ffccd5]">{user.stars || 0}</span>
+                                        </li>
+
+                                        {/* Top Up */}
+                                        <li>
+                                            <Link
+                                                to="/top-up"
+                                                className="px-4 py-2 bg-[#ff4d6d] text-white font-bold rounded-lg hover:bg-[#c9184a] transition-all duration-300 shadow-lg hover:shadow-[#ff4d6d]/50"
+                                            >
+                                                Top Up
+                                            </Link>
+                                        </li>
+
+                                        {/* Dashboard */}
+                                        <li>
+                                            <Link
+                                                to="/dashboard"
+                                                className="text-[#ffccd5] hover:text-white font-medium transition-colors duration-300"
+                                            >
+                                                Dashboard
+                                            </Link>
+                                        </li>
+
+                                        {/* Logout */}
+                                        <li>
+                                            <button
+                                                onClick={onLogout}
+                                                className="flex items-center gap-2 text-[#ffccd5] hover:text-[#ff4d6d] transition-colors duration-300"
+                                            >
+                                                <FaSignOutAlt />
+                                                <span className="font-medium">Logout</span>
+                                            </button>
+                                        </li>
+                                    </>
+                                ) : (
+                                    <>
+                                        <li>
+                                            <Link
+                                                to="/login"
+                                                className="text-[#ffccd5] hover:text-white font-medium transition-colors duration-300"
+                                            >
+                                                Login
+                                            </Link>
+                                        </li>
+                                        <li>
+                                            <Link
+                                                to="/register"
+                                                className="bg-white text-[#a4133c] px-6 py-2 rounded-full font-bold hover:bg-[#ffccd5] transition-all duration-300 shadow-lg"
+                                            >
+                                                Get Started
+                                            </Link>
+                                        </li>
+                                    </>
+                                )}
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
             </div>
-        </header >
+        </header>
     );
 };
 
 export default Header;
-
