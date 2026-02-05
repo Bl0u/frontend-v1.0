@@ -21,8 +21,11 @@ const createThread = async (threadData, token) => {
 };
 
 // Get thread detail
-const getThreadDetail = async (id) => {
-    const response = await axios.get(API_URL + `thread/${id}`);
+const getThreadDetail = async (id, token = null) => {
+    const config = token ? {
+        headers: { Authorization: `Bearer ${token}` }
+    } : {};
+    const response = await axios.get(API_URL + `thread/${id}`, config);
     return response.data;
 };
 
@@ -127,6 +130,24 @@ const removeModerator = async (id, userId, token) => {
     return response.data;
 };
 
+// V2.0: Purchase Thread
+const purchaseThread = async (id, token) => {
+    const config = {
+        headers: { Authorization: `Bearer ${token}` },
+    };
+    const response = await axios.post(API_URL + `thread/${id}/purchase`, {}, config);
+    return response.data;
+};
+
+// V2.0: Update Thread Price
+const updateThreadPrice = async (id, priceData, token) => {
+    const config = {
+        headers: { Authorization: `Bearer ${token}` },
+    };
+    const response = await axios.put(API_URL + `thread/${id}/price`, priceData, config);
+    return response.data;
+};
+
 const resourceService = {
     getThreads,
     createThread,
@@ -142,6 +163,8 @@ const resourceService = {
     requestReview,
     acknowledgeInstructions,
     updateInstructions,
+    purchaseThread, // V2.0
+    updateThreadPrice, // V2.0
 };
 
 export default resourceService;

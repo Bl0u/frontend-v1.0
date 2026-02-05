@@ -97,6 +97,16 @@ const Header = () => {
                                         )}
                                     </Link>
                                 </li>
+                                {/* V2.0: Stars Display */}
+                                <li className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-amber-50 to-yellow-50 rounded-lg border border-amber-200">
+                                    <span className="text-amber-500 text-lg">⭐</span>
+                                    <span className="font-black text-amber-700">{user.stars || 0}</span>
+                                </li>
+                                <li>
+                                    <Link to="/top-up" className="text-blue-600 hover:text-blue-700 font-bold underline">
+                                        Top Up
+                                    </Link>
+                                </li>
                                 <li>
                                     <Link to="/dashboard" className="flex items-center text-gray-600 hover:text-blue-500 font-bold">
                                         Dashboard

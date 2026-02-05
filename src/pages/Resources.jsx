@@ -21,7 +21,7 @@ const Resources = () => {
 
     const fetchThreads = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/threads');
+            const res = await axios.get('http://localhost:5000/api/resources');
             setThreads(res.data);
             setLoading(false);
         } catch (error) {
@@ -54,7 +54,7 @@ const Resources = () => {
                 },
             };
 
-            await axios.post('http://localhost:5000/api/threads', formData, config);
+            await axios.post('http://localhost:5000/api/resources/thread', formData, config);
             toast.success('Posted successfully');
 
             // Reset form
@@ -134,38 +134,73 @@ const Resources = () => {
                     <p>Loading...</p>
                 ) : threads.length > 0 ? (
                     threads.map((thread) => (
-                        <div key={thread._id} className="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500">
-                            <div className="flex justify-between items-start mb-2">
-                                <h3 className="text-2xl font-bold text-gray-800">{thread.title}</h3>
-                                <span className={`px-2 py-1 rounded text-xs font-bold ${thread.type === 'resource' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                                    {thread.type.toUpperCase()}
-                                </span>
-                            </div>
-
-                            <div className="flex items-center text-sm text-gray-600 mb-4">
-                                <img src={thread.author?.avatar || 'https://via.placeholder.com/30'} alt="avatar" className="w-6 h-6 rounded-full mr-2" />
-                                <span className="font-bold mr-2">{thread.author?.name || 'Unknown'}</span>
-                                <span>• {new Date(thread.createdAt).toLocaleDateString()}</span>
-                            </div>
-
-                            <p className="text-gray-700 mb-4 whitespace-pre-wrap">{thread.content}</p>
-
-                            {thread.attachments && thread.attachments.length > 0 && (
-                                <div className="mt-4 pt-4 border-t">
-                                    <h4 className="font-bold text-sm mb-2 text-gray-600">Attachments:</h4>
-                                    {thread.attachments.map((att, index) => (
-                                        <a
-                                            key={index}
-                                            href={`http://localhost:5000${att}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="flex items-center text-blue-600 hover:underline"
-                                        >
-                                            <FaFileAlt className="mr-2" /> View/Download Attachment
-                                        </a>
-                                    ))}
+                        <div
+                            key={thread._id}
+                            className={`bg-white rounded-lg shadow-md overflow-hidden ${thread.isPaid
+                                ? 'border-2 border-amber-300 relative'
+                                : 'border-l-4 border-blue-500'
+                                }`}
+                        >
+                            {/* V2.0: Premium Badge for Paid Threads */}
+                            {thread.isPaid && (
+                                <div className="bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 px-6 py-3 flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-2xl">⭐</span>
+                                        <span className="font-black text-white text-sm uppercase tracking-wider">Premium Intelligence</span>
+                                    </div>
+                                    <div className="bg-white/30 backdrop-blur-sm px-4 py-1.5 rounded-full">
+                                        <span className="font-black text-white text-lg">{thread.price}</span>
+                                        <span className="font-bold text-white/90 text-xs ml-1">STARS</span>
+                                    </div>
                                 </div>
                             )}
+
+                            <div className="p-6">
+                                <div className="flex justify-between items-start mb-2">
+                                    <h3 className="text-2xl font-bold text-gray-800">{thread.title}</h3>
+                                    <span className={`px-2 py-1 rounded text-xs font-bold ${thread.type === 'resource' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                                        {thread.type.toUpperCase()}
+                                    </span>
+                                </div>
+
+                                <div className="flex items-center text-sm text-gray-600 mb-4">
+                                    <img src={thread.author?.avatar || 'https://via.placeholder.com/30'} alt="avatar" className="w-6 h-6 rounded-full mr-2" />
+                                    <span className="font-bold mr-2">{thread.author?.name || 'Unknown'}</span>
+                                    <span>• {new Date(thread.createdAt).toLocaleDateString()}</span>
+                                </div>
+
+                                <p className="text-gray-700 mb-4 whitespace-pre-wrap">{thread.content}</p>
+
+                                {thread.attachments && thread.attachments.length > 0 && (
+                                    <div className="mt-4 pt-4 border-t">
+                                        <h4 className="font-bold text-sm mb-2 text-gray-600">Attachments:</h4>
+                                        {thread.attachments.map((att, index) => (
+                                            <a
+                                                key={index}
+                                                href={`http://localhost:5000${att}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="flex items-center text-blue-600 hover:underline"
+                                            >
+                                                <FaFileAlt className="mr-2" /> View/Download Attachment
+                                            </a>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* View Thread Link */}
+                                <div className="mt-6 pt-4 border-t">
+                                    <a
+                                        href={`/thread/${thread._id}`}
+                                        className={`inline-block px-6 py-2.5 rounded-lg font-bold text-sm transition-all ${thread.isPaid
+                                            ? 'bg-gradient-to-r from-amber-400 to-yellow-400 text-white hover:shadow-lg hover:shadow-amber-200'
+                                            : 'bg-blue-600 text-white hover:bg-blue-700'
+                                            }`}
+                                    >
+                                        {thread.isPaid ? '⭐ View Premium Thread' : 'View Thread'}
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     ))
                 ) : (

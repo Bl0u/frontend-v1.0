@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useRef } from 'react';
+import { useState, useEffect, useContext, useRef, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -40,15 +40,22 @@ const ThreadDetail = () => {
     const [isEditingInstructions, setIsEditingInstructions] = useState(false);
     const [tempInstructions, setTempInstructions] = useState('');
 
-    const [error, setError] = useState(null);
+    // V2.0: Price management
+    const [showPriceModal, setShowPriceModal] = useState(false);
+    const [priceData, setPriceData] = useState({ isPaid: false, price: 0 });
 
-    const fetchDetail = async () => {
+    const [error, setError] = useState(null);
+    const [hasAccess, setHasAccess] = useState(true); // V2.0: Track if user has access to paid content
+    const [purchasing, setPurchasing] = useState(false); // V2.0: Track purchase in progress
+
+    const fetchDetail = useCallback(async () => {
         try {
             setLoading(true);
             setError(null);
-            const data = await resourceService.getThreadDetail(id);
+            const data = await resourceService.getThreadDetail(id, user?.token);
             setThread(data.thread);
             setPosts(data.posts);
+            setHasAccess(data.hasAccess !== false); // V2.0: Backend returns hasAccess flag
             setEditData({ title: data.thread.title, tags: data.thread.tags?.join(', ') || '' });
             setLoading(false);
         } catch (error) {
@@ -56,11 +63,43 @@ const ThreadDetail = () => {
             setError(error.response?.data?.message || 'Failed to load thread');
             setLoading(false);
         }
+    }, [id, user?.token]); // Only re-create when id or token changes
+
+    // V2.0: Purchase Thread
+    const handlePurchaseThread = async () => {
+        if (!user) {
+            toast.error('Please login to purchase');
+            return;
+        }
+
+        if (window.confirm(`Unlock this intelligence for ${thread.price} stars?`)) {
+            setPurchasing(true);
+            try {
+                const response = await resourceService.purchaseThread(id, user.token);
+                toast.success('🎉 Thread unlocked!');
+
+                // Update user stars in localStorage and context
+                const updatedUser = { ...user, stars: response.stars };
+                localStorage.setItem('user', JSON.stringify(updatedUser));
+
+                // Trigger re-render by updating context (if setUser exists)
+                // Force context refresh by reloading user from localStorage
+                window.dispatchEvent(new Event('storage'));
+
+                // Refresh thread detail to update access
+                await fetchDetail();
+            } catch (error) {
+                console.error('Purchase error:', error);
+                toast.error(error.response?.data?.message || 'Purchase failed');
+            } finally {
+                setPurchasing(false);
+            }
+        }
     };
 
     useEffect(() => {
         fetchDetail();
-    }, [id]);
+    }, [fetchDetail]); // Use memoized function in dependency
 
     const handleUpdateThread = async (e) => {
         e.preventDefault();
@@ -197,6 +236,19 @@ const ThreadDetail = () => {
         }
     };
 
+    // V2.0: Update thread price
+    const handleUpdatePrice = async (e) => {
+        e.preventDefault();
+        try {
+            await resourceService.updateThreadPrice(id, priceData, user.token);
+            toast.success('Thread pricing updated successfully!');
+            setShowPriceModal(false);
+            fetchDetail(); // Refresh thread data
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Failed to update pricing');
+        }
+    };
+
     // Loading and error states
     if (loading) {
         return (
@@ -241,9 +293,55 @@ const ThreadDetail = () => {
                 <FaChevronLeft /> Back to Hub
             </Link>
 
+            {/* V2.0: Paywall Overlay for Locked Threads */}
+            {thread?.isPaid && !hasAccess && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+                    <div className="bg-white rounded-3xl p-12 max-w-md mx-4 text-center shadow-2xl border-4 border-amber-300">
+                        <div className="text-6xl mb-6">🔒</div>
+                        <h2 className="text-3xl font-black text-gray-900 mb-4">Premium Intelligence</h2>
+                        <p className="text-gray-600 font-medium mb-8">
+                            Unlock this exclusive content to access detailed information and community discussions.
+                        </p>
+
+                        <div className="flex items-center justify-center gap-3 mb-8 bg-gradient-to-r from-amber-50 to-yellow-50 border-2 border-amber-300 rounded-2xl p-6">
+                            <span className="text-amber-500 text-4xl">⭐</span>
+                            <span className="text-5xl font-black text-amber-700">{thread.price}</span>
+                            <span className="text-lg text-amber-600 font-bold">Stars</span>
+                        </div>
+
+                        {user ? (
+                            <>
+                                <p className="text-sm text-gray-500 font-bold mb-6">
+                                    Your Balance: <span className="text-amber-600">⭐ {user.stars || 0}</span>
+                                </p>
+                                <button
+                                    onClick={handlePurchaseThread}
+                                    disabled={purchasing || (user.stars || 0) < thread.price}
+                                    className={`w-full py-4 rounded-2xl font-black uppercase tracking-widest text-sm transition-all ${(user.stars || 0) >= thread.price
+                                        ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-white shadow-xl shadow-amber-200 hover:shadow-2xl'
+                                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                        }`}
+                                >
+                                    {purchasing ? 'Unlocking...' : (user.stars || 0) < thread.price ? 'Insufficient Stars - Top Up' : `Unlock for ${thread.price} Stars`}
+                                </button>
+                                {(user.stars || 0) < thread.price && (
+                                    <Link to="/top-up" className="block mt-4 text-blue-600 hover:text-blue-700 font-bold underline text-sm">
+                                        Top Up Stars →
+                                    </Link>
+                                )}
+                            </>
+                        ) : (
+                            <Link to="/login" className="block w-full py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-indigo-700">
+                                Login to Unlock
+                            </Link>
+                        )}
+                    </div>
+                </div>
+            )}
+
             <div className="flex flex-col lg:flex-row gap-10">
                 {/* Main Content (Left) */}
-                <div className="flex-1 space-y-12">
+                <div className={`flex-1 space-y-12 ${thread?.isPaid && !hasAccess ? 'blur-lg pointer-events-none' : ''}`}>
                     <div className="bg-white rounded-[2rem] p-10 md:p-12 border border-gray-100 shadow-sm">
                         {isEditing ? (
                             <form onSubmit={handleUpdateThread} className="space-y-6">
@@ -532,6 +630,16 @@ const ThreadDetail = () => {
                                             >
                                                 Terminate Briefing
                                             </button>
+                                            {/* V2.0: Pricing Management */}
+                                            <button
+                                                onClick={() => {
+                                                    setPriceData({ isPaid: thread.isPaid || false, price: thread.price || 0 });
+                                                    setShowPriceModal(true);
+                                                }}
+                                                className="w-full py-3 rounded-xl bg-amber-50 text-amber-600 font-black text-[10px] uppercase tracking-widest hover:bg-amber-100 transition-all border-2 border-amber-200"
+                                            >
+                                                ⭐ Manage Pricing
+                                            </button>
                                             <div className="pt-4 border-t border-gray-50">
                                                 <p className="text-[9px] font-black text-gray-400 uppercase mb-3">Grant Privileges</p>
                                                 <form onSubmit={handleAddMod} className="flex gap-2">
@@ -796,6 +904,60 @@ const ThreadDetail = () => {
                                 </div>
                             )}
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* V2.0: Pricing Management Modal */}
+            {showPriceModal && (
+                <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl max-w-md w-full p-8 shadow-2xl">
+                        <h3 className="text-2xl font-black text-gray-800 mb-6">⭐ Thread Pricing</h3>
+                        <form onSubmit={handleUpdatePrice} className="space-y-6">
+                            <div>
+                                <label className="flex items-center gap-3 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={priceData.isPaid}
+                                        onChange={(e) => setPriceData({ ...priceData, isPaid: e.target.checked })}
+                                        className="w-5 h-5 rounded border-gray-300"
+                                    />
+                                    <span className="font-bold text-gray-700">Require stars to access this thread</span>
+                                </label>
+                            </div>
+
+                            {priceData.isPaid && (
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-600 mb-2">Price (stars)</label>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        value={priceData.price}
+                                        onChange={(e) => setPriceData({ ...priceData, price: parseInt(e.target.value) || 0 })}
+                                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-amber-400 focus:outline-none font-bold text-lg"
+                                        placeholder="Enter star amount"
+                                        required={priceData.isPaid}
+                                    />
+                                    <p className="text-xs text-gray-500 mt-2">Users will need to pay this amount to access the thread</p>
+                                </div>
+                            )}
+
+                            <div className="flex gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPriceModal(false)}
+                                    className="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-all"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="flex-1 px-6 py-3 bg-amber-500 text-white rounded-xl font-bold hover:bg-amber-600 transition-all shadow-lg shadow-amber-200"
+                                >
+                                    Save Pricing
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             )}

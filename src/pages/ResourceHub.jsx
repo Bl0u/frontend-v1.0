@@ -25,7 +25,10 @@ const ResourceHub = () => {
         professor: '',
         subject: '',
         company: '',
-        position: ''
+        position: '',
+        // V2.0: Monetization
+        isPaid: false,
+        price: 0
     });
 
     const UNIVERSITIES = [
@@ -95,12 +98,17 @@ const ResourceHub = () => {
 
             formData.append('tags', JSON.stringify(finalTags));
             formData.append('type', createData.category);
+            // V2.0: Monetization
+            formData.append('isPaid', createData.isPaid);
+            if (createData.isPaid) {
+                formData.append('price', createData.price);
+            }
 
             await resourceService.createThread(formData, user.token);
             toast.success('Mission Briefing Synced');
             setShowCreateModal(false);
             setCreateStep(1);
-            setCreateData({ title: '', tags: '', category: 'general', university: '', college: '', professor: '', subject: '', company: '', position: '' });
+            setCreateData({ title: '', tags: '', category: 'general', university: '', college: '', professor: '', subject: '', company: '', position: '', isPaid: false, price: 0 });
             fetchThreads();
         } catch (error) {
             console.error('Thread Creation Error:', error);
@@ -230,6 +238,50 @@ const ResourceHub = () => {
                         />
                     </div>
 
+                    {/* V2.0: Monetization Section */}
+                    <div className="space-y-4 pt-4 border-t border-gray-100">
+                        <label className="text-[10px] font-black text-amber-500 uppercase ml-2">💰 Monetization</label>
+
+                        {/* Paid/Free Toggle */}
+                        <div className="flex items-center gap-4">
+                            <button
+                                type="button"
+                                onClick={() => setCreateData({ ...createData, isPaid: false, price: 0 })}
+                                className={`flex-1 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all ${!createData.isPaid
+                                    ? 'bg-green-100 text-green-700 border-2 border-green-500'
+                                    : 'bg-gray-50 text-gray-400 border border-gray-200'
+                                    }`}
+                            >
+                                🆓 Free
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setCreateData({ ...createData, isPaid: true })}
+                                className={`flex-1 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all ${createData.isPaid
+                                    ? 'bg-amber-100 text-amber-700 border-2 border-amber-500'
+                                    : 'bg-gray-50 text-gray-400 border border-gray-200'
+                                    }`}
+                            >
+                                ⭐ Premium
+                            </button>
+                        </div>
+
+                        {/* Price Input (only if paid) */}
+                        {createData.isPaid && (
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-black text-amber-400 uppercase ml-2">Price in Stars</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    className="w-full bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
+                                    placeholder="Enter star price (e.g., 50)"
+                                    value={createData.price}
+                                    onChange={(e) => setCreateData({ ...createData, price: parseInt(e.target.value) || 0 })}
+                                />
+                            </div>
+                        )}
+                    </div>
+
                     <div className="flex gap-4 pt-4">
                         <button type="button" onClick={() => setCreateStep(1)} className="flex-1 py-4 bg-gray-100 text-gray-400 rounded-2xl font-black text-xs uppercase tracking-widest transition-all hover:bg-gray-200">Back</button>
                         <button type="button" onClick={handleCreateThread} className="flex-1 py-4 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-100 transition-all hover:bg-indigo-700">Sync Mission briefing</button>
@@ -307,7 +359,15 @@ const ResourceHub = () => {
                                             </span>
                                         ))}
                                     </div>
-                                    <h2 className="text-xl font-black text-gray-900 leading-tight group-hover:text-indigo-600 transition-colors mb-4">{thread.title}</h2>
+                                    <div className="flex items-center gap-3">
+                                        <h2 className="text-xl font-black text-gray-900 leading-tight group-hover:text-indigo-600 transition-colors">{thread.title}</h2>
+                                        {/* V2.0: Premium Badge */}
+                                        {thread.isPaid && (
+                                            <span className="flex items-center gap-1 bg-gradient-to-r from-amber-100 to-yellow-100 border border-amber-300 text-amber-700 px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider">
+                                                ⭐ {thread.price}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
                                 <div className="shrink-0 flex items-center gap-6 text-gray-300 text-[10px] font-bold uppercase tracking-widest border-l border-gray-50 pl-6 hidden md:flex">
                                     <div className="text-center">

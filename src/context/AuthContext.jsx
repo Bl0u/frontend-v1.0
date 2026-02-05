@@ -14,6 +14,17 @@ export const AuthProvider = ({ children }) => {
             setUser(JSON.parse(storedUser));
         }
         setLoading(false);
+
+        // Listen for storage events (triggered by other components)
+        const handleStorageChange = () => {
+            const updatedUser = localStorage.getItem('user');
+            if (updatedUser) {
+                setUser(JSON.parse(updatedUser));
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
     }, []);
 
     // Register
