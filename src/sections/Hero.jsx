@@ -9,25 +9,21 @@ export const Hero = () => {
     return (
         <section
             ref={heroRef}
-            className="relative pt-8 pb-20 md:pt-5 md:pb-10 overflow-x-clip"
+            className="relative pt-8 pb-20 md:pt-5 md:pb-10 overflow-hidden"
         >
-            {/* Animated Gradient Background */}
-            <div className="absolute inset-0 -z-10">
-                <div className="absolute inset-0 gradient-animated-hero"
-                    style={{
-                        background: 'linear-gradient(-45deg, #9403FD 0%, #00ADFE 25%, #FF12DC 50%, #FFB912 75%, #9403FD 100%)',
-                    }}
-                />
-                {/* Floating Blob Overlays for depth */}
+            {/* Dynamic Organic Animated Gradient Background */}
+            <div className="absolute inset-0 -z-10 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+                {/* Large flowing gradient blob - Purple/Blue */}
                 <motion.div
-                    className="absolute top-0 -left-40 w-80 h-80 blob-float rounded-full mix-blend-screen opacity-30"
+                    className="absolute -top-20 -left-20 w-[500px] h-[500px] md:w-[700px] md:h-[700px] rounded-full opacity-60"
                     style={{
-                        background: 'radial-gradient(circle, #FF12DC 0%, transparent 70%)',
-                        filter: 'blur(40px)',
+                        background: 'linear-gradient(135deg, rgba(148, 3, 253, 0.4) 0%, rgba(0, 173, 254, 0.3) 100%)',
+                        filter: 'blur(60px)',
                     }}
                     animate={{
-                        x: [0, 100, 0],
-                        y: [0, -100, 0],
+                        x: [0, 50, -30, 0],
+                        y: [0, -40, 30, 0],
+                        scale: [1, 1.1, 0.95, 1],
                     }}
                     transition={{
                         duration: 20,
@@ -35,15 +31,25 @@ export const Hero = () => {
                         repeat: Infinity,
                     }}
                 />
+
+                {/* Medium organic blob - Pink/Purple */}
                 <motion.div
-                    className="absolute -bottom-40 -right-40 w-96 h-96 blob-float rounded-full mix-blend-screen opacity-25"
+                    className="absolute top-0 right-0 w-[400px] h-[600px] md:w-[600px] md:h-[800px] opacity-50"
                     style={{
-                        background: 'radial-gradient(circle, #00ADFE 0%, transparent 70%)',
-                        filter: 'blur(50px)',
+                        background: 'linear-gradient(225deg, rgba(255, 18, 220, 0.35) 0%, rgba(148, 3, 253, 0.25) 100%)',
+                        filter: 'blur(70px)',
+                        borderRadius: '40% 60% 70% 30% / 60% 30% 70% 40%',
                     }}
                     animate={{
-                        x: [0, -150, 0],
-                        y: [0, 150, 0],
+                        x: [0, -60, 40, 0],
+                        y: [0, 50, -30, 0],
+                        rotate: [0, 10, -10, 0],
+                        borderRadius: [
+                            '40% 60% 70% 30% / 60% 30% 70% 40%',
+                            '60% 40% 30% 70% / 40% 70% 30% 60%',
+                            '50% 50% 50% 50% / 50% 50% 50% 50%',
+                            '40% 60% 70% 30% / 60% 30% 70% 40%',
+                        ],
                     }}
                     transition={{
                         duration: 25,
@@ -51,18 +57,73 @@ export const Hero = () => {
                         repeat: Infinity,
                     }}
                 />
+
+                {/* Bottom flowing blob - Blue/Cyan */}
                 <motion.div
-                    className="absolute top-1/2 right-0 w-72 h-72 blob-float rounded-full mix-blend-screen opacity-20"
+                    className="absolute -bottom-32 left-1/4 w-[450px] h-[450px] md:w-[650px] md:h-[650px] opacity-40"
                     style={{
-                        background: 'radial-gradient(circle, #FFB912 0%, transparent 70%)',
-                        filter: 'blur(45px)',
+                        background: 'linear-gradient(45deg, rgba(0, 173, 254, 0.4) 0%, rgba(59, 255, 255, 0.25) 100%)',
+                        filter: 'blur(65px)',
+                        borderRadius: '30% 70% 70% 30% / 30% 30% 70% 70%',
                     }}
                     animate={{
-                        x: [0, -100, 0],
-                        y: [0, 100, 0],
+                        x: [0, 70, -50, 0],
+                        y: [0, -50, 40, 0],
+                        scale: [1, 1.15, 0.9, 1],
+                        borderRadius: [
+                            '30% 70% 70% 30% / 30% 30% 70% 70%',
+                            '70% 30% 30% 70% / 70% 70% 30% 30%',
+                            '50% 50% 50% 50% / 50% 50% 50% 50%',
+                            '30% 70% 70% 30% / 30% 30% 70% 70%',
+                        ],
+                    }}
+                    transition={{
+                        duration: 22,
+                        ease: 'easeInOut',
+                        repeat: Infinity,
+                    }}
+                />
+
+                {/* Accent blob - Orange/Yellow */}
+                <motion.div
+                    className="absolute bottom-20 right-1/4 w-[300px] h-[400px] md:w-[500px] md:h-[600px] opacity-35"
+                    style={{
+                        background: 'linear-gradient(180deg, rgba(255, 185, 18, 0.35) 0%, rgba(255, 140, 0, 0.2) 100%)',
+                        filter: 'blur(75px)',
+                        borderRadius: '60% 40% 30% 70% / 40% 50% 60% 50%',
+                    }}
+                    animate={{
+                        x: [0, -40, 60, 0],
+                        y: [0, 60, -40, 0],
+                        rotate: [0, -15, 15, 0],
+                        borderRadius: [
+                            '60% 40% 30% 70% / 40% 50% 60% 50%',
+                            '30% 60% 70% 40% / 50% 40% 50% 60%',
+                            '70% 30% 40% 60% / 60% 50% 40% 50%',
+                            '60% 40% 30% 70% / 40% 50% 60% 50%',
+                        ],
                     }}
                     transition={{
                         duration: 18,
+                        ease: 'easeInOut',
+                        repeat: Infinity,
+                    }}
+                />
+
+                {/* Small floating accent - Purple */}
+                <motion.div
+                    className="absolute top-1/3 left-1/2 w-[250px] h-[250px] md:w-[350px] md:h-[350px] opacity-30"
+                    style={{
+                        background: 'radial-gradient(circle, rgba(148, 3, 253, 0.4) 0%, transparent 70%)',
+                        filter: 'blur(50px)',
+                    }}
+                    animate={{
+                        x: [0, -80, 80, 0],
+                        y: [0, 80, -80, 0],
+                        scale: [1, 1.2, 0.8, 1],
+                    }}
+                    transition={{
+                        duration: 15,
                         ease: 'easeInOut',
                         repeat: Infinity,
                     }}
