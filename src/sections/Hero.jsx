@@ -23,9 +23,9 @@ export const Hero = () => {
                         filter: 'blur(60px)',
                     }}
                     animate={{
-                        x: [0, 50, -30, 0],
-                        y: [0, -40, 30, 0],
-                        scale: [1, 1.1, 0.95, 1],
+                        x: [0, 150, -100, 0],
+                        y: [0, -120, 80, 0],
+                        scale: [1, 1.2, 0.9, 1],
                     }}
                     transition={{
                         duration: 20,
