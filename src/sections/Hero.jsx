@@ -134,17 +134,17 @@ export const Hero = () => {
                 <div className="md:flex items-center justify-center md:justify-between">
                     <div className="md:w-[478px]">
                         <motion.div
-                            className="inline-flex border border-white/30 px-3 py-1 rounded-lg tracking-tight shadow-sm bg-white/20 backdrop-blur gap-1 items-center mb-5 cursor-pointer hover:bg-white/30 transition-colors"
+                            className="inline-flex border border-[#222]/10 px-3 py-1 rounded-lg tracking-tight shadow-sm bg-white/50 backdrop-blur gap-1 items-center mb-5 cursor-pointer hover:bg-white/70 transition-colors"
                             initial={{ opacity: 0, y: -20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6 }}
                         >
-                            <span className="font-bold text-sm text-white">Version 2.0 is here</span>
-                            <span className="text-sm text-white/90">Explore Resources</span>
-                            <FaArrowRight className="h-3 w-3 text-white" />
+                            <span className="font-bold text-sm text-black">Version 2.0 is here</span>
+                            <span className="text-sm text-black/80">Explore Resources</span>
+                            <FaArrowRight className="h-3 w-3 text-black" />
                         </motion.div>
                         <motion.h1
-                            className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter text-white mt-6 pb-2"
+                            className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text mt-6 pb-2"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.7, delay: 0.1 }}
@@ -152,7 +152,7 @@ export const Hero = () => {
                             Find your perfect project partner
                         </motion.h1>
                         <motion.p
-                            className="text-lg md:text-xl text-white/90 tracking-tight mt-6"
+                            className="text-lg md:text-xl text-[#010D3E] tracking-tight mt-6"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.7, delay: 0.2 }}
@@ -165,10 +165,10 @@ export const Hero = () => {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.7, delay: 0.3 }}
                         >
-                            <Link to="/register" className="bg-white text-[#9403FD] px-6 py-3 rounded-lg font-bold tracking-tight hover:bg-white/90 transition-colors shadow-lg hover:shadow-xl hover:scale-105">
+                            <Link to="/register" className="bg-black text-white px-6 py-3 rounded-lg font-bold tracking-tight hover:bg-black/80 transition-colors shadow-lg hover:shadow-xl hover:scale-105">
                                 Join for free
                             </Link>
-                            <Link to="/partners" className="text-white font-medium tracking-tight flex items-center gap-1 hover:gap-2 transition-all hover:translate-x-1">
+                            <Link to="/partners" className="text-black font-bold tracking-tight flex items-center gap-1 hover:gap-2 transition-all hover:translate-x-1">
                                 Find Partners <FaArrowRight className="h-4 w-4" />
                             </Link>
                         </motion.div>
