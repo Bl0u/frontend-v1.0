@@ -277,6 +277,16 @@ h6 {
     animation: blob-float 7s ease-in-out infinite;
 }
 
+.background-shift {
+    animation: background-shift 25s ease-in-out infinite;
+    background-size: 200% 200%;
+}
+
+.subtle-shift {
+    animation: subtle-shift 15s ease-in-out infinite;
+    background-size: 200% 200%;
+}
+
 /* Hover Effects */
 .hover-lift {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
