@@ -131,6 +131,48 @@ export const Hero = () => {
                         repeat: Infinity,
                     }}
                 />
+
+                {/* Extra flowing blob - Right side */}
+                <motion.div
+                    className="absolute top-1/4 -right-32 w-[450px] h-[450px] opacity-25 pointer-events-none"
+                    style={{
+                        background: 'linear-gradient(135deg, rgba(59, 255, 255, 0.3) 0%, rgba(0, 173, 254, 0.2) 100%)',
+                        filter: 'blur(60px)',
+                        borderRadius: '70% 30% 50% 50% / 30% 30% 70% 70%',
+                    }}
+                    animate={{
+                        x: [0, -100, 50, 0],
+                        y: [0, 80, -60, 0],
+                        rotate: [0, 30, -20, 0],
+                        scale: [1, 1.2, 0.9, 1],
+                    }}
+                    transition={{
+                        duration: 20,
+                        ease: 'easeInOut',
+                        repeat: Infinity,
+                    }}
+                />
+
+                {/* Extra flowing blob - Center bottom */}
+                <motion.div
+                    className="absolute -bottom-40 left-1/3 w-[500px] h-[400px] opacity-20 pointer-events-none"
+                    style={{
+                        background: 'linear-gradient(45deg, rgba(255, 18, 220, 0.3) 0%, rgba(255, 185, 18, 0.2) 100%)',
+                        filter: 'blur(70px)',
+                        borderRadius: '50% 50% 30% 70% / 30% 70% 70% 30%',
+                    }}
+                    animate={{
+                        x: [0, 100, -80, 0],
+                        y: [0, -70, 60, 0],
+                        rotate: [0, -25, 20, 0],
+                        scale: [1, 1.15, 0.85, 1],
+                    }}
+                    transition={{
+                        duration: 23,
+                        ease: 'easeInOut',
+                        repeat: Infinity,
+                    }}
+                />
             </div>
 
             {/* Floating decorative elements like in Home */}
