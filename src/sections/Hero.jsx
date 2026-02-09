@@ -179,8 +179,8 @@ export const Hero = () => {
                 className="absolute top-0 right-0 w-96 h-96 opacity-15 rounded-full blur-3xl"
                 style={{ background: 'linear-gradient(135deg, #9403FD 0%, #00ADFE 100%)' }}
                 animate={{
-                    y: [0, -30, 0],
-                    x: [0, -50, 0],
+                    y: [0, -100, 0],
+                    x: [0, -150, 0],
                 }}
                 transition={{
                     duration: 8,
@@ -192,8 +192,8 @@ export const Hero = () => {
                 className="absolute bottom-0 left-0 w-72 h-72 opacity-20 rounded-full blur-3xl"
                 style={{ background: 'linear-gradient(135deg, #FF12DC 0%, #FFB912 100%)' }}
                 animate={{
-                    y: [0, 40, 0],
-                    x: [0, 40, 0],
+                    y: [0, 120, 0],
+                    x: [0, 100, 0],
                 }}
                 transition={{
                     duration: 10,
