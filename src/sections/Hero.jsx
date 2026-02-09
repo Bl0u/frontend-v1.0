@@ -12,10 +12,21 @@ export const Hero = () => {
             className="relative min-h-screen flex flex-col justify-center py-20 md:py-24 overflow-hidden"
         >
             {/* Dynamic Organic Animated Gradient Background */}
-            <div className="absolute inset-0 -z-10 subtle-shift" style={{
-                background: 'linear-gradient(-45deg, #dbeafe 0%, #f3e8ff 25%, #fce7f3 50%, #dbeafe 75%, #f3e8ff 100%)',
-                backgroundSize: '400% 400%',
-            }}>
+            <motion.div
+                className="absolute inset-0 -z-10"
+                style={{
+                    background: 'linear-gradient(-45deg, #dbeafe 0%, #f3e8ff 20%, #fce7f3 40%, #e9d5ff 60%, #f3e8ff 80%, #dbeafe 100%)',
+                    backgroundSize: '200% 200%',
+                }}
+                animate={{
+                    backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                }}
+                transition={{
+                    duration: 15,
+                    ease: 'easeInOut',
+                    repeat: Infinity,
+                }}
+            >
                 {/* Large flowing gradient blob - Purple/Blue */}
                 <motion.div
                     className="absolute -top-20 -left-20 w-[500px] h-[500px] md:w-[700px] md:h-[700px] rounded-full opacity-60"
@@ -173,7 +184,7 @@ export const Hero = () => {
                         repeat: Infinity,
                     }}
                 />
-            </div>
+            </motion.div>
 
             {/* Floating decorative elements like in Home */}
             <motion.div
