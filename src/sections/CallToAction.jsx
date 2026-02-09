@@ -13,17 +13,25 @@ export const CallToAction = () => {
     const translateY = useTransform(scrollYProgress, [0, 1], [150, -150]);
 
     return (
-        <section ref={sectionRef} className="relative bg-gradient-to-b from-[#FFFFFF] via-[#E8EDFF] to-[#D2DCFF] py-24 overflow-x-clip">
-            {/* Subtle animated gradient blobs */}
+        <section ref={sectionRef} className="relative bg-gradient-to-b from-[#FFFFFF] via-[#F0E8FF] to-[#E8D2FF] py-24 overflow-hidden">
+            {/* Dynamic animated gradient blobs */}
             <motion.div
-                className="absolute top-0 -left-40 w-80 h-80 rounded-full mix-blend-screen opacity-15"
+                className="absolute -top-40 -left-20 w-[500px] h-[500px] opacity-40 pointer-events-none"
                 style={{
-                    background: 'radial-gradient(circle, #9403FD 0%, transparent 70%)',
-                    filter: 'blur(40px)',
+                    background: 'linear-gradient(135deg, rgba(148, 3, 253, 0.35) 0%, rgba(255, 18, 220, 0.3) 100%)',
+                    filter: 'blur(65px)',
+                    borderRadius: '40% 60% 70% 30% / 60% 30% 70% 40%',
                 }}
                 animate={{
-                    x: [0, 80, 0],
-                    y: [0, -80, 0],
+                    x: [0, 70, -40, 0],
+                    y: [0, -50, 40, 0],
+                    scale: [1, 1.1, 0.95, 1],
+                    borderRadius: [
+                        '40% 60% 70% 30% / 60% 30% 70% 40%',
+                        '60% 40% 30% 70% / 40% 70% 30% 60%',
+                        '50% 50% 50% 50% / 50% 50% 50% 50%',
+                        '40% 60% 70% 30% / 60% 30% 70% 40%',
+                    ],
                 }}
                 transition={{
                     duration: 20,
@@ -32,17 +40,25 @@ export const CallToAction = () => {
                 }}
             />
             <motion.div
-                className="absolute bottom-0 -right-40 w-80 h-80 rounded-full mix-blend-screen opacity-15"
+                className="absolute bottom-0 right-0 w-[600px] h-[600px] opacity-35 pointer-events-none"
                 style={{
-                    background: 'radial-gradient(circle, #00ADFE 0%, transparent 70%)',
-                    filter: 'blur(40px)',
+                    background: 'linear-gradient(225deg, rgba(0, 173, 254, 0.35) 0%, rgba(255, 185, 18, 0.25) 100%)',
+                    filter: 'blur(70px)',
+                    borderRadius: '30% 70% 70% 30% / 30% 30% 70% 70%',
                 }}
                 animate={{
-                    x: [0, -80, 0],
-                    y: [0, 80, 0],
+                    x: [0, -80, 50, 0],
+                    y: [0, 70, -40, 0],
+                    rotate: [0, 20, -15, 0],
+                    borderRadius: [
+                        '30% 70% 70% 30% / 30% 30% 70% 70%',
+                        '70% 30% 30% 70% / 70% 70% 30% 30%',
+                        '50% 50% 50% 50% / 50% 50% 50% 50%',
+                        '30% 70% 70% 30% / 30% 30% 70% 70%',
+                    ],
                 }}
                 transition={{
-                    duration: 22,
+                    duration: 25,
                     ease: 'easeInOut',
                     repeat: Infinity,
                 }}
