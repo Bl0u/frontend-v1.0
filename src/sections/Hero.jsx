@@ -9,7 +9,7 @@ export const Hero = () => {
     return (
         <section
             ref={heroRef}
-            className="relative pt-8 pb-20 md:pt-5 md:pb-10 overflow-hidden"
+            className="relative min-h-screen flex flex-col justify-center py-20 md:py-24 overflow-hidden"
         >
             {/* Dynamic Organic Animated Gradient Background */}
             <div className="absolute inset-0 -z-10 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
