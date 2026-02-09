@@ -35,12 +35,18 @@ const PlanWrapper = () => {
 
 const MainLayout = ({ children }) => {
   const location = useLocation();
-  const isLandingPage = location.pathname === '/';
+  const isLandingPage = location.pathname === '/' || location.pathname === '/landing-page';
 
   return (
     <div className="min-h-screen text-gray-900">
       {!isLandingPage && <Header />}
-      {children}
+      {isLandingPage ? (
+        children
+      ) : (
+        <div className="container mx-auto px-4 pb-12">
+          {children}
+        </div>
+      )}
     </div>
   );
 };
@@ -50,41 +56,35 @@ function App() {
     <AuthProvider>
       <Router>
         <MainLayout>
-          {/* Container is removed for Landing Page to allow full width */}
           <Routes>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/landing-page" element={<LandingPage />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/social-media" element={<SocialMediaEditor />} />
+            <Route path="/resources" element={<ResourceHub />} />
+            <Route path="/resources/thread/:id" element={<ThreadDetail />} />
+            <Route path="/partners" element={<Partners />} />
+            <Route path="/mentors" element={<Mentors />} />
+            <Route path="/mentorship-request" element={<MentorshipPitchHub />} />
+            <Route path="/request-mentorship" element={<RequestMentorshipForm />} />
+            <Route path="/request-mentorship/:mentorId" element={<RequestMentorshipForm />} />
+            <Route path="/mentorship-requests" element={<MentorshipRequests />} />
+            <Route path="/u/:username" element={<PublicProfile />} />
+            <Route path="/requests" element={<DashboardRequests />} />
+            <Route path="/chat" element={<Chat />} />
+            <Route path="/top-up" element={<TopUp />} /> {/* V2.0: Top Up Page */}
+            <Route path="/plan/:id" element={<PlanWrapper />} />
           </Routes>
-
-          {/* Apply container only for other routes if needed, or manage per page */}
-          <div className="container mx-auto px-4 pb-12">
-            <Routes>
-              {/* Note: LandingPage is maintained at / for structure, but Home is moved to /home or kept as fallback */}
-              <Route path="/home" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/social-media" element={<SocialMediaEditor />} />
-              <Route path="/resources" element={<ResourceHub />} />
-              <Route path="/resources/thread/:id" element={<ThreadDetail />} />
-              <Route path="/partners" element={<Partners />} />
-              <Route path="/mentors" element={<Mentors />} />
-              <Route path="/mentorship-request" element={<MentorshipPitchHub />} />
-              <Route path="/request-mentorship" element={<RequestMentorshipForm />} />
-              <Route path="/request-mentorship/:mentorId" element={<RequestMentorshipForm />} />
-              <Route path="/mentorship-requests" element={<MentorshipRequests />} />
-              <Route path="/u/:username" element={<PublicProfile />} />
-              <Route path="/requests" element={<DashboardRequests />} />
-              <Route path="/chat" element={<Chat />} />
-              <Route path="/top-up" element={<TopUp />} /> {/* V2.0: Top Up Page */}
-              <Route path="/plan/:id" element={<PlanWrapper />} />
-            </Routes>
-          </div>
         </MainLayout>
         <ToastContainer position="bottom-right" />
       </Router>
     </AuthProvider>
   );
 }
+
 
 export default App;
