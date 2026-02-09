@@ -1,7 +1,7 @@
-
 import { FaCheck, FaStar } from 'react-icons/fa';
 import clsx from 'clsx';
 import { motion } from 'framer-motion';
+import { useRef } from 'react';
 
 export const Pricing = () => {
     const pricingTiers = [
