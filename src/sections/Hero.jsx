@@ -130,8 +130,8 @@ export const Hero = () => {
                 />
             </div>
 
-            <div className="container mx-auto px-4 md:px-6 relative z-10">
-                <div className="md:flex items-center justify-center md:justify-between">
+            <div className="container mx-auto px-4 md:px-6 relative z-10 flex flex-col items-center md:items-start justify-center">
+                <div className="md:flex items-center justify-center md:justify-between w-full">
                     <div className="md:w-[478px]">
                         <motion.div
                             className="inline-flex border border-[#222]/10 px-3 py-1 rounded-lg tracking-tight shadow-sm bg-white/50 backdrop-blur gap-1 items-center mb-5 cursor-pointer hover:bg-white/70 transition-colors"
