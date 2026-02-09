@@ -1,4 +1,3 @@
-
 import { FaArrowRight } from 'react-icons/fa';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
@@ -14,7 +13,40 @@ export const CallToAction = () => {
     const translateY = useTransform(scrollYProgress, [0, 1], [150, -150]);
 
     return (
-        <section ref={sectionRef} className="bg-gradient-to-b from-[#FFFFFF] to-[#D2DCFF] py-24 overflow-x-clip">
+        <section ref={sectionRef} className="relative bg-gradient-to-b from-[#FFFFFF] via-[#E8EDFF] to-[#D2DCFF] py-24 overflow-x-clip">
+            {/* Subtle animated gradient blobs */}
+            <motion.div
+                className="absolute top-0 -left-40 w-80 h-80 rounded-full mix-blend-screen opacity-15"
+                style={{
+                    background: 'radial-gradient(circle, #9403FD 0%, transparent 70%)',
+                    filter: 'blur(40px)',
+                }}
+                animate={{
+                    x: [0, 80, 0],
+                    y: [0, -80, 0],
+                }}
+                transition={{
+                    duration: 20,
+                    ease: 'easeInOut',
+                    repeat: Infinity,
+                }}
+            />
+            <motion.div
+                className="absolute bottom-0 -right-40 w-80 h-80 rounded-full mix-blend-screen opacity-15"
+                style={{
+                    background: 'radial-gradient(circle, #00ADFE 0%, transparent 70%)',
+                    filter: 'blur(40px)',
+                }}
+                animate={{
+                    x: [0, -80, 0],
+                    y: [0, 80, 0],
+                }}
+                transition={{
+                    duration: 22,
+                    ease: 'easeInOut',
+                    repeat: Infinity,
+                }}
+            />
             <div className="container mx-auto px-4 md:px-6">
 
                 <div className="max-w-[540px] mx-auto relative">
