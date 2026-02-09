@@ -78,13 +78,23 @@ export const ProductShowcase = () => {
 
                         <div className="relative z-10 flex flex-col gap-8">
                             {features.map((feature, index) => (
-                                <div key={index} className="bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-[0_7px_14px_#EAEAEA] border border-white/50 hover:border-black/5 transition-all duration-300 group hover:-translate-y-1">
-                                    <div className={`w-14 h-14 rounded-2xl ${feature.color} flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                                <motion.div
+                                    key={index}
+                                    className="bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-[0_7px_14px_#EAEAEA] border border-white/50 hover:border-black/5 transition-all duration-300 group hover:-translate-y-1"
+                                    initial={{ opacity: 0, y: 30 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.6, delay: index * 0.15 }}
+                                    viewport={{ once: true, margin: "-100px" }}
+                                >
+                                    <motion.div
+                                        className={`w-14 h-14 rounded-2xl ${feature.color} flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300`}
+                                        whileHover={{ scale: 1.15, rotate: 10 }}
+                                    >
                                         {feature.icon}
-                                    </div>
+                                    </motion.div>
                                     <h3 className="text-2xl font-bold mb-3">{feature.title}</h3>
                                     <p className="text-[#010D3E]/70 leading-relaxed text-lg">{feature.description}</p>
-                                </div>
+                                </motion.div>
                             ))}
                         </div>
                     </div>
