@@ -1,10 +1,15 @@
 @import "tailwindcss";
 
 /* Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&display=swap');
 
-/* Cherry Blossom Color Palette - CSS Variables for Tailwind v4 */
 @theme {
+    /* SaaS Landing Page Theme */
+    --color-saas-background: #EAEEFE;
+    --color-saas-focus: #010D3E;
+    --font-family-dm-sans: 'DM Sans', sans-serif;
+
+    /* Cherry Blossom Color Palette - CSS Variables for Tailwind v4 */
     --color-night-bordeaux: #590d22;
     --color-dark-amaranth: #800f2f;
     --color-cherry-rose: #a4133c;

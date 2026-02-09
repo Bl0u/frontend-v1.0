@@ -1,9 +1,11 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from './context/AuthContext';
 import Header from './components/Header';
 import Home from './pages/Home';
+import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
@@ -31,15 +33,33 @@ const PlanWrapper = () => {
   return user?.role === 'mentor' ? <PlanManager /> : <PlanViewer />;
 };
 
+const MainLayout = ({ children }) => {
+  const location = useLocation();
+  const isLandingPage = location.pathname === '/';
+
+  return (
+    <div className="min-h-screen text-gray-900">
+      {!isLandingPage && <Header />}
+      {children}
+    </div>
+  );
+};
+
 function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="min-h-screen text-gray-900">
-          <Header />
+        <MainLayout>
+          {/* Container is removed for Landing Page to allow full width */}
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+          </Routes>
+
+          {/* Apply container only for other routes if needed, or manage per page */}
           <div className="container mx-auto px-4 pb-12">
             <Routes>
-              <Route path="/" element={<Home />} />
+              {/* Note: LandingPage is maintained at / for structure, but Home is moved to /home or kept as fallback */}
+              <Route path="/home" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/profile" element={<Profile />} />
@@ -60,7 +80,7 @@ function App() {
               <Route path="/plan/:id" element={<PlanWrapper />} />
             </Routes>
           </div>
-        </div>
+        </MainLayout>
         <ToastContainer position="bottom-right" />
       </Router>
     </AuthProvider>
