@@ -89,14 +89,24 @@ export const CallToAction = () => {
                     />
                 </div>
 
-                <div className="flex gap-2 mt-10 justify-center">
-                    <Link to="/register" className="bg-black text-white px-4 py-2 rounded-lg font-medium tracking-tight hover:bg-black/80 transition-colors">
-                        Sign up for free
-                    </Link>
-                    <Link to="/resources" className="text-black font-medium tracking-tight flex items-center gap-1 hover:gap-2 transition-all">
-                        Browse Resources <FaArrowRight className="h-4 w-4" />
-                    </Link>
-                </div>
+                <motion.div
+                    className="flex gap-2 mt-10 justify-center"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.7, delay: 0.2 }}
+                    viewport={{ once: true }}
+                >
+                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                        <Link to="/register" className="bg-black text-white px-6 py-3 rounded-lg font-bold tracking-tight hover:bg-black/80 transition-colors shadow-lg hover:shadow-xl inline-block">
+                            Sign up for free
+                        </Link>
+                    </motion.div>
+                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                        <Link to="/resources" className="text-black font-bold tracking-tight flex items-center gap-1 hover:gap-2 transition-all px-6 py-3 rounded-lg hover:bg-black/5">
+                            Browse Resources <FaArrowRight className="h-4 w-4" />
+                        </Link>
+                    </motion.div>
+                </motion.div>
 
             </div>
         </section>
