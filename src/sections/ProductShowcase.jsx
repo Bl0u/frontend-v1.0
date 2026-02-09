@@ -33,7 +33,56 @@ export const ProductShowcase = () => {
     ];
 
     return (
-        <section ref={sectionRef} className="relative bg-gradient-to-b from-[#FFFFFF] via-[#E8EDFF] to-[#D2DCFF] py-24 overflow-x-clip">
+        <section ref={sectionRef} className="relative bg-gradient-to-b from-[#FFFFFF] via-[#E8EDFF] to-[#D2DCFF] py-24 overflow-hidden">
+            {/* Dynamic Animated Gradient Blobs */}
+            <motion.div
+                className="absolute -top-40 -left-40 w-[500px] h-[500px] opacity-40 pointer-events-none"
+                style={{
+                    background: 'linear-gradient(135deg, rgba(0, 173, 254, 0.35) 0%, rgba(148, 3, 253, 0.25) 100%)',
+                    filter: 'blur(60px)',
+                    borderRadius: '40% 60% 70% 30% / 60% 30% 70% 40%',
+                }}
+                animate={{
+                    x: [0, 60, -40, 0],
+                    y: [0, -50, 40, 0],
+                    rotate: [0, 15, -10, 0],
+                    borderRadius: [
+                        '40% 60% 70% 30% / 60% 30% 70% 40%',
+                        '60% 40% 30% 70% / 40% 70% 30% 60%',
+                        '50% 50% 50% 50% / 50% 50% 50% 50%',
+                        '40% 60% 70% 30% / 60% 30% 70% 40%',
+                    ],
+                }}
+                transition={{
+                    duration: 20,
+                    ease: 'easeInOut',
+                    repeat: Infinity,
+                }}
+            />
+            <motion.div
+                className="absolute bottom-0 right-0 w-[600px] h-[500px] opacity-35 pointer-events-none"
+                style={{
+                    background: 'linear-gradient(225deg, rgba(255, 185, 18, 0.3) 0%, rgba(255, 18, 220, 0.2) 100%)',
+                    filter: 'blur(70px)',
+                    borderRadius: '30% 70% 70% 30% / 30% 30% 70% 70%',
+                }}
+                animate={{
+                    x: [0, -70, 50, 0],
+                    y: [0, 60, -40, 0],
+                    scale: [1, 1.1, 0.95, 1],
+                    borderRadius: [
+                        '30% 70% 70% 30% / 30% 30% 70% 70%',
+                        '70% 30% 30% 70% / 70% 70% 30% 30%',
+                        '50% 50% 50% 50% / 50% 50% 50% 50%',
+                        '30% 70% 70% 30% / 30% 30% 70% 70%',
+                    ],
+                }}
+                transition={{
+                    duration: 25,
+                    ease: 'easeInOut',
+                    repeat: Infinity,
+                }}
+            />
             <div className="container mx-auto px-4 md:px-6">
 
                 <div className="grid md:grid-cols-2 gap-12 items-start relative">
