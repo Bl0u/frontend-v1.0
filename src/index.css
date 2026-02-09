@@ -232,6 +232,15 @@ h6 {
     animation: gradient-shift 8s ease infinite;
 }
 
+.gradient-animated-hero {
+    background-size: 400% 400%;
+    animation: animated-gradient 8s ease infinite;
+}
+
+.blob-float {
+    animation: blob-float 7s ease-in-out infinite;
+}
+
 /* Hover Effects */
 .hover-lift {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
