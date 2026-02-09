@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import { FaUserFriends, FaChalkboardTeacher, FaLayerGroup } from 'react-icons/fa';
 
 export const ProductShowcase = () => {
