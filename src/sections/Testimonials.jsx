@@ -1,6 +1,5 @@
-
 import { motion } from 'framer-motion';
-import { Fragment } from 'react';
+import { Fragment, useRef } from 'react';
 
 const testimonials = [
     {
