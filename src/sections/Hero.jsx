@@ -173,24 +173,6 @@ export const Hero = () => {
                             </Link>
                         </motion.div>
                     </div>
-
-                    {/* Decorative Gradient Circle on Right Side */}
-                    <motion.div
-                        className="hidden md:block absolute -right-40 top-1/2 -translate-y-1/2 w-96 h-96 rounded-full mix-blend-screen opacity-40"
-                        style={{
-                            background: 'radial-gradient(circle, rgba(255, 185, 18, 0.4) 0%, rgba(148, 3, 253, 0.2) 50%, transparent 100%)',
-                            filter: 'blur(60px)',
-                        }}
-                        animate={{
-                            scale: [1, 1.2, 1],
-                            x: [0, 50, 0],
-                        }}
-                        transition={{
-                            duration: 8,
-                            ease: 'easeInOut',
-                            repeat: Infinity,
-                        }}
-                    />
                 </div>
             </div>
         </section>
