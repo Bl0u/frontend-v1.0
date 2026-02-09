@@ -12,7 +12,10 @@ export const Hero = () => {
             className="relative min-h-screen flex flex-col justify-center py-20 md:py-24 overflow-hidden"
         >
             {/* Dynamic Organic Animated Gradient Background */}
-            <div className="absolute inset-0 -z-10 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+            <div className="absolute inset-0 -z-10 subtle-shift" style={{
+                background: 'linear-gradient(-45deg, #dbeafe 0%, #f3e8ff 25%, #fce7f3 50%, #dbeafe 75%, #f3e8ff 100%)',
+                backgroundSize: '400% 400%',
+            }}>
                 {/* Large flowing gradient blob - Purple/Blue */}
                 <motion.div
                     className="absolute -top-20 -left-20 w-[500px] h-[500px] md:w-[700px] md:h-[700px] rounded-full opacity-60"
