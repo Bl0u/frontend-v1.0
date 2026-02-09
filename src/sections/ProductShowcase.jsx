@@ -1,4 +1,3 @@
-
 import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { FaUserFriends, FaChalkboardTeacher, FaLayerGroup } from 'react-icons/fa';
@@ -34,7 +33,7 @@ export const ProductShowcase = () => {
     ];
 
     return (
-        <section ref={sectionRef} className="bg-gradient-to-b from-[#FFFFFF] to-[#D2DCFF] py-24 overflow-x-clip">
+        <section ref={sectionRef} className="relative bg-gradient-to-b from-[#FFFFFF] via-[#E8EDFF] to-[#D2DCFF] py-24 overflow-x-clip">
             <div className="container mx-auto px-4 md:px-6">
 
                 <div className="grid md:grid-cols-2 gap-12 items-start relative">
