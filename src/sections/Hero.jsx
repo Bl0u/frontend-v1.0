@@ -120,9 +120,9 @@ export const Hero = () => {
                         filter: 'blur(50px)',
                     }}
                     animate={{
-                        x: [0, -80, 80, 0],
-                        y: [0, 80, -80, 0],
-                        scale: [1, 1.2, 0.8, 1],
+                        x: [0, -160, 160, 0],
+                        y: [0, 160, -160, 0],
+                        scale: [1, 1.3, 0.7, 1],
                     }}
                     transition={{
                         duration: 15,
