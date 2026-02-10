@@ -1,6 +1,5 @@
-
 import { motion } from 'framer-motion';
-import { Fragment } from 'react';
+import { Fragment, useRef } from 'react';
 
 const testimonials = [
     {
@@ -72,14 +71,52 @@ const TestimonialsColumn = ({ className, testimonials, duration }) => (
 );
 
 export const Testimonials = () => {
+    const testimonialsRef = useRef(null);
     // Columns distribution for responsive layout
     const firstColumn = testimonials.slice(0, 3);
     const secondColumn = testimonials.slice(3, 6);
     const thirdColumn = testimonials.slice(0, 3); // Reusing for 3rd col demo
 
     return (
-        <section className="bg-white py-0 md:py-10">
-            <div className="container mx-auto px-4 md:px-6">
+        <section ref={testimonialsRef} className="relative bg-gradient-to-b from-white via-blue-50 to-white py-0 md:py-10 overflow-hidden">
+            {/* Subtle animated gradient blobs */}
+            <motion.div
+                className="absolute -top-20 left-1/3 w-[400px] h-[400px] opacity-25 pointer-events-none"
+                style={{
+                    background: 'linear-gradient(135deg, rgba(0, 173, 254, 0.25) 0%, rgba(148, 3, 253, 0.15) 100%)',
+                    filter: 'blur(60px)',
+                    borderRadius: '40% 60% 70% 30% / 60% 30% 70% 40%',
+                }}
+                animate={{
+                    x: [0, 50, -30, 0],
+                    y: [0, -40, 30, 0],
+                    rotate: [0, 10, -10, 0],
+                }}
+                transition={{
+                    duration: 20,
+                    ease: 'easeInOut',
+                    repeat: Infinity,
+                }}
+            />
+            <motion.div
+                className="absolute bottom-0 -right-32 w-[500px] h-[500px] opacity-20 pointer-events-none"
+                style={{
+                    background: 'linear-gradient(225deg, rgba(255, 18, 220, 0.2) 0%, rgba(255, 185, 18, 0.15) 100%)',
+                    filter: 'blur(65px)',
+                    borderRadius: '30% 70% 70% 30% / 30% 30% 70% 70%',
+                }}
+                animate={{
+                    x: [0, -60, 40, 0],
+                    y: [0, 50, -40, 0],
+                    scale: [1, 1.1, 0.95, 1],
+                }}
+                transition={{
+                    duration: 25,
+                    ease: 'easeInOut',
+                    repeat: Infinity,
+                }}
+            />
+            <div className="container mx-auto px-4 md:px-6 relative z-10">
                 <div className="flex justify-center">
                     <div className="inline-flex border border-[#222]/10 px-3 py-1 rounded-lg tracking-tight shadow-sm bg-white/30 backdrop-blur gap-1 mb-5">
                         <span className="font-bold text-sm">Testimonials</span>

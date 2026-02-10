@@ -1,7 +1,7 @@
-
 import { FaCheck, FaStar } from 'react-icons/fa';
 import clsx from 'clsx';
 import { motion } from 'framer-motion';
+import { useRef } from 'react';
 
 export const Pricing = () => {
     const pricingTiers = [
@@ -48,9 +48,54 @@ export const Pricing = () => {
         },
     ];
 
+    const pricingRef = useRef(null);
+
     return (
-        <section className="py-24 bg-white">
-            <div className="container mx-auto px-4 md:px-6">
+        <section ref={pricingRef} className="relative py-24 bg-gradient-to-b from-white via-purple-50 to-white overflow-hidden">
+            {/* Dynamic Animated Gradient Blobs */}
+            <motion.div
+                className="absolute -top-20 left-1/4 w-[400px] h-[500px] opacity-35 pointer-events-none"
+                style={{
+                    background: 'linear-gradient(135deg, rgba(148, 3, 253, 0.3) 0%, rgba(255, 185, 18, 0.25) 100%)',
+                    filter: 'blur(65px)',
+                    borderRadius: '60% 40% 30% 70% / 40% 50% 60% 50%',
+                }}
+                animate={{
+                    x: [0, 80, -50, 0],
+                    y: [0, -60, 40, 0],
+                    rotate: [0, -20, 15, 0],
+                    borderRadius: [
+                        '60% 40% 30% 70% / 40% 50% 60% 50%',
+                        '30% 60% 70% 40% / 50% 40% 50% 60%',
+                        '70% 30% 40% 60% / 60% 50% 40% 50%',
+                        '60% 40% 30% 70% / 40% 50% 60% 50%',
+                    ],
+                }}
+                transition={{
+                    duration: 22,
+                    ease: 'easeInOut',
+                    repeat: Infinity,
+                }}
+            />
+            <motion.div
+                className="absolute bottom-0 -right-32 w-[500px] h-[600px] opacity-30 pointer-events-none"
+                style={{
+                    background: 'linear-gradient(225deg, rgba(0, 173, 254, 0.3) 0%, rgba(59, 255, 255, 0.2) 100%)',
+                    filter: 'blur(70px)',
+                    borderRadius: '30% 70% 70% 30% / 30% 30% 70% 70%',
+                }}
+                animate={{
+                    x: [0, -60, 70, 0],
+                    y: [0, 60, -50, 0],
+                    scale: [1, 1.15, 0.9, 1],
+                }}
+                transition={{
+                    duration: 25,
+                    ease: 'easeInOut',
+                    repeat: Infinity,
+                }}
+            />
+            <div className="container mx-auto px-4 md:px-6 relative z-10">
                 <div className="max-w-[540px] mx-auto">
                     <h2 className="text-center text-3xl md:text-[54px] md:leading-[60px] font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text">
                         Unlock more with Stars

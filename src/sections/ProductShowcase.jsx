@@ -1,6 +1,5 @@
-
 import { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import { FaUserFriends, FaChalkboardTeacher, FaLayerGroup } from 'react-icons/fa';
 
 export const ProductShowcase = () => {
@@ -34,8 +33,57 @@ export const ProductShowcase = () => {
     ];
 
     return (
-        <section ref={sectionRef} className="bg-gradient-to-b from-[#FFFFFF] to-[#D2DCFF] py-24 overflow-x-clip">
-            <div className="container mx-auto px-4 md:px-6">
+        <section ref={sectionRef} className="relative bg-gradient-to-b from-[#FFFFFF] via-[#E8EDFF] to-[#D2DCFF] py-24 overflow-hidden">
+            {/* Dynamic Animated Gradient Blobs */}
+            <motion.div
+                className="absolute -top-40 -left-40 w-[500px] h-[500px] opacity-40 pointer-events-none"
+                style={{
+                    background: 'linear-gradient(135deg, rgba(0, 173, 254, 0.35) 0%, rgba(148, 3, 253, 0.25) 100%)',
+                    filter: 'blur(60px)',
+                    borderRadius: '40% 60% 70% 30% / 60% 30% 70% 40%',
+                }}
+                animate={{
+                    x: [0, 60, -40, 0],
+                    y: [0, -50, 40, 0],
+                    rotate: [0, 15, -10, 0],
+                    borderRadius: [
+                        '40% 60% 70% 30% / 60% 30% 70% 40%',
+                        '60% 40% 30% 70% / 40% 70% 30% 60%',
+                        '50% 50% 50% 50% / 50% 50% 50% 50%',
+                        '40% 60% 70% 30% / 60% 30% 70% 40%',
+                    ],
+                }}
+                transition={{
+                    duration: 20,
+                    ease: 'easeInOut',
+                    repeat: Infinity,
+                }}
+            />
+            <motion.div
+                className="absolute bottom-0 right-0 w-[600px] h-[500px] opacity-35 pointer-events-none"
+                style={{
+                    background: 'linear-gradient(225deg, rgba(255, 185, 18, 0.3) 0%, rgba(255, 18, 220, 0.2) 100%)',
+                    filter: 'blur(70px)',
+                    borderRadius: '30% 70% 70% 30% / 30% 30% 70% 70%',
+                }}
+                animate={{
+                    x: [0, -70, 50, 0],
+                    y: [0, 60, -40, 0],
+                    scale: [1, 1.1, 0.95, 1],
+                    borderRadius: [
+                        '30% 70% 70% 30% / 30% 30% 70% 70%',
+                        '70% 30% 30% 70% / 70% 70% 30% 30%',
+                        '50% 50% 50% 50% / 50% 50% 50% 50%',
+                        '30% 70% 70% 30% / 30% 30% 70% 70%',
+                    ],
+                }}
+                transition={{
+                    duration: 25,
+                    ease: 'easeInOut',
+                    repeat: Infinity,
+                }}
+            />
+            <div className="container mx-auto px-4 md:px-6 relative z-10">
 
                 <div className="grid md:grid-cols-2 gap-12 items-start relative">
 
@@ -79,13 +127,23 @@ export const ProductShowcase = () => {
 
                         <div className="relative z-10 flex flex-col gap-8">
                             {features.map((feature, index) => (
-                                <div key={index} className="bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-[0_7px_14px_#EAEAEA] border border-white/50 hover:border-black/5 transition-all duration-300 group hover:-translate-y-1">
-                                    <div className={`w-14 h-14 rounded-2xl ${feature.color} flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                                <motion.div
+                                    key={index}
+                                    className="bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-[0_7px_14px_#EAEAEA] border border-white/50 hover:border-black/5 transition-all duration-300 group hover:-translate-y-1"
+                                    initial={{ opacity: 0, y: 30 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.6, delay: index * 0.15 }}
+                                    viewport={{ once: true, margin: "-100px" }}
+                                >
+                                    <motion.div
+                                        className={`w-14 h-14 rounded-2xl ${feature.color} flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300`}
+                                        whileHover={{ scale: 1.15, rotate: 10 }}
+                                    >
                                         {feature.icon}
-                                    </div>
+                                    </motion.div>
                                     <h3 className="text-2xl font-bold mb-3">{feature.title}</h3>
                                     <p className="text-[#010D3E]/70 leading-relaxed text-lg">{feature.description}</p>
-                                </div>
+                                </motion.div>
                             ))}
                         </div>
                     </div>

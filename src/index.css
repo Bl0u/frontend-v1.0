@@ -89,6 +89,86 @@
     }
 }
 
+@keyframes animated-gradient {
+    0% {
+        background-position: 0% 50%;
+        background-size: 400% 400%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+        background-size: 400% 400%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+        background-size: 400% 400%;
+    }
+}
+
+@keyframes blob-float {
+    0% {
+        transform: translate(0px, 0px) scale(1);
+        opacity: 0.7;
+    }
+
+    25% {
+        transform: translate(30px, -50px) scale(1.1);
+        opacity: 0.8;
+    }
+
+    50% {
+        transform: translate(0px, -20px) scale(1);
+        opacity: 0.7;
+    }
+
+    75% {
+        transform: translate(-40px, -30px) scale(0.9);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: translate(0px, 0px) scale(1);
+        opacity: 0.7;
+    }
+}
+
+@keyframes background-shift {
+    0% {
+        background-position: 0% 0%;
+    }
+
+    25% {
+        background-position: 100% 50%;
+    }
+
+    50% {
+        background-position: 50% 100%;
+    }
+
+    75% {
+        background-position: 0% 50%;
+    }
+
+    100% {
+        background-position: 0% 0%;
+    }
+}
+
+@keyframes subtle-shift {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
 @keyframes glow-pulse {
 
     0%,
@@ -188,6 +268,25 @@ h6 {
     animation: gradient-shift 8s ease infinite;
 }
 
+.gradient-animated-hero {
+    background-size: 400% 400%;
+    animation: animated-gradient 8s ease infinite;
+}
+
+.blob-float {
+    animation: blob-float 7s ease-in-out infinite;
+}
+
+.background-shift {
+    animation: background-shift 25s ease-in-out infinite;
+    background-size: 200% 200%;
+}
+
+.subtle-shift {
+    animation: subtle-shift 15s ease-in-out infinite;
+    background-size: 200% 200%;
+}
+
 /* Hover Effects */
 .hover-lift {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -209,5 +308,17 @@ h6 {
 
     .hover-lift:hover {
         transform: none;
+    }
+
+    /* Disable animated gradient blobs for accessibility */
+    [class*="animate"],
+    .will-change-transform {
+        animation: none !important;
+        transition: none !important;
+    }
+
+    /* Disable Framer Motion animations */
+    * {
+        animation: none !important;
     }
 }

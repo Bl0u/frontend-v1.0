@@ -1,4 +1,3 @@
-
 import { FaArrowRight } from 'react-icons/fa';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
@@ -14,16 +13,77 @@ export const CallToAction = () => {
     const translateY = useTransform(scrollYProgress, [0, 1], [150, -150]);
 
     return (
-        <section ref={sectionRef} className="bg-gradient-to-b from-[#FFFFFF] to-[#D2DCFF] py-24 overflow-x-clip">
-            <div className="container mx-auto px-4 md:px-6">
+        <section ref={sectionRef} className="relative bg-gradient-to-b from-[#FFFFFF] via-[#F0E8FF] to-[#E8D2FF] py-24 overflow-hidden">
+            {/* Dynamic animated gradient blobs */}
+            <motion.div
+                className="absolute -top-40 -left-20 w-[500px] h-[500px] opacity-40 pointer-events-none"
+                style={{
+                    background: 'linear-gradient(135deg, rgba(148, 3, 253, 0.35) 0%, rgba(255, 18, 220, 0.3) 100%)',
+                    filter: 'blur(65px)',
+                    borderRadius: '40% 60% 70% 30% / 60% 30% 70% 40%',
+                }}
+                animate={{
+                    x: [0, 70, -40, 0],
+                    y: [0, -50, 40, 0],
+                    scale: [1, 1.1, 0.95, 1],
+                    borderRadius: [
+                        '40% 60% 70% 30% / 60% 30% 70% 40%',
+                        '60% 40% 30% 70% / 40% 70% 30% 60%',
+                        '50% 50% 50% 50% / 50% 50% 50% 50%',
+                        '40% 60% 70% 30% / 60% 30% 70% 40%',
+                    ],
+                }}
+                transition={{
+                    duration: 20,
+                    ease: 'easeInOut',
+                    repeat: Infinity,
+                }}
+            />
+            <motion.div
+                className="absolute bottom-0 right-0 w-[600px] h-[600px] opacity-35 pointer-events-none"
+                style={{
+                    background: 'linear-gradient(225deg, rgba(0, 173, 254, 0.35) 0%, rgba(255, 185, 18, 0.25) 100%)',
+                    filter: 'blur(70px)',
+                    borderRadius: '30% 70% 70% 30% / 30% 30% 70% 70%',
+                }}
+                animate={{
+                    x: [0, -80, 50, 0],
+                    y: [0, 70, -40, 0],
+                    rotate: [0, 20, -15, 0],
+                    borderRadius: [
+                        '30% 70% 70% 30% / 30% 30% 70% 70%',
+                        '70% 30% 30% 70% / 70% 70% 30% 30%',
+                        '50% 50% 50% 50% / 50% 50% 50% 50%',
+                        '30% 70% 70% 30% / 30% 30% 70% 70%',
+                    ],
+                }}
+                transition={{
+                    duration: 25,
+                    ease: 'easeInOut',
+                    repeat: Infinity,
+                }}
+            />
+            <div className="container mx-auto px-4 md:px-6 relative z-10">
 
                 <div className="max-w-[540px] mx-auto relative">
-                    <h2 className="text-center text-3xl md:text-[54px] md:leading-[60px] font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text mt-5">
+                    <motion.h2
+                        className="text-center text-3xl md:text-[54px] md:leading-[60px] font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text mt-5"
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.7 }}
+                        viewport={{ once: true }}
+                    >
                         Ready to find your crew?
-                    </h2>
-                    <p className="text-center text-[22px] leading-[30px] tracking-tight text-[#010D3E] mt-5">
+                    </motion.h2>
+                    <motion.p
+                        className="text-center text-[22px] leading-[30px] tracking-tight text-[#010D3E] mt-5"
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.7, delay: 0.1 }}
+                        viewport={{ once: true }}
+                    >
                         Join thousands of students and mentors. Build your project, find partners, and succeed together.
-                    </p>
+                    </motion.p>
 
                     <motion.img
                         src="/assets/star.png"
@@ -45,14 +105,24 @@ export const CallToAction = () => {
                     />
                 </div>
 
-                <div className="flex gap-2 mt-10 justify-center">
-                    <Link to="/register" className="bg-black text-white px-4 py-2 rounded-lg font-medium tracking-tight hover:bg-black/80 transition-colors">
-                        Sign up for free
-                    </Link>
-                    <Link to="/resources" className="text-black font-medium tracking-tight flex items-center gap-1 hover:gap-2 transition-all">
-                        Browse Resources <FaArrowRight className="h-4 w-4" />
-                    </Link>
-                </div>
+                <motion.div
+                    className="flex gap-2 mt-10 justify-center"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.7, delay: 0.2 }}
+                    viewport={{ once: true }}
+                >
+                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                        <Link to="/register" className="bg-black text-white px-6 py-3 rounded-lg font-bold tracking-tight hover:bg-black/80 transition-colors shadow-lg hover:shadow-xl inline-block">
+                            Sign up for free
+                        </Link>
+                    </motion.div>
+                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                        <Link to="/resources" className="text-black font-bold tracking-tight flex items-center gap-1 hover:gap-2 transition-all px-6 py-3 rounded-lg hover:bg-black/5">
+                            Browse Resources <FaArrowRight className="h-4 w-4" />
+                        </Link>
+                    </motion.div>
+                </motion.div>
 
             </div>
         </section>
