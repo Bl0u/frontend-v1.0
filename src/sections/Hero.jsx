@@ -48,197 +48,147 @@ export const Hero = () => {
             ref={heroRef}
             className="relative min-h-screen flex flex-col justify-center py-20 md:py-24 overflow-hidden"
         >
-            {/* Dynamic Organic Animated Gradient Background */}
-            <div className="absolute inset-0 -z-10" style={{
-                background: 'linear-gradient(-45deg, #dbeafe 0%, #f3e8ff 25%, #fce7f3 50%, #dbeafe 75%, #f3e8ff 100%)',
-            }}>
-                {/* Large flowing gradient blob - Purple/Blue */}
-                <motion.div
-                    className="absolute -top-20 -left-20 w-[500px] h-[500px] md:w-[700px] md:h-[700px] rounded-full opacity-60"
-                    style={{
-                        background: 'linear-gradient(135deg, rgba(148, 3, 253, 0.4) 0%, rgba(0, 173, 254, 0.3) 100%)',
-                        filter: 'blur(60px)',
-                    }}
-                    animate={{
-                        x: [0, 150, -100, 0],
-                        y: [0, -120, 80, 0],
-                        scale: [1, 1.2, 0.9, 1],
-                    }}
-                    transition={{
-                        duration: 20,
-                        ease: 'easeInOut',
-                        repeat: Infinity,
-                    }}
-                />
+            {/* Clear Background with Animated Liquid Shapes */}
+            <div className="absolute inset-0 -z-10 bg-white/95"></div>
 
-                {/* Medium organic blob - Pink/Purple */}
-                <motion.div
-                    className="absolute top-0 right-0 w-[400px] h-[600px] md:w-[600px] md:h-[800px] opacity-50"
-                    style={{
-                        background: 'linear-gradient(225deg, rgba(255, 18, 220, 0.35) 0%, rgba(148, 3, 253, 0.25) 100%)',
-                        filter: 'blur(70px)',
-                        borderRadius: '40% 60% 70% 30% / 60% 30% 70% 40%',
-                    }}
-                    animate={{
-                        x: [0, -150, 100, 0],
-                        y: [0, 120, -80, 0],
-                        rotate: [0, 25, -25, 0],
-                        borderRadius: [
-                            '40% 60% 70% 30% / 60% 30% 70% 40%',
-                            '60% 40% 30% 70% / 40% 70% 30% 60%',
-                            '50% 50% 50% 50% / 50% 50% 50% 50%',
-                            '40% 60% 70% 30% / 60% 30% 70% 40%',
-                        ],
-                    }}
-                    transition={{
-                        duration: 25,
-                        ease: 'easeInOut',
-                        repeat: Infinity,
-                    }}
-                />
-
-                {/* Bottom flowing blob - Blue/Cyan */}
-                <motion.div
-                    className="absolute -bottom-32 left-1/4 w-[450px] h-[450px] md:w-[650px] md:h-[650px] opacity-40"
-                    style={{
-                        background: 'linear-gradient(45deg, rgba(0, 173, 254, 0.4) 0%, rgba(59, 255, 255, 0.25) 100%)',
-                        filter: 'blur(65px)',
-                        borderRadius: '30% 70% 70% 30% / 30% 30% 70% 70%',
-                    }}
-                    animate={{
-                        x: [0, 180, -120, 0],
-                        y: [0, -100, 80, 0],
-                        scale: [1, 1.25, 0.85, 1],
-                        borderRadius: [
-                            '30% 70% 70% 30% / 30% 30% 70% 70%',
-                            '70% 30% 30% 70% / 70% 70% 30% 30%',
-                            '50% 50% 50% 50% / 50% 50% 50% 50%',
-                            '30% 70% 70% 30% / 30% 30% 70% 70%',
-                        ],
-                    }}
-                    transition={{
-                        duration: 22,
-                        ease: 'easeInOut',
-                        repeat: Infinity,
-                    }}
-                />
-
-                {/* Accent blob - Orange/Yellow */}
-                <motion.div
-                    className="absolute bottom-20 right-1/4 w-[300px] h-[400px] md:w-[500px] md:h-[600px] opacity-35"
-                    style={{
-                        background: 'linear-gradient(180deg, rgba(255, 185, 18, 0.35) 0%, rgba(255, 140, 0, 0.2) 100%)',
-                        filter: 'blur(75px)',
-                        borderRadius: '60% 40% 30% 70% / 40% 50% 60% 50%',
-                    }}
-                    animate={{
-                        x: [0, -120, 140, 0],
-                        y: [0, 140, -100, 0],
-                        rotate: [0, -30, 30, 0],
-                        borderRadius: [
-                            '60% 40% 30% 70% / 40% 50% 60% 50%',
-                            '30% 60% 70% 40% / 50% 40% 50% 60%',
-                            '70% 30% 40% 60% / 60% 50% 40% 50%',
-                            '60% 40% 30% 70% / 40% 50% 60% 50%',
-                        ],
-                    }}
-                    transition={{
-                        duration: 18,
-                        ease: 'easeInOut',
-                        repeat: Infinity,
-                    }}
-                />
-
-                {/* Small floating accent - Purple */}
-                <motion.div
-                    className="absolute top-1/3 left-1/2 w-[250px] h-[250px] md:w-[350px] md:h-[350px] opacity-30"
-                    style={{
-                        background: 'radial-gradient(circle, rgba(148, 3, 253, 0.4) 0%, transparent 70%)',
-                        filter: 'blur(50px)',
-                    }}
-                    animate={{
-                        x: [0, -160, 160, 0],
-                        y: [0, 160, -160, 0],
-                        scale: [1, 1.3, 0.7, 1],
-                    }}
-                    transition={{
-                        duration: 15,
-                        ease: 'easeInOut',
-                        repeat: Infinity,
-                    }}
-                />
-
-                {/* Extra flowing blob - Right side */}
-                <motion.div
-                    className="absolute top-1/4 -right-32 w-[450px] h-[450px] opacity-25 pointer-events-none"
-                    style={{
-                        background: 'linear-gradient(135deg, rgba(59, 255, 255, 0.3) 0%, rgba(0, 173, 254, 0.2) 100%)',
-                        filter: 'blur(60px)',
-                        borderRadius: '70% 30% 50% 50% / 30% 30% 70% 70%',
-                    }}
-                    animate={{
-                        x: [0, -200, 120, 0],
-                        y: [0, 160, -120, 0],
-                        rotate: [0, 60, -40, 0],
-                        scale: [1, 1.3, 0.8, 1],
-                    }}
-                    transition={{
-                        duration: 20,
-                        ease: 'easeInOut',
-                        repeat: Infinity,
-                    }}
-                />
-
-                {/* Extra flowing blob - Center bottom */}
-                <motion.div
-                    className="absolute -bottom-40 left-1/3 w-[500px] h-[400px] opacity-20 pointer-events-none"
-                    style={{
-                        background: 'linear-gradient(45deg, rgba(255, 18, 220, 0.3) 0%, rgba(255, 185, 18, 0.2) 100%)',
-                        filter: 'blur(70px)',
-                        borderRadius: '50% 50% 30% 70% / 30% 70% 70% 30%',
-                    }}
-                    animate={{
-                        x: [0, 200, -160, 0],
-                        y: [0, -140, 120, 0],
-                        rotate: [0, -50, 40, 0],
-                        scale: [1, 1.25, 0.75, 1],
-                    }}
-                    transition={{
-                        duration: 23,
-                        ease: 'easeInOut',
-                        repeat: Infinity,
-                    }}
-                />
-            </div>
-
-            {/* Floating decorative elements like in Home */}
+            {/* Floating Liquid Shapes */}
+            {/* Top-left Purple/Blue blob */}
             <motion.div
-                className="absolute top-0 right-0 w-96 h-96 opacity-15 rounded-full blur-3xl"
-                style={{ background: 'linear-gradient(135deg, #9403FD 0%, #00ADFE 100%)' }}
+                className="absolute -top-32 -left-32 pointer-events-none"
+                style={{
+                    width: '400px',
+                    height: '400px',
+                    background: 'linear-gradient(135deg, rgba(148, 3, 253, 0.25) 0%, rgba(0, 173, 254, 0.15) 100%)',
+                    borderRadius: '45% 55% 60% 40% / 55% 45% 55% 45%',
+                    filter: 'blur(50px)',
+                }}
                 animate={{
-                    y: [0, -100, 0],
-                    x: [0, -150, 0],
+                    x: [0, 80, -60, 0],
+                    y: [0, 100, -80, 0],
+                    rotate: [0, 20, -15, 0],
                 }}
                 transition={{
-                    duration: 8,
+                    duration: 15,
                     ease: 'easeInOut',
                     repeat: Infinity,
                 }}
             />
+
+            {/* Top-right Pink/Magenta blob */}
             <motion.div
-                className="absolute bottom-0 left-0 w-72 h-72 opacity-20 rounded-full blur-3xl"
-                style={{ background: 'linear-gradient(135deg, #FF12DC 0%, #FFB912 100%)' }}
+                className="absolute -top-16 -right-40 pointer-events-none"
+                style={{
+                    width: '500px',
+                    height: '350px',
+                    background: 'linear-gradient(225deg, rgba(255, 18, 220, 0.2) 0%, rgba(255, 185, 18, 0.15) 100%)',
+                    borderRadius: '60% 40% 45% 55% / 40% 60% 50% 50%',
+                    filter: 'blur(60px)',
+                }}
                 animate={{
-                    y: [0, 120, 0],
-                    x: [0, 100, 0],
+                    x: [0, -100, 60, 0],
+                    y: [0, 80, -60, 0],
+                    rotate: [0, -25, 20, 0],
                 }}
                 transition={{
-                    duration: 10,
+                    duration: 18,
                     ease: 'easeInOut',
                     repeat: Infinity,
                     delay: 1,
                 }}
             />
+
+            {/* Center-left Cyan/Blue flowing sheet */}
+            <motion.div
+                className="absolute top-1/3 -left-40 pointer-events-none"
+                style={{
+                    width: '450px',
+                    height: '300px',
+                    background: 'linear-gradient(45deg, rgba(0, 173, 254, 0.2) 0%, rgba(59, 255, 255, 0.15) 100%)',
+                    borderRadius: '70% 30% 55% 45% / 45% 55% 45% 55%',
+                    filter: 'blur(55px)',
+                }}
+                animate={{
+                    x: [0, 120, -80, 0],
+                    y: [0, -100, 60, 0],
+                    rotate: [0, 30, -20, 0],
+                }}
+                transition={{
+                    duration: 20,
+                    ease: 'easeInOut',
+                    repeat: Infinity,
+                    delay: 0.5,
+                }}
+            />
+
+            {/* Bottom-right Purple circle blob */}
+            <motion.div
+                className="absolute bottom-0 -right-20 pointer-events-none"
+                style={{
+                    width: '350px',
+                    height: '350px',
+                    background: 'radial-gradient(circle, rgba(148, 3, 253, 0.2) 0%, rgba(255, 18, 220, 0.1) 100%)',
+                    borderRadius: '50%',
+                    filter: 'blur(65px)',
+                }}
+                animate={{
+                    x: [0, -80, 100, 0],
+                    y: [0, -120, 80, 0],
+                    scale: [1, 1.2, 0.9, 1],
+                }}
+                transition={{
+                    duration: 17,
+                    ease: 'easeInOut',
+                    repeat: Infinity,
+                    delay: 2,
+                }}
+            />
+
+            {/* Bottom-left Orange/Yellow wavy shape */}
+            <motion.div
+                className="absolute bottom-20 left-1/4 pointer-events-none"
+                style={{
+                    width: '380px',
+                    height: '280px',
+                    background: 'linear-gradient(180deg, rgba(255, 185, 18, 0.18) 0%, rgba(255, 18, 220, 0.12) 100%)',
+                    borderRadius: '50% 50% 40% 60% / 55% 45% 55% 45%',
+                    filter: 'blur(58px)',
+                }}
+                animate={{
+                    x: [0, 100, -70, 0],
+                    y: [0, 90, -100, 0],
+                    rotate: [0, -25, 30, 0],
+                }}
+                transition={{
+                    duration: 19,
+                    ease: 'easeInOut',
+                    repeat: Infinity,
+                    delay: 1.5,
+                }}
+            />
+
+            {/* Center subtle flowing connection */}
+            <motion.div
+                className="absolute top-1/2 left-1/3 pointer-events-none"
+                style={{
+                    width: '300px',
+                    height: '200px',
+                    background: 'linear-gradient(90deg, rgba(0, 173, 254, 0.15) 0%, rgba(148, 3, 253, 0.1) 100%)',
+                    borderRadius: '50% 50% 50% 50% / 40% 60% 40% 60%',
+                    filter: 'blur(50px)',
+                }}
+                animate={{
+                    x: [0, -60, 80, 0],
+                    y: [0, 60, -80, 0],
+                    rotate: [0, 15, -15, 0],
+                }}
+                transition={{
+                    duration: 16,
+                    ease: 'easeInOut',
+                    repeat: Infinity,
+                    delay: 0.8,
+                }}
+            />
+
 
             <div className="max-w-7xl mx-auto px-8 lg:px-16 xl:px-24 text-center relative z-10">
                 <motion.div
