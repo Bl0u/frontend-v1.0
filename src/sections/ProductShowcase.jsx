@@ -88,7 +88,8 @@ export const ProductShowcase = () => {
                 <div className="grid md:grid-cols-2 gap-12 items-start relative">
 
                     {/* Left Column: What do we offer */}
-                    <div className="relative z-10 sticky top-24">
+                    {/* Left Column: What do we offer */}
+                    <div className="relative z-10 sticky top-1/2 -translate-y-1/2 self-start">
                         <div className="inline-flex border border-[#222]/10 px-3 py-1 rounded-lg tracking-tight shadow-sm bg-white/30 backdrop-blur gap-1 mb-5">
                             <span className="font-bold text-sm">Everything you need</span>
                         </div>
@@ -98,22 +99,10 @@ export const ProductShowcase = () => {
                         <p className="text-xl md:text-2xl text-[#010D3E]/80 tracking-tight mt-6 leading-relaxed">
                             LearnCrew provides a complete ecosystem for your academic success. From forming the perfect team to finalizing your project with expert advice.
                         </p>
-
-                        {/* Decorative Elements for Left Column */}
-                        <motion.img
-                            src="/assets/tube.png"
-                            alt="Tube Image"
-                            height={248}
-                            width={248}
-                            className="hidden md:block absolute -bottom-48 -left-32 -z-10 opacity-50"
-                            style={{
-                                translateY: translateY,
-                            }}
-                        />
                     </div>
 
-                    {/* Right Column: List Features (No Scroll) */}
-                    <div className="flex flex-col gap-6 relative">
+                    {/* Right Column: List Features (Scrollable) */}
+                    <div className="flex flex-col gap-6 relative h-[600px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none'] p-2">
                         <motion.img
                             src="/assets/pyramid.png"
                             alt="Pyramid Image"
@@ -125,27 +114,26 @@ export const ProductShowcase = () => {
                             }}
                         />
 
-                        <div className="relative z-10 flex flex-col gap-8">
-                            {features.map((feature, index) => (
-                                <motion.div
-                                    key={index}
-                                    className="bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-[0_7px_14px_#EAEAEA] border border-white/50 hover:border-black/5 transition-all duration-300 group hover:-translate-y-1"
-                                    initial={{ opacity: 0, y: 30 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.6, delay: index * 0.15 }}
-                                    viewport={{ once: true, margin: "-100px" }}
-                                >
-                                    <motion.div
-                                        className={`w-14 h-14 rounded-2xl ${feature.color} flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300`}
-                                        whileHover={{ scale: 1.15, rotate: 10 }}
+                        {features.map((feature, index) => (
+                            <motion.div
+                                key={index}
+                                className="bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-[0_7px_14px_#EAEAEA] border border-white/50 hover:border-black/5 transition-all duration-300 group shrink-0"
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.5, delay: index * 0.1 }}
+                                viewport={{ once: true }}
+                            >
+                                <div className="flex flex-col gap-4">
+                                    <div
+                                        className={`w-14 h-14 rounded-2xl ${feature.color} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}
                                     >
                                         {feature.icon}
-                                    </motion.div>
-                                    <h3 className="text-2xl font-bold mb-3">{feature.title}</h3>
+                                    </div>
+                                    <h3 className="text-2xl font-bold">{feature.title}</h3>
                                     <p className="text-[#010D3E]/70 leading-relaxed text-lg">{feature.description}</p>
-                                </motion.div>
-                            ))}
-                        </div>
+                                </div>
+                            </motion.div>
+                        ))}
                     </div>
 
                 </div>

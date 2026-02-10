@@ -122,23 +122,14 @@ export const Hero = () => {
 
 
             <div className="max-w-7xl mx-auto px-8 lg:px-16 xl:px-24 text-center relative z-10">
-                <motion.div
-                    className="inline-flex border border-[#222]/10 px-3 py-1 rounded-lg tracking-tight shadow-sm bg-white/50 backdrop-blur gap-1 items-center mb-5 cursor-pointer hover:bg-white/70 transition-colors"
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                >
-                    <span className="font-bold text-sm text-black">Version 2.0 is here</span>
-                    <span className="text-sm text-black/80">Explore Resources</span>
-                    <FaArrowRight className="h-3 w-3 text-black" />
-                </motion.div>
+
                 <motion.h1
                     className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text mt-6 pb-2 leading-tight"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.7, delay: 0.1 }}
                 >
-                    Here is the road towards your success
+                    Here ... Is the road towards your success
                 </motion.h1>
                 <motion.p
                     className="text-lg md:text-xl text-[#010D3E] tracking-tight mt-6 max-w-3xl mx-auto"
