@@ -1,10 +1,45 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaArrowRight } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
 export const Hero = () => {
     const heroRef = useRef(null);
+    const buttonRef = useRef(null);
+    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+    const [isHovering, setIsHovering] = useState(false);
+    const [particles, setParticles] = useState([]);
+
+    const handleMouseMove = (e) => {
+        if (!buttonRef.current) return;
+
+        const rect = buttonRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        setMousePosition({ x, y });
+
+        // Create new particles occasionally
+        if (Math.random() > 0.5) {
+            const newParticle = {
+                id: Math.random(),
+                x,
+                y,
+                color: ['#FF12DC', '#00ADFE', '#FFB912', '#9403FD'][Math.floor(Math.random() * 4)],
+            };
+            setParticles((prev) => [...prev, newParticle]);
+
+            // Remove particle after animation completes
+            setTimeout(() => {
+                setParticles((prev) => prev.filter((p) => p.id !== newParticle.id));
+            }, 1000);
+        }
+    };
+
+    const handleMouseLeave = () => {
+        setIsHovering(false);
+        setParticles([]);
+    };
 
     return (
         <section
@@ -242,13 +277,41 @@ export const Hero = () => {
                         transition={{ type: "spring", stiffness: 400, damping: 17 }}
                     >
                         <Link
+                            ref={buttonRef}
                             to="/register"
                             className="relative bg-[#1a1a2e] text-white px-10 py-4 rounded-full font-bold tracking-tight inline-flex items-center gap-3 overflow-hidden group shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_6px_30px_rgba(0,0,0,0.4)] transition-all duration-300"
+                            onMouseMove={handleMouseMove}
+                            onMouseEnter={() => setIsHovering(true)}
+                            onMouseLeave={handleMouseLeave}
                         >
                             <span className="relative z-10">Join for free</span>
                             <FaArrowRight className="h-4 w-4 relative z-10 transition-transform duration-300 group-hover:translate-x-1" />
                             {/* Animated gradient overlay */}
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"></div>
+
+                            {/* Particle container */}
+                            <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-full">
+                                {particles.map((particle) => (
+                                    <motion.div
+                                        key={particle.id}
+                                        className="absolute w-2 h-2 rounded-full pointer-events-none"
+                                        style={{
+                                            backgroundColor: particle.color,
+                                            left: particle.x,
+                                            top: particle.y,
+                                            boxShadow: `0 0 8px ${particle.color}`,
+                                        }}
+                                        initial={{ scale: 1, opacity: 1 }}
+                                        animate={{
+                                            scale: 0,
+                                            opacity: 0,
+                                            y: [0, -60],
+                                            x: [0, (Math.random() - 0.5) * 40],
+                                        }}
+                                        transition={{ duration: 1, ease: 'easeOut' }}
+                                    />
+                                ))}
+                            </div>
                         </Link>
                     </motion.div>
                     <Link to="/partners" className="text-black font-bold tracking-tight flex items-center gap-2 hover:gap-3 transition-all hover:translate-x-1 border-2 border-black px-8 py-3 rounded-full hover:bg-black/5">
