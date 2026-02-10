@@ -19,20 +19,22 @@ export const Hero = () => {
 
         setMousePosition({ x, y });
 
-        // Create new particles occasionally
-        if (Math.random() > 0.5) {
+        // Create new particles more frequently for liquid effect
+        if (Math.random() > 0.3) {
             const newParticle = {
                 id: Math.random(),
                 x,
                 y,
                 color: ['#FF12DC', '#00ADFE', '#FFB912', '#9403FD'][Math.floor(Math.random() * 4)],
+                size: Math.random() * 3 + 2, // Variable size for liquid effect
+                waveOffset: Math.random() * Math.PI * 2,
             };
             setParticles((prev) => [...prev, newParticle]);
 
             // Remove particle after animation completes
             setTimeout(() => {
                 setParticles((prev) => prev.filter((p) => p.id !== newParticle.id));
-            }, 1000);
+            }, 1500);
         }
     };
 
@@ -289,26 +291,53 @@ export const Hero = () => {
                             {/* Animated gradient overlay */}
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"></div>
 
-                            {/* Particle container */}
+                            {/* Liquid Particle container */}
                             <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-full">
                                 {particles.map((particle) => (
                                     <motion.div
                                         key={particle.id}
-                                        className="absolute w-2 h-2 rounded-full pointer-events-none"
+                                        className="absolute rounded-full pointer-events-none blur-sm"
                                         style={{
+                                            width: particle.size,
+                                            height: particle.size,
                                             backgroundColor: particle.color,
                                             left: particle.x,
                                             top: particle.y,
-                                            boxShadow: `0 0 8px ${particle.color}`,
+                                            boxShadow: `0 0 12px ${particle.color}, 0 0 24px ${particle.color}80`,
+                                            filter: `drop-shadow(0 0 8px ${particle.color})`,
                                         }}
-                                        initial={{ scale: 1, opacity: 1 }}
+                                        initial={{
+                                            scale: 0.5,
+                                            opacity: 1,
+                                        }}
                                         animate={{
-                                            scale: 0,
-                                            opacity: 0,
-                                            y: [0, -60],
-                                            x: [0, (Math.random() - 0.5) * 40],
+                                            // Liquid wave motion - up and side to side
+                                            y: [
+                                                0,
+                                                -20,
+                                                -40,
+                                                -60,
+                                                -80,
+                                                -100
+                                            ],
+                                            x: [
+                                                0,
+                                                Math.sin(particle.waveOffset) * 30,
+                                                Math.sin(particle.waveOffset + Math.PI / 2) * 20,
+                                                Math.sin(particle.waveOffset + Math.PI) * 35,
+                                                Math.sin(particle.waveOffset + Math.PI * 1.5) * 15,
+                                                Math.sin(particle.waveOffset + Math.PI * 2) * 25,
+                                            ],
+                                            // Liquid morphing effect
+                                            scale: [0.5, 0.8, 1, 0.9, 0.6, 0],
+                                            opacity: [0.8, 1, 1, 0.8, 0.4, 0],
+                                            borderRadius: ['50%', '60% 40% 45% 55%', '50%', '45% 55% 50% 50%', '50%', '50%'],
                                         }}
-                                        transition={{ duration: 1, ease: 'easeOut' }}
+                                        transition={{
+                                            duration: 1.5,
+                                            ease: 'easeOut',
+                                            times: [0, 0.2, 0.4, 0.6, 0.8, 1],
+                                        }}
                                     />
                                 ))}
                             </div>
