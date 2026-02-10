@@ -236,10 +236,21 @@ export const Hero = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.7, delay: 0.3 }}
                 >
-                    <Link to="/register" className="bg-black text-white px-8 py-3 rounded-full font-bold tracking-tight hover:bg-black/80 transition-colors shadow-lg hover:shadow-xl hover:scale-105 inline-flex items-center gap-2">
-                        Join for free
-                        <FaArrowRight className="h-4 w-4" />
-                    </Link>
+                    <motion.div
+                        whileHover={{ scale: 1.05, y: -2 }}
+                        whileTap={{ scale: 0.98 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                    >
+                        <Link
+                            to="/register"
+                            className="relative bg-[#1a1a2e] text-white px-10 py-4 rounded-full font-bold tracking-tight inline-flex items-center gap-3 overflow-hidden group shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_6px_30px_rgba(0,0,0,0.4)] transition-all duration-300"
+                        >
+                            <span className="relative z-10">Join for free</span>
+                            <FaArrowRight className="h-4 w-4 relative z-10 transition-transform duration-300 group-hover:translate-x-1" />
+                            {/* Animated gradient overlay */}
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"></div>
+                        </Link>
+                    </motion.div>
                     <Link to="/partners" className="text-black font-bold tracking-tight flex items-center gap-2 hover:gap-3 transition-all hover:translate-x-1 border-2 border-black px-8 py-3 rounded-full hover:bg-black/5">
                         Find Partners <FaArrowRight className="h-4 w-4" />
                     </Link>
