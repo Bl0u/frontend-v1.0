@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { FaArrowRight } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
@@ -9,6 +9,7 @@ export const Hero = () => {
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const [isHovering, setIsHovering] = useState(false);
     const [particles, setParticles] = useState([]);
+    const shouldReduceMotion = useReducedMotion();
 
     const handleMouseMove = (e) => {
         if (!buttonRef.current) return;
@@ -48,149 +49,74 @@ export const Hero = () => {
             ref={heroRef}
             className="relative min-h-screen flex flex-col justify-center py-20 md:py-24 overflow-hidden"
         >
-            {/* Clear Background with Animated Liquid Shapes */}
-            <div className="absolute inset-0 -z-10 bg-white/95"></div>
+            {/* Base white background */}
+            <div className="absolute inset-0 -z-20 bg-white"></div>
 
-            {/* Floating Liquid Shapes */}
-            {/* Top-left Purple/Blue blob */}
+            {/* Layer A: Primary animated blob (deep navy → cyan) drifting left↔right and up↔down */}
             <motion.div
-                className="absolute pointer-events-none"
+                className="absolute pointer-events-none will-change-transform"
                 style={{
-                    width: '500px',
-                    height: '500px',
-                    background: 'linear-gradient(135deg, rgba(148, 3, 253, 0.35) 0%, rgba(0, 173, 254, 0.25) 100%)',
-                    borderRadius: '45% 55% 60% 40% / 55% 45% 55% 45%',
-                    filter: 'blur(60px)',
-                }}
-                animate={{
-                    top: ['5%', '15%', '5%'],
-                    left: ['-15%', '-5%', '-15%'],
-                    scale: [1, 1.2, 1],
-                    rotate: [0, 45, 0],
-                }}
-                transition={{
-                    duration: 18,
-                    ease: 'easeInOut',
-                    repeat: Infinity,
-                }}
-            />
-
-            {/* Top-right Pink/Magenta blob */}
-            <motion.div
-                className="absolute pointer-events-none"
-                style={{
-                    width: '550px',
-                    height: '450px',
-                    background: 'linear-gradient(225deg, rgba(255, 18, 220, 0.3) 0%, rgba(255, 185, 18, 0.2) 100%)',
-                    borderRadius: '60% 40% 45% 55% / 40% 60% 50% 50%',
-                    filter: 'blur(70px)',
-                }}
-                animate={{
-                    top: ['0%', '20%', '0%'],
-                    right: ['-20%', '5%', '-20%'],
-                    scale: [1, 1.15, 1],
-                    rotate: [0, -60, 0],
-                }}
-                transition={{
-                    duration: 20,
-                    ease: 'easeInOut',
-                    repeat: Infinity,
-                    delay: 1,
-                }}
-            />
-
-            {/* Center-left Cyan/Blue flowing sheet */}
-            <motion.div
-                className="absolute pointer-events-none"
-                style={{
-                    width: '500px',
-                    height: '400px',
-                    background: 'linear-gradient(45deg, rgba(0, 173, 254, 0.3) 0%, rgba(59, 255, 255, 0.2) 100%)',
-                    borderRadius: '70% 30% 55% 45% / 45% 55% 45% 55%',
-                    filter: 'blur(65px)',
-                }}
-                animate={{
-                    top: ['20%', '40%', '20%'],
-                    left: ['-10%', '10%', '-10%'],
-                    scale: [1, 1.25, 1],
-                    rotate: [0, 50, 0],
-                }}
-                transition={{
-                    duration: 22,
-                    ease: 'easeInOut',
-                    repeat: Infinity,
-                    delay: 0.5,
-                }}
-            />
-
-            {/* Bottom-right Purple circle blob */}
-            <motion.div
-                className="absolute pointer-events-none"
-                style={{
-                    width: '450px',
-                    height: '450px',
-                    background: 'radial-gradient(circle, rgba(148, 3, 253, 0.3) 0%, rgba(255, 18, 220, 0.15) 100%)',
+                    width: '800px',
+                    height: '800px',
+                    background: 'radial-gradient(circle at 30% 50%, rgba(1, 13, 62, 0.4) 0%, rgba(0, 120, 212, 0.2) 40%, rgba(0, 173, 254, 0.1) 100%)',
                     borderRadius: '50%',
-                    filter: 'blur(75px)',
+                    filter: 'blur(90px)',
+                    zIndex: '-10',
                 }}
-                animate={{
-                    bottom: ['-10%', '10%', '-10%'],
-                    right: ['-15%', '5%', '-15%'],
-                    scale: [1, 1.3, 1],
-                }}
+                animate={
+                    shouldReduceMotion
+                        ? { x: 0, y: 0 }
+                        : {
+                            // Drift left ↔ right and up ↔ down
+                            x: [-150, 150, -150],
+                            y: [-100, 100, -100],
+                        }
+                }
                 transition={{
-                    duration: 19,
+                    duration: 25,
                     ease: 'easeInOut',
-                    repeat: Infinity,
-                    delay: 2,
+                    repeat: shouldReduceMotion ? 0 : Infinity,
                 }}
             />
 
-            {/* Bottom-left Orange/Yellow wavy shape */}
+            {/* Layer B: Secondary animated blob (purple → magenta) moving in opposite direction */}
             <motion.div
-                className="absolute pointer-events-none"
+                className="absolute pointer-events-none will-change-transform"
                 style={{
-                    width: '480px',
-                    height: '360px',
-                    background: 'linear-gradient(180deg, rgba(255, 185, 18, 0.28) 0%, rgba(255, 18, 220, 0.2) 100%)',
-                    borderRadius: '50% 50% 40% 60% / 55% 45% 55% 45%',
-                    filter: 'blur(68px)',
+                    width: '700px',
+                    height: '700px',
+                    background: 'radial-gradient(circle at 70% 60%, rgba(148, 3, 253, 0.35) 0%, rgba(255, 18, 220, 0.15) 50%, rgba(255, 185, 18, 0.08) 100%)',
+                    borderRadius: '50%',
+                    filter: 'blur(85px)',
+                    zIndex: '-10',
+                    top: '10%',
+                    right: '-10%',
                 }}
-                animate={{
-                    bottom: ['10%', '30%', '10%'],
-                    left: ['15%', '35%', '15%'],
-                    scale: [1, 1.2, 1],
-                    rotate: [0, -40, 0],
-                }}
+                animate={
+                    shouldReduceMotion
+                        ? { x: 0, y: 0 }
+                        : {
+                            // Move opposite to Layer A for dynamic effect
+                            x: [150, -150, 150],
+                            y: [100, -100, 100],
+                        }
+                }
                 transition={{
-                    duration: 21,
+                    duration: 30,
                     ease: 'easeInOut',
-                    repeat: Infinity,
-                    delay: 1.5,
+                    repeat: shouldReduceMotion ? 0 : Infinity,
                 }}
             />
 
-            {/* Center subtle flowing connection */}
-            <motion.div
-                className="absolute pointer-events-none"
+            {/* Layer C: Subtle noise texture overlay (5-10% opacity, non-animated) */}
+            <div
+                className="absolute inset-0 pointer-events-none will-change-auto"
                 style={{
-                    width: '420px',
-                    height: '300px',
-                    background: 'linear-gradient(90deg, rgba(0, 173, 254, 0.25) 0%, rgba(148, 3, 253, 0.2) 100%)',
-                    borderRadius: '50% 50% 50% 50% / 40% 60% 40% 60%',
-                    filter: 'blur(60px)',
-                }}
-                animate={{
-                    top: ['35%', '55%', '35%'],
-                    left: ['20%', '40%', '20%'],
-                    scale: [1, 1.15, 1],
-                    rotate: [0, 35, 0],
-                }}
-                transition={{
-                    duration: 18,
-                    ease: 'easeInOut',
-                    repeat: Infinity,
-                    delay: 0.8,
+                    zIndex: '-9',
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' result='noise' /%3E%3C/filter%3E%3Crect width='400' height='400' fill='%23000000' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E")`,
+                    backgroundRepeat: 'repeat',
+                    backgroundSize: '400px 400px',
+                    opacity: 0.08,
                 }}
             />
 

@@ -309,4 +309,16 @@ h6 {
     .hover-lift:hover {
         transform: none;
     }
+
+    /* Disable animated gradient blobs for accessibility */
+    [class*="animate"],
+    .will-change-transform {
+        animation: none !important;
+        transition: none !important;
+    }
+
+    /* Disable Framer Motion animations */
+    * {
+        animation: none !important;
+    }
 }
