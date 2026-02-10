@@ -54,21 +54,22 @@ export const Hero = () => {
             {/* Floating Liquid Shapes */}
             {/* Top-left Purple/Blue blob */}
             <motion.div
-                className="absolute -top-32 -left-32 pointer-events-none"
+                className="absolute pointer-events-none"
                 style={{
-                    width: '400px',
-                    height: '400px',
-                    background: 'linear-gradient(135deg, rgba(148, 3, 253, 0.25) 0%, rgba(0, 173, 254, 0.15) 100%)',
+                    width: '500px',
+                    height: '500px',
+                    background: 'linear-gradient(135deg, rgba(148, 3, 253, 0.35) 0%, rgba(0, 173, 254, 0.25) 100%)',
                     borderRadius: '45% 55% 60% 40% / 55% 45% 55% 45%',
-                    filter: 'blur(50px)',
+                    filter: 'blur(60px)',
                 }}
                 animate={{
-                    x: [0, 80, -60, 0],
-                    y: [0, 100, -80, 0],
-                    rotate: [0, 20, -15, 0],
+                    top: ['5%', '15%', '5%'],
+                    left: ['-15%', '-5%', '-15%'],
+                    scale: [1, 1.2, 1],
+                    rotate: [0, 45, 0],
                 }}
                 transition={{
-                    duration: 15,
+                    duration: 18,
                     ease: 'easeInOut',
                     repeat: Infinity,
                 }}
@@ -76,21 +77,22 @@ export const Hero = () => {
 
             {/* Top-right Pink/Magenta blob */}
             <motion.div
-                className="absolute -top-16 -right-40 pointer-events-none"
+                className="absolute pointer-events-none"
                 style={{
-                    width: '500px',
-                    height: '350px',
-                    background: 'linear-gradient(225deg, rgba(255, 18, 220, 0.2) 0%, rgba(255, 185, 18, 0.15) 100%)',
+                    width: '550px',
+                    height: '450px',
+                    background: 'linear-gradient(225deg, rgba(255, 18, 220, 0.3) 0%, rgba(255, 185, 18, 0.2) 100%)',
                     borderRadius: '60% 40% 45% 55% / 40% 60% 50% 50%',
-                    filter: 'blur(60px)',
+                    filter: 'blur(70px)',
                 }}
                 animate={{
-                    x: [0, -100, 60, 0],
-                    y: [0, 80, -60, 0],
-                    rotate: [0, -25, 20, 0],
+                    top: ['0%', '20%', '0%'],
+                    right: ['-20%', '5%', '-20%'],
+                    scale: [1, 1.15, 1],
+                    rotate: [0, -60, 0],
                 }}
                 transition={{
-                    duration: 18,
+                    duration: 20,
                     ease: 'easeInOut',
                     repeat: Infinity,
                     delay: 1,
@@ -99,21 +101,22 @@ export const Hero = () => {
 
             {/* Center-left Cyan/Blue flowing sheet */}
             <motion.div
-                className="absolute top-1/3 -left-40 pointer-events-none"
+                className="absolute pointer-events-none"
                 style={{
-                    width: '450px',
-                    height: '300px',
-                    background: 'linear-gradient(45deg, rgba(0, 173, 254, 0.2) 0%, rgba(59, 255, 255, 0.15) 100%)',
+                    width: '500px',
+                    height: '400px',
+                    background: 'linear-gradient(45deg, rgba(0, 173, 254, 0.3) 0%, rgba(59, 255, 255, 0.2) 100%)',
                     borderRadius: '70% 30% 55% 45% / 45% 55% 45% 55%',
-                    filter: 'blur(55px)',
+                    filter: 'blur(65px)',
                 }}
                 animate={{
-                    x: [0, 120, -80, 0],
-                    y: [0, -100, 60, 0],
-                    rotate: [0, 30, -20, 0],
+                    top: ['20%', '40%', '20%'],
+                    left: ['-10%', '10%', '-10%'],
+                    scale: [1, 1.25, 1],
+                    rotate: [0, 50, 0],
                 }}
                 transition={{
-                    duration: 20,
+                    duration: 22,
                     ease: 'easeInOut',
                     repeat: Infinity,
                     delay: 0.5,
@@ -122,21 +125,21 @@ export const Hero = () => {
 
             {/* Bottom-right Purple circle blob */}
             <motion.div
-                className="absolute bottom-0 -right-20 pointer-events-none"
+                className="absolute pointer-events-none"
                 style={{
-                    width: '350px',
-                    height: '350px',
-                    background: 'radial-gradient(circle, rgba(148, 3, 253, 0.2) 0%, rgba(255, 18, 220, 0.1) 100%)',
+                    width: '450px',
+                    height: '450px',
+                    background: 'radial-gradient(circle, rgba(148, 3, 253, 0.3) 0%, rgba(255, 18, 220, 0.15) 100%)',
                     borderRadius: '50%',
-                    filter: 'blur(65px)',
+                    filter: 'blur(75px)',
                 }}
                 animate={{
-                    x: [0, -80, 100, 0],
-                    y: [0, -120, 80, 0],
-                    scale: [1, 1.2, 0.9, 1],
+                    bottom: ['-10%', '10%', '-10%'],
+                    right: ['-15%', '5%', '-15%'],
+                    scale: [1, 1.3, 1],
                 }}
                 transition={{
-                    duration: 17,
+                    duration: 19,
                     ease: 'easeInOut',
                     repeat: Infinity,
                     delay: 2,
@@ -145,21 +148,22 @@ export const Hero = () => {
 
             {/* Bottom-left Orange/Yellow wavy shape */}
             <motion.div
-                className="absolute bottom-20 left-1/4 pointer-events-none"
+                className="absolute pointer-events-none"
                 style={{
-                    width: '380px',
-                    height: '280px',
-                    background: 'linear-gradient(180deg, rgba(255, 185, 18, 0.18) 0%, rgba(255, 18, 220, 0.12) 100%)',
+                    width: '480px',
+                    height: '360px',
+                    background: 'linear-gradient(180deg, rgba(255, 185, 18, 0.28) 0%, rgba(255, 18, 220, 0.2) 100%)',
                     borderRadius: '50% 50% 40% 60% / 55% 45% 55% 45%',
-                    filter: 'blur(58px)',
+                    filter: 'blur(68px)',
                 }}
                 animate={{
-                    x: [0, 100, -70, 0],
-                    y: [0, 90, -100, 0],
-                    rotate: [0, -25, 30, 0],
+                    bottom: ['10%', '30%', '10%'],
+                    left: ['15%', '35%', '15%'],
+                    scale: [1, 1.2, 1],
+                    rotate: [0, -40, 0],
                 }}
                 transition={{
-                    duration: 19,
+                    duration: 21,
                     ease: 'easeInOut',
                     repeat: Infinity,
                     delay: 1.5,
@@ -168,21 +172,22 @@ export const Hero = () => {
 
             {/* Center subtle flowing connection */}
             <motion.div
-                className="absolute top-1/2 left-1/3 pointer-events-none"
+                className="absolute pointer-events-none"
                 style={{
-                    width: '300px',
-                    height: '200px',
-                    background: 'linear-gradient(90deg, rgba(0, 173, 254, 0.15) 0%, rgba(148, 3, 253, 0.1) 100%)',
+                    width: '420px',
+                    height: '300px',
+                    background: 'linear-gradient(90deg, rgba(0, 173, 254, 0.25) 0%, rgba(148, 3, 253, 0.2) 100%)',
                     borderRadius: '50% 50% 50% 50% / 40% 60% 40% 60%',
-                    filter: 'blur(50px)',
+                    filter: 'blur(60px)',
                 }}
                 animate={{
-                    x: [0, -60, 80, 0],
-                    y: [0, 60, -80, 0],
-                    rotate: [0, 15, -15, 0],
+                    top: ['35%', '55%', '35%'],
+                    left: ['20%', '40%', '20%'],
+                    scale: [1, 1.15, 1],
+                    rotate: [0, 35, 0],
                 }}
                 transition={{
-                    duration: 16,
+                    duration: 18,
                     ease: 'easeInOut',
                     repeat: Infinity,
                     delay: 0.8,
@@ -207,7 +212,7 @@ export const Hero = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.7, delay: 0.1 }}
                 >
-                    Find your perfect project partner
+                    Here is the road towards your success
                 </motion.h1>
                 <motion.p
                     className="text-lg md:text-xl text-[#010D3E] tracking-tight mt-6 max-w-3xl mx-auto"
