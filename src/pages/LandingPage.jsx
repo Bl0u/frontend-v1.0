@@ -119,11 +119,11 @@ const LandingPage = () => {
                         <Hero contentVisible={heroContentVisible} />
                     </div>
                 </div>
+            </div>
 
-                {/* 3. Header (Hidden initially) */}
-                <div ref={headerRef} className="header-layer" style={{ opacity: 0 }}>
-                    <Header />
-                </div>
+            {/* 3. Header (Fixed Top-Level for Persistence) */}
+            <div ref={headerRef} className="header-layer" style={{ opacity: 0, position: 'fixed', top: 0, left: 0, width: '100%', zIndex: 100 }}>
+                <Header />
             </div>
 
             {/* Spacer to create scrollable height */}

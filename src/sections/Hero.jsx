@@ -138,7 +138,7 @@ export const Hero = ({ contentVisible = true }) => {
             <div className="max-w-7xl mx-auto px-8 lg:px-16 xl:px-24 text-center relative z-10">
 
                 <motion.h1
-                    className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text mt-6 pb-2 leading-tight"
+                    className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text mt-6 pb-2 leading-tight fjalla-one-regular"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.7, delay: 0.1 }}

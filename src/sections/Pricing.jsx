@@ -97,7 +97,7 @@ export const Pricing = () => {
             />
             <div className="container mx-auto px-4 md:px-6 relative z-10">
                 <div className="max-w-[540px] mx-auto">
-                    <h2 className="text-center text-3xl md:text-[54px] md:leading-[60px] font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text">
+                    <h2 className="text-center text-3xl md:text-[54px] md:leading-[60px] font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text fjalla-one-regular">
                         Unlock more with Stars
                     </h2>
                     <p className="text-center text-[22px] leading-[30px] tracking-tight text-[#010D3E] mt-5">

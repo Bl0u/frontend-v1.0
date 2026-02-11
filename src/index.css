@@ -9,6 +9,7 @@
     --color-saas-focus: #010D3E;
     --font-family-dm-sans: 'DM Sans', sans-serif;
     --font-family-bebas: 'Bebas Neue', sans-serif;
+    --font-family-fjalla: 'Fjalla One', sans-serif;
 
     /* Cherry Blossom Color Palette - CSS Variables for Tailwind v4 */
     --color-night-bordeaux: #590d22;
@@ -372,6 +373,12 @@ h6 {
 
 .bebas-neue-regular {
     font-family: "Bebas Neue", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.fjalla-one-regular {
+    font-family: "Fjalla One", sans-serif;
     font-weight: 400;
     font-style: normal;
 }

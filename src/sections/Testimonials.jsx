@@ -122,7 +122,7 @@ export const Testimonials = () => {
                         <span className="font-bold text-sm">Testimonials</span>
                     </div>
                 </div>
-                <h2 className="text-center text-3xl md:text-[54px] md:leading-[60px] font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text mt-5">
+                <h2 className="text-center text-3xl md:text-[54px] md:leading-[60px] font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text mt-5 fjalla-one-regular">
                     What our users say
                 </h2>
                 <p className="text-center text-[22px] leading-[30px] tracking-tight text-[#010D3E] mt-5 max-w-lg mx-auto">
