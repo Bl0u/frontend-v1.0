@@ -1,15 +1,24 @@
-import { useRef, useState } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { useRef, useState, useEffect } from 'react';
+import { motion, useReducedMotion, useAnimation } from 'framer-motion';
 import { FaArrowRight } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
-export const Hero = () => {
+export const Hero = ({ contentVisible = true }) => {
     const heroRef = useRef(null);
     const buttonRef = useRef(null);
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const [isHovering, setIsHovering] = useState(false);
     const [particles, setParticles] = useState([]);
     const shouldReduceMotion = useReducedMotion();
+    const controls = useAnimation();
+
+    useEffect(() => {
+        if (contentVisible) {
+            controls.start("visible");
+        } else {
+            controls.start("hidden");
+        }
+    }, [contentVisible, controls]);
 
     const handleMouseMove = (e) => {
         if (!buttonRef.current) return;
@@ -42,6 +51,11 @@ export const Hero = () => {
     const handleMouseLeave = () => {
         setIsHovering(false);
         setParticles([]);
+    };
+
+    const fadeInUpVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.7 } }
     };
 
     return (
@@ -131,93 +145,100 @@ export const Hero = () => {
                 >
                     Here ... Is the road towards your success
                 </motion.h1>
-                <motion.p
-                    className="text-lg md:text-xl text-[#010D3E] tracking-tight mt-6 max-w-3xl mx-auto"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.7, delay: 0.2 }}
-                >
-                    Connect with students, find expert mentors, and access premium resources to ace your university projects.
-                </motion.p>
-                <motion.div
-                    className="flex flex-col sm:flex-row gap-6 justify-center items-center mt-[30px]"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.7, delay: 0.3 }}
-                >
-                    <motion.div
-                        whileHover={{ scale: 1.05, y: -2 }}
-                        whileTap={{ scale: 0.98 }}
-                        transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                    >
-                        <Link
-                            ref={buttonRef}
-                            to="/register"
-                            className="relative bg-[#1a1a2e] text-white px-10 py-4 rounded-full font-bold tracking-tight inline-flex items-center gap-3 overflow-hidden group shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_6px_30px_rgba(0,0,0,0.4)] transition-all duration-300"
-                            onMouseMove={handleMouseMove}
-                            onMouseEnter={() => setIsHovering(true)}
-                            onMouseLeave={handleMouseLeave}
-                        >
-                            <span className="relative z-10">Join for free</span>
-                            <FaArrowRight className="h-4 w-4 relative z-10 transition-transform duration-300 group-hover:translate-x-1" />
-                            {/* Animated gradient overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"></div>
 
-                            {/* Liquid Particle container */}
-                            <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-full">
-                                {particles.map((particle) => (
-                                    <motion.div
-                                        key={particle.id}
-                                        className="absolute rounded-full pointer-events-none blur-sm"
-                                        style={{
-                                            width: particle.size,
-                                            height: particle.size,
-                                            backgroundColor: particle.color,
-                                            left: particle.x,
-                                            top: particle.y,
-                                            boxShadow: `0 0 12px ${particle.color}, 0 0 24px ${particle.color}80`,
-                                            filter: `drop-shadow(0 0 8px ${particle.color})`,
-                                        }}
-                                        initial={{
-                                            scale: 0.5,
-                                            opacity: 1,
-                                        }}
-                                        animate={{
-                                            // Liquid wave motion - up and side to side
-                                            y: [
-                                                0,
-                                                -20,
-                                                -40,
-                                                -60,
-                                                -80,
-                                                -100
-                                            ],
-                                            x: [
-                                                0,
-                                                Math.sin(particle.waveOffset) * 30,
-                                                Math.sin(particle.waveOffset + Math.PI / 2) * 20,
-                                                Math.sin(particle.waveOffset + Math.PI) * 35,
-                                                Math.sin(particle.waveOffset + Math.PI * 1.5) * 15,
-                                                Math.sin(particle.waveOffset + Math.PI * 2) * 25,
-                                            ],
-                                            // Liquid morphing effect
-                                            scale: [0.5, 0.8, 1, 0.9, 0.6, 0],
-                                            opacity: [0.8, 1, 1, 0.8, 0.4, 0],
-                                            borderRadius: ['50%', '60% 40% 45% 55%', '50%', '45% 55% 50% 50%', '50%', '50%'],
-                                        }}
-                                        transition={{
-                                            duration: 1.5,
-                                            ease: 'easeOut',
-                                            times: [0, 0.2, 0.4, 0.6, 0.8, 1],
-                                        }}
-                                    />
-                                ))}
-                            </div>
+                {/* Controlled Reveal Wrapper */}
+                <motion.div
+                    initial="hidden"
+                    animate={controls}
+                    variants={{
+                        hidden: { opacity: 0, y: 20, pointerEvents: "none" },
+                        visible: { opacity: 1, y: 0, pointerEvents: "auto", transition: { staggerChildren: 0.2 } }
+                    }}
+                >
+                    <motion.p
+                        className="text-lg md:text-xl text-[#010D3E] tracking-tight mt-6 max-w-3xl mx-auto"
+                        variants={fadeInUpVariants}
+                    >
+                        Connect with students, find expert mentors, and access premium resources to ace your university projects.
+                    </motion.p>
+                    <motion.div
+                        className="flex flex-col sm:flex-row gap-6 justify-center items-center mt-[30px]"
+                        variants={fadeInUpVariants}
+                    >
+                        <motion.div
+                            whileHover={{ scale: 1.05, y: -2 }}
+                            whileTap={{ scale: 0.98 }}
+                            transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                        >
+                            <Link
+                                ref={buttonRef}
+                                to="/register"
+                                className="relative bg-[#1a1a2e] text-white px-10 py-4 rounded-full font-bold tracking-tight inline-flex items-center gap-3 overflow-hidden group shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_6px_30px_rgba(0,0,0,0.4)] transition-all duration-300"
+                                onMouseMove={handleMouseMove}
+                                onMouseEnter={() => setIsHovering(true)}
+                                onMouseLeave={handleMouseLeave}
+                            >
+                                <span className="relative z-10">Join for free</span>
+                                <FaArrowRight className="h-4 w-4 relative z-10 transition-transform duration-300 group-hover:translate-x-1" />
+                                {/* Animated gradient overlay */}
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"></div>
+
+                                {/* Liquid Particle container */}
+                                <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-full">
+                                    {particles.map((particle) => (
+                                        <motion.div
+                                            key={particle.id}
+                                            className="absolute rounded-full pointer-events-none blur-sm"
+                                            style={{
+                                                width: particle.size,
+                                                height: particle.size,
+                                                backgroundColor: particle.color,
+                                                left: particle.x,
+                                                top: particle.y,
+                                                boxShadow: `0 0 12px ${particle.color}, 0 0 24px ${particle.color}80`,
+                                                filter: `drop-shadow(0 0 8px ${particle.color})`,
+                                            }}
+                                            initial={{
+                                                scale: 0.5,
+                                                opacity: 1,
+                                            }}
+                                            animate={{
+                                                // Liquid wave motion - up and side to side
+                                                y: [
+                                                    0,
+                                                    -20,
+                                                    -40,
+                                                    -60,
+                                                    -80,
+                                                    -100
+                                                ],
+                                                x: [
+                                                    0,
+                                                    Math.sin(particle.waveOffset) * 30,
+                                                    Math.sin(particle.waveOffset + Math.PI / 2) * 20,
+                                                    Math.sin(particle.waveOffset + Math.PI) * 35,
+                                                    Math.sin(particle.waveOffset + Math.PI * 1.5) * 15,
+                                                    Math.sin(particle.waveOffset + Math.PI * 2) * 25,
+                                                ],
+                                                // Liquid morphing effect
+                                                scale: [0.5, 0.8, 1, 0.9, 0.6, 0],
+                                                opacity: [0.8, 1, 1, 0.8, 0.4, 0],
+                                                borderRadius: ['50%', '60% 40% 45% 55%', '50%', '45% 55% 50% 50%', '50%', '50%'],
+                                            }}
+                                            transition={{
+                                                duration: 1.5,
+                                                ease: 'easeOut',
+                                                times: [0, 0.2, 0.4, 0.6, 0.8, 1],
+                                            }}
+                                        />
+                                    ))}
+                                </div>
+                            </Link>
+                        </motion.div>
+                        <Link to="/partners" className="text-black font-bold tracking-tight flex items-center gap-2 hover:gap-3 transition-all hover:translate-x-1 border-2 border-black px-8 py-3 rounded-full hover:bg-black/5">
+                            Find Partners <FaArrowRight className="h-4 w-4" />
                         </Link>
                     </motion.div>
-                    <Link to="/partners" className="text-black font-bold tracking-tight flex items-center gap-2 hover:gap-3 transition-all hover:translate-x-1 border-2 border-black px-8 py-3 rounded-full hover:bg-black/5">
-                        Find Partners <FaArrowRight className="h-4 w-4" />
-                    </Link>
                 </motion.div>
             </div>
         </section>

@@ -16,9 +16,8 @@ const LandingPage = () => {
     const text2Ref = useRef(null);
     const text3Ref = useRef(null);
     const maskContainerRef = useRef(null);
-    const heroContentRef = useRef(null);
     const headerRef = useRef(null);
-    const [isFixed, setIsFixed] = useState(true);
+    const [heroContentVisible, setHeroContentVisible] = useState(false);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -72,27 +71,24 @@ const LandingPage = () => {
                 maskContainerRef.current.style.webkitMaskSize = maskSize;
             }
 
-            // 3. Hero Content Reveal (6.5 - 7.5)
-            // The Hero component itself is inside the mask. 
-            // We might want to fade in specific elements *inside* Hero if they have their own refs, 
-            // but for now, the mask reveal does the job for the *background/shape*.
-            // If Hero has text/buttons, we might want to toggle a class or opacity on them.
-            // Let's assume the Hero is fully visible once mask is huge.
+            // 3. Hero Content Reveal & Navbar (Trigger at ~80% of zoom, around 6.0)
+            const revealThreshold = 6.0;
+            if (progress > revealThreshold) {
+                setHeroContentVisible(true);
+            } else {
+                setHeroContentVisible(false);
+            }
 
             // 4. Navbar & Content Flow (7.5+)
             if (headerRef.current) {
                 let headerOpacity = 0;
-                if (progress > 7.0) {
-                    headerOpacity = Math.min((progress - 7.0) / 0.5, 1);
+                // Reveal synced with Hero Content (~6.0) but maybe fading in smoothly
+                if (progress > revealThreshold) {
+                    headerOpacity = Math.min((progress - revealThreshold) / 0.5, 1);
                 }
                 headerRef.current.style.opacity = headerOpacity;
                 headerRef.current.style.pointerEvents = headerOpacity > 0.5 ? 'auto' : 'none';
             }
-
-            // Un-fix logic if we wanted to scroll naturally after animation,
-            // but for this pattern, we usually map the rest of the page *after* the scroll spacer.
-            // However, React structure here puts sections *below*. 
-            // So we need to make sure the "Following" sections appear naturally after the Spacer.
         };
 
         window.addEventListener('scroll', handleScroll, { passive: true });
@@ -119,7 +115,8 @@ const LandingPage = () => {
                         Crucially, the 'mask-image' CSS on parent will cut this. 
                     */}
                     <div className="hero-content-wrapper">
-                        <Hero />
+                        {/* Pass visibility prop to Hero */}
+                        <Hero contentVisible={heroContentVisible} />
                     </div>
                 </div>
 

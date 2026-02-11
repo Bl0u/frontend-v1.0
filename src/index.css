@@ -8,6 +8,7 @@
     --color-saas-background: #EAEEFE;
     --color-saas-focus: #010D3E;
     --font-family-dm-sans: 'DM Sans', sans-serif;
+    --font-family-bebas: 'Bebas Neue', sans-serif;
 
     /* Cherry Blossom Color Palette - CSS Variables for Tailwind v4 */
     --color-night-bordeaux: #590d22;
@@ -359,12 +360,20 @@ h6 {
     position: absolute;
     color: white;
     font-size: 3rem;
-    font-weight: 700;
+    font-family: var(--font-family-bebas);
+    /* Apply Bebas Neue */
+    font-weight: 400;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     text-align: center;
     width: 100%;
     text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.bebas-neue-regular {
+    font-family: "Bebas Neue", sans-serif;
+    font-weight: 400;
+    font-style: normal;
 }
 
 @media (min-width: 768px) {
