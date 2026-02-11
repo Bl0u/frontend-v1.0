@@ -1,0 +1,115 @@
+/* Scoped styles for MorphingCTA */
+.morph-cta-container {
+    --base-400: rgba(0, 0, 0, 0.05);
+    --base-300: rgba(0, 0, 0, 0.1);
+    --text: #010D3E;
+    --gradient-button: linear-gradient(135deg, #7c3aed, #ec4899);
+
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    /* Full viewport height for pinning */
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    color: var(--text);
+    /* Landing Page Light Gradient */
+    background: linear-gradient(to bottom, #FFFFFF, #F0E8FF, #E8D2FF);
+}
+
+.morph-features {
+    position: relative;
+    width: min(900px, 92vw);
+    height: min(520px, 70vh);
+}
+
+.morph-feature {
+    position: absolute;
+    width: max-content;
+    height: max-content;
+    padding: 1rem 1.5rem;
+    transform: translate(-50%, -50%);
+    will-change: top, left, transform, opacity;
+    z-index: 10;
+}
+
+.morph-feature-bg {
+    position: absolute;
+    inset: 0;
+    background-color: var(--base-400);
+    border: 0.125rem solid var(--base-300);
+    border-radius: 0.75rem;
+    backdrop-filter: blur(14px);
+    will-change: width, height, border-radius, border-width;
+}
+
+.morph-feature-content {
+    position: relative;
+    will-change: opacity;
+}
+
+.morph-feature-content p {
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    font-size: 1rem;
+    line-height: 1;
+    color: #010D3E;
+    /* Dark text for light mode */
+}
+
+/* The target button */
+.morph-search-bar {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+
+    width: 3rem;
+    height: 3rem;
+    border-radius: 999px;
+
+    background: var(--gradient-button);
+    border: 0.35rem solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 25px 80px rgba(124, 58, 237, 0.5);
+    /* Purple shadow */
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    opacity: 0;
+    pointer-events: none;
+    /* Enabled after animation */
+    cursor: pointer;
+
+    will-change: width, height, opacity, transform;
+    z-index: 20;
+    text-decoration: none;
+    overflow: hidden;
+}
+
+.morph-search-bar p {
+    margin: 0;
+    padding: 0 1.5rem;
+    /* Symmetry */
+    opacity: 0;
+    /* transform: translateX(16px); Removed initial translate for cleaner center reveal */
+    white-space: nowrap;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: white;
+    /* Button text stays white */
+
+}
+
+.morph-header {
+    position: absolute;
+    top: 15%;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    width: 100%;
+    z-index: 5;
+}

@@ -24,6 +24,7 @@ import SocialMediaEditor from './pages/SocialMediaEditor';
 import Chat from './pages/Chat';
 import PlanManager from './pages/PlanManager';
 import PlanViewer from './pages/PlanViewer';
+import TestMorph from './pages/TestMorph';
 import TopUp from './pages/TopUp'; // V2.0
 import { useContext } from 'react';
 import AuthContext from './context/AuthContext';
@@ -79,6 +80,7 @@ function App() {
             <Route path="/chat" element={<Chat />} />
             <Route path="/top-up" element={<TopUp />} /> {/* V2.0: Top Up Page */}
             <Route path="/plan/:id" element={<PlanWrapper />} />
+            <Route path="/test" element={<TestMorph />} />
           </Routes>
         </MainLayout>
         <ToastContainer position="bottom-right" />

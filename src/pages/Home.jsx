@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 import { FaUserGraduate, FaChalkboardTeacher, FaHandshake, FaBookOpen, FaArrowRight, FaRocket, FaLightbulb, FaStar } from 'react-icons/fa';
 import Footer from '../components/Footer';
+import MorphingCTA from '../components/MorphingCTA';
 
 const Home = () => {
     const { user } = useContext(AuthContext);
@@ -399,70 +400,8 @@ const Home = () => {
             </section>
 
             {/* Final CTA Section */}
-            <section className="py-24 text-white rounded-b-3xl relative" style={{ background: 'linear-gradient(135deg, rgba(128, 15, 47, 0.9) 0%, rgba(164, 19, 60, 0.85) 50%, rgba(201, 24, 74, 0.8) 100%)' }}>
-                {/* Diagonal Rose Decorations */}
-                <svg className="absolute top-20 left-20 opacity-10" width="140" height="140" viewBox="0 0 150 150" style={{ transform: 'rotate(-35deg)' }}>
-                    <g>
-                        <ellipse cx="75" cy="50" rx="12" ry="18" fill="#ffccd5" opacity="0.8" />
-                        <ellipse cx="60" cy="60" rx="15" ry="20" fill="#ffb3c1" opacity="0.7" />
-                        <ellipse cx="90" cy="60" rx="15" ry="20" fill="#ffb3c1" opacity="0.7" />
-                        <ellipse cx="75" cy="70" rx="18" ry="22" fill="#ff8fa3" opacity="0.6" />
-                        <ellipse cx="75" cy="85" rx="20" ry="25" fill="#ff758f" opacity="0.5" />
-                        <circle cx="75" cy="75" r="8" fill="#ff4d6d" />
-                        <path d="M 75 95 Q 70 110 68 130 Q 75 115 75 95 Q 80 115 82 130 Q 80 110 75 95" fill="#2d5016" opacity="0.6" />
-                    </g>
-                </svg>
-                <svg className="absolute top-10 right-32 opacity-8" width="125" height="125" viewBox="0 0 150 150" style={{ transform: 'rotate(40deg)' }}>
-                    <g>
-                        <ellipse cx="75" cy="50" rx="12" ry="18" fill="#ffccd5" opacity="0.8" />
-                        <ellipse cx="60" cy="60" rx="15" ry="20" fill="#ffb3c1" opacity="0.7" />
-                        <ellipse cx="90" cy="60" rx="15" ry="20" fill="#ffb3c1" opacity="0.7" />
-                        <ellipse cx="75" cy="70" rx="18" ry="22" fill="#ff8fa3" opacity="0.6" />
-                        <ellipse cx="75" cy="85" rx="20" ry="25" fill="#ff758f" opacity="0.5" />
-                        <circle cx="75" cy="75" r="8" fill="#ff4d6d" />
-                        <path d="M 75 95 Q 70 110 68 130 Q 75 115 75 95 Q 80 115 82 130 Q 80 110 75 95" fill="#2d5016" opacity="0.6" />
-                    </g>
-                </svg>
-                <svg className="absolute bottom-16 left-40 opacity-10" width="115" height="115" viewBox="0 0 150 150" style={{ transform: 'rotate(20deg)' }}>
-                    <g>
-                        <ellipse cx="75" cy="50" rx="12" ry="18" fill="#ffccd5" opacity="0.8" />
-                        <ellipse cx="60" cy="60" rx="15" ry="20" fill="#ffb3c1" opacity="0.7" />
-                        <ellipse cx="90" cy="60" rx="15" ry="20" fill="#ffb3c1" opacity="0.7" />
-                        <ellipse cx="75" cy="70" rx="18" ry="22" fill="#ff8fa3" opacity="0.6" />
-                        <ellipse cx="75" cy="85" rx="20" ry="25" fill="#ff758f" opacity="0.5" />
-                        <circle cx="75" cy="75" r="8" fill="#ff4d6d" />
-                        <path d="M 75 95 Q 70 110 68 130 Q 75 115 75 95 Q 80 115 82 130 Q 80 110 75 95" fill="#2d5016" opacity="0.6" />
-                    </g>
-                </svg>
-                <svg className="absolute bottom-20 right-28 opacity-8" width="135" height="135" viewBox="0 0 150 150" style={{ transform: 'rotate(-20deg)' }}>
-                    <g>
-                        <ellipse cx="75" cy="50" rx="12" ry="18" fill="#ffccd5" opacity="0.8" />
-                        <ellipse cx="60" cy="60" rx="15" ry="20" fill="#ffb3c1" opacity="0.7" />
-                        <ellipse cx="90" cy="60" rx="15" ry="20" fill="#ffb3c1" opacity="0.7" />
-                        <ellipse cx="75" cy="70" rx="18" ry="22" fill="#ff8fa3" opacity="0.6" />
-                        <ellipse cx="75" cy="85" rx="20" ry="25" fill="#ff758f" opacity="0.5" />
-                        <circle cx="75" cy="75" r="8" fill="#ff4d6d" />
-                        <path d="M 75 95 Q 70 110 68 130 Q 75 115 75 95 Q 80 115 82 130 Q 80 110 75 95" fill="#2d5016" opacity="0.6" />
-                    </g>
-                </svg>
-
-                <div className="max-w-7xl mx-auto px-8 lg:px-16 xl:px-24 text-center relative z-10">
-                    <h2 className="text-6xl font-bold mb-8 scroll-reveal">Ready to Start Your Journey?</h2>
-                    <p className="text-2xl mb-12 max-w-3xl mx-auto text-[#ffccd5] scroll-reveal leading-relaxed">
-                        Join hundreds of students who are already building amazing projects with LearnCrew.
-                        Your dream project starts here.
-                    </p>
-                    {!user && (
-                        <Link
-                            to="/register"
-                            className="group scroll-reveal inline-flex items-center gap-4 bg-white text-[#a4133c] font-bold py-6 px-14 rounded-full shadow-2xl hover:shadow-white/50 transition-all duration-300 transform hover:scale-110 hover:-translate-y-1 text-xl animate-glow-pulse"
-                        >
-                            Join LearnCrew - It's Free
-                            <FaRocket className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                        </Link>
-                    )}
-                </div>
-            </section>
+            {/* Final CTA Section - Replaced with Morphing Animation */}
+            <MorphingCTA />
 
             {/* Footer - Separated from content */}
             <div className="mt-16">

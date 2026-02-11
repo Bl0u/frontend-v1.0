@@ -9,6 +9,7 @@ import { Pricing } from '../sections/Pricing';
 import { Testimonials } from '../sections/Testimonials';
 import { CallToAction } from '../sections/CallToAction';
 import { Footer } from '../sections/Footer';
+import MorphingCTA from '../components/MorphingCTA';
 import "../fonts/style/fontsStyle.css";
 
 const LandingPage = () => {
@@ -170,7 +171,7 @@ const LandingPage = () => {
                 <ProductShowcase />
                 <Pricing />
                 <Testimonials />
-                <CallToAction />
+                <MorphingCTA />
                 <Footer />
             </div>
         </div>
