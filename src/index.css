@@ -322,3 +322,100 @@ h6 {
         animation: none !important;
     }
 }
+
+/* Landing Page Scroll Animation Utilities */
+.landing-scroll-container {
+    background-color: #000;
+    /* Start dark/black */
+    position: relative;
+    /* width: 100%; */
+}
+
+.landing-sticky-viewport {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    z-index: 10;
+}
+
+.intro-text-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+    z-index: 50;
+    /* Top most, text is white */
+}
+
+.intro-text {
+    position: absolute;
+    color: white;
+    font-size: 3rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    text-align: center;
+    width: 100%;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+@media (min-width: 768px) {
+    .intro-text {
+        font-size: 5rem;
+    }
+}
+
+.masked-hero-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 40;
+    /* Below text */
+    /* Masking Magic */
+    mask-image: url('./assets/logo.svg');
+    -webkit-mask-image: url('./assets/logo.svg');
+    mask-repeat: no-repeat;
+    -webkit-mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-position: center;
+    /* Initial state, controlled by JS */
+    /* mask-size: 15%; */
+    /* opacity: 0; */
+    background-color: var(--color-saas-background);
+    /* Match Hero bg */
+}
+
+.hero-content-wrapper {
+    width: 100%;
+    height: 100%;
+    /* Ensure Hero fits cleanly or covers */
+}
+
+/* Override Hero styles if needed to make it full screen inside mask */
+.hero-content-wrapper>section {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 60;
+    /* Above everything when visible */
+}
