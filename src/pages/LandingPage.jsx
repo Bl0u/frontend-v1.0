@@ -18,6 +18,7 @@ const LandingPage = () => {
     const text3Ref = useRef(null);
     const maskContainerRef = useRef(null);
     const headerRef = useRef(null);
+    const stickyViewportRef = useRef(null);
     const [heroContentVisible, setHeroContentVisible] = useState(false);
 
     useEffect(() => {
@@ -80,15 +81,36 @@ const LandingPage = () => {
                 setHeroContentVisible(false);
             }
 
-            // 4. Navbar & Content Flow (7.5+)
+            // 4. Navbar - visible only during hero section
+            const heroEndScroll = windowHeight * 8; // 800vh spacer height
+            const isPastHero = scrollY >= heroEndScroll;
+
+            // Hide the entire sticky viewport once past the hero
+            if (stickyViewportRef.current) {
+                stickyViewportRef.current.style.display = isPastHero ? 'none' : '';
+            }
+
             if (headerRef.current) {
-                let headerOpacity = 0;
-                // Reveal synced with Hero Content (~6.0) but maybe fading in smoothly
-                if (progress > revealThreshold) {
-                    headerOpacity = Math.min((progress - revealThreshold) / 0.5, 1);
+                if (isPastHero) {
+                    // Completely hide navbar after hero section
+                    headerRef.current.style.opacity = 0;
+                    headerRef.current.style.pointerEvents = 'none';
+                    headerRef.current.style.display = 'none';
+                } else {
+                    headerRef.current.style.display = '';
+                    let headerOpacity = 0;
+                    if (progress > revealThreshold) {
+                        headerOpacity = Math.min((progress - revealThreshold) / 0.5, 1);
+                        // Fade out as we approach the end of the hero section
+                        const fadeOutStart = heroEndScroll - windowHeight;
+                        if (scrollY > fadeOutStart) {
+                            const fadeOutProgress = (scrollY - fadeOutStart) / windowHeight;
+                            headerOpacity *= Math.max(1 - fadeOutProgress, 0);
+                        }
+                    }
+                    headerRef.current.style.opacity = headerOpacity;
+                    headerRef.current.style.pointerEvents = headerOpacity > 0.5 ? 'auto' : 'none';
                 }
-                headerRef.current.style.opacity = headerOpacity;
-                headerRef.current.style.pointerEvents = headerOpacity > 0.5 ? 'auto' : 'none';
             }
         };
 
@@ -101,20 +123,24 @@ const LandingPage = () => {
     return (
         <div ref={containerRef} className="landing-scroll-container">
             {/* Fixed/Sticky Viewport */}
-            <div className="landing-sticky-viewport">
+            <div ref={stickyViewportRef} className="landing-sticky-viewport">
 
                 {/* 1. Intro Text Layer */}
                 <div className="intro-text-layer">
-                    <h1 ref={text1Ref} className="intro-text" style={{ opacity: 0, 
-                    fontFamily: "Zuume-Semi-Bold-Italic", 
-                    letterSpacing: "0px", }}>Here ...</h1>
-                    <h1 ref={text2Ref} className="intro-text" style={{ opacity: 0, 
-                    fontFamily: "Zuume-Semi-Bold-Italic", 
-                    letterSpacing: "0px"
-                    }}>Is your road ...</h1>
-                    <h1 ref={text3Ref} className="intro-text" style={{ opacity: 0, 
-                    fontFamily: "Zuume-Semi-Bold-Italic", 
-                    letterSpacing: "0px"
+                    <h1 ref={text1Ref} className="intro-text" style={{
+                        opacity: 0,
+                        fontFamily: "Zuume-Semi-Bold-Italic",
+                        letterSpacing: "0px",
+                    }}>Here ...</h1>
+                    <h1 ref={text2Ref} className="intro-text" style={{
+                        opacity: 0,
+                        fontFamily: "Zuume-Semi-Bold-Italic",
+                        letterSpacing: "0px"
+                    }}>Is your road</h1>
+                    <h1 ref={text3Ref} className="intro-text" style={{
+                        opacity: 0,
+                        fontFamily: "Zuume-Semi-Bold-Italic",
+                        letterSpacing: "0px"
                     }}>Towards Success</h1>
                 </div>
 
