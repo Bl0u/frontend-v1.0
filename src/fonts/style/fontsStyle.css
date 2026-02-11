@@ -1,0 +1,25 @@
+@font-face {
+  font-family: "Zuume-Bold";
+  src: url("../Zuma/ZuumeBold.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Zuuma-Italic";
+  src: url("../Zuma/ZuumeItalic.ttf") format("truetype");
+  font-weight: 300;   /* light */
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Zuume-Semi-Bold-Italic";
+  src: url("../Zuma/ZuumeSemiBoldItalic.ttf") format("truetype");
+}
+
+/* @font-face {
+  font-family: "Zuuma-Adel-Italic";
+  src: url("../Zuma/ZuumeItalic.ttf") format("truetype");
+  font-weight: 300;   light
+  font-style: italic;
+  font-display: swap;
+} */

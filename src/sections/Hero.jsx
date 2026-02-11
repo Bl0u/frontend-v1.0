@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from 'react';
 import { motion, useReducedMotion, useAnimation } from 'framer-motion';
 import { FaArrowRight } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+import "../fonts/style/fontsStyle.css";
 
 export const Hero = ({ contentVisible = true }) => {
     const heroRef = useRef(null);
@@ -138,12 +139,21 @@ export const Hero = ({ contentVisible = true }) => {
             <div className="max-w-7xl mx-auto px-8 lg:px-16 xl:px-24 text-center relative z-10">
 
                 <motion.h1
+                    style={{ 
+                        fontFamily: "Zuume-Bold", 
+                        letterSpacing: "0.5px",
+                    }}
                     className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text mt-6 pb-2 leading-tight fjalla-one-regular"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.7, delay: 0.1 }}
                 >
-                    Here ... Is the road towards your success
+                    Here ... Is the road towards your {" "}
+                    <span style={{ fontFamily: "Zuuma-Italic", fontStyle: "italic", fontWeight: 300,
+                        letterSpacing: "-3px"
+                     }}>
+                        success
+                    </span>
                 </motion.h1>
 
                 {/* Controlled Reveal Wrapper */}

@@ -9,6 +9,7 @@ import { Pricing } from '../sections/Pricing';
 import { Testimonials } from '../sections/Testimonials';
 import { CallToAction } from '../sections/CallToAction';
 import { Footer } from '../sections/Footer';
+import "../fonts/style/fontsStyle.css";
 
 const LandingPage = () => {
     const containerRef = useRef(null);
@@ -104,9 +105,17 @@ const LandingPage = () => {
 
                 {/* 1. Intro Text Layer */}
                 <div className="intro-text-layer">
-                    <h1 ref={text1Ref} className="intro-text" style={{ opacity: 0 }}>Here ...</h1>
-                    <h1 ref={text2Ref} className="intro-text" style={{ opacity: 0 }}>Is your road ...</h1>
-                    <h1 ref={text3Ref} className="intro-text" style={{ opacity: 0 }}>Towards Success</h1>
+                    <h1 ref={text1Ref} className="intro-text" style={{ opacity: 0, 
+                    fontFamily: "Zuume-Semi-Bold-Italic", 
+                    letterSpacing: "0px", }}>Here ...</h1>
+                    <h1 ref={text2Ref} className="intro-text" style={{ opacity: 0, 
+                    fontFamily: "Zuume-Semi-Bold-Italic", 
+                    letterSpacing: "0px"
+                    }}>Is your road ...</h1>
+                    <h1 ref={text3Ref} className="intro-text" style={{ opacity: 0, 
+                    fontFamily: "Zuume-Semi-Bold-Italic", 
+                    letterSpacing: "0px"
+                    }}>Towards Success</h1>
                 </div>
 
                 {/* 2. Masked Hero Layer */}
