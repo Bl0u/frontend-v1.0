@@ -3,7 +3,7 @@
     --base-400: rgba(0, 0, 0, 0.05);
     --base-300: rgba(0, 0, 0, 0.1);
     --text: #010D3E;
-    --gradient-button: linear-gradient(135deg, #7c3aed, #ec4899);
+    --gradient-button: linear-gradient(135deg, #00ADFE, #FF12DC);
 
     position: relative;
     width: 100%;

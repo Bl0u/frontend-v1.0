@@ -132,13 +132,24 @@ const MorphingCTA = () => {
                 ease: "power2.out"
             }, ">"); // Starts after previous animation (expansion) ends
 
-            // ---- PHASE H: Show "Success" text AND Extra Content
+            // ---- PHASE H: Transition ownership of background to inner mask button
+            // The container needs to be transparent for the mask overlay to work properly 
+            // otherwise we just see the solid container background.
+            tl.to(searchBar, {
+                background: "transparent",
+                boxShadow: "none", // Optional: if shadow should also move to inner, or stay. 
+                // Keeping shadow on container is usually safer for layout, but if mask 'eats' button, shadow might look weird.
+                // For now, let's keep shadow, just remove background color.
+                duration: 0.1
+            }, "<");
+
+            // ---- PHASE I: Show "Success" text AND Extra Content
             if (successText) {
                 tl.to(successText, {
                     opacity: 1,
                     duration: 0.5,
                     ease: "power2.out",
-                }, "<"); // Run simultaneously with button text reveal
+                }, "<"); // Run simultaneously
             }
 
             if (extraContent) {
