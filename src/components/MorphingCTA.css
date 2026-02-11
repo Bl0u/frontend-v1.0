@@ -123,6 +123,28 @@
     border: 0.35rem solid rgba(255, 255, 255, 0.3) !important;
 }
 
+.morph-extra-content {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, calc(-50% + 180px));
+    /* Position below centered button */
+
+    text-align: center;
+    width: 100%;
+    pointer-events: none;
+    z-index: 15;
+}
+
+.morph-extra-content p {
+    font-size: 1.1rem;
+    font-family: 'Lato', sans-serif;
+    color: #64748b;
+    /* Slate-500 equivalent */
+    font-weight: 500;
+    margin: 0;
+}
+
 .morph-header {
     position: absolute;
     top: 15%;

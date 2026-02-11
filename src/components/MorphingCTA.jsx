@@ -5,6 +5,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { motion } from 'framer-motion';
 import { FaArrowRight } from 'react-icons/fa';
 import './MorphingCTA.css';
+import '../styles/MaskAnimations.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -21,7 +22,8 @@ const MorphingCTA = () => {
             const featureEls = q(".morph-feature");
             const bgEls = q(".morph-feature-bg");
             const contentEls = q(".morph-feature-content");
-            const searchText = q(".morph-search-bar p")[0]; // Might not exist if using mask structure, but good to keep safe
+            const buttonTextItems = q(".morph-search-bar .mas, .morph-search-bar .mask-btn-urban"); // Select inner text
+            const extraContent = q(".morph-extra-content")[0];
 
             if (!featuresWrap || !searchBar || featureEls.length === 0) return;
 
@@ -29,6 +31,11 @@ const MorphingCTA = () => {
             gsap.set(featureEls, { opacity: 1, visibility: 'visible' });
             gsap.set(searchBar, { opacity: 0, visibility: 'visible' });
             if (successText) gsap.set(successText, { opacity: 0 });
+
+            // Hide button text initially so it doesn't show during morph/expansion
+            gsap.set(buttonTextItems, { opacity: 0 });
+            // Hide extra content initially
+            if (extraContent) gsap.set(extraContent, { opacity: 0, y: 20 });
 
             // Start positions (percent inside .morph-features box)
             const startPos = [
@@ -100,7 +107,7 @@ const MorphingCTA = () => {
                 ease: "none",
             }, 0.55);
 
-            // ---- PHASE E: reveal search bar (button) where the merge happened
+            // ---- PHASE E: reveal search bar (button container)
             // We animate 'autoAlpha' which handles opacity + visibility
             tl.to(searchBar, {
                 opacity: 1,
@@ -118,14 +125,29 @@ const MorphingCTA = () => {
                 ease: "power2.out",
             }, 0.62);
 
-            // ---- PHASE G: Show "Success" text in header
+            // ---- PHASE G: Reveal Button Text (Delayed until expansion is done)
+            tl.to(buttonTextItems, {
+                opacity: 1,
+                duration: 0.2,
+                ease: "power2.out"
+            }, ">"); // Starts after previous animation (expansion) ends
+
+            // ---- PHASE H: Show "Success" text AND Extra Content
             if (successText) {
-                // Animate success text independently or as part of timeline
                 tl.to(successText, {
                     opacity: 1,
                     duration: 0.5,
                     ease: "power2.out",
-                }, ">-0.3"); // Overlap slightly with button expansion
+                }, "<"); // Run simultaneously with button text reveal
+            }
+
+            if (extraContent) {
+                tl.to(extraContent, {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.5,
+                    ease: "power2.out",
+                }, "<+=0.1"); // Start slightly after
             }
 
         }, containerRef); // Scope selector to containerRef
@@ -224,6 +246,11 @@ const MorphingCTA = () => {
                     <Link to="/register" className="mask-btn-urban">
                         Sign up for free
                     </Link>
+                </div>
+
+                {/* Extra content revealed at the end */}
+                <div className="morph-extra-content">
+                    <p>Join thousands of students and build your future.</p>
                 </div>
             </div>
         </section>
