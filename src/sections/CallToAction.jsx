@@ -2,7 +2,7 @@ import { FaArrowRight } from 'react-icons/fa';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
 import { Link } from 'react-router-dom';
-
+import "../styles/MorphingTransition.css" ;
 export const CallToAction = () => {
     const sectionRef = useRef(null);
     const { scrollYProgress } = useScroll({
@@ -77,7 +77,27 @@ export const CallToAction = () => {
                         transition={{ duration: 0.7 }}
                         viewport={{ once: true }}
                     >
-                        Ready to find your crew?
+                        Ready to find your {" "}
+                        <div className='features'>
+                        <div className='feature'>
+                                <div className='feature-bg'></div>
+                                <div className='feature-content'>
+                                    mentor{", "}
+                                </div>
+                            </div>
+                            <div className='feature'>
+                                <div className='feature-bg'></div>
+                                <div className='feature-content'>
+                                    partner{", "}
+                                </div>
+                            </div>
+                            <div className='feature'>
+                                <div className='feature-bg'></div>
+                                <div className='feature-content'>
+                                    and resources{" "}
+                                </div>
+                            </div>
+                        </div>
                     </motion.h2>
                     <motion.p
                         className="text-center text-[22px] leading-[30px] tracking-tight text-[#010D3E] mt-5"
@@ -117,11 +137,14 @@ export const CallToAction = () => {
                     viewport={{ once: true }}
                 >
                     <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                        <div className="mask-container-urban">
+                        {/* <div className="mask-container-urban">
                             <span className="mas">Sign up for free</span>
                             <Link to="/register" className="mask-btn-urban">
                                 Sign up for free
                             </Link>
+                        </div> */}
+                        <div className='search-bar'>
+                            <p>find the unseen link</p>
                         </div>
                     </motion.div>
                     <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>

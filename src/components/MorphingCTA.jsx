@@ -13,18 +13,22 @@ const MorphingCTA = () => {
 
     useLayoutEffect(() => {
         const ctx = gsap.context(() => {
-            const featuresWrap = document.querySelector(".morph-features");
-            const searchBar = document.querySelector(".morph-search-bar");
-            const searchText = document.querySelector(".morph-search-bar p");
-            const featureEls = gsap.utils.toArray(".morph-feature");
-            const bgEls = gsap.utils.toArray(".morph-feature-bg");
-            const contentEls = gsap.utils.toArray(".morph-feature-content");
+            const q = gsap.utils.selector(containerRef);
+
+            const featuresWrap = q(".morph-features")[0];
+            const searchBar = q(".morph-search-bar")[0];
+            const successText = q(".morph-success-text")[0];
+            const featureEls = q(".morph-feature");
+            const bgEls = q(".morph-feature-bg");
+            const contentEls = q(".morph-feature-content");
+            const searchText = q(".morph-search-bar p")[0]; // Might not exist if using mask structure, but good to keep safe
 
             if (!featuresWrap || !searchBar || featureEls.length === 0) return;
 
-            // Ensure initial visibility - CRITICAL FIX
+            // Ensure initial visibility
             gsap.set(featureEls, { opacity: 1, visibility: 'visible' });
             gsap.set(searchBar, { opacity: 0, visibility: 'visible' });
+            if (successText) gsap.set(successText, { opacity: 0 });
 
             // Start positions (percent inside .morph-features box)
             const startPos = [
@@ -97,9 +101,10 @@ const MorphingCTA = () => {
             }, 0.55);
 
             // ---- PHASE E: reveal search bar (button) where the merge happened
+            // We animate 'autoAlpha' which handles opacity + visibility
             tl.to(searchBar, {
                 opacity: 1,
-                pointerEvents: "auto", // Enable clicks
+                pointerEvents: "auto",
                 duration: 0.15,
                 ease: "none",
             }, 0.55);
@@ -113,12 +118,15 @@ const MorphingCTA = () => {
                 ease: "power2.out",
             }, 0.62);
 
-            // ---- PHASE G: show text
-            tl.to(searchText, {
-                opacity: 1,
-                duration: 0.35,
-                ease: "power2.out",
-            }, 0.85);
+            // ---- PHASE G: Show "Success" text in header
+            if (successText) {
+                // Animate success text independently or as part of timeline
+                tl.to(successText, {
+                    opacity: 1,
+                    duration: 0.5,
+                    ease: "power2.out",
+                }, ">-0.3"); // Overlap slightly with button expansion
+            }
 
         }, containerRef); // Scope selector to containerRef
 
@@ -135,8 +143,8 @@ const MorphingCTA = () => {
                 width={360}
                 className="absolute hidden md:block" // Hide on small screens if needed
                 style={{
-                    left: '-10%',
-                    top: '-10%',
+                    left: '5%', // Closer to center
+                    top: '5%',
                     position: 'absolute',
                     pointerEvents: 'none',
                     opacity: 0.9
@@ -158,8 +166,8 @@ const MorphingCTA = () => {
                 width={360}
                 className="absolute hidden md:block"
                 style={{
-                    right: '-10%',
-                    bottom: '-5%',
+                    right: '5%', // Closer to center
+                    bottom: '10%',
                     position: 'absolute',
                     pointerEvents: 'none',
                     opacity: 0.9
@@ -180,7 +188,7 @@ const MorphingCTA = () => {
                     className="text-center text-4xl md:text-6xl font-bold bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text drop-shadow-sm mb-4"
                     style={{ fontFamily: "Zuume-Bold", letterSpacing: "0.5px" }}
                 >
-                    Ready to find your...
+                    Ready to find your... <span className="morph-success-text" style={{ opacity: 0 }}>Success</span>
                 </h2>
             </div>
 
@@ -210,10 +218,13 @@ const MorphingCTA = () => {
                     </div>
                 </div>
 
-                {/* The thing we morph into: Sign Up Button */}
-                <Link to="/register" className="morph-search-bar">
-                    <p>Sign up for free</p>
-                </Link>
+                {/* The thing we morph into: Wrapper Container for Mask Button */}
+                <div className="morph-search-bar mask-container-urban">
+                    <span className="mas">Sign up for free</span>
+                    <Link to="/register" className="mask-btn-urban">
+                        Sign up for free
+                    </Link>
+                </div>
             </div>
         </section>
     );
