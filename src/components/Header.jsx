@@ -167,12 +167,15 @@ const Header = () => {
                                             </Link>
                                         </li>
                                         <li>
-                                            <Link
-                                                to="/register"
-                                                className="bg-white text-[#a4133c] px-6 py-2 rounded-full font-bold hover:bg-[#ffccd5] transition-all duration-300 shadow-lg"
-                                            >
-                                                Get Started
-                                            </Link>
+                                            <div className="mask-container-nature">
+                                                <span className="mas">JOIN</span>
+                                                <Link
+                                                    to="/register"
+                                                    className="mask-btn-nature"
+                                                >
+                                                    JOIN
+                                                </Link>
+                                            </div>
                                         </li>
                                     </>
                                 )}

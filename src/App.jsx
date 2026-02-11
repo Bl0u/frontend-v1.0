@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from './context/AuthContext';
+import './styles/MaskAnimations.css';
 import Header from './components/Header';
 import Home from './pages/Home';
 import LandingPage from './pages/LandingPage';

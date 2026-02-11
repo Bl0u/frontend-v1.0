@@ -67,10 +67,10 @@ export const CallToAction = () => {
 
                 <div className="max-w-[540px] mx-auto relative">
                     <motion.h2
-                                        style={{ 
-                                            fontFamily: "Zuume-Bold", 
-                                            letterSpacing: "0.5px",
-                                        }}
+                        style={{
+                            fontFamily: "Zuume-Bold",
+                            letterSpacing: "0.5px",
+                        }}
                         className="text-center text-3xl md:text-[54px] md:leading-[60px] font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text mt-5 fjalla-one-regular"
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -117,9 +117,12 @@ export const CallToAction = () => {
                     viewport={{ once: true }}
                 >
                     <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                        <Link to="/register" className="bg-black text-white px-6 py-3 rounded-lg font-bold tracking-tight hover:bg-black/80 transition-colors shadow-lg hover:shadow-xl inline-block">
-                            Sign up for free
-                        </Link>
+                        <div className="mask-container-urban">
+                            <span className="mas">Sign up for free</span>
+                            <Link to="/register" className="mask-btn-urban">
+                                Sign up for free
+                            </Link>
+                        </div>
                     </motion.div>
                     <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                         <Link to="/resources" className="text-black font-bold tracking-tight flex items-center gap-1 hover:gap-2 transition-all px-6 py-3 rounded-lg hover:bg-black/5">
