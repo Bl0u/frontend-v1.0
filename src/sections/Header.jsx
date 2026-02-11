@@ -49,12 +49,15 @@ export const Header = () => {
 
                     {/* CTA Button & Mobile Toggle */}
                     <div className="flex items-center gap-4">
-                        <Link
-                            to="/register"
-                            className="hidden md:inline-flex bg-black text-white text-sm font-medium px-6 py-2.5 rounded-full hover:bg-gray-800 transition-all hover:scale-105 shadow-md"
-                        >
-                            Join
-                        </Link>
+                        <div className="mask-container-nature">
+                            <span className="mas">Join</span>
+                            <Link
+                                to="/register"
+                                className="mask-btn-nature"
+                            >
+                                Join
+                            </Link>
+                        </div>
 
                         {/* Mobile Menu Toggle */}
                         <button

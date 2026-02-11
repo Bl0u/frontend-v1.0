@@ -102,7 +102,7 @@
     cursor: pointer;
 
     /* Initial State Styles */
-    background: #000;
+    background: linear-gradient(135deg, #00ADFE, #FF12DC);
     color: #fff;
     border: none;
 
@@ -130,8 +130,8 @@
     left: 50%;
     transform: translate(-50%, -50%);
     /* Centering */
-    color: #fff;
-    /* Text color behind the mask */
+    color: #000;
+    /* Text color behind the mask (Original text color) */
     text-align: center;
     width: 100%;
     font-family: 'Lato', sans-serif;
@@ -177,7 +177,7 @@
     cursor: pointer;
 
     /* Initial State Styles */
-    background: #000;
+    background: linear-gradient(135deg, #00ADFE, #FF12DC);
     color: #fff;
     border: none;
 
