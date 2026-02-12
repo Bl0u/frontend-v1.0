@@ -155,11 +155,11 @@
 
 .morph-lottie-container {
     position: absolute;
-    top: 50%;
+    top: 60%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 1000px;
-    height: 1000px;
+    width: 1300px;
+    height: 1300px;
     max-width: 100vw;
     max-height: 100vh;
     pointer-events: none;

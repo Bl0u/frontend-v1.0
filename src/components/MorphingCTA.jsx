@@ -193,6 +193,51 @@ const MorphingCTA = () => {
 
     return (
         <section className="morph-cta-container" ref={containerRef}>
+            {/* --- 3D Decorative Objects (Star & Spring) --- */}
+            <motion.img
+                src="/assets/star.png"
+                alt="Star 3D"
+                width={360}
+                className="absolute hidden md:block"
+                style={{
+                    left: '5%',
+                    top: '5%',
+                    position: 'absolute',
+                    pointerEvents: 'none',
+                    opacity: 0.9
+                }}
+                animate={{
+                    y: [0, 20, 0],
+                }}
+                transition={{
+                    duration: 4,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                }}
+            />
+
+            <motion.img
+                src="/assets/spring.png"
+                alt="Spring 3D"
+                width={360}
+                className="absolute hidden md:block"
+                style={{
+                    right: '5%',
+                    bottom: '10%',
+                    position: 'absolute',
+                    pointerEvents: 'none',
+                    opacity: 0.9
+                }}
+                animate={{
+                    y: [0, -20, 0],
+                }}
+                transition={{
+                    duration: 5,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                }}
+            />
+
             {/* --- Lottie Animation (Revealed after morph) --- */}
             <div className="morph-lottie-container">
                 <DotLottieReact
