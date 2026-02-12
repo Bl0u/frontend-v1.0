@@ -27,9 +27,18 @@ const MorphingCTA = () => {
 
             if (!featuresWrap || !searchBar || featureEls.length === 0) return;
 
-            // Ensure initial visibility
-            gsap.set(featureEls, { opacity: 1, visibility: 'visible' });
-            gsap.set(searchBar, { opacity: 0, visibility: 'visible' });
+            // Ensure initial visibility and pixel-perfect centering (overriding CSS)
+            gsap.set(featureEls, { opacity: 1, visibility: 'visible', xPercent: -50, yPercent: -50 });
+            gsap.set(searchBar, {
+                opacity: 0,
+                visibility: 'visible',
+                xPercent: -50,
+                yPercent: -50,
+                top: "50%",
+                left: "50%",
+                y: 0
+            });
+
             if (successText) gsap.set(successText, { opacity: 0 });
 
             // Hide button text initially so it doesn't show during morph/expansion
@@ -75,12 +84,15 @@ const MorphingCTA = () => {
             });
 
             // ---- PHASE A: move all features to center
+            // Duration 1.0 + stagger 0.05 for 5 items = 1.2s total convergence
             tl.to(featureEls, {
                 top: "50%",
                 left: "50%",
-                duration: 1,
+                xPercent: -50,
+                yPercent: -50,
+                duration: 1.0,
                 ease: "none",
-                stagger: 0.03, // Reduced stagger for more simultaneous merge
+                stagger: 0.05,
             }, 0);
 
             // ---- PHASE B: shrink backgrounds into circles
@@ -89,43 +101,45 @@ const MorphingCTA = () => {
                 height: circlePx,
                 borderRadius: 999,
                 borderWidth: 0.35 * remPx,
-                duration: 1,
+                duration: 1.0,
                 ease: "none",
-                stagger: 0.03,
+                stagger: 0.05,
             }, 0);
 
             // ---- PHASE C: fade feature text away
             tl.to(contentEls, {
                 opacity: 0,
-                duration: 0.25,
+                duration: 0.3,
                 ease: "none",
-                stagger: 0.015,
-            }, 0.15);
+                stagger: 0.02,
+            }, 0.2);
 
             // ---- PHASE D: fade the features out
+            // Start at 0.96 (20% before the last item finishes convergence at 1.2)
             tl.to(featureEls, {
                 opacity: 0,
-                duration: 0.25,
+                duration: 0.2,
                 ease: "none",
-            }, 0.55);
+            }, 0.96);
 
-            // ---- PHASE E: reveal search bar (button container)
-            // We animate 'autoAlpha' which handles opacity + visibility
+            // ---- PHASE E: reveal search bar (button container) 
+            // Origin at center (explicitly set above in initialization)
             tl.to(searchBar, {
                 opacity: 1,
                 pointerEvents: "auto",
-                duration: 0.15,
+                duration: 0.2,
                 ease: "none",
-            }, 0.55);
+            }, 0.96);
 
             // ---- PHASE F: expand button and move it down slightly
+            // Start move after merge finish
             tl.to(searchBar, {
                 width: () => `${getFinalWidthRem()}rem`,
                 height: `${buttonHpx}px`,
-                y: 100, // Move down in px instead of percent for stability
+                y: 100,
                 duration: 0.8,
-                ease: "power2.out",
-            }, 0.62);
+                ease: "power2.inOut",
+            }, 1.2);
 
             // ---- PHASE G: Reveal Button Text (Delayed until expansion is done)
             tl.to(buttonTextItems, {
@@ -135,13 +149,9 @@ const MorphingCTA = () => {
             }, ">"); // Starts after previous animation (expansion) ends
 
             // ---- PHASE H: Transition ownership of background to inner mask button
-            // The container needs to be transparent for the mask overlay to work properly 
-            // otherwise we just see the solid container background.
             tl.to(searchBar, {
                 background: "transparent",
-                boxShadow: "none", // Optional: if shadow should also move to inner, or stay. 
-                // Keeping shadow on container is usually safer for layout, but if mask 'eats' button, shadow might look weird.
-                // For now, let's keep shadow, just remove background color.
+                boxShadow: "none",
                 duration: 0.1
             }, "<");
 
