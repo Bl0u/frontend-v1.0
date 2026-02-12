@@ -84,7 +84,7 @@ const Card = ({ i, title, points, lottieSrc, color, textColor, progress, range, 
                 style={{
                     backgroundColor: color,
                     scale,
-                    top: `calc(15vh + ${i * 25}px)`,
+                    top: `calc(180px + ${i * 25}px)`, // Adjust top to sit below the sticky header
                 }}
                 className="relative h-[550px] w-[90%] md:w-[85%] lg:w-[75%] rounded-[40px] p-8 md:p-12 lg:p-16 origin-top shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden border border-white/20"
             >
@@ -131,17 +131,10 @@ export const SolutionSection = () => {
         offset: ['start start', 'end end'],
     });
 
-    // Control header visibility. Hide when scrolling past the last card progress.
-    const headerOpacity = useTransform(scrollYProgress, [0, 0.9, 1], [1, 1, 0]);
-    const headerY = useTransform(scrollYProgress, [0.9, 1], [0, -50]);
-
     return (
         <section ref={container} className="relative bg-[#EAEEFE]">
             {/* Sticky Header Container */}
-            <motion.div
-                style={{ opacity: headerOpacity, y: headerY }}
-                className="sticky top-0 h-[25vh] flex flex-col items-center justify-center text-center z-20 pointer-events-none"
-            >
+            <div className="sticky top-0 z-30 pt-12 pb-6 flex flex-col items-center justify-center text-center bg-[#EAEEFE]/80 backdrop-blur-md">
                 <div className="px-6 pointer-events-auto">
                     <motion.h2
                         className="text-5xl md:text-8xl font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text leading-tight pb-2"
@@ -163,7 +156,7 @@ export const SolutionSection = () => {
                         A complete ecosystem designed to empower your academic journey and professional growth.
                     </motion.p>
                 </div>
-            </motion.div>
+            </div>
 
             {/* Cards Container */}
             <div className="relative pb-[10vh]">
