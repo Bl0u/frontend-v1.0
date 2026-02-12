@@ -39,9 +39,11 @@ const MorphingCTA = () => {
 
             // Start positions (percent inside .morph-features box)
             const startPos = [
-                { top: 25, left: 20 },
+                { top: 25, left: 15 },
                 { top: 15, left: 50 },
-                { top: 25, left: 80 },
+                { top: 25, left: 85 },
+                { top: 65, left: 20 },
+                { top: 75, left: 75 },
             ];
 
             // Place features initially
@@ -72,13 +74,13 @@ const MorphingCTA = () => {
                 },
             });
 
-            // ---- PHASE A: move all 3 features to center
+            // ---- PHASE A: move all features to center
             tl.to(featureEls, {
                 top: "50%",
                 left: "50%",
                 duration: 1,
                 ease: "none",
-                stagger: 0.04,
+                stagger: 0.03, // Reduced stagger for more simultaneous merge
             }, 0);
 
             // ---- PHASE B: shrink backgrounds into circles
@@ -89,7 +91,7 @@ const MorphingCTA = () => {
                 borderWidth: 0.35 * remPx,
                 duration: 1,
                 ease: "none",
-                stagger: 0.04,
+                stagger: 0.03,
             }, 0);
 
             // ---- PHASE C: fade feature text away
@@ -97,10 +99,10 @@ const MorphingCTA = () => {
                 opacity: 0,
                 duration: 0.25,
                 ease: "none",
-                stagger: 0.02,
+                stagger: 0.015,
             }, 0.15);
 
-            // ---- PHASE D: fade the 3 features out
+            // ---- PHASE D: fade the features out
             tl.to(featureEls, {
                 opacity: 0,
                 duration: 0.25,
@@ -248,6 +250,22 @@ const MorphingCTA = () => {
                     <div className="morph-feature-bg"></div>
                     <div className="morph-feature-content">
                         <p>RESOURCES</p>
+                    </div>
+                </div>
+
+                {/* Feature 4: PRO-BONO MENTORSHIPS */}
+                <div className="morph-feature">
+                    <div className="morph-feature-bg"></div>
+                    <div className="morph-feature-content">
+                        <p>PRO-BONO MENTORSHIPS</p>
+                    </div>
+                </div>
+
+                {/* Feature 5: AI ASSISTANT */}
+                <div className="morph-feature">
+                    <div className="morph-feature-bg"></div>
+                    <div className="morph-feature-content">
+                        <p>AI ASSISTANT</p>
                     </div>
                 </div>
 
