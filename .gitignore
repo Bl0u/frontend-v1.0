@@ -22,3 +22,27 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+src/styles/finalCSS.css
+src/pages/TestMorph.jsx
+src/javascript/Morphing.js
+src/javascript/finalJS.js
+src/fonts/Zuma/ZuumeSemiBoldItalic.ttf
+src/fonts/Zuma/ZuumeItalic.ttf
+src/fonts/Zuma/ZuumeBold.ttf
+src/fonts/Zuma/Zuume SemiBold.ttf
+src/fonts/Zuma/Zuume SemiBold Italic (1).ttf
+src/fonts/Zuma/Zuume Regular.ttf
+src/fonts/Zuma/Zuume Medium.ttf
+src/fonts/Zuma/Zuume Medium Italic.ttf
+src/fonts/Zuma/Zuume Light Italic.ttf
+src/fonts/Zuma/Zuume Light.ttf
+src/fonts/Zuma/Zuume Light (1).ttf
+src/fonts/Zuma/Zuume ExtraLight.ttf
+src/fonts/Zuma/Zuume ExtraLight Italic.ttf
+src/fonts/Zuma/Zuume ExtraBold Italic.ttf
+src/fonts/Zuma/Zuume ExtraBold (1).ttf
+src/fonts/Zuma/Zuume ExtraBold.ttf
+src/fonts/Zuma/Zuume Bold Italic.ttf
+src/fonts/Zuma/Zuume Bold Italic (1).ttf
+src/fonts/Zuma/Zuume Black.ttf
+src/fonts/Zuma/Zuume Black Italic.ttf

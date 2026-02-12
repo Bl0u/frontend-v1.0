@@ -42,15 +42,15 @@ const LandingPage = () => {
                 return 0;
             };
 
-            if (text1Ref.current) text1Ref.current.style.opacity = fade(0, 0.5, 0.5); // "Here..."
-            if (text2Ref.current) text2Ref.current.style.opacity = fade(1.2, 0.5, 0.5); // "Is your road..."
+            if (text1Ref.current) text1Ref.current.style.opacity = fade(0, 0.2, 0.1); // "Here..."
+            if (text2Ref.current) text2Ref.current.style.opacity = fade(0.3, 0.2, 0.1); // "Is your road..."
             // "Towards Success" sequence stays a bit longer before masking starts
-            if (text3Ref.current) text3Ref.current.style.opacity = fade(2.4, 0.5, 1.0);
+            if (text3Ref.current) text3Ref.current.style.opacity = fade(0.6, 0.2, 0.4);
 
             // 2. Mask Animation (3.5 - 6.5)
-            const maskStart = 3.5;
-            const zoomStart = 3.8;
-            const zoomEnd = 6.5;
+            const maskStart = 1.3;
+            const zoomStart = 1.5;
+            const zoomEnd = 4.0;
 
             if (maskContainerRef.current) {
                 // Fade in the masked container (it starts hidden)
@@ -66,7 +66,7 @@ const LandingPage = () => {
                 if (progress > zoomStart) {
                     const zoomProgress = Math.min((progress - zoomStart) / (zoomEnd - zoomStart), 1);
                     // Exponential easing for that "flight through" feeling
-                    scale = 15 + Math.pow(zoomProgress, 4) * 5000;
+                    scale = 15 + Math.pow(zoomProgress, 3) * 10000;
                 }
 
                 const maskSize = `${scale}%`;
@@ -75,7 +75,7 @@ const LandingPage = () => {
             }
 
             // 3. Hero Content Reveal & Navbar (Trigger at ~80% of zoom, around 6.0)
-            const revealThreshold = 6.0;
+            const revealThreshold = 3.5;
             if (progress > revealThreshold) {
                 setHeroContentVisible(true);
             } else {
