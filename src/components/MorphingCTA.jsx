@@ -115,31 +115,31 @@ const MorphingCTA = () => {
             }, 0.2);
 
             // ---- PHASE D: fade the features out
-            // Start at 0.96 (20% before the last item finishes convergence at 1.2)
+            // Start at 0.72 (40% before the last item finishes convergence at 1.2)
             tl.to(featureEls, {
                 opacity: 0,
-                duration: 0.2,
+                duration: 0.3, // Slightly longer fade to blend better with convergence
                 ease: "none",
-            }, 0.96);
+            }, 0.72);
 
             // ---- PHASE E: reveal search bar (button container) 
             // Origin at center (explicitly set above in initialization)
             tl.to(searchBar, {
                 opacity: 1,
                 pointerEvents: "auto",
-                duration: 0.2,
+                duration: 0.3,
                 ease: "none",
-            }, 0.96);
+            }, 0.72);
 
             // ---- PHASE F: expand button and move it down slightly
-            // Start move after merge finish
+            // Start growth even before icons reach the center (at 1.0s)
             tl.to(searchBar, {
                 width: () => `${getFinalWidthRem()}rem`,
                 height: `${buttonHpx}px`,
                 y: 100,
                 duration: 0.8,
                 ease: "power2.inOut",
-            }, 1.2);
+            }, 1.0);
 
             // ---- PHASE G: Reveal Button Text (Delayed until expansion is done)
             tl.to(buttonTextItems, {
