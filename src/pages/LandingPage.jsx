@@ -44,22 +44,20 @@ const LandingPage = () => {
             }
         });
 
-        // 1. Text Sequence (Starts on black background overlay)
-        tl.to(text1Ref.current, { opacity: 1, duration: 0.8, ease: "power2.out" })
-            .to(text1Ref.current, { opacity: 0, duration: 0.6, ease: "power2.in" }, "+=0.8")
+        // 1. Text Sequence (Starts on black background overlay) - 30% Faster
+        tl.to(text1Ref.current, { opacity: 1, duration: 0.5, ease: "power2.out" })
+            .to(text1Ref.current, { opacity: 0, duration: 0.4, ease: "power2.in" }, "+=0.5")
 
-            .to(text2Ref.current, { opacity: 1, duration: 0.8, ease: "power2.out" })
-            .to(text2Ref.current, { opacity: 0, duration: 0.6, ease: "power2.in" }, "+=0.8")
+            .to(text2Ref.current, { opacity: 1, duration: 0.5, ease: "power2.out" })
+            .to(text2Ref.current, { opacity: 0, duration: 0.4, ease: "power2.in" }, "+=0.5")
 
-            .to(text3Ref.current, { opacity: 1, duration: 0.8, ease: "power2.out" })
+            .to(text3Ref.current, { opacity: 1, duration: 0.5, ease: "power2.out" })
 
-            // 2. Prepare Hero and transition
-            .to(maskContainerRef.current, { opacity: 1, duration: 0.4 }, "-=0.2")
-            .to(text3Ref.current, { opacity: 0, duration: 0.3 }, "-=0.1")
-            // Fade out the black background overlay as the mask begins to reveal the hero
-            .to(introLayerRef.current, { opacity: 0, duration: 0.8, ease: "none" }, "-=0.3")
+            // 2. Prepare Hero and transition (Gapless)
+            .to(text3Ref.current, { opacity: 0, duration: 0.4, ease: "power2.in" }, "+=0.5")
+            .to(maskContainerRef.current, { opacity: 1, duration: 0.2 }, "-=0.4")
 
-            // 3. Mask Zoom (Faster)
+            // 3. Mask Zoom (Starts instantly with the fade)
             .fromTo(maskContainerRef.current,
                 { webkitMaskSize: "15%", maskSize: "15%" },
                 {
@@ -67,8 +65,11 @@ const LandingPage = () => {
                     maskSize: "5000%",
                     duration: 1.5,
                     ease: "power4.inOut"
-                }
+                },
+                "-=0.2" // Overlap zoom start with logo reveal
             )
+            // Fade out the black background overlay during the zoom
+            .to(introLayerRef.current, { opacity: 0, duration: 0.6, ease: "none" }, "-=1.5")
 
             // 4. Final Reveal (Header)
             .to(headerRef.current, { opacity: 1, duration: 0.8 }, "-=1.0")
