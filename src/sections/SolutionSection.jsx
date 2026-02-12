@@ -84,7 +84,7 @@ const Card = ({ i, title, points, lottieSrc, color, textColor, progress, range, 
                 style={{
                     backgroundColor: color,
                     scale,
-                    top: `calc(180px + ${i * 25}px)`, // Adjust top to sit below the sticky header
+                    top: `calc(80px + ${i * 25}px)`, // Reduced offset by 20% to bring cards closer to subtitle
                 }}
                 className="relative h-[550px] w-[90%] md:w-[85%] lg:w-[75%] rounded-[40px] p-8 md:p-12 lg:p-16 origin-top shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden border border-white/20"
             >
@@ -134,10 +134,10 @@ export const SolutionSection = () => {
     return (
         <section ref={container} className="relative bg-[#EAEEFE]">
             {/* Sticky Header Container */}
-            <div className="sticky top-0 z-30 pt-12 pb-6 flex flex-col items-center justify-center text-center bg-[#EAEEFE]/80 backdrop-blur-md">
+            <div className="sticky top-0 z-30 pt-6 pb-2 flex flex-col items-center justify-center text-center bg-[#EAEEFE]/80 backdrop-blur-md">
                 <div className="px-6 pointer-events-auto">
                     <motion.h2
-                        className="text-5xl md:text-8xl font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text leading-tight pb-2"
+                        className="text-5xl md:text-8xl font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text leading-tight"
                         style={{ fontFamily: 'Zuume-Bold' }}
                         initial={{ opacity: 0, y: -20 }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -147,7 +147,7 @@ export const SolutionSection = () => {
                         What we offer
                     </motion.h2>
                     <motion.p
-                        className="text-xl md:text-2xl text-[#010D3E]/80 max-w-2xl mx-auto mt-1"
+                        className="text-xl md:text-2xl text-[#010D3E]/80 max-w-2xl mx-auto mt-0"
                         initial={{ opacity: 0 }}
                         whileInView={{ opacity: 1 }}
                         transition={{ duration: 0.8, delay: 0.2 }}
