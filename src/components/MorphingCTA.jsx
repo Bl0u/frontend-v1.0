@@ -75,7 +75,7 @@ const MorphingCTA = () => {
                 scrollTrigger: {
                     trigger: containerRef.current,
                     start: "top top", // Start when top of section hits top of viewport
-                    end: "+=2000", // Scroll distance
+                    end: "+=1200", // Scroll distance (Reduced for faster animation)
                     scrub: 1,
                     pin: true,
                     anticipatePin: 1,
