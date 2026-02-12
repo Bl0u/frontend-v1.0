@@ -54,18 +54,18 @@ const LandingPage = () => {
             .to(text3Ref.current, { opacity: 1, duration: 0.8, ease: "power2.out" })
 
             // 2. Prepare Hero and transition
-            .to(maskContainerRef.current, { opacity: 1, duration: 0.6 }, "+=0.5")
-            .to(text3Ref.current, { opacity: 0, duration: 0.4 }, "-=0.3")
-            // Fade out the black background of the intro layer as the mask reveals the hero
-            .to(introLayerRef.current, { backgroundColor: "transparent", duration: 1.5 }, "-=0.5")
+            .to(maskContainerRef.current, { opacity: 1, duration: 0.4 }, "-=0.2")
+            .to(text3Ref.current, { opacity: 0, duration: 0.3 }, "-=0.1")
+            // Fade out the black background overlay as the mask begins to reveal the hero
+            .to(introLayerRef.current, { opacity: 0, duration: 0.8, ease: "none" }, "-=0.3")
 
-            // 3. Mask Zoom
+            // 3. Mask Zoom (Faster)
             .fromTo(maskContainerRef.current,
                 { webkitMaskSize: "15%", maskSize: "15%" },
                 {
                     webkitMaskSize: "5000%",
                     maskSize: "5000%",
-                    duration: 2.5,
+                    duration: 1.5,
                     ease: "power4.inOut"
                 }
             )
