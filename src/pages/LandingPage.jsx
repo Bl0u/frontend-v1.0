@@ -4,7 +4,7 @@ import logo from '../assets/logo.svg'; // Ensure this path is correct
 import { Header } from '../sections/Header';
 import { Hero } from '../sections/Hero';
 import { LogoTicker } from '../sections/LogoTicker';
-import { ProductShowcase } from '../sections/ProductShowcase';
+import { SolutionSection } from '../sections/SolutionSection';
 import { Pricing } from '../sections/Pricing';
 import { Testimonials } from '../sections/Testimonials';
 import { CallToAction } from '../sections/CallToAction';
@@ -13,6 +13,9 @@ import MorphingCTA from '../components/MorphingCTA';
 import "../fonts/style/fontsStyle.css";
 
 const LandingPage = () => {
+    // ... existing refs and useEffect ...
+    // (skipping to the render part for clarity in replacementContent, 
+    // though replace_file_content usually needs precise matching)
     const containerRef = useRef(null);
     const text1Ref = useRef(null);
     const text2Ref = useRef(null);
@@ -168,7 +171,7 @@ const LandingPage = () => {
             {/* Rest of the Page content flows after the spacer */}
             <div className="relative z-10 bg-white">
                 <LogoTicker />
-                <ProductShowcase />
+                <SolutionSection />
                 <Pricing />
                 <Testimonials />
                 <MorphingCTA />
