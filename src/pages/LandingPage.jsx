@@ -101,11 +101,24 @@ const LandingPage = () => {
                 </div>
 
                 {/* 2. Masked Hero Layer */}
-                <div ref={maskContainerRef} className="masked-hero-layer" style={{ opacity: 0 }}>
+                <div
+                    ref={maskContainerRef}
+                    className="masked-hero-layer"
+                    style={{
+                        opacity: 0,
+                        ...(animationDone ? {
+                            position: 'relative',
+                            height: 'auto',
+                            zIndex: 1,
+                            webkitMaskImage: 'none',
+                            maskImage: 'none'
+                        } : {})
+                    }}
+                >
                     {/* The Hero is rendered here. 
                         Crucially, the 'mask-image' CSS on parent will cut this. 
                     */}
-                    <div className="hero-content-wrapper">
+                    <div className="hero-content-wrapper" style={animationDone ? { height: 'auto' } : {}}>
                         {/* Pass visibility prop to Hero */}
                         <Hero contentVisible={heroContentVisible} />
                     </div>
