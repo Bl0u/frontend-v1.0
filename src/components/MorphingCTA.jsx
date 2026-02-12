@@ -79,8 +79,8 @@ const MorphingCTA = () => {
                 scrollTrigger: {
                     trigger: containerRef.current,
                     start: "top top", // Start when top of section hits top of viewport
-                    end: "+=1200", // Scroll distance (Reduced for faster animation)
-                    scrub: 1,
+                    end: "+=2000", // Scroll distance (Increased for more "frames" and smoother transition)
+                    scrub: 2.5, // Added more latency for liquid-smooth momentum
                     pin: true,
                     anticipatePin: 1,
                     invalidateOnRefresh: true,
@@ -124,7 +124,7 @@ const MorphingCTA = () => {
                 opacity: 0,
                 duration: 0.3, // Slightly longer fade to blend better with convergence
                 ease: "none",
-            }, 0.72);
+            }, 0.65);
 
             // ---- PHASE E: reveal search bar (button container) 
             // Origin at center (explicitly set above in initialization)
@@ -133,7 +133,7 @@ const MorphingCTA = () => {
                 pointerEvents: "auto",
                 duration: 0.3,
                 ease: "none",
-            }, 0.72);
+            }, 0.65);
 
             // ---- PHASE F: expand button and move it down slightly
             // Start growth even before icons reach the center (at 1.0s)
@@ -142,7 +142,7 @@ const MorphingCTA = () => {
                 height: `${buttonHpx}px`,
                 y: 100,
                 duration: 0.8,
-                ease: "power2.inOut",
+                ease: "expo.inOut",
             }, 1.0);
 
             // ---- PHASE G: Reveal Button Text (Delayed until expansion is done)
