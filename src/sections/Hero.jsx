@@ -3,6 +3,8 @@ import { motion, useReducedMotion, useAnimation } from 'framer-motion';
 import { FaArrowRight } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import "../fonts/style/fontsStyle.css";
+import React from 'react';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 export const Hero = ({ contentVisible = true }) => {
     const heroRef = useRef(null);
@@ -145,9 +147,12 @@ export const Hero = ({ contentVisible = true }) => {
                         overflow: "visible",
                     }}
                     className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text mt-6 pb-2 leading-tight fjalla-one-regular"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.7, delay: 0.1 }}
+                    initial="hidden"
+                    animate={controls}
+                    variants={{
+                        hidden: { opacity: 0, y: 20 },
+                        visible: { opacity: 1, y: 0, transition: { duration: 0.7, delay: 0.1 } }
+                    }}
                 >
                     Here ... Is the road towards your {" "}
                     <span style={{
@@ -159,13 +164,35 @@ export const Hero = ({ contentVisible = true }) => {
                     </span>
                 </motion.h1>
 
+                {/* Animated Lottie Road Path */}
+                <motion.div
+                    initial="hidden"
+                    animate={controls}
+                    variants={{
+                        hidden: { opacity: 0, scale: 0.8 },
+                        visible: {
+                            opacity: 0.6,
+                            scale: 1,
+                            transition: { duration: 1, delay: 0.4 }
+                        }
+                    }}
+                    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[1040px] pointer-events-none -z-1"
+                    style={{ mixBlendMode: 'multiply' }}
+                >
+                    <DotLottieReact
+                        src="https://lottie.host/8cca3222-f038-48a3-93e9-7a6f9559e271/DI5LT8uMAJ.lottie"
+                        loop
+                        autoplay
+                    />
+                </motion.div>
+
                 {/* Controlled Reveal Wrapper */}
                 <motion.div
                     initial="hidden"
                     animate={controls}
                     variants={{
                         hidden: { opacity: 0, y: 20, pointerEvents: "none" },
-                        visible: { opacity: 1, y: 0, pointerEvents: "auto", transition: { staggerChildren: 0.2 } }
+                        visible: { opacity: 1, y: 0, pointerEvents: "auto", transition: { staggerChildren: 0.2, delayChildren: 0.5 } }
                     }}
                 >
                     <motion.p
