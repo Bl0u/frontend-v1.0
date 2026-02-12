@@ -19,8 +19,7 @@ const LandingPage = () => {
     const text3Ref = useRef(null);
     const maskContainerRef = useRef(null);
     const headerRef = useRef(null);
-    const stickyViewportRef = useRef(null);
-    const spacerRef = useRef(null);
+    const introLayerRef = useRef(null);
     const [heroContentVisible, setHeroContentVisible] = useState(false);
     const [animationDone, setAnimationDone] = useState(false);
 
@@ -32,17 +31,20 @@ const LandingPage = () => {
             onComplete: () => {
                 setAnimationDone(true);
                 document.body.style.overflow = 'auto';
-                if (stickyViewportRef.current) {
-                    stickyViewportRef.current.style.position = 'relative';
-                    stickyViewportRef.current.style.height = 'auto'; // Allow content to define height
+                if (introLayerRef.current) {
+                    introLayerRef.current.style.display = 'none';
                 }
-                if (spacerRef.current) {
-                    spacerRef.current.style.display = 'none';
+                // Clear mask styles to prevent any clipping artifacts
+                if (maskContainerRef.current) {
+                    gsap.set(maskContainerRef.current, {
+                        webkitMaskImage: 'none',
+                        maskImage: 'none'
+                    });
                 }
             }
         });
 
-        // 1. Text Sequence
+        // 1. Text Sequence (Starts on black background overlay)
         tl.to(text1Ref.current, { opacity: 1, duration: 0.8, ease: "power2.out" })
             .to(text1Ref.current, { opacity: 0, duration: 0.6, ease: "power2.in" }, "+=0.8")
 
@@ -51,11 +53,13 @@ const LandingPage = () => {
 
             .to(text3Ref.current, { opacity: 1, duration: 0.8, ease: "power2.out" })
 
-            // 2. Mask Animation Reveal
+            // 2. Prepare Hero and transition
             .to(maskContainerRef.current, { opacity: 1, duration: 0.6 }, "+=0.5")
             .to(text3Ref.current, { opacity: 0, duration: 0.4 }, "-=0.3")
+            // Fade out the black background of the intro layer as the mask reveals the hero
+            .to(introLayerRef.current, { backgroundColor: "transparent", duration: 1.5 }, "-=0.5")
 
-            // Mask Zoom (Scale from 15% to 5000%)
+            // 3. Mask Zoom
             .fromTo(maskContainerRef.current,
                 { webkitMaskSize: "15%", maskSize: "15%" },
                 {
@@ -66,7 +70,7 @@ const LandingPage = () => {
                 }
             )
 
-            // 3. Final Reveal
+            // 4. Final Reveal (Header)
             .to(headerRef.current, { opacity: 1, duration: 0.8 }, "-=1.0")
             .call(() => setHeroContentVisible(true), null, "-=1.5");
 
@@ -77,64 +81,64 @@ const LandingPage = () => {
     }, []);
 
     return (
-        <div ref={containerRef} className="landing-scroll-container">
-            {/* Fixed/Sticky Viewport */}
-            <div ref={stickyViewportRef} className="landing-sticky-viewport" style={animationDone ? { position: 'relative', height: 'auto' } : {}}>
+        <div ref={containerRef} className="landing-scroll-container min-h-screen bg-black">
+            {/* 1. Intro Text Layer (Fixed Overlay) */}
+            <div ref={introLayerRef} className="intro-text-layer" style={{
+                position: 'fixed',
+                inset: 0,
+                backgroundColor: 'black',
+                zIndex: 100,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                pointerEvents: 'none'
+            }}>
+                <h1 ref={text1Ref} className="intro-text" style={{
+                    opacity: 0,
+                    fontFamily: "Zuume-Semi-Bold-Italic",
+                }}>Here ...</h1>
+                <h1 ref={text2Ref} className="intro-text" style={{
+                    opacity: 0,
+                    fontFamily: "Zuume-Semi-Bold-Italic",
+                }}>Is your road</h1>
+                <h1 ref={text3Ref} className="intro-text" style={{
+                    opacity: 0,
+                    fontFamily: "Zuume-Semi-Bold-Italic",
+                }}>Towards Success</h1>
+            </div>
 
-                {/* 1. Intro Text Layer */}
-                <div className="intro-text-layer">
-                    <h1 ref={text1Ref} className="intro-text" style={{
-                        opacity: 0,
-                        fontFamily: "Zuume-Semi-Bold-Italic",
-                        letterSpacing: "0px",
-                    }}>Here ...</h1>
-                    <h1 ref={text2Ref} className="intro-text" style={{
-                        opacity: 0,
-                        fontFamily: "Zuume-Semi-Bold-Italic",
-                        letterSpacing: "0px"
-                    }}>Is your road</h1>
-                    <h1 ref={text3Ref} className="intro-text" style={{
-                        opacity: 0,
-                        fontFamily: "Zuume-Semi-Bold-Italic",
-                        letterSpacing: "0px"
-                    }}>Towards Success</h1>
-                </div>
-
-                {/* 2. Masked Hero Layer */}
-                <div
-                    ref={maskContainerRef}
-                    className="masked-hero-layer"
-                    style={{
-                        opacity: 0,
-                        ...(animationDone ? {
-                            position: 'relative',
-                            height: 'auto',
-                            zIndex: 1,
-                            webkitMaskImage: 'none',
-                            maskImage: 'none'
-                        } : {})
-                    }}
-                >
-                    {/* The Hero is rendered here. 
-                        Crucially, the 'mask-image' CSS on parent will cut this. 
-                    */}
-                    <div className="hero-content-wrapper" style={animationDone ? { height: 'auto' } : {}}>
-                        {/* Pass visibility prop to Hero */}
-                        <Hero contentVisible={heroContentVisible} />
-                    </div>
+            {/* 2. Masked Hero Layer (Natural Flow) */}
+            <div
+                ref={maskContainerRef}
+                className="masked-hero-layer"
+                style={{
+                    opacity: 0,
+                    position: 'relative',
+                    height: 'auto',
+                    backgroundColor: 'var(--color-saas-background)',
+                    zIndex: 10
+                }}
+            >
+                <div className="hero-content-wrapper">
+                    <Hero contentVisible={heroContentVisible} />
                 </div>
             </div>
 
-            {/* 3. Header (Fixed Top-Level for Persistence) */}
-            <div ref={headerRef} className="header-layer" style={{ opacity: 0, position: 'fixed', top: 0, left: 0, width: '100%', zIndex: 100 }}>
+            {/* 3. Header (Fixed and persists) */}
+            <div ref={headerRef} className="header-layer" style={{
+                opacity: 0,
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                width: '100%',
+                zIndex: 110
+            }}>
                 <Header />
             </div>
 
-            {/* Spacer to create scrollable height */}
-            <div ref={spacerRef} style={{ height: '800vh' }}></div>
-
-            {/* Rest of the Page content flows after the spacer */}
-            <div className="relative z-10 bg-white">
+            {/* Rest of the Page content flows naturally */}
+            <div className="relative z-20 bg-white">
                 <LogoTicker />
                 <ProductShowcase />
                 <Pricing />
