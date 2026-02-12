@@ -45,25 +45,25 @@ export const SolutionSection = () => {
     const features = [
         {
             title: "Centralized Resources",
-            description: "Access a repository of past projects, code snippets, and study materials. Share your own resources and earn Stars to unlock premium content.",
+            description: "Effortlessly search for threads and resources posted by peers from your specific college and university. Access critical information about your current lectures and subjects, including past exams from your professors and weekly lecture notes. Whether it's specialized material for well-known exams like IELTS and TOEFL, or sharing internship and interview experiences to guide one another, our hub provides the complete educational context you need to succeed.",
             lottieSrc: "https://lottie.host/37a092d5-4119-417c-93cc-9b90aa613d03/5ruDWwNrNb.lottie",
             isReversed: false
         },
         {
             title: "Partnership",
-            description: "Find students with complementary skills for your graduation projects. Connect with like-minded individuals and build your dream team effortlessly.",
+            description: "Finding the perfect partner is easier than ever through our dedicated Partnership Pool. Post your profile to share your goals and specify exactly what you need—whether it's finding a collaborator for a graduation project MVP in 5 weeks or a study buddy for a challenging programming language or subject. Connect with individuals who share your specific interests and turn collaborative learning into real-world results.",
             lottieSrc: "https://lottie.host/e0164715-5f37-4b7d-afbb-724b5b60addc/5p9vgoA7NI.lottie",
             isReversed: true
         },
         {
             title: "Mentorship",
-            description: "Get guidance from experienced mentors throughout your academic journey. Book sessions, get feedback on your pitch, and refine your project to perfection.",
+            description: "Gain a decisive advantage by searching for mentors who can provide raw, honest advice and strategic guidance. Our mentors are individuals who have already reached the goals you're striving for, offering insights into career roadmaps, technical expertise, and personal growth. Get ahead with mock interviews, portfolio reviews, and seasoned perspectives that transform your potential into professional success.",
             lottieSrc: "https://lottie.host/0de53125-14f7-431e-b1f8-2334708b6e49/cIYILQexyA.lottie",
             isReversed: false
         },
         {
             title: "Chatting",
-            description: "Communicate seamlessly with your team and mentors. Stay updated, share ideas, and collaborate in real-time to ensure project success.",
+            description: "Stay connected and organized with our integrated real-time communication suite. Chat directly with your project partners to coordinate tasks, or message your mentors to receive instant guidance and feedback. With features designed for seamless collaboration—including file sharing and group discussions—you can ensure your project moves from concept to completion without missing a beat.",
             lottieSrc: "https://lottie.host/ad64e9fd-131f-4a0c-90d4-fd09a0b7689f/KGtz7770Y4.lottie",
             isReversed: true
         }
