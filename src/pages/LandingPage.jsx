@@ -63,13 +63,13 @@ const LandingPage = () => {
                 {
                     webkitMaskSize: "5000%",
                     maskSize: "5000%",
-                    duration: 1.5,
+                    duration: 2.0,
                     ease: "power4.inOut"
                 },
                 "-=0.2" // Overlap zoom start with logo reveal
             )
             // Fade out the black background overlay during the zoom
-            .to(introLayerRef.current, { opacity: 0, duration: 0.6, ease: "none" }, "-=1.5")
+            .to(introLayerRef.current, { opacity: 0, duration: 0.8, ease: "none" }, "-=2.0")
 
             // 4. Final Reveal (Header)
             .to(headerRef.current, { opacity: 1, duration: 0.8 }, "-=1.0")
