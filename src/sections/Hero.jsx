@@ -177,7 +177,6 @@ export const Hero = ({ contentVisible = true }) => {
                         }
                     }}
                     className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[1040px] pointer-events-none -z-1"
-                    style={{ mixBlendMode: 'multiply' }}
                 >
                     <DotLottieReact
                         src="https://lottie.host/8cca3222-f038-48a3-93e9-7a6f9559e271/DI5LT8uMAJ.lottie"

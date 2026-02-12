@@ -4,6 +4,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { motion } from 'framer-motion';
 import { FaArrowRight } from 'react-icons/fa';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import './MorphingCTA.css';
 import '../styles/MaskAnimations.css';
 
@@ -24,6 +25,7 @@ const MorphingCTA = () => {
             const contentEls = q(".morph-feature-content");
             const buttonTextItems = q(".morph-search-bar .mas, .morph-search-bar .mask-btn-urban"); // Select inner text
             const extraContent = q(".morph-extra-content")[0];
+            const lottieWrap = q(".morph-lottie-container")[0];
 
             if (!featuresWrap || !searchBar || featureEls.length === 0) return;
 
@@ -45,6 +47,8 @@ const MorphingCTA = () => {
             gsap.set(buttonTextItems, { opacity: 0 });
             // Hide extra content initially
             if (extraContent) gsap.set(extraContent, { opacity: 0, y: 20 });
+            // Hide Lottie initially
+            if (lottieWrap) gsap.set(lottieWrap, { opacity: 0, scale: 0.8 });
 
             // Start positions (percent inside .morph-features box)
             const startPos = [
@@ -75,8 +79,8 @@ const MorphingCTA = () => {
                 scrollTrigger: {
                     trigger: containerRef.current,
                     start: "top top", // Start when top of section hits top of viewport
-                    end: "+=1200", // Scroll distance (Reduced for faster animation)
-                    scrub: 1,
+                    end: "+=2000", // Scroll distance (Increased for more "frames" and smoother transition)
+                    scrub: 2.5, // Added more latency for liquid-smooth momentum
                     pin: true,
                     anticipatePin: 1,
                     invalidateOnRefresh: true,
@@ -120,7 +124,7 @@ const MorphingCTA = () => {
                 opacity: 0,
                 duration: 0.3, // Slightly longer fade to blend better with convergence
                 ease: "none",
-            }, 0.72);
+            }, 0.65);
 
             // ---- PHASE E: reveal search bar (button container) 
             // Origin at center (explicitly set above in initialization)
@@ -129,7 +133,7 @@ const MorphingCTA = () => {
                 pointerEvents: "auto",
                 duration: 0.3,
                 ease: "none",
-            }, 0.72);
+            }, 0.65);
 
             // ---- PHASE F: expand button and move it down slightly
             // Start growth even before icons reach the center (at 1.0s)
@@ -138,7 +142,7 @@ const MorphingCTA = () => {
                 height: `${buttonHpx}px`,
                 y: 100,
                 duration: 0.8,
-                ease: "power2.inOut",
+                ease: "expo.inOut",
             }, 1.0);
 
             // ---- PHASE G: Reveal Button Text (Delayed until expansion is done)
@@ -173,6 +177,15 @@ const MorphingCTA = () => {
                 }, "<+=0.1"); // Start slightly after
             }
 
+            if (lottieWrap) {
+                tl.to(lottieWrap, {
+                    opacity: 1,
+                    scale: 1,
+                    duration: 0.8,
+                    ease: "power2.out",
+                }, "<"); // Run with extra content
+            }
+
         }, containerRef); // Scope selector to containerRef
 
         return () => ctx.revert();
@@ -181,14 +194,13 @@ const MorphingCTA = () => {
     return (
         <section className="morph-cta-container" ref={containerRef}>
             {/* --- 3D Decorative Objects (Star & Spring) --- */}
-            {/* Star Image - Floating Left */}
             <motion.img
                 src="/assets/star.png"
                 alt="Star 3D"
                 width={360}
-                className="absolute hidden md:block" // Hide on small screens if needed
+                className="absolute hidden md:block"
                 style={{
-                    left: '5%', // Closer to center
+                    left: '5%',
                     top: '5%',
                     position: 'absolute',
                     pointerEvents: 'none',
@@ -204,14 +216,13 @@ const MorphingCTA = () => {
                 }}
             />
 
-            {/* Spring Image - Floating Right */}
             <motion.img
                 src="/assets/spring.png"
                 alt="Spring 3D"
                 width={360}
                 className="absolute hidden md:block"
                 style={{
-                    right: '5%', // Closer to center
+                    right: '5%',
                     bottom: '10%',
                     position: 'absolute',
                     pointerEvents: 'none',
@@ -226,6 +237,15 @@ const MorphingCTA = () => {
                     ease: "easeInOut"
                 }}
             />
+
+            {/* --- Lottie Animation (Revealed after morph) --- */}
+            <div className="morph-lottie-container">
+                <DotLottieReact
+                    src="https://lottie.host/5f9926e9-1817-4421-8b72-707662e1984a/VvIJVUf9g5.lottie"
+                    loop
+                    autoplay
+                />
+            </div>
 
             {/* Header Text */}
             <div className="morph-header">
