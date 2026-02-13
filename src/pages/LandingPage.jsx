@@ -31,7 +31,7 @@ const LandingPage = () => {
             const windowHeight = window.innerHeight;
             // Total scroll height is defined by the container's height (e.g., 800vh)
             const totalScrollHeight = containerRef.current ? containerRef.current.offsetHeight - windowHeight : 0;
-            const progress = Math.min(Math.max(scrollY / windowHeight, 0), 10); // Normalized to 1000vh range
+            const progress = Math.min(Math.max(scrollY / windowHeight, 0), 9); // Normalized to 900vh range
 
             // --- ANIMATION TIMELINE ---
 
@@ -86,7 +86,7 @@ const LandingPage = () => {
             }
 
             // 4. Navbar - visible only during hero section
-            const heroEndScroll = windowHeight * 10; // 1000vh spacer height
+            const heroEndScroll = windowHeight * 9; // 900vh spacer height
             const isPastHero = scrollY >= heroEndScroll;
 
             // Hide the entire sticky viewport once past the hero
@@ -166,7 +166,7 @@ const LandingPage = () => {
             </div>
 
             {/* Spacer to create scrollable height */}
-            <div style={{ height: '1000vh' }}></div>
+            <div style={{ height: '900vh' }}></div>
 
             {/* Rest of the Page content flows after the spacer */}
             <div className="relative z-10 bg-white">
