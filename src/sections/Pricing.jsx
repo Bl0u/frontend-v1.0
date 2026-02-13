@@ -329,10 +329,10 @@ export const Pricing = () => {
                       : "bg-white text-black border-black/10"
                   )}
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between relative">
                     <h3
                       className={clsx(
-                        "text-xl font-black uppercase tracking-wide",
+                        "text-xl font-black uppercase tracking-wide whitespace-nowrap",
                         t.theme === "dark" ? "text-white" : "text-[#001E80]"
                       )}
                     >
@@ -340,7 +340,7 @@ export const Pricing = () => {
                     </h3>
 
                     {t.highlight && (
-                      <div className="text-[10px] px-3 py-1 rounded-full border border-white/15 bg-white/10 uppercase tracking-widest shadow-glow">
+                      <div className="text-[10px] px-3 py-1 rounded-full border border-white/15 bg-white/10 uppercase tracking-widest shadow-glow absolute -right-4 top-1/2 -translate-y-1/2 shrink-0">
                         <motion.span
                           animate={{ backgroundPositionX: "100%" }}
                           transition={{
@@ -368,7 +368,7 @@ export const Pricing = () => {
 
                   <button
                     className={clsx(
-                      "mt-10 w-full py-4 rounded-2xl font-black transition-transform duration-300 hover:scale-[1.02]",
+                      "mt-10 w-full py-4 rounded-2xl font-black transition-transform duration-300 hover:scale-[1.02] whitespace-nowrap",
                       t.theme === "dark"
                         ? "bg-white text-black"
                         : "bg-black text-white"

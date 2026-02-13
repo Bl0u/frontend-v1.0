@@ -79,8 +79,8 @@ const MorphingCTA = () => {
                 scrollTrigger: {
                     trigger: containerRef.current,
                     start: "top top", // Start when top of section hits top of viewport
-                    end: "+=2000", // Scroll distance (Increased for more "frames" and smoother transition)
-                    scrub: 2.5, // Added more latency for liquid-smooth momentum
+                    end: "+=2200", // Scroll distance reduced for faster animation
+                    scrub: 2.0, // Snappier response to scroll
                     pin: true,
                     anticipatePin: 1,
                     invalidateOnRefresh: true,
@@ -113,10 +113,10 @@ const MorphingCTA = () => {
             // ---- PHASE C: fade feature text away
             tl.to(contentEls, {
                 opacity: 0,
-                duration: 0.3,
+                duration: 0.15,
                 ease: "none",
                 stagger: 0.02,
-            }, 0.2);
+            }, 0.05);
 
             // ---- PHASE D: fade the features out
             // Start at 0.72 (40% before the last item finishes convergence at 1.2)
@@ -141,9 +141,9 @@ const MorphingCTA = () => {
                 width: () => `${getFinalWidthRem()}rem`,
                 height: `${buttonHpx}px`,
                 y: 100,
-                duration: 0.8,
-                ease: "expo.inOut",
-            }, 1.0);
+                duration: 1.0,
+                ease: "power4.inOut",
+            }, 0.9);
 
             // ---- PHASE G: Reveal Button Text (Delayed until expansion is done)
             tl.to(buttonTextItems, {
@@ -185,6 +185,10 @@ const MorphingCTA = () => {
                     ease: "power2.out",
                 }, "<"); // Run with extra content
             }
+
+            // ---- PHASE J: Extra Pin Hold
+            // This "dead" tween keeps the section pinned for an extra duration after the animation finishes
+            tl.to({}, { duration: 1.0 });
 
         }, containerRef); // Scope selector to containerRef
 
