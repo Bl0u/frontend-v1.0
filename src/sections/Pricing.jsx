@@ -119,9 +119,9 @@ export const Pricing = () => {
                     const progress = self.progress;
                     if (progress >= startOffset && progress <= endOffset) {
                         const animationProgress = (progress - startOffset) / (1 / 3);
-                        // Convert [0, 1] to [-180, 0] and [0, 180]
-                        const frontRotation = -180 * animationProgress;
-                        const backRotation = 180 - 180 * animationProgress;
+                        // Back (Covers) starts at 0 and goes to -180. Front (Details) starts at 180 and goes to 0.
+                        const backRotation = -180 * animationProgress;
+                        const frontRotation = 180 - 180 * animationProgress;
 
                         if (frontEl) frontEl.style.transform = `rotateY(${frontRotation}deg)`;
                         if (backEl) backEl.style.transform = `rotateY(${backRotation}deg)`;
@@ -130,12 +130,12 @@ export const Pricing = () => {
                         const currentRot = rotations[index] * (1 - animationProgress);
                         card.style.transform = `translate(-50%, -50%) rotate(${currentRot}deg)`;
                     } else if (progress < startOffset) {
-                        if (frontEl) frontEl.style.transform = `rotateY(0deg)`;
-                        if (backEl) backEl.style.transform = `rotateY(180deg)`;
+                        if (frontEl) frontEl.style.transform = `rotateY(180deg)`;
+                        if (backEl) backEl.style.transform = `rotateY(0deg)`;
                         card.style.transform = `translate(-50%, -50%) rotate(${rotations[index]}deg)`;
                     } else if (progress > endOffset) {
-                        if (frontEl) frontEl.style.transform = `rotateY(-180deg)`;
-                        if (backEl) backEl.style.transform = `rotateY(0deg)`;
+                        if (frontEl) frontEl.style.transform = `rotateY(0deg)`;
+                        if (backEl) backEl.style.transform = `rotateY(-180deg)`;
                         card.style.transform = `translate(-50%, -50%) rotate(0deg)`;
                     }
                 },
@@ -227,53 +227,56 @@ export const Pricing = () => {
                         className="pricing-card-3d"
                     >
                         <div className="flip-card-inner">
-                            {/* FRONT FACE */}
+                            {/* FRONT FACE (Revealed - Detailed Pricing) */}
                             <div className={clsx(
-                                'flip-card-front p-10 border flex flex-col',
+                                'flip-card-front p-10 border flex flex-col shadow-2xl transition-all duration-500',
                                 inverse ? 'bg-black text-white border-white/10' : 'bg-white text-black border-gray-100'
                             )}>
-                                <div className="flex justify-between items-center mb-8">
-                                    <h3 className={clsx('text-lg font-bold opacity-60', inverse && 'text-white')}>
+                                {popular && (
+                                    <div className="absolute top-6 right-6">
+                                        <div className="inline-flex text-[10px] px-3 py-1 rounded-full border border-white/20 bg-white/5">
+                                            <motion.span
+                                                animate={{ backgroundPositionX: '100%' }}
+                                                transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
+                                                className="bg-[linear-gradient(to_right,#DD7DDF,#E1CD86,#BBCB92,#71C2EF,#3BFFFF,#DD7DDF)] [background-size:200%] text-transparent bg-clip-text font-bold uppercase tracking-wider"
+                                            >
+                                                Best Value
+                                            </motion.span>
+                                        </div>
+                                    </div>
+                                )}
+                                <div className="flex justify-between items-center mb-10 w-full">
+                                    <h3 className={clsx('text-xl font-bold Zuume-Bold uppercase tracking-wide', inverse ? 'text-white' : 'text-[#001E80]')}>
                                         {title}
                                     </h3>
-                                    {popular && (
-                                        <div className="text-xs px-4 py-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-500 font-semibold tracking-wide">
-                                            Most Popular
-                                        </div>
-                                    )}
                                 </div>
-                                <div className="text-5xl font-bold mb-10 tracking-tight">{monthlyPrice}</div>
+                                <div className="text-6xl font-bold mb-10 tracking-tighter Zuume-Bold">{monthlyPrice}</div>
                                 <button className={clsx(
-                                    'w-full py-4 rounded-xl font-bold transition-all duration-300 transform hover:scale-[1.02] shadow-sm mb-10',
-                                    inverse ? 'bg-white text-black' : 'bg-black text-white hover:bg-black/90'
+                                    'w-full py-4 rounded-xl font-bold transition-all duration-300 transform hover:scale-[1.03] shadow-lg mb-10 border-none',
+                                    inverse ? 'bg-white text-black' : 'bg-black text-white'
                                 )}>
                                     {buttonText}
                                 </button>
-                                <ul className="space-y-5">
+                                <ul className="space-y-6 w-full">
                                     {features.map((feature, fIndex) => (
-                                        <li key={fIndex} className="text-sm flex items-start gap-4">
+                                        <li key={fIndex} className="text-sm flex items-start gap-4 text-left">
                                             <FaStar className={clsx("mt-1 flex-shrink-0", inverse ? "text-yellow-300" : "text-yellow-400")} />
-                                            <span className="opacity-80 leading-relaxed">{feature}</span>
+                                            <span className="opacity-90 leading-relaxed font-medium">{feature}</span>
                                         </li>
                                     ))}
                                 </ul>
                             </div>
 
-                            {/* BACK FACE */}
-                            <div className="flip-card-back">
-                                <div className="mb-8 p-6 rounded-full bg-white/5 border border-white/10">
-                                    <FaStar className="text-7xl text-yellow-400 drop-shadow-glow" />
+                            {/* BACK FACE (Initial - Blue Cover) */}
+                            <div className="flip-card-back bg-[#001E80] text-white border border-white/10 flex flex-col justify-center items-center p-10 shadow-2xl">
+                                <div className="mb-6 p-5 rounded-full bg-white/5 border border-white/10">
+                                    <FaStar className="text-6xl text-yellow-400 drop-shadow-glow" />
                                 </div>
-                                <h3 className="text-4xl font-bold mb-4 tracking-tighter Zuume-Bold uppercase">
+                                <h3 className="text-4xl font-bold mb-3 tracking-tighter Zuume-Bold uppercase">
                                     {title}
                                 </h3>
-                                <p className="text-white/50 text-center text-base leading-relaxed max-w-[240px]">
-                                    {index === 0 && "Perfect for individuals and hobbyists starting their journey."}
-                                    {index === 1 && "Advanced features and priority access for professionals."}
-                                    {index === 2 && "Monetize your expertise and lead the community forward."}
-                                </p>
-                                <div className="mt-12 px-8 py-2.5 rounded-full border border-white/10 bg-white/5 text-[10px] font-bold tracking-[0.2em] uppercase text-white/40">
-                                    Elite Tier Access
+                                <div className="mt-8 px-6 py-2 rounded-full border border-white/10 bg-white/5 text-[10px] font-bold tracking-[0.2em] uppercase text-white/40">
+                                    Scroll to Flip
                                 </div>
                             </div>
                         </div>
