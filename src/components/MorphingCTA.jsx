@@ -79,8 +79,8 @@ const MorphingCTA = () => {
                 scrollTrigger: {
                     trigger: containerRef.current,
                     start: "top top", // Start when top of section hits top of viewport
-                    end: "+=3000", // Scroll distance (Increased for more "frames" and smoother transition)
-                    scrub: 3.0, // Added more latency for liquid-smooth momentum
+                    end: "+=2200", // Scroll distance reduced for faster animation
+                    scrub: 2.0, // Snappier response to scroll
                     pin: true,
                     anticipatePin: 1,
                     invalidateOnRefresh: true,
@@ -185,6 +185,10 @@ const MorphingCTA = () => {
                     ease: "power2.out",
                 }, "<"); // Run with extra content
             }
+
+            // ---- PHASE J: Extra Pin Hold
+            // This "dead" tween keeps the section pinned for an extra duration after the animation finishes
+            tl.to({}, { duration: 1.0 });
 
         }, containerRef); // Scope selector to containerRef
 
