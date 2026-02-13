@@ -1,315 +1,343 @@
-import { FaStar } from "react-icons/fa";
-import clsx from "clsx";
+import React, { useLayoutEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { useRef, useLayoutEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import clsx from "clsx";
+import { FaStar } from "react-icons/fa";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export const Pricing = () => {
-  const pricingTiers = [
+  const sectionRef = useRef(null);
+  const cardsRef = useRef([]);
+
+  const tiers = [
     {
       title: "Star Pack",
-      monthlyPrice: "$5",
-      buttonText: "Buy 500 Stars",
-      popular: false,
-      inverse: false,
-      features: [
-        "500 Stars Balance",
-        "Unlock 5 Premium Resources",
-        "Prioritize your Requests",
-        "Support Creator Community",
+      price: "$5",
+      cta: "Buy 500 Stars",
+      highlight: false,
+      theme: "light",
+      perks: [
+        "500 Stars balance",
+        "Unlock 5 premium resources",
+        "Prioritize requests",
+        "Support creators",
       ],
     },
     {
       title: "Pro Bundle",
-      monthlyPrice: "$10",
-      buttonText: "Buy 1200 Stars",
-      popular: true,
-      inverse: true,
-      features: [
-        "1200 Stars Balance (20% Bonus)",
-        "Unlock 12 Premium Resources",
-        "Book 1 Expert Session",
-        "Verified Student Badge",
-        "Priority Support",
+      price: "$10",
+      cta: "Buy 1200 Stars",
+      highlight: true,
+      theme: "dark",
+      perks: [
+        "1200 Stars (20% bonus)",
+        "Unlock 12 premium resources",
+        "Book 1 expert session",
+        "Verified student badge",
+        "Priority support",
       ],
     },
     {
       title: "Mentor Pass",
-      monthlyPrice: "Earn",
-      buttonText: "Apply Now",
-      popular: false,
-      inverse: false,
-      features: [
+      price: "Earn",
+      cta: "Apply Now",
+      highlight: false,
+      theme: "light",
+      perks: [
         "Monetize your expertise",
         "Set your own rates",
         "Cash out earnings",
-        "Mentor Dashboard",
-        "Top Rated Badge",
+        "Mentor dashboard",
+        "Top rated badge",
       ],
     },
   ];
 
-  const sectionRef = useRef(null);
-  const cardRefs = useRef([]);
-
   useLayoutEffect(() => {
     if (!sectionRef.current) return;
 
-    // ✅ Scope everything to this component only
     const ctx = gsap.context(() => {
-      const cards = cardRefs.current.filter(Boolean);
+      const cards = cardsRef.current.filter(Boolean);
 
-      // If you want "3 screens total" of interaction,
-      // you only need +2 screens of extra scroll (because 1 screen is already visible).
-      const scrollLen = window.innerHeight * 2;
+      // --- scroll budget ---
+      // Total experience ~ 3 screens: 1 screen visible + 2 screens scroll
+      const totalScroll = window.innerHeight * 2;
 
-      const positions = [18, 50, 82];
+      // --- layout targets ---
+      const positions = [18, 50, 82]; // left/center/right
       const rotations = [-12, 0, 12];
 
-      // Make sure cards start centered via GSAP-friendly transforms
+      // Base set: cards are centered; GSAP manages transform
       gsap.set(cards, {
         left: "50%",
-        top: "50%",
+        top: "46%",        // Raised from 50%
         xPercent: -50,
         yPercent: -50,
         rotation: 0,
         transformOrigin: "50% 50%",
+        willChange: "transform,left",
       });
 
-      // ✅ Pin ONLY this section, with sane scroll length
+      // Extra vertical offsets (all slightly up, black one more up)
+      cards.forEach((card, i) => {
+        const isBlack = i === 1; // Middle tier (Pro Bundle)
+        gsap.set(card, { y: isBlack ? -70 : -35 });
+      });
+
+      // Pin section
       ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
-        end: `+=${scrollLen}`,
+        end: `+=${totalScroll}`,
         pin: true,
         pinSpacing: true,
         anticipatePin: 1,
         invalidateOnRefresh: true,
       });
 
-      // Spread + tilt
+      // Spread cards during first viewport scroll
       cards.forEach((card, i) => {
         gsap.to(card, {
           left: `${positions[i]}%`,
           rotation: rotations[i],
-          ease: "power2.out",
+          ease: "none",
           scrollTrigger: {
             trigger: sectionRef.current,
             start: "top top",
-            end: `+=${window.innerHeight}`, // spread in first screen
+            end: `+=${window.innerHeight}`, // first screen: spread
             scrub: 0.6,
             invalidateOnRefresh: true,
           },
         });
       });
 
-      // Flip (GSAP owns transforms; no style.transform overwrites)
+      // Flip sequentially (staggered)
       cards.forEach((card, i) => {
-        const frontEl = card.querySelector(".flip-card-front");
-        const backEl = card.querySelector(".flip-card-back");
+        const cover = card.querySelector(".pricing-cover");
+        const details = card.querySelector(".pricing-details");
+        if (!cover || !details) return;
 
-        if (!frontEl || !backEl) return;
+        // Start state: show cover, hide details
+        gsap.set(cover, { rotationY: 0, transformStyle: "preserve-3d" });
+        gsap.set(details, { rotationY: 180, transformStyle: "preserve-3d" });
 
-        // Initial state: show BACK (cover)
-        gsap.set(frontEl, { rotationY: 180, transformStyle: "preserve-3d" });
-        gsap.set(backEl, { rotationY: 0, transformStyle: "preserve-3d" });
+        // Staggered flip window inside pinned duration
+        const startPx = window.innerHeight * (0.65 + i * 0.18);
+        const endPx = startPx + window.innerHeight * 0.8;
 
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: sectionRef.current,
-            start: `top top+=${window.innerHeight * (0.35 + i * 0.08)}`,
-            end: `top top+=${window.innerHeight * (1.35 + i * 0.08)}`,
+            start: `top top+=${startPx}`,
+            end: `top top+=${endPx}`,
             scrub: true,
             invalidateOnRefresh: true,
           },
         });
 
-        tl.to(backEl, { rotationY: -180, ease: "none" }, 0)
-          .to(frontEl, { rotationY: 0, ease: "none" }, 0)
-          .to(card, { rotation: 0, ease: "none" }, 0); // straighten during flip
+        // Cover rotates away, details rotate in
+        tl.to(cover, { rotationY: -180, ease: "none" }, 0)
+          .to(details, { rotationY: 0, ease: "none" }, 0)
+          // straighten the card while flipping (nice “snap to clean” feeling)
+          .to(card, { rotation: 0, ease: "none" }, 0);
       });
 
-      // ✅ One refresh after everything is created (not mid-way)
+      // one refresh after setup
       ScrollTrigger.refresh();
     }, sectionRef);
 
-    return () => {
-      // ✅ Revert only what this component created
-      ctx.revert();
-    };
+    return () => ctx.revert();
   }, []);
 
   return (
-    <section
-      ref={sectionRef}
-      className="relative bg-white overflow-hidden p-0"
-      style={{ minHeight: "100vh", margin: 0 }}
-    >
+    <section ref={sectionRef} className="relative bg-white overflow-hidden">
+      {/* Minimal CSS for 3D flip — keep it scoped */}
       <style
         dangerouslySetInnerHTML={{
           __html: `
-            .cards-animation-container {
-              position: relative;
-              width: 100%;
-              height: 100vh;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              overflow: hidden;
-              z-index: 5;
-            }
-            .pricing-card-3d {
-              position: absolute;
-              width: 320px;
-              height: 520px;
-              perspective: 2000px;
-              transform-style: preserve-3d;
-              will-change: transform, left;
-            }
-            .flip-card-inner {
-              position: relative;
-              width: 100%;
-              height: 100%;
-              transform-style: preserve-3d;
-            }
-            .flip-card-front, .flip-card-back {
-              position: absolute;
-              width: 100%;
-              height: 100%;
-              backface-visibility: hidden;
-              border-radius: 28px;
-              box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-              display: flex;
-              flex-direction: column;
-              transform-style: preserve-3d;
-            }
-            .flip-card-back {
-              background: linear-gradient(145deg, #001E80 0%, #000411 100%);
-              color: white;
-              justify-content: center;
-              align-items: center;
-              padding: 2.5rem;
-              border: 1px solid rgba(255,255,255,0.08);
-              box-shadow: 0 25px 50px rgba(0,0,0,0.4);
-            }
-            .drop-shadow-glow {
-              filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.4));
-            }
-          `,
+          .pricing-stage {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 10;
+          }
+          .pricing-card {
+            position: absolute;
+            width: 320px;
+            height: 520px;
+            perspective: 1400px;
+            transform-style: preserve-3d;
+          }
+          .pricing-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+          }
+          .pricing-face {
+            position: absolute;
+            inset: 0;
+            backface-visibility: hidden;
+            transform-style: preserve-3d;
+            border-radius: 28px;
+            overflow: hidden;
+          }
+          .pricing-float {
+            width: 100%;
+            height: 100%;
+            animation: pricingFloat 3.2s ease-in-out infinite;
+            will-change: transform;
+          }
+          @keyframes pricingFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-16px); }
+          }
+          @media (max-height: 720px) {
+            .pricing-card { transform: scale(0.9) !important; transform-origin: center; }
+          }
+          @media (max-height: 650px) {
+            .pricing-card { transform: scale(0.8) !important; }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .pricing-float { animation: none !important; }
+          }
+          .drop-shadow-glow {
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.4));
+          }
+        `,
         }}
       />
 
-      <div className="container mx-auto px-4 relative z-20 pt-20">
-        <div className="max-w-[700px] mx-auto text-center">
-          <h2
-            style={{ fontFamily: "Zuume-Bold" }}
-            className="text-5xl md:text-7xl font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text Zuume-Bold uppercase"
-          >
+      {/* Heading */}
+      <div className="container mx-auto px-4 pt-20 relative z-20">
+        <div className="max-w-[820px] mx-auto text-center">
+          <h2 className="text-5xl md:text-7xl font-black tracking-tight bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text uppercase">
             Unlock more with Stars
           </h2>
-          <p className="text-2xl text-[#010D3E] mt-4 opacity-80">
-            Get the resources you need to succeed. Top up instantly.
+          <p className="text-xl md:text-2xl text-[#010D3E] mt-4 opacity-80">
+            Top up instantly. Unlock premium resources. Keep momentum.
           </p>
         </div>
       </div>
 
-      <div className="cards-animation-container">
-        {pricingTiers.map(
-          ({ title, monthlyPrice, buttonText, popular, inverse, features }, index) => (
+      {/* Pinned stage */}
+      <div className="pricing-stage">
+        {tiers.map((t, i) => (
+          <div
+            key={t.title}
+            ref={(el) => (cardsRef.current[i] = el)}
+            className="pricing-card"
+          >
             <div
-              key={title}
-              ref={(el) => (cardRefs.current[index] = el)}
-              className="pricing-card-3d"
+              className="pricing-float"
+              style={{ animationDelay: `${i * 0.18}s` }}
             >
-              <div className="flip-card-inner">
+              <div className="pricing-inner">
+                {/* COVER (initially visible) */}
                 <div
                   className={clsx(
-                    "flip-card-front p-10 border flex flex-col shadow-2xl",
-                    inverse
-                      ? "bg-black text-white border-white/10"
-                      : "bg-white text-black border-gray-100"
+                    "pricing-face pricing-cover flex flex-col items-center justify-center p-10 border",
+                    t.theme === "dark"
+                      ? "bg-[#001E80] text-white border-white/10"
+                      : "bg-white text-black border-black/10"
                   )}
                 >
-                  {popular && (
-                    <div className="absolute top-6 right-6">
-                      <div className="inline-flex text-[10px] px-3 py-1 rounded-full border border-white/20 bg-white/5">
+                  <div
+                    className={clsx(
+                      "w-20 h-20 rounded-full flex items-center justify-center border",
+                      t.theme === "dark"
+                        ? "bg-white/5 border-white/10"
+                        : "bg-black/5 border-black/10"
+                    )}
+                  >
+                    <FaStar className={clsx("text-4xl", t.theme === "dark" ? "text-yellow-300" : "text-yellow-500")} />
+                  </div>
+
+                  <h3 className="mt-6 text-4xl font-black tracking-tight uppercase">
+                    {t.title}
+                  </h3>
+
+                  <div
+                    className={clsx(
+                      "mt-8 px-5 py-2 rounded-full text-[10px] font-bold tracking-[0.25em] uppercase border",
+                      t.theme === "dark"
+                        ? "text-white/60 border-white/10 bg-white/5"
+                        : "text-black/50 border-black/10 bg-black/5"
+                    )}
+                  >
+                    Scroll to flip
+                  </div>
+                </div>
+
+                {/* DETAILS (flips in) */}
+                <div
+                  className={clsx(
+                    "pricing-face pricing-details p-10 border flex flex-col shadow-2xl",
+                    t.theme === "dark"
+                      ? "bg-black text-white border-white/10"
+                      : "bg-white text-black border-black/10"
+                  )}
+                >
+                  {/* Tag */}
+                  <div className="flex items-center justify-between">
+                    <h3
+                      className={clsx(
+                        "text-xl font-black uppercase tracking-wide",
+                        t.theme === "dark" ? "text-white" : "text-[#001E80]"
+                      )}
+                    >
+                      {t.title}
+                    </h3>
+
+                    {t.highlight && (
+                      <div className="text-[10px] px-3 py-1 rounded-full border border-white/15 bg-white/10 uppercase tracking-widest shadow-glow">
                         <motion.span
-                          animate={{ backgroundPositionX: "100%" }}
-                          transition={{
-                            duration: 1.5,
-                            repeat: Infinity,
-                            ease: "linear",
-                          }}
-                          className="bg-[linear-gradient(to_right,#DD7DDF,#E1CD86,#BBCB92,#71C2EF,#3BFFFF,#DD7DDF)] [background-size:200%] text-transparent bg-clip-text font-bold uppercase tracking-wider"
+                          animate={{ backgroundPositionX: '100%' }}
+                          transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                          className="bg-[linear-gradient(to_right,#DD7DDF,#E1CD86,#BBCB92,#71C2EF,#3BFFFF,#DD7DDF)] [background-size:200%] text-transparent bg-clip-text font-bold"
                         >
                           Best Value
                         </motion.span>
                       </div>
-                    </div>
-                  )}
-
-                  <div className="flex justify-between items-center mb-10 w-full">
-                    <h3
-                      className={clsx(
-                        "text-xl font-bold Zuume-Bold uppercase tracking-wide",
-                        inverse ? "text-white" : "text-[#001E80]"
-                      )}
-                    >
-                      {title}
-                    </h3>
+                    )}
                   </div>
 
-                  <div className="text-6xl font-bold mb-10 tracking-tighter Zuume-Bold">
-                    {monthlyPrice}
+                  <div className="mt-10 text-6xl font-black tracking-tight">
+                    {t.price}
+                    {t.price !== "Earn" && <span className="text-lg font-semibold opacity-60"> / mo</span>}
                   </div>
 
                   <button
                     className={clsx(
-                      "w-full py-4 rounded-xl font-bold transition-all duration-300 transform hover:scale-[1.03] shadow-lg mb-10 border-none",
-                      inverse ? "bg-white text-black" : "bg-black text-white"
+                      "mt-10 w-full py-4 rounded-2xl font-black transition-transform duration-300 hover:scale-[1.02]",
+                      t.theme === "dark"
+                        ? "bg-white text-black"
+                        : "bg-black text-white"
                     )}
                   >
-                    {buttonText}
+                    {t.cta}
                   </button>
 
-                  <ul className="space-y-6 w-full">
-                    {features.map((feature, fIndex) => (
-                      <li
-                        key={fIndex}
-                        className="text-sm flex items-start gap-4 text-left"
-                      >
-                        <FaStar
-                          className={clsx(
-                            "mt-1 flex-shrink-0",
-                            inverse ? "text-yellow-300" : "text-yellow-400"
-                          )}
-                        />
-                        <span className="opacity-90 leading-relaxed font-medium">
-                          {feature}
-                        </span>
+                  <ul className="mt-10 space-y-5">
+                    {t.perks.map((p) => (
+                      <li key={p} className="flex items-start gap-3 text-sm leading-relaxed">
+                        <FaStar className={clsx("mt-1", t.theme === "dark" ? "text-yellow-300" : "text-yellow-500")} />
+                        <span className="opacity-90 font-medium">{p}</span>
                       </li>
                     ))}
                   </ul>
-                </div>
 
-                <div className="flip-card-back bg-[#001E80] text-white border border-white/10 flex flex-col justify-center items-center p-10 shadow-2xl">
-                  <div className="mb-6 p-5 rounded-full bg-white/5 border border-white/10">
-                    <FaStar className="text-6xl text-yellow-400 drop-shadow-glow" />
-                  </div>
-                  <h3 className="text-4xl font-bold mb-3 tracking-tighter Zuume-Bold uppercase">
-                    {title}
-                  </h3>
-                  <div className="mt-8 px-6 py-2 rounded-full border border-white/10 bg-white/5 text-[10px] font-bold tracking-[0.2em] uppercase text-white/40">
-                    Scroll to Flip
+                  <div className="mt-auto pt-8 text-xs opacity-50">
+                    Secure checkout • Cancel anytime
                   </div>
                 </div>
               </div>
             </div>
-          )
-        )}
+          </div>
+        ))}
       </div>
     </section>
   );
