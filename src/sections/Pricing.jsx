@@ -72,7 +72,7 @@ export const Pricing = () => {
       // Base set: cards are centered; GSAP manages transform
       gsap.set(cards, {
         left: "50%",
-        top: "46%",        // Raised from 50%
+        top: "45%",        // Raised from 46%
         xPercent: -50,
         yPercent: -50,
         rotation: 0,
@@ -212,7 +212,7 @@ export const Pricing = () => {
       />
 
       {/* Heading */}
-      <div className="container mx-auto px-4 pt-20 relative z-20">
+      <div className="container mx-auto px-4 pt-8 relative z-20">
         <div className="max-w-[820px] mx-auto text-center">
           <h2 className="text-5xl md:text-7xl font-black tracking-tight bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text uppercase">
             Unlock more with Stars
