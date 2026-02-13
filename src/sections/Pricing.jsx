@@ -214,7 +214,7 @@ export const Pricing = () => {
       {/* Heading */}
       <div className="container mx-auto px-4 pt-8 relative z-20">
         <div className="max-w-[820px] mx-auto text-center">
-          <h2 className="text-5xl md:text-7xl font-black tracking-tight bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text uppercase">
+          <h2 style={{ fontFamily: "Zuume-Bold" }} className="text-5xl md:text-7xl font-black tracking-tight bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text uppercase Zuume-Bold">
             Unlock more with Stars
           </h2>
           <p className="text-xl md:text-2xl text-[#010D3E] mt-4 opacity-80">
