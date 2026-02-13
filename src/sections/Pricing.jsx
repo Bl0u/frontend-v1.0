@@ -61,18 +61,18 @@ export const Pricing = () => {
     const ctx = gsap.context(() => {
       const cards = cardsRef.current.filter(Boolean);
 
-      // --- scroll budget ---
-      // Total experience ~ 3 screens: 1 screen visible + 2 screens scroll
-      const totalScroll = window.innerHeight * 2;
+      // --- inspired by example ---
+      // total pinned duration ~ 3 screens (tweak as you like)
+      const totalScroll = window.innerHeight * 3;
 
-      // --- layout targets ---
-      const positions = [18, 50, 82]; // left/center/right
+      // spread targets
+      const positions = [18, 50, 82];
       const rotations = [-12, 0, 12];
 
-      // Base set: cards are centered; GSAP manages transform
+      // Base card placement (GSAP owns transforms)
       gsap.set(cards, {
         left: "50%",
-        top: "45%",        // Raised from 46%
+        top: "45%",
         xPercent: -50,
         yPercent: -50,
         rotation: 0,
@@ -80,10 +80,21 @@ export const Pricing = () => {
         willChange: "transform,left",
       });
 
-      // Extra vertical offsets (all slightly up, black one more up)
+      // Extra vertical offsets (raise all; raise middle more)
       cards.forEach((card, i) => {
-        const isBlack = i === 1; // Middle tier (Pro Bundle)
-        gsap.set(card, { y: isBlack ? -70 : -35 });
+        const isMiddle = i === 1;
+        gsap.set(card, { y: isMiddle ? -70 : -35 });
+      });
+
+      // Set initial 3D state to show BACK first (DETAILS visible)
+      cards.forEach((card) => {
+        const cover = card.querySelector(".pricing-cover");
+        const details = card.querySelector(".pricing-details");
+        if (!cover || !details) return;
+
+        // IMPORTANT: back-facing initial state (details at 0, cover at 180)
+        gsap.set(details, { rotationY: 0, transformStyle: "preserve-3d" });
+        gsap.set(cover, { rotationY: 180, transformStyle: "preserve-3d" });
       });
 
       // Pin section
@@ -113,38 +124,63 @@ export const Pricing = () => {
         });
       });
 
-      // Flip sequentially (staggered)
+      // Flip + straighten using ONE ScrollTrigger per card (example-style)
       cards.forEach((card, i) => {
         const cover = card.querySelector(".pricing-cover");
         const details = card.querySelector(".pricing-details");
         if (!cover || !details) return;
 
-        // Start state: show cover, hide details
-        gsap.set(cover, { rotationY: 0, transformStyle: "preserve-3d" });
-        gsap.set(details, { rotationY: 180, transformStyle: "preserve-3d" });
+        // same stagger idea as example, adjusted for 3 cards:
+        // flip window ~ middle third of scroll, slightly staggered
+        const staggerOffset = i * 0.08;      // tweak this for spacing between flips
+        const startOffset = 1 / 3 + staggerOffset;
+        const endOffset = 2 / 3 + staggerOffset;
 
-        // Staggered flip window inside pinned duration
-        const startPx = window.innerHeight * (0.65 + i * 0.18);
-        const endPx = startPx + window.innerHeight * 0.8;
+        ScrollTrigger.create({
+          trigger: sectionRef.current,
+          start: "top top",
+          end: `+=${totalScroll}`,
+          scrub: 1,
+          invalidateOnRefresh: true,
+          onUpdate: (self) => {
+            const progress = self.progress;
 
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: `top top+=${startPx}`,
-            end: `top top+=${endPx}`,
-            scrub: true,
-            invalidateOnRefresh: true,
+            if (progress < startOffset) {
+              // still showing DETAILS (back)
+              gsap.set(details, { rotationY: 0 });
+              gsap.set(cover, { rotationY: 180 });
+              gsap.set(card, { rotation: rotations[i] });
+              return;
+            }
+
+            if (progress > endOffset) {
+              // finished: show COVER (front)
+              gsap.set(details, { rotationY: -180 });
+              gsap.set(cover, { rotationY: 0 });
+              gsap.set(card, { rotation: 0 });
+              return;
+            }
+
+            // during flip window
+            const t = (progress - startOffset) / (endOffset - startOffset); // 0..1
+
+            // We want: details 0 -> -180, cover 180 -> 0 (flip to cover)
+            const detailsRot = -180 * t;
+            const coverRot = 180 - 180 * t;
+
+            // straighten card rotation while flipping
+            const cardRot = rotations[i] * (1 - t);
+
+            // apply
+            details.style.transform = `rotateY(${detailsRot}deg)`;
+            cover.style.transform = `rotateY(${coverRot}deg)`;
+
+            // keep translate from GSAP (%), only set rotation here
+            gsap.set(card, { rotation: cardRot });
           },
         });
-
-        // Cover rotates away, details rotate in
-        tl.to(cover, { rotationY: -180, ease: "none" }, 0)
-          .to(details, { rotationY: 0, ease: "none" }, 0)
-          // straighten the card while flipping (nice “snap to clean” feeling)
-          .to(card, { rotation: 0, ease: "none" }, 0);
       });
 
-      // one refresh after setup
       ScrollTrigger.refresh();
     }, sectionRef);
 
@@ -153,7 +189,7 @@ export const Pricing = () => {
 
   return (
     <section ref={sectionRef} className="relative bg-white overflow-hidden">
-      {/* Minimal CSS for 3D flip — keep it scoped */}
+      {/* Minimal CSS for 3D flip — scoped */}
       <style
         dangerouslySetInnerHTML={{
           __html: `
@@ -168,7 +204,7 @@ export const Pricing = () => {
             position: absolute;
             width: 320px;
             height: 520px;
-            perspective: 1400px;
+            perspective: 1200px; /* closer to example */
             transform-style: preserve-3d;
           }
           .pricing-inner {
@@ -185,25 +221,23 @@ export const Pricing = () => {
             border-radius: 28px;
             overflow: hidden;
           }
+
+          /* float inspired by example */
           .pricing-float {
             width: 100%;
             height: 100%;
-            animation: pricingFloat 3.2s ease-in-out infinite;
+            animation: pricingFloat 3.0s ease-in-out infinite;
             will-change: transform;
           }
           @keyframes pricingFloat {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-16px); }
           }
-          @media (max-height: 720px) {
-            .pricing-card { transform: scale(0.9) !important; transform-origin: center; }
-          }
-          @media (max-height: 650px) {
-            .pricing-card { transform: scale(0.8) !important; }
-          }
+
           @media (prefers-reduced-motion: reduce) {
             .pricing-float { animation: none !important; }
           }
+
           .drop-shadow-glow {
             filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.4));
           }
@@ -214,7 +248,10 @@ export const Pricing = () => {
       {/* Heading */}
       <div className="container mx-auto px-4 pt-8 relative z-20">
         <div className="max-w-[820px] mx-auto text-center">
-          <h2 style={{ fontFamily: "Zuume-Bold" }} className="text-5xl md:text-7xl font-black tracking-tight bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text uppercase Zuume-Bold">
+          <h2
+            style={{ fontFamily: "Zuume-Bold" }}
+            className="text-5xl md:text-7xl font-black tracking-tight bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text uppercase Zuume-Bold"
+          >
             Unlock more with Stars
           </h2>
           <p className="text-xl md:text-2xl text-[#010D3E] mt-4 opacity-80">
@@ -236,7 +273,7 @@ export const Pricing = () => {
               style={{ animationDelay: `${i * 0.18}s` }}
             >
               <div className="pricing-inner">
-                {/* COVER (initially visible) */}
+                {/* COVER (front face; will flip IN on scroll) */}
                 <div
                   className={clsx(
                     "pricing-face pricing-cover flex flex-col items-center justify-center p-10 border",
@@ -253,7 +290,12 @@ export const Pricing = () => {
                         : "bg-black/5 border-black/10"
                     )}
                   >
-                    <FaStar className={clsx("text-4xl", t.theme === "dark" ? "text-yellow-300" : "text-yellow-500")} />
+                    <FaStar
+                      className={clsx(
+                        "text-4xl",
+                        t.theme === "dark" ? "text-yellow-300" : "text-yellow-500"
+                      )}
+                    />
                   </div>
 
                   <h3 className="mt-6 text-4xl font-black tracking-tight uppercase">
@@ -272,7 +314,7 @@ export const Pricing = () => {
                   </div>
                 </div>
 
-                {/* DETAILS (flips in) */}
+                {/* DETAILS (back face; visible FIRST now) */}
                 <div
                   className={clsx(
                     "pricing-face pricing-details p-10 border flex flex-col shadow-2xl",
@@ -281,7 +323,6 @@ export const Pricing = () => {
                       : "bg-white text-black border-black/10"
                   )}
                 >
-                  {/* Tag */}
                   <div className="flex items-center justify-between">
                     <h3
                       className={clsx(
@@ -295,8 +336,12 @@ export const Pricing = () => {
                     {t.highlight && (
                       <div className="text-[10px] px-3 py-1 rounded-full border border-white/15 bg-white/10 uppercase tracking-widest shadow-glow">
                         <motion.span
-                          animate={{ backgroundPositionX: '100%' }}
-                          transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                          animate={{ backgroundPositionX: "100%" }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            ease: "linear",
+                          }}
                           className="bg-[linear-gradient(to_right,#DD7DDF,#E1CD86,#BBCB92,#71C2EF,#3BFFFF,#DD7DDF)] [background-size:200%] text-transparent bg-clip-text font-bold"
                         >
                           Best Value
@@ -307,7 +352,12 @@ export const Pricing = () => {
 
                   <div className="mt-10 text-6xl font-black tracking-tight">
                     {t.price}
-                    {t.price !== "Earn" && <span className="text-lg font-semibold opacity-60"> / mo</span>}
+                    {t.price !== "Earn" && (
+                      <span className="text-lg font-semibold opacity-60">
+                        {" "}
+                        / mo
+                      </span>
+                    )}
                   </div>
 
                   <button
@@ -323,8 +373,18 @@ export const Pricing = () => {
 
                   <ul className="mt-10 space-y-5">
                     {t.perks.map((p) => (
-                      <li key={p} className="flex items-start gap-3 text-sm leading-relaxed">
-                        <FaStar className={clsx("mt-1", t.theme === "dark" ? "text-yellow-300" : "text-yellow-500")} />
+                      <li
+                        key={p}
+                        className="flex items-start gap-3 text-sm leading-relaxed"
+                      >
+                        <FaStar
+                          className={clsx(
+                            "mt-1",
+                            t.theme === "dark"
+                              ? "text-yellow-300"
+                              : "text-yellow-500"
+                          )}
+                        />
                         <span className="opacity-90 font-medium">{p}</span>
                       </li>
                     ))}
