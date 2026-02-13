@@ -61,15 +61,14 @@ export const Pricing = () => {
     const ctx = gsap.context(() => {
       const cards = cardsRef.current.filter(Boolean);
 
-      // --- inspired by example ---
-      // total pinned duration ~ 3 screens (tweak as you like)
+      // Inspired by the example: longer pinned duration + progress-mapped flip
       const totalScroll = window.innerHeight * 3;
 
-      // spread targets
+      // Layout targets (left/center/right) + slight fan rotations
       const positions = [18, 50, 82];
       const rotations = [-12, 0, 12];
 
-      // Base card placement (GSAP owns transforms)
+      // Base placement: all cards start centered
       gsap.set(cards, {
         left: "50%",
         top: "45%",
@@ -80,24 +79,23 @@ export const Pricing = () => {
         willChange: "transform,left",
       });
 
-      // Extra vertical offsets (raise all; raise middle more)
+      // Raise all cards a bit, raise middle more
       cards.forEach((card, i) => {
         const isMiddle = i === 1;
         gsap.set(card, { y: isMiddle ? -70 : -35 });
       });
 
-      // Set initial 3D state to show BACK first (DETAILS visible)
+      // Initial 3D state: COVER visible first, DETAILS hidden behind
       cards.forEach((card) => {
         const cover = card.querySelector(".pricing-cover");
         const details = card.querySelector(".pricing-details");
         if (!cover || !details) return;
 
-        // IMPORTANT: back-facing initial state (details at 0, cover at 180)
-        gsap.set(details, { rotationY: 0, transformStyle: "preserve-3d" });
-        gsap.set(cover, { rotationY: 180, transformStyle: "preserve-3d" });
+        gsap.set(cover, { rotationY: 0, transformStyle: "preserve-3d" });
+        gsap.set(details, { rotationY: 180, transformStyle: "preserve-3d" });
       });
 
-      // Pin section
+      // Pin the entire section
       ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
@@ -108,7 +106,7 @@ export const Pricing = () => {
         invalidateOnRefresh: true,
       });
 
-      // Spread cards during first viewport scroll
+      // Spread cards in the first viewport scroll
       cards.forEach((card, i) => {
         gsap.to(card, {
           left: `${positions[i]}%`,
@@ -117,22 +115,21 @@ export const Pricing = () => {
           scrollTrigger: {
             trigger: sectionRef.current,
             start: "top top",
-            end: `+=${window.innerHeight}`, // first screen: spread
+            end: `+=${window.innerHeight}`,
             scrub: 0.6,
             invalidateOnRefresh: true,
           },
         });
       });
 
-      // Flip + straighten using ONE ScrollTrigger per card (example-style)
+      // Flip to DETAILS (cover -> away, details -> in) with staggered timing
       cards.forEach((card, i) => {
         const cover = card.querySelector(".pricing-cover");
         const details = card.querySelector(".pricing-details");
         if (!cover || !details) return;
 
-        // same stagger idea as example, adjusted for 3 cards:
-        // flip window ~ middle third of scroll, slightly staggered
-        const staggerOffset = i * 0.08;      // tweak this for spacing between flips
+        // Example-style stagger windows (tweak as needed)
+        const staggerOffset = i * 0.08;
         const startOffset = 1 / 3 + staggerOffset;
         const endOffset = 2 / 3 + staggerOffset;
 
@@ -146,36 +143,34 @@ export const Pricing = () => {
             const progress = self.progress;
 
             if (progress < startOffset) {
-              // still showing DETAILS (back)
-              gsap.set(details, { rotationY: 0 });
-              gsap.set(cover, { rotationY: 180 });
+              // Before flip: show COVER
+              cover.style.transform = `rotateY(0deg)`;
+              details.style.transform = `rotateY(180deg)`;
               gsap.set(card, { rotation: rotations[i] });
               return;
             }
 
             if (progress > endOffset) {
-              // finished: show COVER (front)
-              gsap.set(details, { rotationY: -180 });
-              gsap.set(cover, { rotationY: 0 });
+              // After flip: show DETAILS
+              cover.style.transform = `rotateY(-180deg)`;
+              details.style.transform = `rotateY(0deg)`;
               gsap.set(card, { rotation: 0 });
               return;
             }
 
-            // during flip window
+            // During flip window
             const t = (progress - startOffset) / (endOffset - startOffset); // 0..1
 
-            // We want: details 0 -> -180, cover 180 -> 0 (flip to cover)
-            const detailsRot = -180 * t;
-            const coverRot = 180 - 180 * t;
+            // COVER 0 -> -180 (away)
+            // DETAILS 180 -> 0 (in)
+            const coverRot = -180 * t;
+            const detailsRot = 180 - 180 * t;
 
-            // straighten card rotation while flipping
+            // Straighten while flipping
             const cardRot = rotations[i] * (1 - t);
 
-            // apply
-            details.style.transform = `rotateY(${detailsRot}deg)`;
             cover.style.transform = `rotateY(${coverRot}deg)`;
-
-            // keep translate from GSAP (%), only set rotation here
+            details.style.transform = `rotateY(${detailsRot}deg)`;
             gsap.set(card, { rotation: cardRot });
           },
         });
@@ -189,7 +184,7 @@ export const Pricing = () => {
 
   return (
     <section ref={sectionRef} className="relative bg-white overflow-hidden">
-      {/* Minimal CSS for 3D flip — scoped */}
+      {/* Scoped CSS */}
       <style
         dangerouslySetInnerHTML={{
           __html: `
@@ -200,19 +195,22 @@ export const Pricing = () => {
             overflow: hidden;
             z-index: 10;
           }
+
           .pricing-card {
             position: absolute;
             width: 320px;
             height: 520px;
-            perspective: 1200px; /* closer to example */
+            perspective: 1200px;
             transform-style: preserve-3d;
           }
+
           .pricing-inner {
             position: relative;
             width: 100%;
             height: 100%;
             transform-style: preserve-3d;
           }
+
           .pricing-face {
             position: absolute;
             inset: 0;
@@ -222,16 +220,24 @@ export const Pricing = () => {
             overflow: hidden;
           }
 
-          /* float inspired by example */
           .pricing-float {
             width: 100%;
             height: 100%;
             animation: pricingFloat 3.0s ease-in-out infinite;
             will-change: transform;
           }
+
           @keyframes pricingFloat {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-16px); }
+          }
+
+          @media (max-height: 720px) {
+            .pricing-card { transform: scale(0.9) !important; transform-origin: center; }
+          }
+
+          @media (max-height: 650px) {
+            .pricing-card { transform: scale(0.8) !important; }
           }
 
           @media (prefers-reduced-motion: reduce) {
@@ -273,7 +279,7 @@ export const Pricing = () => {
               style={{ animationDelay: `${i * 0.18}s` }}
             >
               <div className="pricing-inner">
-                {/* COVER (front face; will flip IN on scroll) */}
+                {/* COVER (visible first) */}
                 <div
                   className={clsx(
                     "pricing-face pricing-cover flex flex-col items-center justify-center p-10 border",
@@ -314,7 +320,7 @@ export const Pricing = () => {
                   </div>
                 </div>
 
-                {/* DETAILS (back face; visible FIRST now) */}
+                {/* DETAILS (revealed on scroll) */}
                 <div
                   className={clsx(
                     "pricing-face pricing-details p-10 border flex flex-col shadow-2xl",
