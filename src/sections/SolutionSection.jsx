@@ -97,8 +97,8 @@ const Card = React.forwardRef(function Card(
         className="relative h-[550px] w-[90%] md:w-[85%] lg:w-[75%] rounded-[40px] p-8 md:p-12 lg:p-16 origin-top shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden border border-white/20"
         style={{
           backgroundColor: color,
-          // small initial offset so the stack is visible
-          top: skipAnimation ? "0px" : `calc(28px + ${i * 18}px)`,
+          // Stack offset (visual depth) — NOT the header spacing
+          top: skipAnimation ? "0px" : `calc(18px + ${i * 14}px)`,
         }}
       >
         <div
@@ -146,19 +146,32 @@ const Card = React.forwardRef(function Card(
 export const SolutionSection = ({ skipAnimation = false }) => {
   const container = useRef(null);
   const stageRef = useRef(null);
+  const headerRef = useRef(null);
   const cardsRef = useRef([]);
 
   useLayoutEffect(() => {
     if (skipAnimation) return;
-    if (!container.current || !stageRef.current) return;
+    if (!container.current || !stageRef.current || !headerRef.current) return;
 
     const ctx = gsap.context(() => {
       const cards = cardsRef.current.filter(Boolean);
       if (!cards.length) return;
 
+      // Measure header and push stage down automatically
+      const headerH = headerRef.current.offsetHeight;
+
+      // Set stage top offset (so cards don't start under header)
+      gsap.set(stageRef.current, {
+        paddingTop: headerH + 16, // extra breathing room
+      });
+
+      // Use "available height" below header for the pinned viewport stage
+      const availableH = Math.max(window.innerHeight - headerH, 400);
+      gsap.set(stageRef.current, { height: availableH });
+
       // Base states
       gsap.set(cards, { transformOrigin: "50% 0%" });
-      gsap.set(cards, { yPercent: 100, autoAlpha: 0, scale: 1 });
+      gsap.set(cards, { yPercent: 110, autoAlpha: 0, scale: 1 });
       gsap.set(cards[0], { yPercent: 0, autoAlpha: 1 });
 
       const STACK_SCALE_STEP = 0.05;
@@ -167,7 +180,7 @@ export const SolutionSection = ({ skipAnimation = false }) => {
         scrollTrigger: {
           trigger: container.current,
           start: "top top",
-          end: `+=${cards.length * 550}`,
+          end: `+=${cards.length * 520}`,
           pin: true,
           scrub: true,
           anticipatePin: 1,
@@ -179,15 +192,23 @@ export const SolutionSection = ({ skipAnimation = false }) => {
       for (let i = 1; i < cards.length; i++) {
         const card = cards[i];
 
-        tl.to(card, { yPercent: 0, autoAlpha: 1, duration: 1 }, `+=0.2`);
+        tl.to(card, { yPercent: 0, autoAlpha: 1, duration: 1 }, `+=0.18`);
 
-        // scale down previous cards as the new one arrives
         for (let j = 0; j < i; j++) {
           const prev = cards[j];
           const scaleValue = 1 - (i - j) * STACK_SCALE_STEP;
           tl.to(prev, { scale: scaleValue, duration: 1 }, "<");
         }
       }
+
+      // Recalculate on refresh (responsive / fonts / lotties)
+      ScrollTrigger.addEventListener("refreshInit", () => {
+        const h = headerRef.current?.offsetHeight ?? 0;
+        gsap.set(stageRef.current, { paddingTop: h + 16 });
+        gsap.set(stageRef.current, {
+          height: Math.max(window.innerHeight - h, 400),
+        });
+      });
 
       ScrollTrigger.refresh();
     }, container);
@@ -198,21 +219,20 @@ export const SolutionSection = ({ skipAnimation = false }) => {
   return (
     <section
       ref={container}
-      className={`relative bg-[#EAEEFE] overflow-hidden ${
+      className={`relative bg-[#EAEEFE] overflow-hidden isolate ${
         skipAnimation ? "py-20" : "min-h-screen"
       }`}
     >
-      {/* Background blobs */}
-      <div className="absolute top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden">
-        <div className="absolute top-0 left-[-10%] w-[800px] h-[800px] bg-blue-100/30 rounded-full blur-[120px]" />
-        <div className="absolute bottom-0 right-[-10%] w-[800px] h-[800px] bg-purple-100/30 rounded-full blur-[120px]" />
+      {/* Background blobs (tamed + behind) */}
+      <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
+        <div className="absolute top-[-12%] left-[-15%] w-[720px] h-[720px] bg-blue-200/20 rounded-full blur-[90px]" />
+        <div className="absolute bottom-[-12%] right-[-15%] w-[720px] h-[720px] bg-purple-200/18 rounded-full blur-[90px]" />
       </div>
 
-      {/* Header */}
+      {/* Header (now reserves real space, no overlap) */}
       <div
-        className={`${
-          skipAnimation ? "relative" : "absolute top-0 left-0 w-full"
-        } z-40 pt-6 pb-2 flex flex-col items-center justify-center text-center bg-[#EAEEFE]/60 backdrop-blur-sm`}
+        ref={headerRef}
+        className={`relative z-40 pt-6 pb-4 flex flex-col items-center justify-center text-center bg-[#EAEEFE]/70 backdrop-blur-sm`}
       >
         <div className="px-6 pointer-events-auto">
           <h2
@@ -222,15 +242,15 @@ export const SolutionSection = ({ skipAnimation = false }) => {
             What we offer
           </h2>
 
-          <p className="text-base md:text-lg text-[#010D3E]/80 max-w-2xl mx-auto mt-0">
+          <p className="text-base md:text-lg text-[#010D3E]/80 max-w-2xl mx-auto mt-1">
             A complete ecosystem designed to empower your academic journey and
             professional growth.
           </p>
         </div>
       </div>
 
-      {/* Stage */}
-      <div ref={stageRef} className={`${skipAnimation ? "" : "relative h-screen"}`}>
+      {/* Stage (pinned by GSAP, starts below header automatically) */}
+      <div ref={stageRef} className={`${skipAnimation ? "" : "relative"}`}>
         {features.map((feature, i) => (
           <Card
             key={`f_${i}`}
