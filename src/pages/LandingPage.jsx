@@ -1,146 +1,107 @@
-
 import React, { useEffect, useRef, useState } from 'react';
-import logo from '../assets/logo.svg'; // Ensure this path is correct
 import { Header } from '../sections/Header';
 import { Hero } from '../sections/Hero';
 import { LogoTicker } from '../sections/LogoTicker';
 import { SolutionSection } from '../sections/SolutionSection';
 import { Pricing } from '../sections/Pricing';
 import { Testimonials } from '../sections/Testimonials';
-import { CallToAction } from '../sections/CallToAction';
 import { Footer } from '../sections/Footer';
 import MorphingCTA from '../components/MorphingCTA';
 import "../fonts/style/fontsStyle.css";
+import gsap from 'gsap';
 
 const LandingPage = () => {
-    // ... existing refs and useEffect ...
-    // (skipping to the render part for clarity in replacementContent, 
-    // though replace_file_content usually needs precise matching)
     const containerRef = useRef(null);
     const text1Ref = useRef(null);
     const text2Ref = useRef(null);
     const text3Ref = useRef(null);
     const maskContainerRef = useRef(null);
     const headerRef = useRef(null);
-    const stickyViewportRef = useRef(null);
+    const introLayerRef = useRef(null);
+
     const [heroContentVisible, setHeroContentVisible] = useState(false);
-    const [skipAnimation, setSkipAnimation] = useState(false);
+    const [skipAnimation, setSkipAnimation] = useState(() => {
+        // Option: persist skip state in session/local storage if desired
+        return false;
+    });
+    const [animationDone, setAnimationDone] = useState(false);
 
     useEffect(() => {
-        // Refresh GSAP ScrollTrigger whenever layout changes (skip animation toggled)
-        setTimeout(() => {
-            import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
-                ScrollTrigger.refresh();
-            });
-        }, 100);
+        if (skipAnimation) {
+            setAnimationDone(true);
+            setHeroContentVisible(true);
+            document.body.style.overflow = 'auto';
+            return;
+        }
+
+        // Lock scroll during animation
+        document.body.style.overflow = 'hidden';
+
+        const tl = gsap.timeline({
+            onComplete: () => {
+                setAnimationDone(true);
+                document.body.style.overflow = 'auto';
+                if (introLayerRef.current) {
+                    introLayerRef.current.style.display = 'none';
+                }
+                // Clear mask styles to prevent any clipping artifacts
+                if (maskContainerRef.current) {
+                    gsap.set(maskContainerRef.current, {
+                        webkitMaskImage: 'none',
+                        maskImage: 'none'
+                    });
+                }
+            }
+        });
+
+        // 1. Text Sequence - 30% Faster
+        tl.to(text1Ref.current, { opacity: 1, duration: 0.5, ease: "power2.out" })
+            .to(text1Ref.current, { opacity: 0, duration: 0.4, ease: "power2.in" }, "+=0.5")
+
+            .to(text2Ref.current, { opacity: 1, duration: 0.5, ease: "power2.out" })
+            .to(text2Ref.current, { opacity: 0, duration: 0.4, ease: "power2.in" }, "+=0.5")
+
+            .to(text3Ref.current, { opacity: 1, duration: 0.5, ease: "power2.out" })
+
+            // 2. Prepare Hero and transition (Gapless)
+            .to(text3Ref.current, { opacity: 0, duration: 0.4, ease: "power2.in" }, "+=0.5")
+            .to(maskContainerRef.current, { opacity: 1, duration: 0.2 }, "-=0.4")
+
+            // 3. Mask Zoom
+            .fromTo(maskContainerRef.current,
+                { webkitMaskSize: "15%", maskSize: "15%" },
+                {
+                    webkitMaskSize: "5000%",
+                    maskSize: "5000%",
+                    duration: 2.0,
+                    ease: "power4.inOut"
+                },
+                "-=0.2"
+            )
+            // Fade out the black background overlay during the zoom
+            .to(introLayerRef.current, { opacity: 0, duration: 0.8, ease: "none" }, "-=2.0")
+
+            // 4. Final Reveal (Header)
+            .to(headerRef.current, { opacity: 1, duration: 0.8 }, "-=1.0")
+            .call(() => setHeroContentVisible(true), null, "-=1.5");
+
+        return () => {
+            tl.kill();
+            document.body.style.overflow = 'auto';
+        };
     }, [skipAnimation]);
 
-    useEffect(() => {
-        if (skipAnimation) return;
-
-        const handleScroll = () => {
-            const scrollY = window.scrollY;
-            const windowHeight = window.innerHeight;
-            // Total scroll height is defined by the container's height (e.g., 800vh)
-            const totalScrollHeight = containerRef.current ? containerRef.current.offsetHeight - windowHeight : 0;
-            const progress = Math.min(Math.max(scrollY / windowHeight, 0), 9); // Normalized to 900vh range
-
-            // --- ANIMATION TIMELINE ---
-
-            // 1. Text Sequence (0 - 3.5)
-            // Helper: Fade in/out
-            const fade = (start, duration, hold) => {
-                if (progress < start) return 0;
-                if (progress < start + duration) return (progress - start) / duration; // In
-                if (progress < start + duration + hold) return 1; // Hold
-                if (progress < start + (duration * 2) + hold) return 1 - (progress - (start + duration + hold)) / duration; // Out
-                return 0;
-            };
-
-            if (text1Ref.current) text1Ref.current.style.opacity = fade(0, 0.5, 0.5); // "Here..."
-            if (text2Ref.current) text2Ref.current.style.opacity = fade(1.2, 0.5, 0.5); // "Is your road..."
-            // "Towards Success" sequence stays a bit longer before masking starts
-            if (text3Ref.current) text3Ref.current.style.opacity = fade(2.4, 0.5, 1.0);
-
-            // 2. Mask Animation (3.5 - 6.5)
-            const maskStart = 3.5;
-            const zoomStart = 3.8;
-            const zoomEnd = 6.5;
-
-            if (maskContainerRef.current) {
-                // Fade in the masked container (it starts hidden)
-                let maskOpacity = 0;
-                if (progress > maskStart) {
-                    maskOpacity = Math.min((progress - maskStart) / 0.5, 1);
-                }
-                maskContainerRef.current.style.opacity = maskOpacity;
-
-                // Zoom Effect
-                // Scale starts at ~20% (text size) and zooms into huge to reveal content inside
-                let scale = 15; // Initial size in %
-                if (progress > zoomStart) {
-                    const zoomProgress = Math.min((progress - zoomStart) / (zoomEnd - zoomStart), 1);
-                    // Exponential easing for that "flight through" feeling
-                    scale = 15 + Math.pow(zoomProgress, 4) * 5000;
-                }
-
-                const maskSize = `${scale}%`;
-                maskContainerRef.current.style.maskSize = maskSize;
-                maskContainerRef.current.style.webkitMaskSize = maskSize;
-            }
-
-            // 3. Hero Content Reveal & Navbar (Trigger at ~80% of zoom, around 6.0)
-            const revealThreshold = 6.0;
-            if (progress > revealThreshold) {
-                setHeroContentVisible(true);
-            } else {
-                setHeroContentVisible(false);
-            }
-
-            // 4. Navbar - visible only during hero section
-            const heroEndScroll = windowHeight * 9; // 900vh spacer height
-            const isPastHero = scrollY >= heroEndScroll;
-
-            // Hide the entire sticky viewport once past the hero
-            if (stickyViewportRef.current) {
-                stickyViewportRef.current.style.display = isPastHero ? 'none' : '';
-            }
-
-            if (headerRef.current) {
-                if (isPastHero) {
-                    // Completely hide navbar after hero section
-                    headerRef.current.style.opacity = 0;
-                    headerRef.current.style.pointerEvents = 'none';
-                    headerRef.current.style.display = 'none';
-                } else {
-                    headerRef.current.style.display = '';
-                    let headerOpacity = 0;
-                    if (progress > revealThreshold) {
-                        headerOpacity = Math.min((progress - revealThreshold) / 0.5, 1);
-                        // Fade out as we approach the end of the hero section
-                        const fadeOutStart = heroEndScroll - windowHeight;
-                        if (scrollY > fadeOutStart) {
-                            const fadeOutProgress = (scrollY - fadeOutStart) / windowHeight;
-                            headerOpacity *= Math.max(1 - fadeOutProgress, 0);
-                        }
-                    }
-                    headerRef.current.style.opacity = headerOpacity;
-                    headerRef.current.style.pointerEvents = headerOpacity > 0.5 ? 'auto' : 'none';
-                }
-            }
-        };
-
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        handleScroll();
-
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+    const toggleSkip = () => {
+        setSkipAnimation(!skipAnimation);
+        // Force scroll unlock if enabling/disabling mid-stream
+        document.body.style.overflow = 'auto';
+    };
 
     return (
-        <div ref={containerRef} className="landing-scroll-container">
-            {/* Skip Animation Button */}
+        <div ref={containerRef} className="landing-scroll-container min-h-screen bg-black">
+            {/* Skip Animation Button - Persistent */}
             <button
-                onClick={() => setSkipAnimation(!skipAnimation)}
+                onClick={toggleSkip}
                 className="fixed bottom-8 right-8 z-[200] bg-white/10 backdrop-blur-md border border-white/20 text-[#010D3E] px-6 py-3 rounded-full font-bold shadow-2xl hover:bg-white/20 transition-all duration-300 flex items-center gap-2 group"
                 style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
             >
@@ -148,62 +109,60 @@ const LandingPage = () => {
                 <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse shadow-[0_0_10px_#3b82f6]"></div>
             </button>
 
-            {!skipAnimation ? (
-                <>
-                    {/* Fixed/Sticky Viewport */}
-                    <div ref={stickyViewportRef} className="landing-sticky-viewport">
-
-                        {/* 1. Intro Text Layer */}
-                        <div className="intro-text-layer">
-                            <h1 ref={text1Ref} className="intro-text" style={{
-                                opacity: 0,
-                                fontFamily: "Zuume-Semi-Bold-Italic",
-                                letterSpacing: "0px",
-                            }}>Here ...</h1>
-                            <h1 ref={text2Ref} className="intro-text" style={{
-                                opacity: 0,
-                                fontFamily: "Zuume-Semi-Bold-Italic",
-                                letterSpacing: "0px"
-                            }}>Is your road</h1>
-                            <h1 ref={text3Ref} className="intro-text" style={{
-                                opacity: 0,
-                                fontFamily: "Zuume-Semi-Bold-Italic",
-                                letterSpacing: "0px"
-                            }}>Towards Success</h1>
-                        </div>
-
-                        {/* 2. Masked Hero Layer */}
-                        <div ref={maskContainerRef} className="masked-hero-layer" style={{ opacity: 0 }}>
-                            <div className="hero-content-wrapper">
-                                <Hero contentVisible={heroContentVisible} />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* 3. Header (Fixed Top-Level for Persistence) */}
-                    <div ref={headerRef} className="header-layer" style={{ opacity: 0, position: 'fixed', top: 0, left: 0, width: '100%', zIndex: 100 }}>
-                        <Header />
-                    </div>
-
-                    {/* Spacer to create scrollable height */}
-                    <div style={{ height: '900vh' }}></div>
-                </>
-            ) : (
-                <div className="relative z-10 bg-white">
-                    <div className="header-layer" style={{ position: 'sticky', top: 0, left: 0, width: '100%', zIndex: 100 }}>
-                        <Header />
-                    </div>
-                    <Hero contentVisible={true} skipAnimation={true} />
+            {!skipAnimation && !animationDone && (
+                <div ref={introLayerRef} className="intro-text-layer" style={{
+                    position: 'fixed',
+                    inset: 0,
+                    backgroundColor: 'black',
+                    zIndex: 100,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    pointerEvents: 'none'
+                }}>
+                    <h1 ref={text1Ref} className="intro-text" style={{ opacity: 0, fontFamily: "Zuume-Semi-Bold-Italic" }}>Here ...</h1>
+                    <h1 ref={text2Ref} className="intro-text" style={{ opacity: 0, fontFamily: "Zuume-Semi-Bold-Italic" }}>Is your road</h1>
+                    <h1 ref={text3Ref} className="intro-text" style={{ opacity: 0, fontFamily: "Zuume-Semi-Bold-Italic" }}>Towards Success</h1>
                 </div>
             )}
 
-            {/* Rest of the Page content flows after the spacer */}
-            <div className={`relative z-10 bg-white ${skipAnimation ? 'pt-0' : ''}`}>
+            {/* Masked Hero Layer */}
+            <div
+                ref={maskContainerRef}
+                className="masked-hero-layer"
+                style={{
+                    opacity: skipAnimation ? 1 : 0,
+                    position: 'relative',
+                    height: 'auto',
+                    backgroundColor: 'var(--color-saas-background)',
+                    zIndex: 10
+                }}
+            >
+                <div className="hero-content-wrapper">
+                    <Hero contentVisible={heroContentVisible} skipAnimation={skipAnimation} />
+                </div>
+            </div>
+
+            {/* Header */}
+            <div ref={headerRef} className="header-layer" style={{
+                opacity: skipAnimation ? 1 : 0,
+                position: skipAnimation ? 'sticky' : 'fixed',
+                top: 0,
+                left: 0,
+                width: '100%',
+                zIndex: 110
+            }}>
+                <Header />
+            </div>
+
+            {/* Rest of the Page content */}
+            <div className="relative z-20 bg-white">
                 <LogoTicker />
                 <SolutionSection skipAnimation={skipAnimation} />
                 <Pricing skipAnimation={skipAnimation} />
                 <Testimonials />
-                <MorphingCTA />
+                <MorphingCTA skipAnimation={skipAnimation} />
                 <Footer />
             </div>
         </div>

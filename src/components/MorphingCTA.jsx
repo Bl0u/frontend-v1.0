@@ -10,13 +10,47 @@ import '../styles/MaskAnimations.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const MorphingCTA = () => {
+const MorphingCTA = ({ skipAnimation = false }) => {
     const containerRef = useRef(null);
 
     useLayoutEffect(() => {
+        if (skipAnimation) {
+            // If skipAnimation is true, we don't want any ScrollTriggers
+            const q = gsap.utils.selector(containerRef);
+            const featuresWrap = q(".morph-features")[0];
+            const searchBar = q(".morph-search-bar")[0];
+            const successText = q(".morph-success-text")[0];
+            const featureEls = q(".morph-feature");
+            const buttonTextItems = q(".morph-search-bar .mas, .morph-search-bar .mask-btn-urban");
+            const extraContent = q(".morph-extra-content")[0];
+            const lottieWrap = q(".morph-lottie-container")[0];
+
+            // Set final state immediately
+            gsap.set(featureEls, { opacity: 0, visibility: 'hidden' });
+            gsap.set(searchBar, {
+                opacity: 1,
+                visibility: 'visible',
+                xPercent: -50,
+                top: "50%",
+                left: "50%",
+                width: window.innerWidth < 640 ? "18rem" : "22rem",
+                height: "80px", // Approximate height (5rem)
+                y: 100,
+                background: "transparent",
+                boxShadow: "none",
+                pointerEvents: "auto"
+            });
+            gsap.set(buttonTextItems, { opacity: 1 });
+            if (successText) gsap.set(successText, { opacity: 1 });
+            if (extraContent) gsap.set(extraContent, { opacity: 1, y: 0 });
+            if (lottieWrap) gsap.set(lottieWrap, { opacity: 1, scale: 1 });
+
+            return;
+        }
+
         const ctx = gsap.context(() => {
             const q = gsap.utils.selector(containerRef);
-
+            // ... (rest of search/feature element selectors)
             const featuresWrap = q(".morph-features")[0];
             const searchBar = q(".morph-search-bar")[0];
             const successText = q(".morph-success-text")[0];
@@ -88,7 +122,6 @@ const MorphingCTA = () => {
             });
 
             // ---- PHASE A: move all features to center
-            // Duration 1.0 + stagger 0.05 for 5 items = 1.2s total convergence
             tl.to(featureEls, {
                 top: "50%",
                 left: "50%",
@@ -111,32 +144,15 @@ const MorphingCTA = () => {
             }, 0);
 
             // ---- PHASE C: fade feature text away
-            tl.to(contentEls, {
-                opacity: 0,
-                duration: 0.15,
-                ease: "none",
-                stagger: 0.02,
-            }, 0.05);
+            tl.to(contentEls, { opacity: 0, duration: 0.15, ease: "none", stagger: 0.02 }, 0.05);
 
             // ---- PHASE D: fade the features out
-            // Start at 0.72 (40% before the last item finishes convergence at 1.2)
-            tl.to(featureEls, {
-                opacity: 0,
-                duration: 0.3, // Slightly longer fade to blend better with convergence
-                ease: "none",
-            }, 0.65);
+            tl.to(featureEls, { opacity: 0, duration: 0.3, ease: "none" }, 0.65);
 
-            // ---- PHASE E: reveal search bar (button container) 
-            // Origin at center (explicitly set above in initialization)
-            tl.to(searchBar, {
-                opacity: 1,
-                pointerEvents: "auto",
-                duration: 0.3,
-                ease: "none",
-            }, 0.65);
+            // ---- PHASE E: reveal search bar
+            tl.to(searchBar, { opacity: 1, pointerEvents: "auto", duration: 0.3, ease: "none" }, 0.65);
 
-            // ---- PHASE F: expand button and move it down slightly
-            // Start growth even before icons reach the center (at 1.0s)
+            // ---- PHASE F: expand button
             tl.to(searchBar, {
                 width: () => `${getFinalWidthRem()}rem`,
                 height: `${buttonHpx}px`,
@@ -145,55 +161,24 @@ const MorphingCTA = () => {
                 ease: "power4.inOut",
             }, 0.9);
 
-            // ---- PHASE G: Reveal Button Text (Delayed until expansion is done)
-            tl.to(buttonTextItems, {
-                opacity: 1,
-                duration: 0.2,
-                ease: "power2.out"
-            }, ">"); // Starts after previous animation (expansion) ends
+            // ---- PHASE G: Reveal Button Text
+            tl.to(buttonTextItems, { opacity: 1, duration: 0.2, ease: "power2.out" }, ">");
 
-            // ---- PHASE H: Transition ownership of background to inner mask button
-            tl.to(searchBar, {
-                background: "transparent",
-                boxShadow: "none",
-                duration: 0.1
-            }, "<");
+            // ---- PHASE H: Transition ownership of background
+            tl.to(searchBar, { background: "transparent", boxShadow: "none", duration: 0.1 }, "<");
 
             // ---- PHASE I: Show "Success" text AND Extra Content
-            if (successText) {
-                tl.to(successText, {
-                    opacity: 1,
-                    duration: 0.5,
-                    ease: "power2.out",
-                }, "<"); // Run simultaneously
-            }
-
-            if (extraContent) {
-                tl.to(extraContent, {
-                    opacity: 1,
-                    y: 0,
-                    duration: 0.5,
-                    ease: "power2.out",
-                }, "<+=0.1"); // Start slightly after
-            }
-
-            if (lottieWrap) {
-                tl.to(lottieWrap, {
-                    opacity: 1,
-                    scale: 1,
-                    duration: 0.8,
-                    ease: "power2.out",
-                }, "<"); // Run with extra content
-            }
+            if (successText) tl.to(successText, { opacity: 1, duration: 0.5, ease: "power2.out" }, "<");
+            if (extraContent) tl.to(extraContent, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, "<+=0.1");
+            if (lottieWrap) tl.to(lottieWrap, { opacity: 1, scale: 1, duration: 0.8, ease: "power2.out" }, "<");
 
             // ---- PHASE J: Extra Pin Hold
-            // This "dead" tween keeps the section pinned for an extra duration after the animation finishes
             tl.to({}, { duration: 1.0 });
 
-        }, containerRef); // Scope selector to containerRef
+        }, containerRef);
 
         return () => ctx.revert();
-    }, []);
+    }, [skipAnimation]);
 
     return (
         <section className="morph-cta-container" ref={containerRef}>
