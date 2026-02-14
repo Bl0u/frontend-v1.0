@@ -197,42 +197,8 @@ const MorphingCTA = ({ skipAnimation = false }) => {
         },
 
         onLeaveBack: () => {
-          tl.pause(0);
-          tl.progress(0);
-
-          // Full Reset of GSAP styles
-          gsap.set([featureEls, bgEls, contentEls, searchBar, buttonTextItems], { clearProps: "all" });
-
-          // Re-apply Initial State (Visibility)
-          gsap.set(featureEls, {
-            position: "absolute",
-            autoAlpha: 1,
-            visibility: "visible",
-            xPercent: -50,
-            yPercent: -50,
-          });
-          featureEls.forEach((el, i) => {
-            if (startPos[i]) {
-              gsap.set(el, { top: `${startPos[i].top}%`, left: `${startPos[i].left}%` });
-            }
-          });
-          gsap.set(searchBar, {
-            autoAlpha: 0,
-            visibility: "visible",
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            xPercent: -50,
-            yPercent: -50,
-            width: "3rem",
-            height: "3rem",
-            y: 0,
-            pointerEvents: "none",
-            background: "var(--gradient-button)",
-          });
-          if (successText) gsap.set(successText, { autoAlpha: 0 });
-          if (extraContent) gsap.set(extraContent, { autoAlpha: 0, y: 20 });
-          if (lottieWrap) gsap.set(lottieWrap, { autoAlpha: 0, scale: 0.8 });
+          // No reset here: allow the animation to stay in its final state
+          // This prevents the section from "rolling back" to the bubbles when scrolling up
         },
       });
 
