@@ -229,17 +229,17 @@ export const SolutionSection = ({ skipAnimation = false }) => {
       {/* Header (now reserves real space, no overlap) */}
       <div
         ref={headerRef}
-        className={`relative z-40 pt-6 pb-4 flex flex-col items-center justify-center text-center bg-[#EAEEFE]/70 backdrop-blur-sm`}
+        className={`relative z-40 pt-4 pb-2 flex flex-col items-center justify-center text-center`}
       >
         <div className="px-6 pointer-events-auto">
           <h2
-            className="text-4xl md:text-6xl font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text leading-tight"
+            className="text-5xl md:text-8xl font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text leading-tight"
             style={{ fontFamily: "Zuume-Bold" }}
           >
             What we offer
           </h2>
 
-          <p className="text-sm md:text-base text-[#010D3E]/80 max-w-2xl mx-auto mt-1">
+          <p className="text-base md:text-lg text-[#010D3E]/80 max-w-2xl mx-auto mt-1">
             A complete ecosystem designed to empower your academic journey and
             professional growth.
           </p>
