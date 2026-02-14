@@ -1,6 +1,9 @@
-import React, { useRef } from "react";
+import React, { useLayoutEffect, useRef } from "react";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const features = [
   {
@@ -76,43 +79,33 @@ const features = [
   },
 ];
 
-const Card = ({
-  i,
-  title,
-  points,
-  lottieSrc,
-  color,
-  textColor,
-  progress,
-  start,
-  targetScale,
-  isReversed,
-  skipAnimation,
-}) => {
-  // Scale maps from 1 -> targetScale between [start..1]
-  const scale = useTransform(progress, [start, 1], [1, targetScale], {
-    clamp: true,
-  });
-
-  const finalScale = skipAnimation ? 1 : scale;
-  // Reduce gap: Changed items-center to items-start and added pt for stacking
-  const stickyClass = skipAnimation ? "" : "h-[70vh] sticky top-0 pt-[12vh] md:pt-[10vh]";
-
+const Card = React.forwardRef(function Card(
+  { i, title, points, lottieSrc, color, textColor, isReversed, skipAnimation },
+  ref
+) {
   return (
-    <div className={`flex items-start justify-center ${stickyClass}`}>
-      <motion.div
+    <div
+      ref={ref}
+      className={
+        skipAnimation
+          ? "relative my-8 flex items-start justify-center w-full"
+          : "absolute top-0 left-0 w-full flex items-start justify-center"
+      }
+      style={{ zIndex: 10 + i }}
+    >
+      <div
+        className="relative h-[550px] w-[90%] md:w-[85%] lg:w-[75%] rounded-[40px] p-8 md:p-12 lg:p-16 origin-top shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden border border-white/20"
         style={{
           backgroundColor: color,
-          scale: finalScale,
-          top: skipAnimation ? "0px" : `calc(80px + ${i * 25}px)`,
+          // small initial offset so the stack is visible
+          top: skipAnimation ? "0px" : `calc(28px + ${i * 18}px)`,
         }}
-        className={`${skipAnimation ? 'my-8' : ''} relative h-[550px] w-[90%] md:w-[85%] lg:w-[75%] rounded-[40px] p-8 md:p-12 lg:p-16 origin-top shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden border border-white/20`}
       >
         <div
-          className={`flex flex-col ${isReversed ? "md:flex-row-reverse" : "md:flex-row"
-            } items-center h-full gap-8 md:gap-12 relative z-10`}
+          className={`flex flex-col ${
+            isReversed ? "md:flex-row-reverse" : "md:flex-row"
+          } items-center h-full gap-8 md:gap-12 relative z-10`}
         >
-          {/* Text Column */}
           <div className="w-full md:w-1/2 flex flex-col justify-center text-center md:text-left">
             <h3
               className="text-4xl md:text-6xl font-bold tracking-tight mb-6 pb-2"
@@ -129,8 +122,9 @@ const Card = ({
                   style={{ color: textColor }}
                 >
                   <span
-                    className={`mt-2 h-2 w-2 rounded-full shrink-0 ${textColor === "#ffffff" ? "bg-white" : "bg-[#010D3E]"
-                      }`}
+                    className={`mt-2 h-2 w-2 rounded-full shrink-0 ${
+                      textColor === "#ffffff" ? "bg-white" : "bg-[#010D3E]"
+                    }`}
                   />
                   <span>{point}</span>
                 </li>
@@ -138,94 +132,114 @@ const Card = ({
             </ul>
           </div>
 
-          {/* Animation Column */}
           <div className="w-full md:w-1/2 h-full flex items-center justify-center relative">
             <div className="w-full max-w-[450px] aspect-square">
               <DotLottieReact src={lottieSrc} loop autoplay />
             </div>
           </div>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
-};
+});
 
 export const SolutionSection = ({ skipAnimation = false }) => {
   const container = useRef(null);
+  const stageRef = useRef(null);
+  const cardsRef = useRef([]);
 
-  // ✅ controls how long the last card "holds" (reduced for better UX)
-  const HOLD_VH = 20;
-  const HOLD_RATIO = 0.12;
+  useLayoutEffect(() => {
+    if (skipAnimation) return;
+    if (!container.current || !stageRef.current) return;
 
-  const { scrollYProgress } = useScroll({
-    target: container,
-    offset: ["start start", "end end"],
-  });
+    const ctx = gsap.context(() => {
+      const cards = cardsRef.current.filter(Boolean);
+      if (!cards.length) return;
 
-  // ✅ make stacking faster: reach 1 at 35% of scroll, hold for the rest
-  const cardsProgress = useTransform(
-    scrollYProgress,
-    [0, 0.35, 1],
-    [0, 1, 1],
-    { clamp: true }
-  );
+      // Base states
+      gsap.set(cards, { transformOrigin: "50% 0%" });
+      gsap.set(cards, { yPercent: 100, autoAlpha: 0, scale: 1 });
+      gsap.set(cards[0], { yPercent: 0, autoAlpha: 1 });
+
+      const STACK_SCALE_STEP = 0.05;
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: container.current,
+          start: "top top",
+          end: `+=${cards.length * 550}`,
+          pin: true,
+          scrub: true,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+        },
+        defaults: { ease: "power2.out" },
+      });
+
+      for (let i = 1; i < cards.length; i++) {
+        const card = cards[i];
+
+        tl.to(card, { yPercent: 0, autoAlpha: 1, duration: 1 }, `+=0.2`);
+
+        // scale down previous cards as the new one arrives
+        for (let j = 0; j < i; j++) {
+          const prev = cards[j];
+          const scaleValue = 1 - (i - j) * STACK_SCALE_STEP;
+          tl.to(prev, { scale: scaleValue, duration: 1 }, "<");
+        }
+      }
+
+      ScrollTrigger.refresh();
+    }, container);
+
+    return () => ctx.revert();
+  }, [skipAnimation]);
 
   return (
-    <section ref={container} className={`relative bg-[#EAEEFE] ${skipAnimation ? 'py-20' : ''}`}>
-      {/* Sticky Header */}
-      <div className={`${skipAnimation ? 'relative' : 'sticky top-0'} z-30 pt-6 pb-2 flex flex-col items-center justify-center text-center bg-[#EAEEFE]/60 backdrop-blur-sm`}>
-        <div className="px-6 pointer-events-auto">
-          <motion.h2
-            className="text-5xl md:text-8xl font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text leading-tight"
-            style={{ fontFamily: "Zuume-Bold" }}
-            initial={{ opacity: 0, y: -20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-          >
-            What we offer
-          </motion.h2>
-
-          <motion.p
-            className="text-base md:text-lg text-[#010D3E]/80 max-w-2xl mx-auto mt-0"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            viewport={{ once: true }}
-          >
-            A complete ecosystem designed to empower your academic journey and
-            professional growth.
-          </motion.p>
-        </div>
-      </div>
-
-      {/* Cards Stack (IMPORTANT: hold spacer must be INSIDE here) */}
-      <div className="relative pb-[10vh]">
-        {features.map((feature, i) => {
-          const targetScale = 1 - (features.length - i) * 0.05;
-          const start = i * (1 / features.length);
-
-          return (
-            <Card
-              key={`f_${i}`}
-              i={i}
-              {...feature}
-              progress={cardsProgress}
-              start={start}
-              targetScale={targetScale}
-              skipAnimation={skipAnimation}
-            />
-          );
-        })}
-
-        {/* ✅ HOLD SPACER INSIDE the sticky containing block */}
-        {!skipAnimation && <div aria-hidden style={{ height: `${HOLD_VH}vh` }} />}
-      </div>
-
+    <section
+      ref={container}
+      className={`relative bg-[#EAEEFE] overflow-hidden ${
+        skipAnimation ? "py-20" : "min-h-screen"
+      }`}
+    >
       {/* Background blobs */}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden">
         <div className="absolute top-0 left-[-10%] w-[800px] h-[800px] bg-blue-100/30 rounded-full blur-[120px]" />
         <div className="absolute bottom-0 right-[-10%] w-[800px] h-[800px] bg-purple-100/30 rounded-full blur-[120px]" />
+      </div>
+
+      {/* Header */}
+      <div
+        className={`${
+          skipAnimation ? "relative" : "absolute top-0 left-0 w-full"
+        } z-40 pt-6 pb-2 flex flex-col items-center justify-center text-center bg-[#EAEEFE]/60 backdrop-blur-sm`}
+      >
+        <div className="px-6 pointer-events-auto">
+          <h2
+            className="text-5xl md:text-8xl font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text leading-tight"
+            style={{ fontFamily: "Zuume-Bold" }}
+          >
+            What we offer
+          </h2>
+
+          <p className="text-base md:text-lg text-[#010D3E]/80 max-w-2xl mx-auto mt-0">
+            A complete ecosystem designed to empower your academic journey and
+            professional growth.
+          </p>
+        </div>
+      </div>
+
+      {/* Stage */}
+      <div ref={stageRef} className={`${skipAnimation ? "" : "relative h-screen"}`}>
+        {features.map((feature, i) => (
+          <Card
+            key={`f_${i}`}
+            i={i}
+            {...feature}
+            ref={(el) => (cardsRef.current[i] = el)}
+            skipAnimation={skipAnimation}
+          />
+        ))}
       </div>
     </section>
   );
