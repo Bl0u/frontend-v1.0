@@ -6,22 +6,22 @@ import "../fonts/style/fontsStyle.css";
 import React from 'react';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
-export const Hero = ({ contentVisible = true }) => {
+export const Hero = ({ contentVisible = true, skipAnimation = false }) => {
     const heroRef = useRef(null);
     const buttonRef = useRef(null);
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const [isHovering, setIsHovering] = useState(false);
     const [particles, setParticles] = useState([]);
-    const shouldReduceMotion = useReducedMotion();
+    const shouldReduceMotion = useReducedMotion() || skipAnimation;
     const controls = useAnimation();
 
     useEffect(() => {
-        if (contentVisible) {
+        if (contentVisible || skipAnimation) {
             controls.start("visible");
         } else {
             controls.start("hidden");
         }
-    }, [contentVisible, controls]);
+    }, [contentVisible, skipAnimation, controls]);
 
     const handleMouseMove = (e) => {
         if (!buttonRef.current) return;

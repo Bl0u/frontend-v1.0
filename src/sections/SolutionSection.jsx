@@ -87,26 +87,29 @@ const Card = ({
   start,
   targetScale,
   isReversed,
+  skipAnimation,
 }) => {
   // Scale maps from 1 -> targetScale between [start..1]
   const scale = useTransform(progress, [start, 1], [1, targetScale], {
     clamp: true,
   });
 
+  const finalScale = skipAnimation ? 1 : scale;
+  const stickyClass = skipAnimation ? "" : "h-screen sticky top-0";
+
   return (
-    <div className="h-screen flex items-center justify-center sticky top-0">
+    <div className={`flex items-center justify-center ${stickyClass}`}>
       <motion.div
         style={{
           backgroundColor: color,
-          scale,
-          top: `calc(80px + ${i * 25}px)`,
+          scale: finalScale,
+          top: skipAnimation ? "0px" : `calc(80px + ${i * 25}px)`,
         }}
-        className="relative h-[550px] w-[90%] md:w-[85%] lg:w-[75%] rounded-[40px] p-8 md:p-12 lg:p-16 origin-top shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden border border-white/20"
+        className={`${skipAnimation ? 'my-8' : ''} relative h-[550px] w-[90%] md:w-[85%] lg:w-[75%] rounded-[40px] p-8 md:p-12 lg:p-16 origin-top shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden border border-white/20`}
       >
         <div
-          className={`flex flex-col ${
-            isReversed ? "md:flex-row-reverse" : "md:flex-row"
-          } items-center h-full gap-8 md:gap-12 relative z-10`}
+          className={`flex flex-col ${isReversed ? "md:flex-row-reverse" : "md:flex-row"
+            } items-center h-full gap-8 md:gap-12 relative z-10`}
         >
           {/* Text Column */}
           <div className="w-full md:w-1/2 flex flex-col justify-center text-center md:text-left">
@@ -125,9 +128,8 @@ const Card = ({
                   style={{ color: textColor }}
                 >
                   <span
-                    className={`mt-2 h-2 w-2 rounded-full shrink-0 ${
-                      textColor === "#ffffff" ? "bg-white" : "bg-[#010D3E]"
-                    }`}
+                    className={`mt-2 h-2 w-2 rounded-full shrink-0 ${textColor === "#ffffff" ? "bg-white" : "bg-[#010D3E]"
+                      }`}
                   />
                   <span>{point}</span>
                 </li>
@@ -147,7 +149,7 @@ const Card = ({
   );
 };
 
-export const SolutionSection = () => {
+export const SolutionSection = ({ skipAnimation = false }) => {
   const container = useRef(null);
 
   // ✅ controls how long the last card "holds"
@@ -168,9 +170,9 @@ export const SolutionSection = () => {
   );
 
   return (
-    <section ref={container} className="relative bg-[#EAEEFE]">
+    <section ref={container} className={`relative bg-[#EAEEFE] ${skipAnimation ? 'py-20' : ''}`}>
       {/* Sticky Header */}
-      <div className="sticky top-0 z-30 pt-6 pb-2 flex flex-col items-center justify-center text-center bg-[#EAEEFE]/80 backdrop-blur-md">
+      <div className={`${skipAnimation ? 'relative' : 'sticky top-0'} z-30 pt-6 pb-2 flex flex-col items-center justify-center text-center bg-[#EAEEFE]/80 backdrop-blur-md`}>
         <div className="px-6 pointer-events-auto">
           <motion.h2
             className="text-5xl md:text-8xl font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text leading-tight"
@@ -210,12 +212,13 @@ export const SolutionSection = () => {
               progress={cardsProgress}
               start={start}
               targetScale={targetScale}
+              skipAnimation={skipAnimation}
             />
           );
         })}
 
         {/* ✅ HOLD SPACER INSIDE the sticky containing block */}
-        <div aria-hidden style={{ height: `${HOLD_VH}vh` }} />
+        {!skipAnimation && <div aria-hidden style={{ height: `${HOLD_VH}vh` }} />}
       </div>
 
       {/* Background blobs */}

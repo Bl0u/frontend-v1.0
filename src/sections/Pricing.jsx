@@ -7,7 +7,7 @@ import { FaStar } from "react-icons/fa";
 
 gsap.registerPlugin(ScrollTrigger);
 
-export const Pricing = () => {
+export const Pricing = ({ skipAnimation = false }) => {
   const sectionRef = useRef(null);
   const cardsRef = useRef([]);
 
@@ -56,7 +56,7 @@ export const Pricing = () => {
   ];
 
   useLayoutEffect(() => {
-    if (!sectionRef.current) return;
+    if (!sectionRef.current || skipAnimation) return;
 
     const ctx = gsap.context(() => {
       const cards = cardsRef.current.filter(Boolean);
@@ -191,13 +191,14 @@ export const Pricing = () => {
           .pricing-stage {
             position: relative;
             width: 100%;
-            height: 100vh;
-            overflow: hidden;
+            height: ${skipAnimation ? 'auto' : '100vh'};
+            overflow: ${skipAnimation ? 'visible' : 'hidden'};
             z-index: 10;
+            ${skipAnimation ? 'display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem; padding: 4rem 0;' : ''}
           }
 
           .pricing-card {
-            position: absolute;
+            position: ${skipAnimation ? 'relative' : 'absolute'};
             width: 320px;
             height: 520px;
             perspective: 1200px;
@@ -280,45 +281,47 @@ export const Pricing = () => {
             >
               <div className="pricing-inner">
                 {/* COVER (visible first) */}
-                <div
-                  className={clsx(
-                    "pricing-face pricing-cover flex flex-col items-center justify-center p-10 border",
-                    t.theme === "dark"
-                      ? "bg-[#001E80] text-white border-white/10"
-                      : "bg-white text-black border-black/10"
-                  )}
-                >
+                {!skipAnimation && (
                   <div
                     className={clsx(
-                      "w-20 h-20 rounded-full flex items-center justify-center border",
+                      "pricing-face pricing-cover flex flex-col items-center justify-center p-10 border",
                       t.theme === "dark"
-                        ? "bg-white/5 border-white/10"
-                        : "bg-black/5 border-black/10"
+                        ? "bg-[#001E80] text-white border-white/10"
+                        : "bg-white text-black border-black/10"
                     )}
                   >
-                    <FaStar
+                    <div
                       className={clsx(
-                        "text-4xl",
-                        t.theme === "dark" ? "text-yellow-300" : "text-yellow-500"
+                        "w-20 h-20 rounded-full flex items-center justify-center border",
+                        t.theme === "dark"
+                          ? "bg-white/5 border-white/10"
+                          : "bg-black/5 border-black/10"
                       )}
-                    />
-                  </div>
+                    >
+                      <FaStar
+                        className={clsx(
+                          "text-4xl",
+                          t.theme === "dark" ? "text-yellow-300" : "text-yellow-500"
+                        )}
+                      />
+                    </div>
 
-                  <h3 className="mt-6 text-4xl font-black tracking-tight uppercase">
-                    {t.title}
-                  </h3>
+                    <h3 className="mt-6 text-4xl font-black tracking-tight uppercase">
+                      {t.title}
+                    </h3>
 
-                  <div
-                    className={clsx(
-                      "mt-8 px-5 py-2 rounded-full text-[10px] font-bold tracking-[0.25em] uppercase border",
-                      t.theme === "dark"
-                        ? "text-white/60 border-white/10 bg-white/5"
-                        : "text-black/50 border-black/10 bg-black/5"
-                    )}
-                  >
-                    Scroll to flip
+                    <div
+                      className={clsx(
+                        "mt-8 px-5 py-2 rounded-full text-[10px] font-bold tracking-[0.25em] uppercase border",
+                        t.theme === "dark"
+                          ? "text-white/60 border-white/10 bg-white/5"
+                          : "text-black/50 border-black/10 bg-black/5"
+                      )}
+                    >
+                      Scroll to flip
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* DETAILS (revealed on scroll) */}
                 <div
@@ -328,6 +331,7 @@ export const Pricing = () => {
                       ? "bg-black text-white border-white/10"
                       : "bg-white text-black border-black/10"
                   )}
+                  style={skipAnimation ? { transform: 'rotateY(0deg)', position: 'relative' } : {}}
                 >
                   <div className="flex items-center justify-between relative">
                     <h3
