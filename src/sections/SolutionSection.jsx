@@ -94,7 +94,7 @@ const Card = React.forwardRef(function Card(
       style={{ zIndex: 10 + i }}
     >
       <div
-        className="relative h-[550px] w-[90%] md:w-[85%] lg:w-[75%] rounded-[40px] p-8 md:p-12 lg:p-16 origin-top shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden border border-white/20"
+        className="relative h-[480px] w-[90%] md:w-[80%] lg:w-[65%] rounded-[32px] p-6 md:p-10 lg:p-12 origin-top shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden border border-white/20"
         style={{
           backgroundColor: color,
           // Stack offset (visual depth) — NOT the header spacing
@@ -102,13 +102,12 @@ const Card = React.forwardRef(function Card(
         }}
       >
         <div
-          className={`flex flex-col ${
-            isReversed ? "md:flex-row-reverse" : "md:flex-row"
-          } items-center h-full gap-8 md:gap-12 relative z-10`}
+          className={`flex flex-col ${isReversed ? "md:flex-row-reverse" : "md:flex-row"
+            } items-center h-full gap-8 md:gap-12 relative z-10`}
         >
           <div className="w-full md:w-1/2 flex flex-col justify-center text-center md:text-left">
             <h3
-              className="text-4xl md:text-6xl font-bold tracking-tight mb-6 pb-2"
+              className="text-3xl md:text-5xl font-bold tracking-tight mb-6 pb-2"
               style={{ fontFamily: "Zuume-Bold", color: textColor }}
             >
               {title}
@@ -118,13 +117,12 @@ const Card = React.forwardRef(function Card(
               {points.map((point, index) => (
                 <li
                   key={index}
-                  className="flex items-start gap-3 text-lg md:text-xl opacity-90 leading-tight"
+                  className="flex items-start gap-3 text-base md:text-lg opacity-90 leading-tight"
                   style={{ color: textColor }}
                 >
                   <span
-                    className={`mt-2 h-2 w-2 rounded-full shrink-0 ${
-                      textColor === "#ffffff" ? "bg-white" : "bg-[#010D3E]"
-                    }`}
+                    className={`mt-2 h-2 w-2 rounded-full shrink-0 ${textColor === "#ffffff" ? "bg-white" : "bg-[#010D3E]"
+                      }`}
                   />
                   <span>{point}</span>
                 </li>
@@ -133,7 +131,7 @@ const Card = React.forwardRef(function Card(
           </div>
 
           <div className="w-full md:w-1/2 h-full flex items-center justify-center relative">
-            <div className="w-full max-w-[450px] aspect-square">
+            <div className="w-full max-w-[350px] aspect-square">
               <DotLottieReact src={lottieSrc} loop autoplay />
             </div>
           </div>
@@ -180,7 +178,7 @@ export const SolutionSection = ({ skipAnimation = false }) => {
         scrollTrigger: {
           trigger: container.current,
           start: "top top",
-          end: `+=${cards.length * 520}`,
+          end: `+=${cards.length * 480}`,
           pin: true,
           scrub: true,
           anticipatePin: 1,
@@ -219,9 +217,8 @@ export const SolutionSection = ({ skipAnimation = false }) => {
   return (
     <section
       ref={container}
-      className={`relative bg-[#EAEEFE] overflow-hidden isolate ${
-        skipAnimation ? "py-20" : "min-h-screen"
-      }`}
+      className={`relative bg-[#EAEEFE] overflow-hidden isolate ${skipAnimation ? "py-20" : "min-h-screen"
+        }`}
     >
       {/* Background blobs (tamed + behind) */}
       <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
@@ -236,13 +233,13 @@ export const SolutionSection = ({ skipAnimation = false }) => {
       >
         <div className="px-6 pointer-events-auto">
           <h2
-            className="text-5xl md:text-8xl font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text leading-tight"
+            className="text-4xl md:text-6xl font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text leading-tight"
             style={{ fontFamily: "Zuume-Bold" }}
           >
             What we offer
           </h2>
 
-          <p className="text-base md:text-lg text-[#010D3E]/80 max-w-2xl mx-auto mt-1">
+          <p className="text-sm md:text-base text-[#010D3E]/80 max-w-2xl mx-auto mt-1">
             A complete ecosystem designed to empower your academic journey and
             professional growth.
           </p>
