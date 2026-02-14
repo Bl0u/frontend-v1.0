@@ -24,8 +24,20 @@ const LandingPage = () => {
     const headerRef = useRef(null);
     const stickyViewportRef = useRef(null);
     const [heroContentVisible, setHeroContentVisible] = useState(false);
+    const [skipAnimation, setSkipAnimation] = useState(false);
 
     useEffect(() => {
+        // Refresh GSAP ScrollTrigger whenever layout changes (skip animation toggled)
+        setTimeout(() => {
+            import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
+                ScrollTrigger.refresh();
+            });
+        }, 100);
+    }, [skipAnimation]);
+
+    useEffect(() => {
+        if (skipAnimation) return;
+
         const handleScroll = () => {
             const scrollY = window.scrollY;
             const windowHeight = window.innerHeight;
@@ -126,53 +138,70 @@ const LandingPage = () => {
 
     return (
         <div ref={containerRef} className="landing-scroll-container">
-            {/* Fixed/Sticky Viewport */}
-            <div ref={stickyViewportRef} className="landing-sticky-viewport">
+            {/* Skip Animation Button */}
+            <button
+                onClick={() => setSkipAnimation(!skipAnimation)}
+                className="fixed bottom-8 right-8 z-[200] bg-white/10 backdrop-blur-md border border-white/20 text-[#010D3E] px-6 py-3 rounded-full font-bold shadow-2xl hover:bg-white/20 transition-all duration-300 flex items-center gap-2 group"
+                style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
+            >
+                {skipAnimation ? 'Enable Animations' : 'Skip Animation'}
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse shadow-[0_0_10px_#3b82f6]"></div>
+            </button>
 
-                {/* 1. Intro Text Layer */}
-                <div className="intro-text-layer">
-                    <h1 ref={text1Ref} className="intro-text" style={{
-                        opacity: 0,
-                        fontFamily: "Zuume-Semi-Bold-Italic",
-                        letterSpacing: "0px",
-                    }}>Here ...</h1>
-                    <h1 ref={text2Ref} className="intro-text" style={{
-                        opacity: 0,
-                        fontFamily: "Zuume-Semi-Bold-Italic",
-                        letterSpacing: "0px"
-                    }}>Is your road</h1>
-                    <h1 ref={text3Ref} className="intro-text" style={{
-                        opacity: 0,
-                        fontFamily: "Zuume-Semi-Bold-Italic",
-                        letterSpacing: "0px"
-                    }}>Towards Success</h1>
-                </div>
+            {!skipAnimation ? (
+                <>
+                    {/* Fixed/Sticky Viewport */}
+                    <div ref={stickyViewportRef} className="landing-sticky-viewport">
 
-                {/* 2. Masked Hero Layer */}
-                <div ref={maskContainerRef} className="masked-hero-layer" style={{ opacity: 0 }}>
-                    {/* The Hero is rendered here. 
-                        Crucially, the 'mask-image' CSS on parent will cut this. 
-                    */}
-                    <div className="hero-content-wrapper">
-                        {/* Pass visibility prop to Hero */}
-                        <Hero contentVisible={heroContentVisible} />
+                        {/* 1. Intro Text Layer */}
+                        <div className="intro-text-layer">
+                            <h1 ref={text1Ref} className="intro-text" style={{
+                                opacity: 0,
+                                fontFamily: "Zuume-Semi-Bold-Italic",
+                                letterSpacing: "0px",
+                            }}>Here ...</h1>
+                            <h1 ref={text2Ref} className="intro-text" style={{
+                                opacity: 0,
+                                fontFamily: "Zuume-Semi-Bold-Italic",
+                                letterSpacing: "0px"
+                            }}>Is your road</h1>
+                            <h1 ref={text3Ref} className="intro-text" style={{
+                                opacity: 0,
+                                fontFamily: "Zuume-Semi-Bold-Italic",
+                                letterSpacing: "0px"
+                            }}>Towards Success</h1>
+                        </div>
+
+                        {/* 2. Masked Hero Layer */}
+                        <div ref={maskContainerRef} className="masked-hero-layer" style={{ opacity: 0 }}>
+                            <div className="hero-content-wrapper">
+                                <Hero contentVisible={heroContentVisible} />
+                            </div>
+                        </div>
                     </div>
+
+                    {/* 3. Header (Fixed Top-Level for Persistence) */}
+                    <div ref={headerRef} className="header-layer" style={{ opacity: 0, position: 'fixed', top: 0, left: 0, width: '100%', zIndex: 100 }}>
+                        <Header />
+                    </div>
+
+                    {/* Spacer to create scrollable height */}
+                    <div style={{ height: '900vh' }}></div>
+                </>
+            ) : (
+                <div className="relative z-10 bg-white">
+                    <div className="header-layer" style={{ position: 'sticky', top: 0, left: 0, width: '100%', zIndex: 100 }}>
+                        <Header />
+                    </div>
+                    <Hero contentVisible={true} skipAnimation={true} />
                 </div>
-            </div>
-
-            {/* 3. Header (Fixed Top-Level for Persistence) */}
-            <div ref={headerRef} className="header-layer" style={{ opacity: 0, position: 'fixed', top: 0, left: 0, width: '100%', zIndex: 100 }}>
-                <Header />
-            </div>
-
-            {/* Spacer to create scrollable height */}
-            <div style={{ height: '900vh' }}></div>
+            )}
 
             {/* Rest of the Page content flows after the spacer */}
-            <div className="relative z-10 bg-white">
+            <div className={`relative z-10 bg-white ${skipAnimation ? 'pt-0' : ''}`}>
                 <LogoTicker />
-                <SolutionSection />
-                <Pricing />
+                <SolutionSection skipAnimation={skipAnimation} />
+                <Pricing skipAnimation={skipAnimation} />
                 <Testimonials />
                 <MorphingCTA />
                 <Footer />

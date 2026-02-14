@@ -7,7 +7,7 @@ import { FaStar } from "react-icons/fa";
 
 gsap.registerPlugin(ScrollTrigger);
 
-export const Pricing = () => {
+export const Pricing = ({ skipAnimation = false }) => {
   const sectionRef = useRef(null);
   const cardsRef = useRef([]);
 
@@ -56,19 +56,22 @@ export const Pricing = () => {
   ];
 
   useLayoutEffect(() => {
+    // If animations are skipped, ensure all existing ScrollTriggers for this section are killed
+    if (skipAnimation) {
+      ScrollTrigger.getAll().forEach(st => {
+        if (st.trigger === sectionRef.current) st.kill();
+      });
+      return;
+    }
+
     if (!sectionRef.current) return;
 
     const ctx = gsap.context(() => {
       const cards = cardsRef.current.filter(Boolean);
-
-      // Inspired by the example: longer pinned duration + progress-mapped flip
       const totalScroll = window.innerHeight * 3;
-
-      // Layout targets (left/center/right) + slight fan rotations
       const positions = [18, 50, 82];
       const rotations = [-12, 0, 12];
 
-      // Base placement: all cards start centered
       gsap.set(cards, {
         left: "50%",
         top: "45%",
@@ -79,23 +82,19 @@ export const Pricing = () => {
         willChange: "transform,left",
       });
 
-      // Raise all cards a bit, raise middle more
       cards.forEach((card, i) => {
         const isMiddle = i === 1;
         gsap.set(card, { y: isMiddle ? -70 : -35 });
       });
 
-      // Initial 3D state: COVER visible first, DETAILS hidden behind
       cards.forEach((card) => {
         const cover = card.querySelector(".pricing-cover");
         const details = card.querySelector(".pricing-details");
         if (!cover || !details) return;
-
         gsap.set(cover, { rotationY: 0, transformStyle: "preserve-3d" });
         gsap.set(details, { rotationY: 180, transformStyle: "preserve-3d" });
       });
 
-      // Pin the entire section
       ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
@@ -106,7 +105,6 @@ export const Pricing = () => {
         invalidateOnRefresh: true,
       });
 
-      // Spread cards in the first viewport scroll
       cards.forEach((card, i) => {
         gsap.to(card, {
           left: `${positions[i]}%`,
@@ -122,13 +120,11 @@ export const Pricing = () => {
         });
       });
 
-      // Flip to DETAILS (cover -> away, details -> in) with staggered timing
       cards.forEach((card, i) => {
         const cover = card.querySelector(".pricing-cover");
         const details = card.querySelector(".pricing-details");
         if (!cover || !details) return;
 
-        // Example-style stagger windows (tweak as needed)
         const staggerOffset = i * 0.08;
         const startOffset = 1 / 3 + staggerOffset;
         const endOffset = 2 / 3 + staggerOffset;
@@ -141,34 +137,22 @@ export const Pricing = () => {
           invalidateOnRefresh: true,
           onUpdate: (self) => {
             const progress = self.progress;
-
             if (progress < startOffset) {
-              // Before flip: show COVER
               cover.style.transform = `rotateY(0deg)`;
               details.style.transform = `rotateY(180deg)`;
               gsap.set(card, { rotation: rotations[i] });
               return;
             }
-
             if (progress > endOffset) {
-              // After flip: show DETAILS
               cover.style.transform = `rotateY(-180deg)`;
               details.style.transform = `rotateY(0deg)`;
               gsap.set(card, { rotation: 0 });
               return;
             }
-
-            // During flip window
-            const t = (progress - startOffset) / (endOffset - startOffset); // 0..1
-
-            // COVER 0 -> -180 (away)
-            // DETAILS 180 -> 0 (in)
+            const t = (progress - startOffset) / (endOffset - startOffset);
             const coverRot = -180 * t;
             const detailsRot = 180 - 180 * t;
-
-            // Straighten while flipping
             const cardRot = rotations[i] * (1 - t);
-
             cover.style.transform = `rotateY(${coverRot}deg)`;
             details.style.transform = `rotateY(${detailsRot}deg)`;
             gsap.set(card, { rotation: cardRot });
@@ -180,28 +164,29 @@ export const Pricing = () => {
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [skipAnimation]);
 
   return (
     <section ref={sectionRef} className="relative bg-white overflow-hidden">
-      {/* Scoped CSS */}
       <style
         dangerouslySetInnerHTML={{
           __html: `
           .pricing-stage {
             position: relative;
             width: 100%;
-            height: 100vh;
-            overflow: hidden;
+            height: ${skipAnimation ? 'auto' : '100vh'};
+            overflow: ${skipAnimation ? 'visible' : 'hidden'};
             z-index: 10;
+            ${skipAnimation ? 'display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem; padding: 4rem 0;' : ''}
           }
 
           .pricing-card {
-            position: absolute;
+            position: ${skipAnimation ? 'relative' : 'absolute'};
             width: 320px;
             height: 520px;
             perspective: 1200px;
             transform-style: preserve-3d;
+            ${skipAnimation ? 'left: auto !important; top: auto !important; transform: none !important;' : ''}
           }
 
           .pricing-inner {
@@ -251,7 +236,6 @@ export const Pricing = () => {
         }}
       />
 
-      {/* Heading */}
       <div className="container mx-auto px-4 pt-8 relative z-20">
         <div className="max-w-[820px] mx-auto text-center">
           <h2
@@ -266,7 +250,6 @@ export const Pricing = () => {
         </div>
       </div>
 
-      {/* Pinned stage */}
       <div className="pricing-stage">
         {tiers.map((t, i) => (
           <div
@@ -279,48 +262,48 @@ export const Pricing = () => {
               style={{ animationDelay: `${i * 0.18}s` }}
             >
               <div className="pricing-inner">
-                {/* COVER (visible first) */}
-                <div
-                  className={clsx(
-                    "pricing-face pricing-cover flex flex-col items-center justify-center p-10 border",
-                    t.theme === "dark"
-                      ? "bg-[#001E80] text-white border-white/10"
-                      : "bg-white text-black border-black/10"
-                  )}
-                >
+                {!skipAnimation && (
                   <div
                     className={clsx(
-                      "w-20 h-20 rounded-full flex items-center justify-center border",
+                      "pricing-face pricing-cover flex flex-col items-center justify-center p-10 border",
                       t.theme === "dark"
-                        ? "bg-white/5 border-white/10"
-                        : "bg-black/5 border-black/10"
+                        ? "bg-[#001E80] text-white border-white/10"
+                        : "bg-white text-black border-black/10"
                     )}
                   >
-                    <FaStar
+                    <div
                       className={clsx(
-                        "text-4xl",
-                        t.theme === "dark" ? "text-yellow-300" : "text-yellow-500"
+                        "w-20 h-20 rounded-full flex items-center justify-center border",
+                        t.theme === "dark"
+                          ? "bg-white/5 border-white/10"
+                          : "bg-black/5 border-black/10"
                       )}
-                    />
+                    >
+                      <FaStar
+                        className={clsx(
+                          "text-4xl",
+                          t.theme === "dark" ? "text-yellow-300" : "text-yellow-500"
+                        )}
+                      />
+                    </div>
+
+                    <h3 className="mt-6 text-4xl font-black tracking-tight uppercase">
+                      {t.title}
+                    </h3>
+
+                    <div
+                      className={clsx(
+                        "mt-8 px-5 py-2 rounded-full text-[10px] font-bold tracking-[0.25em] uppercase border",
+                        t.theme === "dark"
+                          ? "text-white/60 border-white/10 bg-white/5"
+                          : "text-black/50 border-black/10 bg-black/5"
+                      )}
+                    >
+                      Scroll to flip
+                    </div>
                   </div>
+                )}
 
-                  <h3 className="mt-6 text-4xl font-black tracking-tight uppercase">
-                    {t.title}
-                  </h3>
-
-                  <div
-                    className={clsx(
-                      "mt-8 px-5 py-2 rounded-full text-[10px] font-bold tracking-[0.25em] uppercase border",
-                      t.theme === "dark"
-                        ? "text-white/60 border-white/10 bg-white/5"
-                        : "text-black/50 border-black/10 bg-black/5"
-                    )}
-                  >
-                    Scroll to flip
-                  </div>
-                </div>
-
-                {/* DETAILS (revealed on scroll) */}
                 <div
                   className={clsx(
                     "pricing-face pricing-details p-10 border flex flex-col shadow-2xl",
@@ -328,6 +311,7 @@ export const Pricing = () => {
                       ? "bg-black text-white border-white/10"
                       : "bg-white text-black border-black/10"
                   )}
+                  style={skipAnimation ? { transform: 'rotateY(0deg)', position: 'relative' } : {}}
                 >
                   <div className="flex items-center justify-between relative">
                     <h3
@@ -405,6 +389,6 @@ export const Pricing = () => {
           </div>
         ))}
       </div>
-    </section>
+    </section >
   );
 };
