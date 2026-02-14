@@ -140,8 +140,8 @@ const MorphingCTA = ({ skipAnimation = false }) => {
         left: "50%",
         xPercent: -50,
         yPercent: -50,
-        duration: 0.24,
-        stagger: 0.015,
+        duration: 0.39,
+        stagger: 0.025,
         ease: "none",
       }, 0);
 
@@ -150,31 +150,31 @@ const MorphingCTA = ({ skipAnimation = false }) => {
         height: () => getSizes().circle,
         borderRadius: 999,
         borderWidth: () => 0.35 * getSizes().rem,
-        duration: 0.24,
-        stagger: 0.015,
+        duration: 0.39,
+        stagger: 0.025,
         ease: "none",
       }, 0);
 
-      tl.to(contentEls, { autoAlpha: 0, duration: 0.05, stagger: 0.006, ease: "none" }, 0.03);
-      tl.to(featureEls, { autoAlpha: 0, duration: 0.08, ease: "none" }, 0.18);
-      tl.to(searchBar, { autoAlpha: 1, pointerEvents: "auto", duration: 0.07, ease: "none" }, 0.18);
+      tl.to(contentEls, { autoAlpha: 0, duration: 0.08, stagger: 0.01, ease: "none" }, 0.05);
+      tl.to(featureEls, { autoAlpha: 0, duration: 0.14, ease: "none" }, 0.3);
+      tl.to(searchBar, { autoAlpha: 1, pointerEvents: "auto", duration: 0.1, ease: "none" }, 0.3);
 
       tl.to(searchBar, {
         width: () => getSizes().finalWidth,
         height: () => getSizes().buttonH,
         y: 100,
-        duration: 0.28,
+        duration: 0.46,
         ease: "power4.inOut",
         immediateRender: false,
-      }, 0.23);
+      }, 0.38);
 
-      tl.to(buttonTextItems, { autoAlpha: 1, duration: 0.06, ease: "power2.out" }, ">-=0.02");
-      tl.to(searchBar, { background: "transparent", boxShadow: "none", duration: 0.03 }, "<");
+      tl.to(buttonTextItems, { autoAlpha: 1, duration: 0.1, ease: "power2.out" }, ">-=0.03");
+      tl.to(searchBar, { background: "transparent", boxShadow: "none", duration: 0.05 }, "<");
 
-      if (successText) tl.to(successText, { autoAlpha: 1, duration: 0.13 }, "<");
-      if (extraContent) tl.to(extraContent, { autoAlpha: 1, y: 0, duration: 0.13 }, "<+=0.03");
-      if (lottieWrap) tl.to(lottieWrap, { autoAlpha: 1, scale: 1, duration: 0.21 }, "<");
-      tl.to({}, { duration: 0.1 });
+      if (successText) tl.to(successText, { autoAlpha: 1, duration: 0.21 }, "<");
+      if (extraContent) tl.to(extraContent, { autoAlpha: 1, y: 0, duration: 0.21 }, "<+=0.05");
+      if (lottieWrap) tl.to(lottieWrap, { autoAlpha: 1, scale: 1, duration: 0.35 }, "<");
+      tl.to({}, { duration: 0.17 });
 
       // ---------- PIN + TRIGGER ----------
       const st = ScrollTrigger.create({
