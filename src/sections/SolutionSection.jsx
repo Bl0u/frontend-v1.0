@@ -95,8 +95,8 @@ const Card = ({
   });
 
   const finalScale = skipAnimation ? 1 : scale;
-  // Reduce gap: Changed items-center to items-start and added pt-[16vh]
-  const stickyClass = skipAnimation ? "" : "h-screen sticky top-0 pt-[16vh] md:pt-[12vh]";
+  // Reduce gap: Changed items-center to items-start and added pt for stacking
+  const stickyClass = skipAnimation ? "" : "h-[70vh] sticky top-0 pt-[12vh] md:pt-[10vh]";
 
   return (
     <div className={`flex items-start justify-center ${stickyClass}`}>
@@ -153,19 +153,19 @@ const Card = ({
 export const SolutionSection = ({ skipAnimation = false }) => {
   const container = useRef(null);
 
-  // ✅ controls how long the last card "holds" (reduced by 50%)
-  const HOLD_VH = 45;
-  const HOLD_RATIO = 0.18; // how much of scroll progress is reserved for hold (0.12..0.25)
+  // ✅ controls how long the last card "holds" (reduced for better UX)
+  const HOLD_VH = 20;
+  const HOLD_RATIO = 0.12;
 
   const { scrollYProgress } = useScroll({
     target: container,
     offset: ["start start", "end end"],
   });
 
-  // ✅ make stacking faster: reach 1 at 40% of scroll, hold for the rest
+  // ✅ make stacking faster: reach 1 at 35% of scroll, hold for the rest
   const cardsProgress = useTransform(
     scrollYProgress,
-    [0, 0.4, 1],
+    [0, 0.35, 1],
     [0, 1, 1],
     { clamp: true }
   );
