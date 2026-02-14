@@ -123,7 +123,7 @@ export const Pricing = ({ skipAnimation = false }) => {
       ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
-        end: "+=1200", // Shorter pin so user passes through quickly
+        end: "+=600", // Reduced from 1200 (approx 50% faster release)
         pin: true,
         pinSpacing: true,
         onEnter: () => tl.play(),

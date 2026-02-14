@@ -153,8 +153,8 @@ const Card = ({
 export const SolutionSection = ({ skipAnimation = false }) => {
   const container = useRef(null);
 
-  // ✅ controls how long the last card "holds"
-  const HOLD_VH = 90; // try 60..160 (this is the real hold length)
+  // ✅ controls how long the last card "holds" (reduced by 50%)
+  const HOLD_VH = 45;
   const HOLD_RATIO = 0.18; // how much of scroll progress is reserved for hold (0.12..0.25)
 
   const { scrollYProgress } = useScroll({
