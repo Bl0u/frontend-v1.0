@@ -95,10 +95,11 @@ const Card = ({
   });
 
   const finalScale = skipAnimation ? 1 : scale;
-  const stickyClass = skipAnimation ? "" : "h-screen sticky top-0";
+  // Reduce gap: Changed items-center to items-start and added pt-[16vh]
+  const stickyClass = skipAnimation ? "" : "h-screen sticky top-0 pt-[16vh] md:pt-[12vh]";
 
   return (
-    <div className={`flex items-center justify-center ${stickyClass}`}>
+    <div className={`flex items-start justify-center ${stickyClass}`}>
       <motion.div
         style={{
           backgroundColor: color,

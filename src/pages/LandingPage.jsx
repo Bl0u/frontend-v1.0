@@ -91,6 +91,31 @@ const LandingPage = () => {
         };
     }, [skipAnimation]);
 
+    useEffect(() => {
+        const handleScroll = () => {
+            if (!headerRef.current) return;
+
+            const scrollY = window.scrollY;
+            const threshold = window.innerHeight * 0.8; // Hide once mostly past hero
+
+            // If animation is still running and not skipped, let GSAP handle it
+            if (!animationDone && !skipAnimation) return;
+
+            if (scrollY > threshold) {
+                headerRef.current.style.opacity = '0';
+                headerRef.current.style.pointerEvents = 'none';
+                headerRef.current.style.visibility = 'hidden';
+            } else {
+                headerRef.current.style.opacity = '1';
+                headerRef.current.style.pointerEvents = 'auto';
+                headerRef.current.style.visibility = 'visible';
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [animationDone, skipAnimation]);
+
     const toggleSkip = () => {
         setSkipAnimation(!skipAnimation);
         // Force scroll unlock if enabling/disabling mid-stream
