@@ -113,7 +113,7 @@ export const Pricing = ({ skipAnimation = false }) => {
           scrollTrigger: {
             trigger: sectionRef.current,
             start: "top top",
-            end: `+=${window.innerHeight}`,
+            end: `+=${window.innerHeight * 0.5}`, // Spread 50% faster
             scrub: 0.6,
             invalidateOnRefresh: true,
           },
@@ -125,9 +125,10 @@ export const Pricing = ({ skipAnimation = false }) => {
         const details = card.querySelector(".pricing-details");
         if (!cover || !details) return;
 
-        const staggerOffset = i * 0.08;
-        const startOffset = 1 / 3 + staggerOffset;
-        const endOffset = 2 / 3 + staggerOffset;
+        const staggerOffset = i * 0.05;
+        // Flip happens between 30% and 60% of total scroll, compressed
+        const startOffset = 0.3 + staggerOffset;
+        const endOffset = 0.6 + staggerOffset;
 
         ScrollTrigger.create({
           trigger: sectionRef.current,

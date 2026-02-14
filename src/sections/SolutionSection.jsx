@@ -162,10 +162,10 @@ export const SolutionSection = ({ skipAnimation = false }) => {
     offset: ["start start", "end end"],
   });
 
-  // ✅ freeze progress at 1 during the hold tail
+  // ✅ make stacking faster: reach 1 at 40% of scroll, hold for the rest
   const cardsProgress = useTransform(
     scrollYProgress,
-    [0, 1 - HOLD_RATIO, 1],
+    [0, 0.4, 1],
     [0, 1, 1],
     { clamp: true }
   );
@@ -173,7 +173,7 @@ export const SolutionSection = ({ skipAnimation = false }) => {
   return (
     <section ref={container} className={`relative bg-[#EAEEFE] ${skipAnimation ? 'py-20' : ''}`}>
       {/* Sticky Header */}
-      <div className={`${skipAnimation ? 'relative' : 'sticky top-0'} z-30 pt-6 pb-2 flex flex-col items-center justify-center text-center bg-[#EAEEFE]/80 backdrop-blur-md`}>
+      <div className={`${skipAnimation ? 'relative' : 'sticky top-0'} z-30 pt-6 pb-2 flex flex-col items-center justify-center text-center bg-[#EAEEFE]/60 backdrop-blur-sm`}>
         <div className="px-6 pointer-events-auto">
           <motion.h2
             className="text-5xl md:text-8xl font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text leading-tight"
@@ -187,7 +187,7 @@ export const SolutionSection = ({ skipAnimation = false }) => {
           </motion.h2>
 
           <motion.p
-            className="text-xl md:text-2xl text-[#010D3E]/80 max-w-2xl mx-auto mt-0"
+            className="text-base md:text-lg text-[#010D3E]/80 max-w-2xl mx-auto mt-0"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.2 }}
