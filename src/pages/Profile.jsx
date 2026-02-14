@@ -2,6 +2,8 @@ import { useState, useContext, useEffect } from 'react';
 import AuthContext from '../context/AuthContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { API_BASE_URL } from '../config';
+
 import StudentProfileForm from '../components/StudentProfileForm';
 import MentorProfileForm from '../components/MentorProfileForm';
 
@@ -15,7 +17,7 @@ const Profile = () => {
             const config = {
                 headers: { Authorization: `Bearer ${user.token}` },
             };
-            const res = await axios.get(`http://localhost:5000/api/users/${user._id}`, config);
+            const res = await axios.get(`${API_BASE_URL}/api/users/${user._id}`, config);
             setProfileData(res.data);
             setLoading(false);
         } catch (error) {

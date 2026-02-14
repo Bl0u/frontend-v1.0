@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { API_BASE_URL } from '../config';
+
 import TagInput from './TagInput';
 import SocialLinksManager from './SocialLinksManager';
 
@@ -200,7 +202,7 @@ const MentorProfileForm = ({ user, initialData, refreshProfile }) => {
                 lookingForMentee: formData.lookingForMentee
             };
 
-            await axios.put('http://localhost:5000/api/users/profile', payload, config);
+            await axios.put(`${API_BASE_URL}/api/users/profile`, payload, config);
             toast.success('Mentor profile updated successfully!');
             if (refreshProfile) refreshProfile();
         } catch (error) {

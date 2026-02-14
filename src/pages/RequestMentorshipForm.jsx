@@ -2,6 +2,8 @@ import { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AuthContext from '../context/AuthContext';
+import { API_BASE_URL } from '../config';
+
 import requestService from '../features/requests/requestService';
 import { toast } from 'react-toastify';
 import { FaRocket, FaShieldAlt, FaQuestionCircle, FaGlobe } from 'react-icons/fa';
@@ -40,7 +42,7 @@ const RequestMentorshipForm = () => {
         if (mentorId) {
             const fetchMentor = async () => {
                 try {
-                    const res = await axios.get(`http://localhost:5000/api/users/${mentorId}`);
+                    const res = await axios.get(`${API_BASE_URL}/api/users/${mentorId}`);
                     setMentor(res.data);
                     if (res.data.pitchQuestions && res.data.pitchQuestions.length > 0) {
                         const customQs = res.data.pitchQuestions.map((q, idx) => ({

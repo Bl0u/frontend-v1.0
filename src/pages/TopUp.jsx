@@ -4,6 +4,8 @@ import AuthContext from '../context/AuthContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { FaStar, FaArrowLeft } from 'react-icons/fa';
+import { API_BASE_URL } from '../config';
+
 
 const TopUp = () => {
     const { user, login } = useContext(AuthContext);
@@ -29,7 +31,7 @@ const TopUp = () => {
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
             const res = await axios.post(
-                'http://localhost:5000/api/users/topup',
+                `${API_BASE_URL}/api/users/topup`,
                 { amount: stars },
                 config
             );

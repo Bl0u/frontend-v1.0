@@ -5,6 +5,8 @@ import remarkGfm from 'remark-gfm';
 import resourceService from '../features/resources/resourceService';
 import AuthContext from '../context/AuthContext';
 import { toast } from 'react-toastify';
+import { API_BASE_URL } from '../config';
+
 import { FaArrowUp, FaComment, FaClock, FaPaperclip, FaChevronLeft, FaPaperPlane, FaInfoCircle, FaTags, FaUser, FaCheckCircle } from 'react-icons/fa';
 
 const ThreadDetail = () => {
@@ -382,7 +384,7 @@ const ThreadDetail = () => {
                                     {thread.attachments.map((att, idx) => (
                                         <a
                                             key={idx}
-                                            href={`http://localhost:5000${att}`}
+                                            href={`${API_BASE_URL}${att}`}
                                             target="_blank"
                                             className="px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-100 transition-all flex items-center gap-2"
                                         >
@@ -452,7 +454,7 @@ const ThreadDetail = () => {
                                                 </ReactMarkdown>
                                             </div>
                                             {post.attachments?.map((att, idx) => (
-                                                <a key={idx} href={`http://localhost:5000${att}`} target="_blank" className="mt-3 inline-flex items-center gap-2 text-indigo-400 text-[9px] font-black uppercase hover:underline">
+                                                <a key={idx} href={`${API_BASE_URL}${att}`} target="_blank" className="mt-3 inline-flex items-center gap-2 text-indigo-400 text-[9px] font-black uppercase hover:underline">
                                                     <FaPaperclip /> Attachment
                                                 </a>
                                             ))}

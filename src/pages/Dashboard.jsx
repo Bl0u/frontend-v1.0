@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { API_BASE_URL } from '../config';
+
 import { FaUserEdit, FaShareAlt, FaGraduationCap, FaChalkboardTeacher, FaHistory, FaCheckCircle, FaProjectDiagram, FaExternalLinkAlt, FaUserFriends, FaClipboardList, FaFileAlt, FaBook } from 'react-icons/fa';
 import requestService from '../features/requests/requestService';
 import planService from '../features/plans/planService';
@@ -27,7 +29,7 @@ const Dashboard = () => {
 
         try {
             const config = { headers: { Authorization: `Bearer ${currentUser.token}` } };
-            const res = await axios.get(`http://localhost:5000/api/users/${currentUser._id}`, config);
+            const res = await axios.get(`${API_BASE_URL}/api/users/${currentUser._id}`, config);
             setProfile(res.data);
             setPlanTemplate(res.data.planTemplate || '');
         } catch (error) {
@@ -104,7 +106,7 @@ This is your personalized mentorship roadmap. I will update this regularly with 
     const handleSaveNote = async (historyId) => {
         try {
             const config = { headers: { Authorization: `Bearer ${currentUser.token}` } };
-            await axios.put('http://localhost:5000/api/requests/history/note', { historyId, notes: noteText }, config);
+            await axios.put(`${API_BASE_URL}/api/requests/history/note`, { historyId, notes: noteText }, config);
             toast.success('Note updated!');
             setEditingHistoryId(null);
             fetchProfile();
@@ -116,7 +118,7 @@ This is your personalized mentorship roadmap. I will update this regularly with 
     const handleSaveTemplate = async () => {
         try {
             const config = { headers: { Authorization: `Bearer ${currentUser.token}` } };
-            await axios.put('http://localhost:5000/api/users/profile', { planTemplate }, config);
+            await axios.put(`${API_BASE_URL}/api/users/profile`, { planTemplate }, config);
             toast.success('Mentorship Plan Template updated!');
             fetchProfile();
         } catch (error) {

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { API_BASE_URL } from '../config';
+
 import TagInput from './TagInput';
 import SocialLinksManager from './SocialLinksManager';
 
@@ -152,7 +154,7 @@ const StudentProfileForm = ({ user, initialData, refreshProfile }) => {
                 interests: formData.interests
             };
 
-            await axios.put('http://localhost:5000/api/users/profile', payload, config);
+            await axios.put(`${API_BASE_URL}/api/users/profile`, payload, config);
             toast.success('Profile updated successfully!');
             if (refreshProfile) refreshProfile();
         } catch (error) {

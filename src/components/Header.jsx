@@ -4,6 +4,8 @@ import AuthContext from '../context/AuthContext';
 import { FaSignOutAlt, FaInbox, FaCommentDots, FaStar } from 'react-icons/fa';
 import axios from 'axios';
 import chatService from '../features/chat/chatService';
+import { API_BASE_URL } from '../config';
+
 
 const Header = () => {
     const { user, logout } = useContext(AuthContext);
@@ -16,7 +18,7 @@ const Header = () => {
             if (!user || !user.token) return;
             try {
                 const config = { headers: { Authorization: `Bearer ${user.token}` } };
-                const res = await axios.get('http://localhost:5000/api/requests/received', config);
+                const res = await axios.get(`${API_BASE_URL}/api/requests/received`, config);
                 const pendingCount = res.data.filter(r => r.status === 'pending').length;
                 setUnreadCount(pendingCount);
             } catch (error) {

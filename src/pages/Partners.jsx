@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_BASE_URL } from '../config';
+
 import UserCard from '../components/UserCard';
 import { FaSearch } from 'react-icons/fa';
 
@@ -11,7 +13,7 @@ const Partners = () => {
     const fetchPartners = async (search = '') => {
         setLoading(true);
         try {
-            let url = 'http://localhost:5000/api/users?role=student';
+            let url = `${API_BASE_URL}/api/users?role=student`;
             if (search) {
                 url += `&search=${encodeURIComponent(search)}`;
             } else {

@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { API_BASE_URL } from '../config';
+
 import SocialLinksManager from '../components/SocialLinksManager';
 import { FaArrowLeft, FaShieldAlt } from 'react-icons/fa';
 
@@ -16,7 +18,7 @@ const SocialMediaEditor = () => {
         const fetchLinks = async () => {
             try {
                 const config = { headers: { Authorization: `Bearer ${currentUser.token}` } };
-                const res = await axios.get(`http://localhost:5000/api/users/${currentUser._id}`, config);
+                const res = await axios.get(`${API_BASE_URL}/api/users/${currentUser._id}`, config);
                 setLinks(res.data.socialLinks || []);
             } catch (error) {
                 toast.error('Failed to load social links');
@@ -30,7 +32,7 @@ const SocialMediaEditor = () => {
     const handleSave = async () => {
         try {
             const config = { headers: { Authorization: `Bearer ${currentUser.token}` } };
-            await axios.put('http://localhost:5000/api/users/profile', { socialLinks: links }, config);
+            await axios.put(`${API_BASE_URL}/api/users/profile`, { socialLinks: links }, config);
             toast.success('Social links updated!');
             navigate('/dashboard');
         } catch (error) {
