@@ -13,8 +13,9 @@
     place-items: center;
     overflow: hidden;
     color: var(--text);
-    /* Landing Page Light Gradient */
-    background: linear-gradient(to bottom, #FFFFFF, #F0E8FF, #E8D2FF);
+    /* Landing Page Light Gradient - Reinforced */
+    background: linear-gradient(to bottom, #FFFFFF, #F0E8FF, #E8D2FF) !important;
+    z-index: 50;
 }
 
 .morph-features {
@@ -38,7 +39,6 @@
     background-color: var(--base-400);
     border: 0.125rem solid var(--base-300);
     border-radius: 0.75rem;
-    backdrop-filter: blur(14px);
     will-change: width, height, border-radius, border-width;
 }
 
