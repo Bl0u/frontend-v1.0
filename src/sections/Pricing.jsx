@@ -56,19 +56,22 @@ export const Pricing = ({ skipAnimation = false }) => {
   ];
 
   useLayoutEffect(() => {
-    if (!sectionRef.current || skipAnimation) return;
+    // If animations are skipped, ensure all existing ScrollTriggers for this section are killed
+    if (skipAnimation) {
+      ScrollTrigger.getAll().forEach(st => {
+        if (st.trigger === sectionRef.current) st.kill();
+      });
+      return;
+    }
+
+    if (!sectionRef.current) return;
 
     const ctx = gsap.context(() => {
       const cards = cardsRef.current.filter(Boolean);
-
-      // Inspired by the example: longer pinned duration + progress-mapped flip
       const totalScroll = window.innerHeight * 3;
-
-      // Layout targets (left/center/right) + slight fan rotations
       const positions = [18, 50, 82];
       const rotations = [-12, 0, 12];
 
-      // Base placement: all cards start centered
       gsap.set(cards, {
         left: "50%",
         top: "45%",
@@ -79,23 +82,19 @@ export const Pricing = ({ skipAnimation = false }) => {
         willChange: "transform,left",
       });
 
-      // Raise all cards a bit, raise middle more
       cards.forEach((card, i) => {
         const isMiddle = i === 1;
         gsap.set(card, { y: isMiddle ? -70 : -35 });
       });
 
-      // Initial 3D state: COVER visible first, DETAILS hidden behind
       cards.forEach((card) => {
         const cover = card.querySelector(".pricing-cover");
         const details = card.querySelector(".pricing-details");
         if (!cover || !details) return;
-
         gsap.set(cover, { rotationY: 0, transformStyle: "preserve-3d" });
         gsap.set(details, { rotationY: 180, transformStyle: "preserve-3d" });
       });
 
-      // Pin the entire section
       ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
@@ -106,7 +105,6 @@ export const Pricing = ({ skipAnimation = false }) => {
         invalidateOnRefresh: true,
       });
 
-      // Spread cards in the first viewport scroll
       cards.forEach((card, i) => {
         gsap.to(card, {
           left: `${positions[i]}%`,
@@ -122,13 +120,11 @@ export const Pricing = ({ skipAnimation = false }) => {
         });
       });
 
-      // Flip to DETAILS (cover -> away, details -> in) with staggered timing
       cards.forEach((card, i) => {
         const cover = card.querySelector(".pricing-cover");
         const details = card.querySelector(".pricing-details");
         if (!cover || !details) return;
 
-        // Example-style stagger windows (tweak as needed)
         const staggerOffset = i * 0.08;
         const startOffset = 1 / 3 + staggerOffset;
         const endOffset = 2 / 3 + staggerOffset;
@@ -141,34 +137,22 @@ export const Pricing = ({ skipAnimation = false }) => {
           invalidateOnRefresh: true,
           onUpdate: (self) => {
             const progress = self.progress;
-
             if (progress < startOffset) {
-              // Before flip: show COVER
               cover.style.transform = `rotateY(0deg)`;
               details.style.transform = `rotateY(180deg)`;
               gsap.set(card, { rotation: rotations[i] });
               return;
             }
-
             if (progress > endOffset) {
-              // After flip: show DETAILS
               cover.style.transform = `rotateY(-180deg)`;
               details.style.transform = `rotateY(0deg)`;
               gsap.set(card, { rotation: 0 });
               return;
             }
-
-            // During flip window
-            const t = (progress - startOffset) / (endOffset - startOffset); // 0..1
-
-            // COVER 0 -> -180 (away)
-            // DETAILS 180 -> 0 (in)
+            const t = (progress - startOffset) / (endOffset - startOffset);
             const coverRot = -180 * t;
             const detailsRot = 180 - 180 * t;
-
-            // Straighten while flipping
             const cardRot = rotations[i] * (1 - t);
-
             cover.style.transform = `rotateY(${coverRot}deg)`;
             details.style.transform = `rotateY(${detailsRot}deg)`;
             gsap.set(card, { rotation: cardRot });
@@ -180,11 +164,10 @@ export const Pricing = ({ skipAnimation = false }) => {
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [skipAnimation]);
 
   return (
     <section ref={sectionRef} className="relative bg-white overflow-hidden">
-      {/* Scoped CSS */}
       <style
         dangerouslySetInnerHTML={{
           __html: `
@@ -203,6 +186,7 @@ export const Pricing = ({ skipAnimation = false }) => {
             height: 520px;
             perspective: 1200px;
             transform-style: preserve-3d;
+            ${skipAnimation ? 'left: auto !important; top: auto !important; transform: none !important;' : ''}
           }
 
           .pricing-inner {
@@ -252,7 +236,6 @@ export const Pricing = ({ skipAnimation = false }) => {
         }}
       />
 
-      {/* Heading */}
       <div className="container mx-auto px-4 pt-8 relative z-20">
         <div className="max-w-[820px] mx-auto text-center">
           <h2
@@ -267,7 +250,6 @@ export const Pricing = ({ skipAnimation = false }) => {
         </div>
       </div>
 
-      {/* Pinned stage */}
       <div className="pricing-stage">
         {tiers.map((t, i) => (
           <div
@@ -280,7 +262,6 @@ export const Pricing = ({ skipAnimation = false }) => {
               style={{ animationDelay: `${i * 0.18}s` }}
             >
               <div className="pricing-inner">
-                {/* COVER (visible first) */}
                 {!skipAnimation && (
                   <div
                     className={clsx(
@@ -323,7 +304,6 @@ export const Pricing = ({ skipAnimation = false }) => {
                   </div>
                 )}
 
-                {/* DETAILS (revealed on scroll) */}
                 <div
                   className={clsx(
                     "pricing-face pricing-details p-10 border flex flex-col shadow-2xl",
@@ -409,6 +389,6 @@ export const Pricing = ({ skipAnimation = false }) => {
           </div>
         ))}
       </div>
-    </section>
+    </section >
   );
 };

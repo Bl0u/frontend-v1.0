@@ -27,6 +27,15 @@ const LandingPage = () => {
     const [skipAnimation, setSkipAnimation] = useState(false);
 
     useEffect(() => {
+        // Refresh GSAP ScrollTrigger whenever layout changes (skip animation toggled)
+        setTimeout(() => {
+            import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
+                ScrollTrigger.refresh();
+            });
+        }, 100);
+    }, [skipAnimation]);
+
+    useEffect(() => {
         if (skipAnimation) return;
 
         const handleScroll = () => {
