@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api/plans';
+import { API_BASE_URL } from '../../config';
+
+const API_URL = `${API_BASE_URL}/api/plans`;
+
 
 // Create a new plan
 const createPlan = async (menteeId, data, token) => {

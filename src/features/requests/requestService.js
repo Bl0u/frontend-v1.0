@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api/requests/';
+import { API_BASE_URL } from '../../config';
+
+const API_URL = `${API_BASE_URL}/api/requests/`;
+
 
 // Send Request (Book or Match or Public Pitch)
 const sendRequest = async (receiverId, type, message, token, pitch = null, isPublic = false) => {

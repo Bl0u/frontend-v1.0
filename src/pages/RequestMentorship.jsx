@@ -1,5 +1,7 @@
 import { useState, useContext } from 'react';
 import axios from 'axios';
+import { API_BASE_URL } from '../config';
+
 import AuthContext from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
@@ -37,7 +39,7 @@ const RequestMentorship = () => {
                 },
             };
 
-            await axios.post('http://localhost:5000/api/mentorship', formData, config);
+            await axios.post(`${API_BASE_URL}/api/mentorship`, formData, config);
             toast.success('Mentorship request submitted!');
             navigate('/');
         } catch (error) {

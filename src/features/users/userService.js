@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api/users/';
+import { API_BASE_URL } from '../../config';
+
+const API_URL = `${API_BASE_URL}/api/users/`;
+
 
 // Get all users (supports filters like role, search=username)
 const getUsers = async (filters = {}) => {

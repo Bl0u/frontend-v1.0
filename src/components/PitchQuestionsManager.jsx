@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { FaPlus, FaTrash, FaSave, FaExclamationCircle, FaListUl, FaCheckSquare, FaAlignLeft } from 'react-icons/fa';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { API_BASE_URL } from '../config';
+
 
 const PitchQuestionsManager = ({ user, initialQuestions, onUpdate }) => {
     const [questions, setQuestions] = useState(initialQuestions || []);
@@ -56,7 +58,7 @@ const PitchQuestionsManager = ({ user, initialQuestions, onUpdate }) => {
         setLoading(true);
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            const res = await axios.put('http://localhost:5000/api/users/profile', { pitchQuestions: questions }, config);
+            const res = await axios.put(`${API_BASE_URL}/api/users/profile`, { pitchQuestions: questions }, config);
             toast.success('Pitch questions updated successfully');
             if (onUpdate) onUpdate(res.data.pitchQuestions);
         } catch (error) {

@@ -3,6 +3,8 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FaUserGraduate, FaChalkboardTeacher, FaEnvelope, FaLinkedin, FaGithub, FaGlobe, FaStar, FaTwitter } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import { API_BASE_URL } from '../config';
+
 
 const PublicProfile = () => {
     const { username } = useParams();
@@ -24,18 +26,18 @@ const PublicProfile = () => {
         const fetchProfileData = async () => {
             try {
                 // 1. Fetch Profile
-                const res = await axios.get(`http://localhost:5000/api/users/u/${username}`);
+                const res = await axios.get(`${API_BASE_URL}/api/users/u/${username}`);
                 setProfile(res.data);
                 const userId = res.data._id;
 
                 // 2. Fetch Reviews
-                const reviewsRes = await axios.get(`http://localhost:5000/api/reviews/${userId}`);
+                const reviewsRes = await axios.get(`${API_BASE_URL}/api/reviews/${userId}`);
                 setReviews(reviewsRes.data);
 
                 // 3. Check Connection (if logged in and not self)
                 if (currentUser && currentUser._id !== userId) {
                     const config = { headers: { Authorization: `Bearer ${currentUser.token}` } };
-                    const connRes = await axios.get(`http://localhost:5000/api/requests/check/${userId}`, config);
+                    const connRes = await axios.get(`${API_BASE_URL}/api/requests/check/${userId}`, config);
                     setIsConnected(connRes.data.isConnected);
                 }
 
@@ -61,7 +63,7 @@ const PublicProfile = () => {
                 comment: reviewForm.comment
             };
 
-            const res = await axios.post('http://localhost:5000/api/reviews', payload, config);
+            const res = await axios.post(`${API_BASE_URL}/api/reviews`, payload, config);
             setReviews([res.data, ...reviews]);
             setReviewForm({ rating: 5, comment: '' });
             setShowReviewForm(false);
