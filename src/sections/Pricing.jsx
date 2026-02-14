@@ -95,70 +95,41 @@ export const Pricing = ({ skipAnimation = false }) => {
         gsap.set(details, { rotationY: 180, transformStyle: "preserve-3d" });
       });
 
-      ScrollTrigger.create({
-        trigger: sectionRef.current,
-        start: "top top",
-        end: `+=${totalScroll}`,
-        pin: true,
-        pinSpacing: true,
-        anticipatePin: 1,
-        invalidateOnRefresh: true,
+      const tl = gsap.timeline({
+        paused: true,
+        defaults: { ease: "power2.inOut" }
       });
 
+      // Spread phase
       cards.forEach((card, i) => {
-        gsap.to(card, {
+        tl.to(card, {
           left: `${positions[i]}%`,
           rotation: rotations[i],
-          ease: "none",
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top top",
-            end: `+=${window.innerHeight * 0.5}`, // Spread 50% faster
-            scrub: 0.6,
-            invalidateOnRefresh: true,
-          },
-        });
+          duration: 0.8
+        }, 0);
       });
 
+      // Flip phase
       cards.forEach((card, i) => {
         const cover = card.querySelector(".pricing-cover");
         const details = card.querySelector(".pricing-details");
         if (!cover || !details) return;
 
-        const staggerOffset = i * 0.05;
-        // Flip happens between 30% and 60% of total scroll, compressed
-        const startOffset = 0.3 + staggerOffset;
-        const endOffset = 0.6 + staggerOffset;
+        tl.to(cover, { rotationY: -180, duration: 0.6 }, 0.5 + i * 0.1)
+          .to(details, { rotationY: 0, duration: 0.6 }, 0.5 + i * 0.1)
+          .to(card, { rotation: 0, duration: 0.6 }, 0.5 + i * 0.1);
+      });
 
-        ScrollTrigger.create({
-          trigger: sectionRef.current,
-          start: "top top",
-          end: `+=${totalScroll}`,
-          scrub: 1,
-          invalidateOnRefresh: true,
-          onUpdate: (self) => {
-            const progress = self.progress;
-            if (progress < startOffset) {
-              cover.style.transform = `rotateY(0deg)`;
-              details.style.transform = `rotateY(180deg)`;
-              gsap.set(card, { rotation: rotations[i] });
-              return;
-            }
-            if (progress > endOffset) {
-              cover.style.transform = `rotateY(-180deg)`;
-              details.style.transform = `rotateY(0deg)`;
-              gsap.set(card, { rotation: 0 });
-              return;
-            }
-            const t = (progress - startOffset) / (endOffset - startOffset);
-            const coverRot = -180 * t;
-            const detailsRot = 180 - 180 * t;
-            const cardRot = rotations[i] * (1 - t);
-            cover.style.transform = `rotateY(${coverRot}deg)`;
-            details.style.transform = `rotateY(${detailsRot}deg)`;
-            gsap.set(card, { rotation: cardRot });
-          },
-        });
+      ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: "top top",
+        end: "+=1200", // Shorter pin so user passes through quickly
+        pin: true,
+        pinSpacing: true,
+        onEnter: () => tl.play(),
+        // Replay if user scrolls back up and down
+        onEnterBack: () => tl.play(),
+        invalidateOnRefresh: true,
       });
 
       ScrollTrigger.refresh();
