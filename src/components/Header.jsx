@@ -1,17 +1,18 @@
 import { useContext, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
-import { FaSignOutAlt, FaInbox, FaCommentDots, FaStar } from 'react-icons/fa';
+import { FaSignOutAlt, FaInbox, FaCommentDots, FaBars, FaTimes } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import chatService from '../features/chat/chatService';
 import { API_BASE_URL } from '../config';
-
 
 const Header = () => {
     const { user, logout } = useContext(AuthContext);
     const navigate = useNavigate();
     const [unreadCount, setUnreadCount] = useState(0);
     const [chatUnreadCount, setChatUnreadCount] = useState(0);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     useEffect(() => {
         const fetchUnreadCount = async () => {
@@ -50,142 +51,199 @@ const Header = () => {
         navigate('/');
     };
 
+    const navLinks = [
+        { name: 'Home', path: '/' },
+        { name: 'Resources', path: '/resources' },
+        { name: 'Partners', path: '/partners' },
+        { name: 'Mentors', path: '/mentors' },
+    ];
+
     return (
-        <header className="sticky top-4 z-50">
-            <div className="max-w-6xl mx-auto px-4">
-                <div className="bg-gradient-to-r from-[#590d22] via-[#800f2f] to-[#590d22] text-white shadow-2xl rounded-3xl backdrop-blur-md transition-all duration-300 hover:shadow-[#590d22]/50 px-12 py-4">
-                    <div className="flex justify-between items-center">
-                        {/* Logo */}
-                        <Link to="/" className="text-3xl font-bold hover:scale-105 transition-transform duration-300">
-                            <span className="bg-gradient-to-r from-[#ff4d6d] via-[#ff758f] to-[#ffb3c1] bg-clip-text text-transparent">
-                                LearnCrew
-                            </span>
+        <header className="fixed top-4 left-0 right-0 z-50 flex justify-center px-4">
+            <motion.nav
+                initial={{ y: -20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                className="w-full max-w-6xl rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] overflow-hidden"
+            >
+                <div className="flex items-center justify-between px-6 py-4 md:px-12 md:py-4">
+                    {/* Logo */}
+                    <Link to="/" className="text-3xl font-bold hover:scale-105 transition-transform duration-300">
+                        <span className="bg-gradient-to-r from-[#ff4d6d] via-[#ff758f] to-[#ffb3c1] bg-clip-text text-transparent">
+                            LearnCrew
+                        </span>
+                    </Link>
+
+                    {/* Desktop Menu */}
+                    <div className="hidden lg:flex items-center gap-8">
+                        {navLinks.map((link) => (
+                            <Link
+                                key={link.name}
+                                to={link.path}
+                                className="text-sm font-medium text-slate-700 hover:text-black transition-colors relative group"
+                            >
+                                {link.name}
+                                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#ff4d6d] transition-all group-hover:w-full"></span>
+                            </Link>
+                        ))}
+                        <Link
+                            to="/mentorship-request"
+                            className="flex items-center gap-2 text-sm font-medium text-slate-700 hover:text-black transition-colors relative group"
+                        >
+                            <span className="bg-[#ff4d6d] text-white px-2 py-0.5 rounded-md text-[10px] font-bold uppercase">New</span>
+                            Pitch Hub
                         </Link>
+                    </div>
 
-                        {/* Navigation */}
-                        <nav>
-                            <ul className="flex space-x-8 items-center">
-                                <li>
-                                    <Link to="/" className="text-[#ffccd5] hover:text-white font-medium transition-colors duration-300">
-                                        Home
-                                    </Link>
-                                </li>
-                                <li>
-                                    <Link to="/resources" className="text-[#ffccd5] hover:text-white font-medium transition-colors duration-300">
-                                        Resources
-                                    </Link>
-                                </li>
-                                <li>
-                                    <Link to="/partners" className="text-[#ffccd5] hover:text-white font-medium transition-colors duration-300">
-                                        Partners
-                                    </Link>
-                                </li>
-                                <li>
-                                    <Link to="/mentors" className="text-[#ffccd5] hover:text-white font-medium transition-colors duration-300">
-                                        Mentors
-                                    </Link>
-                                </li>
-                                <li>
+                    {/* Actions & Mobile Toggle */}
+                    <div className="flex items-center gap-4">
+                        {user ? (
+                            <div className="flex items-center gap-4">
+                                {/* Inbox */}
+                                <Link to="/requests" className="flex items-center text-slate-700 hover:text-black relative transition-colors duration-300">
+                                    <FaInbox className="text-lg" />
+                                    {unreadCount > 0 && (
+                                        <span className="absolute -top-2 -right-2 bg-[#ff4d6d] text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full animate-pulse">
+                                            {unreadCount > 9 ? '9+' : unreadCount}
+                                        </span>
+                                    )}
+                                </Link>
+
+                                {/* Chat */}
+                                <Link to="/chat" className="flex items-center text-slate-700 hover:text-black relative transition-colors duration-300">
+                                    <FaCommentDots className="text-lg" />
+                                    {chatUnreadCount > 0 && (
+                                        <span className="absolute -top-2 -right-2 bg-[#ff4d6d] text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full animate-pulse">
+                                            {chatUnreadCount > 9 ? '9+' : chatUnreadCount}
+                                        </span>
+                                    )}
+                                </Link>
+
+                                {/* Stars */}
+                                <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-black/5 rounded-full border border-black/5">
+                                    <span className="text-base">⭐</span>
+                                    <span className="font-bold text-slate-700 text-sm">{user.stars || 0}</span>
+                                </div>
+
+                                {/* Top Up */}
+                                <Link
+                                    to="/top-up"
+                                    className="hidden md:block px-4 py-2 bg-[#ff4d6d] text-white text-sm font-bold rounded-lg hover:bg-[#c9184a] transition-all duration-300 shadow-sm"
+                                >
+                                    Top Up
+                                </Link>
+
+                                {/* Dashboard */}
+                                <Link
+                                    to="/dashboard"
+                                    className="hidden sm:block text-sm font-medium text-slate-700 hover:text-black"
+                                >
+                                    Dashboard
+                                </Link>
+
+                                {/* Logout */}
+                                <button
+                                    onClick={onLogout}
+                                    className="flex items-center gap-2 text-slate-700 hover:text-[#ff4d6d] transition-colors duration-300"
+                                >
+                                    <FaSignOutAlt />
+                                    <span className="hidden sm:inline font-medium text-sm">Logout</span>
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-4">
+                                <Link
+                                    to="/login"
+                                    className="text-sm font-medium text-slate-700 hover:text-black transition-colors"
+                                >
+                                    Login
+                                </Link>
+                                <div className="mask-container-nature">
+                                    <span className="mas">REGISTER</span>
                                     <Link
-                                        to="/mentorship-request"
-                                        className="flex items-center gap-2 text-[#ffccd5] hover:text-white font-medium transition-colors duration-300"
+                                        to="/register"
+                                        className="mask-btn-nature"
                                     >
-                                        <span className="bg-[#ff4d6d] text-white px-2 py-1 rounded-md text-xs font-bold uppercase">New</span>
-                                        Pitch Hub
+                                        REGISTER
                                     </Link>
-                                </li>
+                                </div>
+                            </div>
+                        )}
 
-                                {user ? (
+                        {/* Mobile Menu Toggle */}
+                        <button
+                            className="lg:hidden text-slate-800 focus:outline-none"
+                            onClick={() => setIsMenuOpen(!isMenuOpen)}
+                        >
+                            {isMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+                        </button>
+                    </div>
+                </div>
+
+                {/* Mobile Menu Dropdown */}
+                <AnimatePresence>
+                    {isMenuOpen && (
+                        <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="lg:hidden border-t border-black/5 overflow-hidden bg-white/20 backdrop-blur-xl"
+                        >
+                            <div className="flex flex-col p-6 gap-4">
+                                {navLinks.map((link) => (
+                                    <Link
+                                        key={link.name}
+                                        to={link.path}
+                                        onClick={() => setIsMenuOpen(false)}
+                                        className="text-slate-800 font-medium text-sm hover:translate-x-1 transition-transform"
+                                    >
+                                        {link.name}
+                                    </Link>
+                                ))}
+                                <Link
+                                    to="/mentorship-request"
+                                    onClick={() => setIsMenuOpen(false)}
+                                    className="text-slate-800 font-medium text-sm flex items-center gap-2 hover:translate-x-1 transition-transform"
+                                >
+                                    Pitch Hub <span className="bg-[#ff4d6d] text-white px-2 py-0.5 rounded text-[10px]">NEW</span>
+                                </Link>
+
+                                {user && (
                                     <>
-                                        {/* Inbox */}
-                                        <li>
-                                            <Link to="/requests" className="flex items-center text-[#ffccd5] hover:text-white relative transition-colors duration-300">
-                                                <FaInbox className="text-lg" />
-                                                {unreadCount > 0 && (
-                                                    <span className="absolute -top-2 -right-2 bg-[#ff4d6d] text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full animate-pulse">
-                                                        {unreadCount > 9 ? '9+' : unreadCount}
-                                                    </span>
-                                                )}
-                                            </Link>
-                                        </li>
-
-                                        {/* Chat */}
-                                        <li>
-                                            <Link to="/chat" className="flex items-center text-[#ffccd5] hover:text-white relative transition-colors duration-300">
-                                                <FaCommentDots className="text-lg" />
-                                                {chatUnreadCount > 0 && (
-                                                    <span className="absolute -top-2 -right-2 bg-[#ff4d6d] text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full animate-pulse">
-                                                        {chatUnreadCount > 9 ? '9+' : chatUnreadCount}
-                                                    </span>
-                                                )}
-                                            </Link>
-                                        </li>
-
-                                        {/* Stars Display */}
-                                        <li className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-lg border border-[#ffccd5]/30 hover:bg-white/20 transition-all duration-300">
-                                            <span className="text-xl">⭐</span>
-                                            <span className="font-black text-[#ffccd5]">{user.stars || 0}</span>
-                                        </li>
-
-                                        {/* Top Up */}
-                                        <li>
+                                        <hr className="border-black/5 my-2" />
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-black/5 rounded-full border border-black/5">
+                                                <span className="text-base">⭐</span>
+                                                <span className="font-bold text-slate-800 text-sm">{user.stars || 0}</span>
+                                            </div>
                                             <Link
                                                 to="/top-up"
-                                                className="px-4 py-2 bg-[#ff4d6d] text-white font-bold rounded-lg hover:bg-[#c9184a] transition-all duration-300 shadow-lg hover:shadow-[#ff4d6d]/50"
+                                                onClick={() => setIsMenuOpen(false)}
+                                                className="px-4 py-2 bg-[#ff4d6d] text-white text-xs font-bold rounded-lg"
                                             >
                                                 Top Up
                                             </Link>
-                                        </li>
-
-                                        {/* Dashboard */}
-                                        <li>
-                                            <Link
-                                                to="/dashboard"
-                                                className="text-[#ffccd5] hover:text-white font-medium transition-colors duration-300"
-                                            >
-                                                Dashboard
-                                            </Link>
-                                        </li>
-
-                                        {/* Logout */}
-                                        <li>
-                                            <button
-                                                onClick={onLogout}
-                                                className="flex items-center gap-2 text-[#ffccd5] hover:text-[#ff4d6d] transition-colors duration-300"
-                                            >
-                                                <FaSignOutAlt />
-                                                <span className="font-medium">Logout</span>
-                                            </button>
-                                        </li>
-                                    </>
-                                ) : (
-                                    <>
-                                        <li>
-                                            <Link
-                                                to="/login"
-                                                className="text-[#ffccd5] hover:text-white font-medium transition-colors duration-300"
-                                            >
-                                                Login
-                                            </Link>
-                                        </li>
-                                        <li>
-                                            <div className="mask-container-nature">
-                                                <span className="mas">JOIN</span>
-                                                <Link
-                                                    to="/register"
-                                                    className="mask-btn-nature"
-                                                >
-                                                    JOIN
-                                                </Link>
-                                            </div>
-                                        </li>
+                                        </div>
+                                        <Link
+                                            to="/dashboard"
+                                            onClick={() => setIsMenuOpen(false)}
+                                            className="text-slate-800 font-medium text-sm hover:translate-x-1 transition-transform"
+                                        >
+                                            Dashboard
+                                        </Link>
+                                        <button
+                                            onClick={() => { onLogout(); setIsMenuOpen(false); }}
+                                            className="text-left text-[#ff4d6d] font-medium text-sm"
+                                        >
+                                            Logout
+                                        </button>
                                     </>
                                 )}
-                            </ul>
-                        </nav>
-                    </div>
-                </div>
-            </div>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </motion.nav>
         </header>
     );
 };

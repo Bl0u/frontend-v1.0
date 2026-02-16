@@ -95,7 +95,7 @@ export const Header = () => {
                                     onClick={() => setIsMenuOpen(false)}
                                     className="bg-black text-white text-center py-3 rounded-xl font-medium shadow-md"
                                 >
-                                    Join
+                                    Register
                                 </Link>
                             </div>
                         </motion.div>

@@ -314,9 +314,9 @@ const MorphingCTA = ({ skipAnimation = false }) => {
 
         {/* Morph target */}
         <div className="morph-search-bar mask-container-urban">
-          <span className="mas">Sign up for free</span>
+          <span className="mas">Register for free</span>
           <Link to="/register" className="mask-btn-urban">
-            Sign up for free
+            Register for free
           </Link>
         </div>
 

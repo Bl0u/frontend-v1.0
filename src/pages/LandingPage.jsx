@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Header } from '../sections/Header';
 import { Hero } from '../sections/Hero';
 import { LogoTicker } from '../sections/LogoTicker';
 import { SolutionSection } from '../sections/SolutionSection';
@@ -11,12 +10,10 @@ import "../fonts/style/fontsStyle.css";
 import gsap from 'gsap';
 
 const LandingPage = () => {
-    const containerRef = useRef(null);
     const text1Ref = useRef(null);
     const text2Ref = useRef(null);
     const text3Ref = useRef(null);
     const maskContainerRef = useRef(null);
-    const headerRef = useRef(null);
     const introLayerRef = useRef(null);
 
     const [heroContentVisible, setHeroContentVisible] = useState(false);
@@ -81,8 +78,7 @@ const LandingPage = () => {
             // Fade out the black background overlay during the zoom
             .to(introLayerRef.current, { opacity: 0, duration: 0.8, ease: "none" }, "-=2.0")
 
-            // 4. Final Reveal (Header)
-            .to(headerRef.current, { opacity: 1, duration: 0.8 }, "-=1.0")
+            // 4. Final Reveal (Trigger Hero content)
             .call(() => setHeroContentVisible(true), null, "-=1.5");
 
         return () => {
@@ -91,31 +87,6 @@ const LandingPage = () => {
         };
     }, [skipAnimation]);
 
-    useEffect(() => {
-        const handleScroll = () => {
-            if (!headerRef.current) return;
-
-            const scrollY = window.scrollY;
-            const threshold = window.innerHeight * 0.8; // Hide once mostly past hero
-
-            // If animation is still running and not skipped, let GSAP handle it
-            if (!animationDone && !skipAnimation) return;
-
-            if (scrollY > threshold) {
-                headerRef.current.style.opacity = '0';
-                headerRef.current.style.pointerEvents = 'none';
-                headerRef.current.style.visibility = 'hidden';
-            } else {
-                headerRef.current.style.opacity = '1';
-                headerRef.current.style.pointerEvents = 'auto';
-                headerRef.current.style.visibility = 'visible';
-            }
-        };
-
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, [animationDone, skipAnimation]);
-
     const toggleSkip = () => {
         setSkipAnimation(!skipAnimation);
         // Force scroll unlock if enabling/disabling mid-stream
@@ -123,7 +94,7 @@ const LandingPage = () => {
     };
 
     return (
-        <div ref={containerRef} className="landing-scroll-container min-h-screen bg-black">
+        <div className="landing-scroll-container min-h-screen bg-black">
             {/* Skip Animation Button - Persistent */}
             <button
                 onClick={toggleSkip}
@@ -167,18 +138,6 @@ const LandingPage = () => {
                 <div className="hero-content-wrapper">
                     <Hero contentVisible={heroContentVisible} skipAnimation={skipAnimation} />
                 </div>
-            </div>
-
-            {/* Header */}
-            <div ref={headerRef} className="header-layer" style={{
-                opacity: skipAnimation ? 1 : 0,
-                position: skipAnimation ? 'sticky' : 'fixed',
-                top: 0,
-                left: 0,
-                width: '100%',
-                zIndex: 110
-            }}>
-                <Header />
             </div>
 
             {/* Rest of the Page content */}

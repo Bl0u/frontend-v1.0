@@ -217,7 +217,7 @@ export const Hero = ({ contentVisible = true, skipAnimation = false }) => {
                                 onMouseEnter={() => setIsHovering(true)}
                                 onMouseLeave={handleMouseLeave}
                             >
-                                <span className="relative z-10">Join for free</span>
+                                <span className="relative z-10">Register for free</span>
                                 <FaArrowRight className="h-4 w-4 relative z-10 transition-transform duration-300 group-hover:translate-x-1" />
                                 {/* Animated gradient overlay */}
                                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"></div>

@@ -43,15 +43,15 @@ const PlanWrapper = () => {
 
 const MainLayout = ({ children }) => {
   const location = useLocation();
-  const isLandingPage = location.pathname === '/' || location.pathname === '/landing-page';
+  const isLandingPage = location.pathname === '/' || location.pathname === '/home' || location.pathname === '/landing-page';
 
   return (
     <div className="min-h-screen text-gray-900">
-      {!isLandingPage && <Header />}
+      <Header />
       {isLandingPage ? (
         children
       ) : (
-        <div className="container mx-auto px-4 pb-12">
+        <div className="container mx-auto px-4 pb-12 pt-28">
           {children}
         </div>
       )}
@@ -83,7 +83,7 @@ function App() {
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/landing-page" element={<LandingPage />} />
-            <Route path="/home" element={<Home />} />
+            <Route path="/home" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/profile" element={<Profile />} />
