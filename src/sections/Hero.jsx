@@ -146,7 +146,7 @@ export const Hero = ({ contentVisible = true, skipAnimation = false }) => {
                         letterSpacing: "0.5px",
                         overflow: "visible",
                     }}
-                    className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text mt-6 pb-2 leading-tight fjalla-one-regular"
+                    className="text-5xl sm:text-6xl font-semibold tracking-tight text-slate-900 mt-6 pb-2 leading-tight"
                     initial="hidden"
                     animate={controls}
                     variants={{
@@ -195,7 +195,7 @@ export const Hero = ({ contentVisible = true, skipAnimation = false }) => {
                     }}
                 >
                     <motion.p
-                        className="text-lg md:text-xl text-[#010D3E] tracking-tight mt-6 max-w-3xl mx-auto"
+                        className="mt-6 text-lg sm:text-xl leading-7 text-slate-600 max-w-3xl mx-auto"
                         variants={fadeInUpVariants}
                     >
                         Access premium resources, find dedicated partners, and learn from industry experts to turn your academic vision into reality.
@@ -274,12 +274,9 @@ export const Hero = ({ contentVisible = true, skipAnimation = false }) => {
                                 </div>
                             </Link>
                         </motion.div>
-                        <Link to="/partners" className="text-black font-bold tracking-tight flex items-center gap-2 hover:gap-3 transition-all hover:translate-x-1 border-2 border-black px-8 py-3 rounded-full hover:bg-black/5">
-                            Find Partners <FaArrowRight className="h-4 w-4" />
-                        </Link>
                     </motion.div>
                 </motion.div>
             </div>
-        </section>
+        </section >
     );
 };
