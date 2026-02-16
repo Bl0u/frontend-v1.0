@@ -1,5 +1,5 @@
 import { useContext, useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 import { FaSignOutAlt, FaInbox, FaCommentDots, FaBars, FaTimes } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -10,9 +10,31 @@ import { API_BASE_URL } from '../config';
 const Header = () => {
     const { user, logout } = useContext(AuthContext);
     const navigate = useNavigate();
+    const location = useLocation();
     const [unreadCount, setUnreadCount] = useState(0);
     const [chatUnreadCount, setChatUnreadCount] = useState(0);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isVisible, setIsVisible] = useState(true);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            const isLandingRoute = location.pathname === '/' || location.pathname === '/home' || location.pathname === '/landing-page';
+            if (!isLandingRoute) {
+                setIsVisible(true);
+                return;
+            }
+
+            const scrollY = window.scrollY;
+            const threshold = window.innerHeight * 0.8;
+            setIsVisible(scrollY <= threshold);
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        // Initial check
+        handleScroll();
+
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [location.pathname]);
 
     useEffect(() => {
         const fetchUnreadCount = async () => {
@@ -59,7 +81,14 @@ const Header = () => {
     ];
 
     return (
-        <header className="fixed top-4 left-0 right-0 z-50 flex justify-center px-4">
+        <header
+            className="fixed top-4 left-0 right-0 z-50 flex justify-center px-4 transition-all duration-500 ease-in-out"
+            style={{
+                opacity: isVisible ? 1 : 0,
+                visibility: isVisible ? 'visible' : 'hidden',
+                pointerEvents: isVisible ? 'auto' : 'none',
+            }}
+        >
             <motion.nav
                 initial={{ y: -20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
