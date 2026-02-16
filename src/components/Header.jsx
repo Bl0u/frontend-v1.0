@@ -122,7 +122,7 @@ const Header = () => {
                 <div className="flex items-center justify-between px-6 py-4 md:px-12 md:py-4">
                     {/* Logo - Styled like Hero Hook */}
                     <Link to="/" className="text-3xl font-black hover:scale-105 transition-transform duration-300" style={{ fontFamily: 'Zuume-Bold' }}>
-                        <span className="bg-gradient-to-b from-black to-[#001E80] bg-clip-text text-transparent tracking-tighter pb-2 leading-tight">
+                        <span className="inline-block bg-gradient-to-b from-black to-[#001E80] bg-clip-text text-transparent pb-0 leading-tight" style={{ letterSpacing: '1px' }}>
                             LearnCrew
                         </span>
                     </Link>
