@@ -28,6 +28,7 @@ const LandingPage = () => {
             setAnimationDone(true);
             setHeroContentVisible(true);
             document.body.style.overflow = 'auto';
+            window.dispatchEvent(new CustomEvent('navbar-release'));
             return;
         }
 
@@ -78,8 +79,11 @@ const LandingPage = () => {
             // Fade out the black background overlay during the zoom
             .to(introLayerRef.current, { opacity: 0, duration: 0.8, ease: "none" }, "-=2.0")
 
-            // 4. Final Reveal (Trigger Hero content)
-            .call(() => setHeroContentVisible(true), null, "-=1.5");
+            // 4. Final Reveal (Trigger Hero content and Navbar)
+            .call(() => {
+                setHeroContentVisible(true);
+                window.dispatchEvent(new CustomEvent('navbar-release'));
+            }, null, "-=1.0");
 
         return () => {
             tl.kill();
@@ -88,7 +92,11 @@ const LandingPage = () => {
     }, [skipAnimation]);
 
     const toggleSkip = () => {
-        setSkipAnimation(!skipAnimation);
+        const newSkip = !skipAnimation;
+        setSkipAnimation(newSkip);
+        if (newSkip) {
+            window.dispatchEvent(new CustomEvent('navbar-release'));
+        }
         // Force scroll unlock if enabling/disabling mid-stream
         document.body.style.overflow = 'auto';
     };

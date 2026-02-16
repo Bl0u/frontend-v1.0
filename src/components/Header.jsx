@@ -15,12 +15,33 @@ const Header = () => {
     const [chatUnreadCount, setChatUnreadCount] = useState(0);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isVisible, setIsVisible] = useState(true);
+    const [introDone, setIntroDone] = useState(false);
+    const [isSkipped, setIsSkipped] = useState(false);
+
+    useEffect(() => {
+        const handleRelease = () => setIntroDone(true);
+        window.addEventListener('navbar-release', handleRelease);
+        return () => window.removeEventListener('navbar-release', handleRelease);
+    }, []);
 
     useEffect(() => {
         const handleScroll = () => {
             const isLandingRoute = location.pathname === '/' || location.pathname === '/home' || location.pathname === '/landing-page';
+
+            // Re-sync skipped state on change
+            const skipButton = document.querySelector('button[class*="fixed bottom-8"]');
+            const skipText = skipButton?.innerText?.toLowerCase();
+            const currentSkipped = skipText?.includes('enable');
+            setIsSkipped(currentSkipped);
+
             if (!isLandingRoute) {
                 setIsVisible(true);
+                return;
+            }
+
+            // Gated by intro
+            if (!introDone && !currentSkipped) {
+                setIsVisible(false);
                 return;
             }
 
@@ -34,7 +55,7 @@ const Header = () => {
         handleScroll();
 
         return () => window.removeEventListener('scroll', handleScroll);
-    }, [location.pathname]);
+    }, [location.pathname, introDone]);
 
     useEffect(() => {
         const fetchUnreadCount = async () => {
@@ -80,9 +101,12 @@ const Header = () => {
         { name: 'Mentors', path: '/mentors' },
     ];
 
+    const isLandingRoute = location.pathname === '/' || location.pathname === '/home' || location.pathname === '/landing-page';
+    const isSticky = isLandingRoute && isSkipped;
+
     return (
         <header
-            className="fixed top-4 left-0 right-0 z-50 flex justify-center px-4 transition-all duration-500 ease-in-out"
+            className={`${isSticky ? 'sticky' : 'fixed'} top-4 left-0 right-0 z-50 flex justify-center px-4 transition-all duration-500 ease-in-out`}
             style={{
                 opacity: isVisible ? 1 : 0,
                 visibility: isVisible ? 'visible' : 'hidden',
@@ -90,15 +114,15 @@ const Header = () => {
             }}
         >
             <motion.nav
-                initial={{ y: -20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.5 }}
+                initial={{ y: -100, opacity: 0 }}
+                animate={{ y: isVisible ? 0 : -100, opacity: isVisible ? 1 : 0 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
                 className="w-full max-w-6xl rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] overflow-hidden"
             >
                 <div className="flex items-center justify-between px-6 py-4 md:px-12 md:py-4">
-                    {/* Logo */}
-                    <Link to="/" className="text-3xl font-bold hover:scale-105 transition-transform duration-300">
-                        <span className="bg-gradient-to-r from-[#ff4d6d] via-[#ff758f] to-[#ffb3c1] bg-clip-text text-transparent">
+                    {/* Logo - Styled like Hero Hook */}
+                    <Link to="/" className="text-3xl font-black hover:scale-105 transition-transform duration-300" style={{ fontFamily: 'Zuume-Bold' }}>
+                        <span className="bg-gradient-to-b from-black to-[#001E80] bg-clip-text text-transparent tracking-tighter pb-2 leading-tight">
                             LearnCrew
                         </span>
                     </Link>
