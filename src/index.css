@@ -31,6 +31,29 @@
     --animate-reveal: reveal 1s ease-out;
 }
 
+@layer base {
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        @apply text-slate-900 font-semibold tracking-tight;
+    }
+
+    body,
+    p {
+        @apply text-slate-600 font-normal leading-relaxed;
+    }
+
+    /* Enforce 8-pt grid system mostly via usage, but we can set defaults */
+    body {
+        @apply bg-slate-50;
+        /* Light premium background */
+    }
+}
+
 @keyframes fade-in {
     from {
         opacity: 0;
