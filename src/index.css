@@ -228,16 +228,9 @@ html {
     font-family: var(--font-family-sans);
 }
 
-/* Global Background - Cherry Blossom Theme */
+/* Global Background - Neutral base */
 body {
-    background: linear-gradient(180deg,
-            #fff0f3 0%,
-            #ffccd5 20%,
-            #fff0f3 40%,
-            #ffe3e8 60%,
-            #fff0f3 80%,
-            #ffccd5 100%);
-    background-attachment: fixed;
+    background-color: #ffffff;
     min-height: 100vh;
 }
 
