@@ -88,7 +88,7 @@ const Card = React.forwardRef(function Card(
       ref={ref}
       className={
         skipAnimation
-          ? "relative my-8 flex items-start justify-center w-full"
+          ? `relative w-full flex justify-center ${i === 0 ? "mb-12 mt-4" : "my-12"}`
           : "absolute top-0 left-0 w-full flex items-start justify-center"
       }
       style={{ zIndex: 10 + i }}
@@ -148,7 +148,13 @@ export const SolutionSection = ({ skipAnimation = false }) => {
   const cardsRef = useRef([]);
 
   useLayoutEffect(() => {
-    if (skipAnimation) return;
+    if (skipAnimation) {
+      // Clean up any potential leftover GSAP styles on skip
+      gsap.set([container.current, stageRef.current, headerRef.current], {
+        clearProps: "all"
+      });
+      return;
+    }
     if (!container.current || !stageRef.current || !headerRef.current) return;
 
     const ctx = gsap.context(() => {
@@ -200,15 +206,21 @@ export const SolutionSection = ({ skipAnimation = false }) => {
       }
 
       // Recalculate on refresh (responsive / fonts / lotties)
-      ScrollTrigger.addEventListener("refreshInit", () => {
+      const refreshHandler = () => {
         const h = headerRef.current?.offsetHeight ?? 0;
         gsap.set(stageRef.current, { paddingTop: h + 16 });
         gsap.set(stageRef.current, {
           height: Math.max(window.innerHeight - h, 400),
         });
-      });
+      };
+
+      ScrollTrigger.addEventListener("refreshInit", refreshHandler);
 
       ScrollTrigger.refresh();
+
+      return () => {
+        ScrollTrigger.removeEventListener("refreshInit", refreshHandler);
+      };
     }, container);
 
     return () => ctx.revert();
@@ -217,8 +229,9 @@ export const SolutionSection = ({ skipAnimation = false }) => {
   return (
     <section
       ref={container}
-      className={`relative bg-[#EAEEFE] overflow-hidden isolate ${skipAnimation ? "py-20" : "min-h-screen"
+      className={`relative bg-[#EAEEFE] w-full ${skipAnimation ? "flex flex-col py-20 h-auto overflow-visible" : "block min-h-screen overflow-hidden isolate"
         }`}
+      style={skipAnimation ? { height: 'auto !important', minHeight: 'auto !important', overflow: 'visible !important' } : {}}
     >
       {/* Background blobs (tamed + behind) */}
       <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
@@ -229,7 +242,8 @@ export const SolutionSection = ({ skipAnimation = false }) => {
       {/* Header (now reserves real space, no overlap) */}
       <div
         ref={headerRef}
-        className={`relative z-40 pt-4 pb-2 flex flex-col items-center justify-center text-center`}
+        className={`${skipAnimation ? 'relative pt-4 pb-0' : 'sticky top-0 pt-4 pb-2'} z-40 flex flex-col items-center justify-center text-center`}
+        style={skipAnimation ? { position: 'relative !important', transform: 'none !important' } : {}}
       >
         <div className="px-6 pointer-events-auto">
           <h2
@@ -247,7 +261,11 @@ export const SolutionSection = ({ skipAnimation = false }) => {
       </div>
 
       {/* Stage (pinned by GSAP, starts below header automatically) */}
-      <div ref={stageRef} className={`${skipAnimation ? "" : "relative"}`}>
+      <div
+        ref={stageRef}
+        className={skipAnimation ? "flex flex-col items-center gap-0 w-full pt-0" : "relative"}
+        style={skipAnimation ? { height: 'auto !important', minHeight: 'auto !important', display: 'flex !important', flexDirection: 'column !important' } : {}}
+      >
         {features.map((feature, i) => (
           <Card
             key={`f_${i}`}

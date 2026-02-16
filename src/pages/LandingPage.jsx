@@ -28,6 +28,14 @@ const LandingPage = () => {
             setAnimationDone(true);
             setHeroContentVisible(true);
             document.body.style.overflow = 'auto';
+            // Explicitly clear mask styles to prevent "stuck" zoom artifacts
+            if (maskContainerRef.current) {
+                gsap.set(maskContainerRef.current, {
+                    webkitMaskImage: 'none',
+                    maskImage: 'none',
+                    opacity: 1
+                });
+            }
             window.dispatchEvent(new CustomEvent('navbar-release'));
             return;
         }
