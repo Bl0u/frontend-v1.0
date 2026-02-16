@@ -154,7 +154,7 @@ export const Hero = ({ contentVisible = true, skipAnimation = false }) => {
                         visible: { opacity: 1, y: 0, transition: { duration: 0.7, delay: 0.1 } }
                     }}
                 >
-                    Here ... Is the road towards your {" "}
+                    Here Is the road towards your {" "}
                     <span style={{
                         fontFamily: "Zuuma-Italic", fontStyle: "italic", fontWeight: 300,
                         letterSpacing: "-3px",
@@ -198,7 +198,7 @@ export const Hero = ({ contentVisible = true, skipAnimation = false }) => {
                         className="text-lg md:text-xl text-[#010D3E] tracking-tight mt-6 max-w-3xl mx-auto"
                         variants={fadeInUpVariants}
                     >
-                        Connect with students, find expert mentors, and access premium resources to ace your university projects.
+                        Access premium resources, find dedicated partners, and learn from industry experts to turn your academic vision into reality.
                     </motion.p>
                     <motion.div
                         className="flex flex-col sm:flex-row gap-6 justify-center items-center mt-[30px]"

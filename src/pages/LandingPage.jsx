@@ -133,9 +133,9 @@ const LandingPage = () => {
                     alignItems: 'center',
                     pointerEvents: 'none'
                 }}>
-                    <h1 ref={text1Ref} className="intro-text" style={{ opacity: 0, fontFamily: "Zuume-Semi-Bold-Italic" }}>Here ...</h1>
-                    <h1 ref={text2Ref} className="intro-text" style={{ opacity: 0, fontFamily: "Zuume-Semi-Bold-Italic" }}>Is your road</h1>
-                    <h1 ref={text3Ref} className="intro-text" style={{ opacity: 0, fontFamily: "Zuume-Semi-Bold-Italic" }}>Towards Success</h1>
+                    <h1 ref={text1Ref} className="intro-text" style={{ opacity: 0, fontFamily: "Zuume-Semi-Bold-Italic" }}>Build.</h1>
+                    <h1 ref={text2Ref} className="intro-text" style={{ opacity: 0, fontFamily: "Zuume-Semi-Bold-Italic" }}>Connect.</h1>
+                    <h1 ref={text3Ref} className="intro-text" style={{ opacity: 0, fontFamily: "Zuume-Semi-Bold-Italic" }}>Succeed.</h1>
                 </div>
             )}
 
