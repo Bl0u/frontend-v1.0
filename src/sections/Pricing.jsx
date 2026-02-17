@@ -82,6 +82,14 @@ export const Pricing = ({ skipAnimation = false }) => {
         willChange: "transform,left",
       });
 
+      cards.forEach((card, i) => {
+        const isMiddle = i === 1;
+        gsap.set(card, {
+          y: isMiddle ? -20 : 0,
+          zIndex: isMiddle ? 100 : 1
+        });
+      });
+
 
 
       cards.forEach((card) => {
