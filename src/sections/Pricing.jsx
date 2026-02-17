@@ -154,7 +154,7 @@ export const Pricing = ({ skipAnimation = false }) => {
             height: ${skipAnimation ? 'auto' : '100vh'};
             overflow: ${skipAnimation ? 'visible' : 'hidden'};
             z-index: 10;
-            ${skipAnimation ? 'display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem; padding: 1rem 0;' : ''}
+            ${skipAnimation ? 'display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem; padding: 4rem 0 8rem 0;' : ''}
           }
 
           .pricing-card {
@@ -163,7 +163,7 @@ export const Pricing = ({ skipAnimation = false }) => {
             height: 520px;
             perspective: 1200px;
             transform-style: preserve-3d;
-            ${skipAnimation ? 'left: auto !important; top: auto !important; transform: none !important;' : ''}
+            ${skipAnimation ? 'left: auto !important; top: auto !important; flex-shrink: 0;' : ''}
           }
 
           .pricing-inner {
