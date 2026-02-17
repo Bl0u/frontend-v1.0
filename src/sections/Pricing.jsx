@@ -69,7 +69,7 @@ export const Pricing = ({ skipAnimation = false }) => {
     const ctx = gsap.context(() => {
       const cards = cardsRef.current.filter(Boolean);
       const totalScroll = window.innerHeight * 3;
-      const positions = [18, 50, 82];
+      const positions = [25, 50, 75];
       const rotations = [-12, 0, 12];
 
       gsap.set(cards, {
@@ -82,10 +82,7 @@ export const Pricing = ({ skipAnimation = false }) => {
         willChange: "transform,left",
       });
 
-      cards.forEach((card, i) => {
-        const isMiddle = i === 1;
-        gsap.set(card, { y: isMiddle ? -70 : -35 });
-      });
+
 
       cards.forEach((card) => {
         const cover = card.querySelector(".pricing-cover");
@@ -123,7 +120,7 @@ export const Pricing = ({ skipAnimation = false }) => {
       ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
-        end: "+=600", // Reduced from 1200 (approx 50% faster release)
+        end: "+=400", // Reduced from 1200 (approx 50% faster release)
         pin: true,
         pinSpacing: true,
         onEnter: () => tl.play(),
@@ -149,7 +146,7 @@ export const Pricing = ({ skipAnimation = false }) => {
             height: ${skipAnimation ? 'auto' : '100vh'};
             overflow: ${skipAnimation ? 'visible' : 'hidden'};
             z-index: 10;
-            ${skipAnimation ? 'display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem; padding: 4rem 0;' : ''}
+            ${skipAnimation ? 'display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem; padding: 1rem 0;' : ''}
           }
 
           .pricing-card {
@@ -212,11 +209,11 @@ export const Pricing = ({ skipAnimation = false }) => {
         <div className="max-w-[820px] mx-auto text-center">
           <h2
             style={{ fontFamily: "Zuume-Bold" }}
-            className="text-5xl md:text-7xl font-black tracking-tight bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text uppercase Zuume-Bold"
+            className="text-5xl md:text-6xl lg:text-7xl font-black tracking-tight bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text uppercase Zuume-Bold"
           >
             Unlock more with Stars
           </h2>
-          <p className="text-xl md:text-2xl text-[#010D3E] mt-4 opacity-80">
+          <p className="text-lg md:text-xl text-[#010D3E] mt-4 opacity-80">
             Top up instantly. Unlock premium resources. Keep momentum.
           </p>
         </div>
