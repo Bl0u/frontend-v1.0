@@ -247,7 +247,7 @@ export const SolutionSection = ({ skipAnimation = false }) => {
       >
         <div className="px-6 pointer-events-auto">
           <h2
-            className="text-5xl md:text-8xl font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text leading-tight"
+            className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text leading-tight"
             style={{ fontFamily: "Zuume-Bold" }}
           >
             What we offer
