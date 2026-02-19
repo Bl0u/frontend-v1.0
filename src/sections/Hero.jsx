@@ -194,6 +194,10 @@ export const Hero = ({ contentVisible = true, skipAnimation = false }) => {
                     </motion.div>
                 </motion.div>
             </div>
+
+            {/* Bottom Fade Gradient for seamless blend */}
+            <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-white to-transparent pointer-events-none z-10"></div>
+
         </section>
     );
 };
