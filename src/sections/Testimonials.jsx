@@ -128,7 +128,7 @@ export const Testimonials = () => {
                 }} className="text-center text-5xl md:text-6xl lg:text-7xl font-black tracking-tight bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text mt-5 fjalla-one-regular">
                     What our users say
                 </h2>
-                <p className="text-center text-lg md:text-xl text-[#010D3E] mt-5 max-w-lg mx-auto">
+                <p className="text-center text-[16px] text-[#010D3E] mt-5 max-w-lg mx-auto">
                     From intuitive design to powerful features, our app has become an essential tool for users around the world.
                 </p>
 

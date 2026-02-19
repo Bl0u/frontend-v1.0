@@ -248,12 +248,12 @@ export const SolutionSection = ({ skipAnimation = false }) => {
         <div className="px-6 pointer-events-auto">
           <h2
             className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text leading-tight"
-            style={{ fontFamily: "Zuume-Bold" }}
+            style={{ fontFamily: "Zuume-Bold", letterSpacing: "0.5px" }}
           >
             What we offer
           </h2>
 
-          <p className="text-base md:text-lg text-[#010D3E]/80 max-w-2xl mx-auto mt-1">
+          <p className="text-[16px] text-[#010D3E]/80 max-w-2xl mx-auto mt-1">
             A complete ecosystem designed to empower your academic journey and
             professional growth.
           </p>

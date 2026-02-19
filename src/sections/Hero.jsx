@@ -98,8 +98,9 @@ export const Hero = ({ contentVisible = true, skipAnimation = false }) => {
                     style={{
                         fontFamily: "Zuume-Bold",
                         letterSpacing: "0.5px",
+                        // fontSize: "85px"
                     }}
-                    className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text mt-6 pb-2 leading-tight"
+                    className="text-[5.25rem] font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text mt-6 pb-2 leading-tight"
                     initial="hidden"
                     animate={controls}
                     variants={{
@@ -127,7 +128,7 @@ export const Hero = ({ contentVisible = true, skipAnimation = false }) => {
                     }}
                 >
                     <motion.p
-                        className="text-base md:text-lg text-[#010D3E]/80 tracking-tight mt-1 max-w-3xl mx-auto"
+                        className="text-[16px] text-[#010D3E]/80 tracking-tight mt-1 max-w-3xl mx-auto"
                         variants={fadeInUpVariants}
                     >
                         Access premium resources, and find dedicated partners to turn your academic vision into reality.

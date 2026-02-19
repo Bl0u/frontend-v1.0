@@ -2,7 +2,7 @@ import { FaArrowRight } from 'react-icons/fa';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
 import { Link } from 'react-router-dom';
-import "../styles/MorphingTransition.css" ;
+import "../styles/MorphingTransition.css";
 export const CallToAction = () => {
     const sectionRef = useRef(null);
     const { scrollYProgress } = useScroll({
@@ -71,7 +71,7 @@ export const CallToAction = () => {
                             fontFamily: "Zuume-Bold",
                             letterSpacing: "0.5px",
                         }}
-                        className="text-center text-3xl md:text-[54px] md:leading-[60px] font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text mt-5 fjalla-one-regular"
+                        className="text-center text-[48px] font-bold bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text mt-5"
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.7 }}
@@ -79,7 +79,7 @@ export const CallToAction = () => {
                     >
                         Ready to find your {" "}
                         <div className='features'>
-                        <div className='feature'>
+                            <div className='feature'>
                                 <div className='feature-bg'></div>
                                 <div className='feature-content'>
                                     mentor{", "}
@@ -100,7 +100,8 @@ export const CallToAction = () => {
                         </div>
                     </motion.h2>
                     <motion.p
-                        className="text-center text-[22px] leading-[30px] tracking-tight text-[#010D3E] mt-5"
+                        className="text-center text-[16px] text-[#010D3E] mt-5"
+                        style={{ letterSpacing: "0.5px" }}
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.7, delay: 0.1 }}
