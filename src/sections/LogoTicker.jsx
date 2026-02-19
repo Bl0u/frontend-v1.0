@@ -13,7 +13,7 @@ export const LogoTicker = () => {
     ];
 
     return (
-        <section className="py-8 md:py-12 bg-white relative overflow-hidden">
+        <section className="py-8 md:py-7 bg-white relative overflow-hidden">
             {/* Top Fade Gradient */}
             <div className="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-white to-transparent pointer-events-none z-10"></div>
 
