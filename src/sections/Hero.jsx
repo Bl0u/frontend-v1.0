@@ -79,6 +79,21 @@ export const Hero = ({ contentVisible = true, skipAnimation = false }) => {
 
             <div className="max-w-7xl mx-auto px-8 lg:px-16 xl:px-24 text-center relative z-10">
 
+                {/* Badge */}
+                <motion.div
+                    className="flex justify-center mb-4"
+                    initial="hidden"
+                    animate={controls}
+                    variants={{
+                        hidden: { opacity: 0, y: 10 },
+                        visible: { opacity: 1, y: 0, transition: { duration: 0.5, delay: 0 } }
+                    }}
+                >
+                    <div className="inline-flex border border-[#222]/10 px-3 py-1 rounded-lg tracking-tight shadow-sm bg-white/30 backdrop-blur gap-1">
+                        <span className="font-bold text-sm text-[#010D3E]">Trusted by 1000+ students</span>
+                    </div>
+                </motion.div>
+
                 <motion.h1
                     style={{
                         fontFamily: "Zuume-Bold",
@@ -112,7 +127,7 @@ export const Hero = ({ contentVisible = true, skipAnimation = false }) => {
                     }}
                 >
                     <motion.p
-                        className="text-base md:text-lg text-[#010D3E]/80 tracking-tight mt-6 max-w-3xl mx-auto"
+                        className="text-base md:text-lg text-[#010D3E]/80 tracking-tight mt-1 max-w-3xl mx-auto"
                         variants={fadeInUpVariants}
                     >
                         Access premium resources, and find dedicated partners to turn your academic vision into reality.
