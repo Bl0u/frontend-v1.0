@@ -83,9 +83,8 @@ export const Hero = ({ contentVisible = true, skipAnimation = false }) => {
                     style={{
                         fontFamily: "Zuume-Bold",
                         letterSpacing: "0.5px",
-                        overflow: "visible",
                     }}
-                    className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text mt-6 pb-2 leading-tight fjalla-one-regular"
+                    className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text mt-6 pb-2 leading-tight"
                     initial="hidden"
                     animate={controls}
                     variants={{
@@ -93,7 +92,7 @@ export const Hero = ({ contentVisible = true, skipAnimation = false }) => {
                         visible: { opacity: 1, y: 0, transition: { duration: 0.7, delay: 0.1 } }
                     }}
                 >
-                    Here Is the road towards your {" "}
+                    Here Is the road towards your... {" "}
                     <span style={{
                         fontFamily: "Zuuma-Italic", fontStyle: "italic", fontWeight: 300,
                         letterSpacing: "-3px",
@@ -113,7 +112,7 @@ export const Hero = ({ contentVisible = true, skipAnimation = false }) => {
                     }}
                 >
                     <motion.p
-                        className="text-lg md:text-xl text-[#010D3E] tracking-tight mt-6 max-w-3xl mx-auto"
+                        className="text-base md:text-lg text-[#010D3E]/80 tracking-tight mt-6 max-w-3xl mx-auto"
                         variants={fadeInUpVariants}
                     >
                         Access premium resources, find dedicated partners, and learn from industry experts to turn your academic vision into reality.
