@@ -115,7 +115,7 @@ export const Hero = ({ contentVisible = true, skipAnimation = false }) => {
                         className="text-base md:text-lg text-[#010D3E]/80 tracking-tight mt-6 max-w-3xl mx-auto"
                         variants={fadeInUpVariants}
                     >
-                        Access premium resources, find dedicated partners, and learn from industry experts to turn your academic vision into reality.
+                        Access premium resources, and find dedicated partners to turn your academic vision into reality.
                     </motion.p>
                     <motion.div
                         className="flex flex-col sm:flex-row gap-6 justify-center items-center mt-[30px]"
