@@ -78,12 +78,12 @@ export const Testimonials = () => {
     const thirdColumn = testimonials.slice(0, 3); // Reusing for 3rd col demo
 
     return (
-        <section ref={testimonialsRef} className="relative bg-gradient-to-b from-white via-blue-50 to-white py-0 md:py-10 overflow-hidden">
+        <section ref={testimonialsRef} className="relative bg-gradient-to-b from-white via-[#F3F3F5] to-white py-0 md:py-10 overflow-hidden">
             {/* Subtle animated gradient blobs */}
             <motion.div
                 className="absolute -top-20 left-1/3 w-[400px] h-[400px] opacity-25 pointer-events-none"
                 style={{
-                    background: 'linear-gradient(135deg, rgba(0, 173, 254, 0.25) 0%, rgba(148, 3, 253, 0.15) 100%)',
+                    background: 'linear-gradient(135deg, rgba(190, 190, 200, 0.25) 0%, rgba(180, 180, 195, 0.15) 100%)',
                     filter: 'blur(60px)',
                     borderRadius: '40% 60% 70% 30% / 60% 30% 70% 40%',
                 }}
@@ -101,7 +101,7 @@ export const Testimonials = () => {
             <motion.div
                 className="absolute bottom-0 -right-32 w-[500px] h-[500px] opacity-20 pointer-events-none"
                 style={{
-                    background: 'linear-gradient(225deg, rgba(255, 18, 220, 0.2) 0%, rgba(255, 185, 18, 0.15) 100%)',
+                    background: 'linear-gradient(225deg, rgba(200, 200, 210, 0.2) 0%, rgba(210, 210, 215, 0.15) 100%)',
                     filter: 'blur(65px)',
                     borderRadius: '30% 70% 70% 30% / 30% 30% 70% 70%',
                 }}

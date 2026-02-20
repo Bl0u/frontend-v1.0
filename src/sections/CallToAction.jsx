@@ -13,12 +13,12 @@ export const CallToAction = () => {
     const translateY = useTransform(scrollYProgress, [0, 1], [150, -150]);
 
     return (
-        <section ref={sectionRef} className="relative bg-gradient-to-b from-[#FFFFFF] via-[#F0E8FF] to-[#E8D2FF] py-24 overflow-hidden">
+        <section ref={sectionRef} className="relative bg-gradient-to-b from-[#FAFAFA] via-[#F0F0F3] to-[#E8E8EC] py-24 overflow-hidden">
             {/* Dynamic animated gradient blobs */}
             <motion.div
                 className="absolute -top-40 -left-20 w-[500px] h-[500px] opacity-40 pointer-events-none"
                 style={{
-                    background: 'linear-gradient(135deg, rgba(148, 3, 253, 0.35) 0%, rgba(255, 18, 220, 0.3) 100%)',
+                    background: 'linear-gradient(135deg, rgba(180, 180, 195, 0.35) 0%, rgba(200, 200, 210, 0.3) 100%)',
                     filter: 'blur(65px)',
                     borderRadius: '40% 60% 70% 30% / 60% 30% 70% 40%',
                 }}
@@ -42,7 +42,7 @@ export const CallToAction = () => {
             <motion.div
                 className="absolute bottom-0 right-0 w-[600px] h-[600px] opacity-35 pointer-events-none"
                 style={{
-                    background: 'linear-gradient(225deg, rgba(0, 173, 254, 0.35) 0%, rgba(255, 185, 18, 0.25) 100%)',
+                    background: 'linear-gradient(225deg, rgba(190, 190, 200, 0.35) 0%, rgba(210, 210, 215, 0.25) 100%)',
                     filter: 'blur(70px)',
                     borderRadius: '30% 70% 70% 30% / 30% 30% 70% 70%',
                 }}
