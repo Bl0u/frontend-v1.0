@@ -16,7 +16,7 @@ const features = [
     ],
     lottieSrc:
       "https://lottie.host/37a092d5-4119-417c-93cc-9b90aa613d03/5ruDWwNrNb.lottie",
-    color: "#ffffff",
+    color: "#FFFFFF",
     textColor: "#010D3E",
     isReversed: false,
   },
@@ -30,7 +30,7 @@ const features = [
     ],
     lottieSrc:
       "https://lottie.host/e0164715-5f37-4b7d-afbb-724b5b60addc/5p9vgoA7NI.lottie",
-    color: "#F8F9FF",
+    color: "#FFFFFF",
     textColor: "#010D3E",
     isReversed: true,
   },
@@ -44,7 +44,7 @@ const features = [
     ],
     lottieSrc:
       "https://lottie.host/0de53125-14f7-431e-b1f8-2334708b6e49/cIYILQexyA.lottie",
-    color: "#f0f2ff",
+    color: "#FFFFFF",
     textColor: "#010D3E",
     isReversed: false,
   },
@@ -58,7 +58,7 @@ const features = [
     ],
     lottieSrc:
       "https://lottie.host/ad64e9fd-131f-4a0c-90d4-fd09a0b7689f/KGtz7770Y4.lottie",
-    color: "#ffffff",
+    color: "#FFFFFF",
     textColor: "#010D3E",
     isReversed: true,
   },
@@ -72,7 +72,7 @@ const features = [
     ],
     lottieSrc:
       "https://lottie.host/7771dde5-66df-4a0f-9e35-21a40e1d198b/LtPEHK4x1o.lottie",
-    color: "#ffffff",
+    color: "#FFFFFF",
     textColor: "#010D3E",
     isReversed: false,
     isAI: true,
@@ -94,9 +94,10 @@ const Card = React.forwardRef(function Card(
       style={{ zIndex: 10 + i }}
     >
       <div
-        className="relative h-[480px] w-[90%] md:w-[80%] lg:w-[65%] rounded-[32px] p-6 md:p-10 lg:p-12 origin-top shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden border border-white/20"
+        className="relative h-[480px] w-[90%] md:w-[80%] lg:w-[65%] rounded-[32px] p-6 md:p-10 lg:p-12 origin-top overflow-hidden border border-white/40"
         style={{
           backgroundColor: color,
+          boxShadow: '0 0 40px 8px rgba(255,255,255,0.6), 0 0 80px 20px rgba(255,255,255,0.3), 0 20px 50px rgba(0,0,0,0.08)',
           // Stack offset (visual depth) — NOT the header spacing
           top: skipAnimation ? "0px" : `calc(18px + ${i * 14}px)`,
         }}
@@ -105,6 +106,11 @@ const Card = React.forwardRef(function Card(
           className={`flex flex-col ${isReversed ? "md:flex-row-reverse" : "md:flex-row"
             } items-center h-full gap-8 md:gap-12 relative z-10`}
         >
+          {/* Vertical divider between text and lottie */}
+          <div
+            className="hidden md:block absolute left-1/2 -translate-x-1/2 w-px bg-black/15"
+            style={{ top: '15%', bottom: '15%' }}
+          />
           <div className="w-full md:w-1/2 flex flex-col justify-center text-center md:text-left">
             <h3
               className="text-3xl md:text-5xl font-bold tracking-tight mb-6 pb-2"
@@ -120,10 +126,11 @@ const Card = React.forwardRef(function Card(
                   className="flex items-start gap-3 text-base md:text-lg opacity-90 leading-tight"
                   style={{ color: textColor }}
                 >
-                  <span
-                    className={`mt-2 h-2 w-2 rounded-full shrink-0 ${textColor === "#ffffff" ? "bg-white" : "bg-[#010D3E]"
-                      }`}
-                  />
+                  <span className="mt-1 shrink-0 w-5 h-5 rounded-full bg-[#001E80]/10 flex items-center justify-center">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M2 6L5 9L10 3" stroke="#001E80" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </span>
                   <span>{point}</span>
                 </li>
               ))}
@@ -229,14 +236,14 @@ export const SolutionSection = ({ skipAnimation = false }) => {
   return (
     <section
       ref={container}
-      className={`relative bg-[#EAEEFE] w-full ${skipAnimation ? "flex flex-col py-20 h-auto overflow-visible" : "block min-h-screen overflow-hidden isolate"
+      className={`relative bg-[#F3F3F5] w-full ${skipAnimation ? "flex flex-col py-20 h-auto overflow-visible" : "block min-h-screen overflow-hidden isolate"
         }`}
       style={skipAnimation ? { height: 'auto !important', minHeight: 'auto !important', overflow: 'visible !important' } : {}}
     >
       {/* Background blobs (tamed + behind) */}
       <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
-        <div className="absolute top-[-12%] left-[-15%] w-[720px] h-[720px] bg-blue-200/20 rounded-full blur-[90px]" />
-        <div className="absolute bottom-[-12%] right-[-15%] w-[720px] h-[720px] bg-purple-200/18 rounded-full blur-[90px]" />
+        <div className="absolute top-[-12%] left-[-15%] w-[720px] h-[720px] bg-gray-300/15 rounded-full blur-[90px]" />
+        <div className="absolute bottom-[-12%] right-[-15%] w-[720px] h-[720px] bg-gray-300/12 rounded-full blur-[90px]" />
       </div>
 
       {/* Header (now reserves real space, no overlap) */}
