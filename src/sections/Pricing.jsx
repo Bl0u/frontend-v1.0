@@ -1,5 +1,4 @@
 import React, { useLayoutEffect, useRef } from "react";
-import { motion } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import clsx from "clsx";
@@ -245,22 +244,22 @@ export const Pricing = ({ skipAnimation = false }) => {
                     className={clsx(
                       "pricing-face pricing-cover flex flex-col items-center justify-center p-8 border",
                       t.theme === "dark"
-                        ? "bg-[#343a40] text-white border-white/10"
-                        : "bg-[#ced4da] text-black border-black/10"
+                        ? "bg-[#212529] text-[#f8f9fa] border-[#495057]"
+                        : "bg-[#dee2e6] text-[#212529] border-[#adb5bd]"
                     )}
                   >
                     <div
                       className={clsx(
                         "w-20 h-20 rounded-full flex items-center justify-center border",
                         t.theme === "dark"
-                          ? "bg-white/5 border-white/10"
-                          : "bg-black/5 border-black/10"
+                          ? "bg-[#343a40] border-[#495057]"
+                          : "bg-[#ced4da] border-[#adb5bd]"
                       )}
                     >
                       <FaStar
                         className={clsx(
                           "text-4xl",
-                          t.theme === "dark" ? "text-yellow-300" : "text-yellow-500"
+                          t.theme === "dark" ? "text-[#adb5bd]" : "text-[#6c757d]"
                         )}
                       />
                     </div>
@@ -273,8 +272,8 @@ export const Pricing = ({ skipAnimation = false }) => {
                       className={clsx(
                         "mt-4 px-5 py-2 rounded-full text-[10px] font-bold tracking-[0.25em] uppercase border",
                         t.theme === "dark"
-                          ? "text-white/60 border-white/10 bg-white/5"
-                          : "text-black/50 border-black/10 bg-black/5"
+                          ? "text-[#adb5bd] border-[#495057] bg-[#343a40]"
+                          : "text-[#6c757d] border-[#adb5bd] bg-[#ced4da]"
                       )}
                     >
                       Scroll to flip
@@ -286,8 +285,8 @@ export const Pricing = ({ skipAnimation = false }) => {
                   className={clsx(
                     "pricing-face pricing-details p-8 border flex flex-col shadow-2xl",
                     t.theme === "dark"
-                      ? "bg-[#343a40] text-white border-white/10"
-                      : "bg-[#ced4da] text-black border-black/10"
+                      ? "bg-[#212529] text-[#f8f9fa] border-[#495057]"
+                      : "bg-[#e9ecef] text-[#212529] border-[#adb5bd]"
                   )}
                   style={skipAnimation ? { transform: 'rotateY(0deg)', position: 'relative' } : {}}
                 >
@@ -295,25 +294,17 @@ export const Pricing = ({ skipAnimation = false }) => {
                     <h3
                       className={clsx(
                         "text-[18px] font-black uppercase tracking-wide whitespace-nowrap",
-                        t.theme === "dark" ? "text-white" : "text-[#001E80]"
+                        t.theme === "dark" ? "text-[#f8f9fa]" : "text-[#212529]"
                       )}
                     >
                       {t.title}
                     </h3>
 
                     {t.highlight && (
-                      <div className="text-[10px] px-3 py-1 rounded-full border border-white/15 bg-white/10 uppercase tracking-widest shadow-glow absolute -right-4 top-1/2 -translate-y-1/2 shrink-0">
-                        <motion.span
-                          animate={{ backgroundPositionX: "100%" }}
-                          transition={{
-                            duration: 2,
-                            repeat: Infinity,
-                            ease: "linear",
-                          }}
-                          className="bg-[linear-gradient(to_right,#DD7DDF,#E1CD86,#BBCB92,#71C2EF,#3BFFFF,#DD7DDF)] [background-size:200%] text-transparent bg-clip-text font-bold"
-                        >
+                      <div className="text-[10px] px-3 py-1 rounded-full border border-[#495057] bg-[#495057] uppercase tracking-widest absolute -right-4 top-1/2 -translate-y-1/2 shrink-0">
+                        <span className="text-[#f8f9fa] font-bold">
                           Best Value
-                        </motion.span>
+                        </span>
                       </div>
                     )}
                   </div>
@@ -326,8 +317,8 @@ export const Pricing = ({ skipAnimation = false }) => {
                     className={clsx(
                       "mt-4 w-full py-4 rounded-2xl text-[16px] font-black transition-transform duration-300 hover:scale-[1.02] whitespace-nowrap",
                       t.theme === "dark"
-                        ? "bg-white text-black"
-                        : "bg-black text-white"
+                        ? "bg-[#f8f9fa] text-[#212529]"
+                        : "bg-[#343a40] text-white"
                     )}
                   >
                     {t.cta}
@@ -343,16 +334,16 @@ export const Pricing = ({ skipAnimation = false }) => {
                           className={clsx(
                             "mt-1 shrink-0",
                             t.theme === "dark"
-                              ? "text-yellow-300"
-                              : "text-yellow-500"
+                              ? "text-[#adb5bd]"
+                              : "text-[#adb5bd]"
                           )}
                         />
-                        <span className="opacity-90 font-medium">{p}</span>
+                        <span className={clsx("font-medium", t.theme === "dark" ? "text-[#dee2e6]" : "text-[#495057]")}>{p}</span>
                       </li>
                     ))}
                   </ul>
 
-                  <div className="mt-auto pt-2 text-[12px] opacity-50">
+                  <div className="mt-auto pt-2 text-[12px] text-[#6c757d]">
                     Secure checkout • Cancel anytime
                   </div>
                 </div>

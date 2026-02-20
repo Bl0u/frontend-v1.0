@@ -5,7 +5,7 @@ import { SolutionSection } from '../sections/SolutionSection';
 import { Pricing } from '../sections/Pricing';
 import { Testimonials } from '../sections/Testimonials';
 import { Footer } from '../sections/Footer';
-import MorphingCTA from '../components/MorphingCTA';
+import { CallToAction } from '../sections/CallToAction';
 import "../fonts/style/fontsStyle.css";
 import gsap from 'gsap';
 
@@ -162,7 +162,7 @@ const LandingPage = () => {
                 <SolutionSection skipAnimation={skipAnimation} />
                 <Pricing skipAnimation={skipAnimation} />
                 <Testimonials />
-                <MorphingCTA skipAnimation={skipAnimation} />
+                <CallToAction />
                 <Footer />
             </div>
         </div>
