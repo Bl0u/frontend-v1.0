@@ -125,7 +125,7 @@ const Card = React.forwardRef(function Card(
             <div className="w-full md:w-1/2 flex flex-col justify-center text-center md:text-left">
               <h3
                 className="text-3xl md:text-5xl font-bold tracking-tight mb-6 pb-2"
-                style={{ fontFamily: "Zuume-Bold", color: textColor }}
+                style={{ fontFamily: "Zuume-Bold", color: textColor, letterSpacing: "0.5px" }}
               >
                 {title}
               </h3>
@@ -255,6 +255,11 @@ export const SolutionSection = ({ skipAnimation = false }) => {
     >
       {/* Top Fade Gradient for seamless blend (Hero-style) */}
       <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-white to-transparent pointer-events-none z-10"></div>
+
+      {/* Light Beam Separator - 50% of card width */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[45%] md:w-[40%] lg:w-[32.5%] h-px bg-gradient-to-r from-transparent via-[#001E80]/20 to-transparent z-20">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent blur-sm"></div>
+      </div>
 
       {/* Background blobs (tamed + behind) */}
       <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
