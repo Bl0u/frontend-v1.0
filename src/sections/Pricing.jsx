@@ -74,7 +74,7 @@ export const Pricing = ({ skipAnimation = false }) => {
 
       gsap.set(cards, {
         left: "50%",
-        top: "45%",
+        top: "50%",
         xPercent: -50,
         yPercent: -50,
         rotation: 0,
@@ -160,7 +160,7 @@ export const Pricing = ({ skipAnimation = false }) => {
           .pricing-card {
             position: ${skipAnimation ? 'relative' : 'absolute'};
             width: 320px;
-            height: 520px;
+            height: 450px;
             perspective: 1200px;
             transform-style: preserve-3d;
             ${skipAnimation ? 'left: auto !important; top: auto !important; flex-shrink: 0;' : ''}
@@ -242,7 +242,7 @@ export const Pricing = ({ skipAnimation = false }) => {
                 {!skipAnimation && (
                   <div
                     className={clsx(
-                      "pricing-face pricing-cover flex flex-col items-center justify-center p-10 border",
+                      "pricing-face pricing-cover flex flex-col items-center justify-center p-8 border",
                       t.theme === "dark"
                         ? "bg-[#1A1A1A] text-white border-white/10"
                         : "bg-white text-black border-black/10"
@@ -264,13 +264,13 @@ export const Pricing = ({ skipAnimation = false }) => {
                       />
                     </div>
 
-                    <h3 className="mt-6 text-4xl font-black tracking-tight uppercase">
+                    <h3 className="mt-4 text-4xl font-black tracking-tight uppercase">
                       {t.title}
                     </h3>
 
                     <div
                       className={clsx(
-                        "mt-8 px-5 py-2 rounded-full text-[10px] font-bold tracking-[0.25em] uppercase border",
+                        "mt-4 px-5 py-2 rounded-full text-[10px] font-bold tracking-[0.25em] uppercase border",
                         t.theme === "dark"
                           ? "text-white/60 border-white/10 bg-white/5"
                           : "text-black/50 border-black/10 bg-black/5"
@@ -283,7 +283,7 @@ export const Pricing = ({ skipAnimation = false }) => {
 
                 <div
                   className={clsx(
-                    "pricing-face pricing-details p-10 border flex flex-col shadow-2xl",
+                    "pricing-face pricing-details p-8 border flex flex-col shadow-2xl",
                     t.theme === "dark"
                       ? "bg-black text-white border-white/10"
                       : "bg-white text-black border-black/10"
@@ -317,13 +317,13 @@ export const Pricing = ({ skipAnimation = false }) => {
                     )}
                   </div>
 
-                  <div className="mt-6 text-[34px] font-black tracking-tight">
+                  <div className="mt-4 text-[34px] font-black tracking-tight">
                     {t.price}
                   </div>
 
                   <button
                     className={clsx(
-                      "mt-6 w-full py-4 rounded-2xl text-[16px] font-black transition-transform duration-300 hover:scale-[1.02] whitespace-nowrap",
+                      "mt-4 w-full py-4 rounded-2xl text-[16px] font-black transition-transform duration-300 hover:scale-[1.02] whitespace-nowrap",
                       t.theme === "dark"
                         ? "bg-white text-black"
                         : "bg-black text-white"
@@ -332,7 +332,7 @@ export const Pricing = ({ skipAnimation = false }) => {
                     {t.cta}
                   </button>
 
-                  <ul className="mt-6 space-y-3">
+                  <ul className="mt-4 space-y-2">
                     {t.perks.map((p) => (
                       <li
                         key={p}
@@ -351,7 +351,7 @@ export const Pricing = ({ skipAnimation = false }) => {
                     ))}
                   </ul>
 
-                  <div className="mt-auto pt-4 text-[12px] opacity-50">
+                  <div className="mt-auto pt-2 text-[12px] opacity-50">
                     Secure checkout • Cancel anytime
                   </div>
                 </div>
