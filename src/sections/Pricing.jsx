@@ -74,7 +74,7 @@ export const Pricing = ({ skipAnimation = false }) => {
 
       gsap.set(cards, {
         left: "50%",
-        top: "38%",
+        top: "48%",
         xPercent: -50,
         yPercent: -50,
         rotation: 0,
@@ -85,7 +85,7 @@ export const Pricing = ({ skipAnimation = false }) => {
       cards.forEach((card, i) => {
         const isMiddle = i === 1;
         gsap.set(card, {
-          y: isMiddle ? -20 : 0,
+          y: isMiddle ? -40 : 0,
           zIndex: isMiddle ? 100 : 1
         });
       });
@@ -214,7 +214,7 @@ export const Pricing = ({ skipAnimation = false }) => {
         }}
       />
 
-      <div className="container mx-auto px-4 pt-2 relative z-20">
+      <div className="container mx-auto px-4 pt-6 relative z-20">
         <div className="max-w-[820px] mx-auto text-center">
           <h2
             style={{ fontFamily: "Zuume-Bold", letterSpacing: "0.5px" }}
@@ -245,8 +245,8 @@ export const Pricing = ({ skipAnimation = false }) => {
                     className={clsx(
                       "pricing-face pricing-cover flex flex-col items-center justify-center p-8 border",
                       t.theme === "dark"
-                        ? "bg-[#1A1A1A] text-white border-white/10"
-                        : "bg-white text-black border-black/10"
+                        ? "bg-[#343a40] text-white border-white/10"
+                        : "bg-[#ced4da] text-black border-black/10"
                     )}
                   >
                     <div
@@ -286,8 +286,8 @@ export const Pricing = ({ skipAnimation = false }) => {
                   className={clsx(
                     "pricing-face pricing-details p-8 border flex flex-col shadow-2xl",
                     t.theme === "dark"
-                      ? "bg-black text-white border-white/10"
-                      : "bg-white text-black border-black/10"
+                      ? "bg-[#343a40] text-white border-white/10"
+                      : "bg-[#ced4da] text-black border-black/10"
                   )}
                   style={skipAnimation ? { transform: 'rotateY(0deg)', position: 'relative' } : {}}
                 >
