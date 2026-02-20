@@ -14,7 +14,7 @@ export const Pricing = ({ skipAnimation = false }) => {
   const tiers = [
     {
       title: "Star Pack",
-      price: "$5",
+      price: "250 LE",
       cta: "Buy 500 Stars",
       highlight: false,
       theme: "light",
@@ -27,7 +27,7 @@ export const Pricing = ({ skipAnimation = false }) => {
     },
     {
       title: "Pro Bundle",
-      price: "$10",
+      price: "500 LE",
       cta: "Buy 1200 Stars",
       highlight: true,
       theme: "dark",
@@ -40,17 +40,17 @@ export const Pricing = ({ skipAnimation = false }) => {
       ],
     },
     {
-      title: "Mentor Pass",
-      price: "Earn",
-      cta: "Apply Now",
+      title: "Star Vault",
+      price: "1,000 LE",
+      cta: "Buy 3000 Stars",
       highlight: false,
       theme: "light",
       perks: [
-        "Monetize your expertise",
-        "Set your own rates",
-        "Cash out earnings",
-        "Mentor dashboard",
-        "Top rated badge",
+        "3000 Stars (50% bonus)",
+        "Unlock 30 premium resources",
+        "Book 3 expert sessions",
+        "Verified student badge",
+        "Priority support",
       ],
     },
   ];
@@ -244,7 +244,7 @@ export const Pricing = ({ skipAnimation = false }) => {
                     className={clsx(
                       "pricing-face pricing-cover flex flex-col items-center justify-center p-10 border",
                       t.theme === "dark"
-                        ? "bg-[#001E80] text-white border-white/10"
+                        ? "bg-[#1A1A1A] text-white border-white/10"
                         : "bg-white text-black border-black/10"
                     )}
                   >
@@ -293,7 +293,7 @@ export const Pricing = ({ skipAnimation = false }) => {
                   <div className="flex items-center justify-between relative">
                     <h3
                       className={clsx(
-                        "text-xl font-black uppercase tracking-wide whitespace-nowrap",
+                        "text-[18px] font-black uppercase tracking-wide whitespace-nowrap",
                         t.theme === "dark" ? "text-white" : "text-[#001E80]"
                       )}
                     >
@@ -317,19 +317,13 @@ export const Pricing = ({ skipAnimation = false }) => {
                     )}
                   </div>
 
-                  <div className="mt-10 text-6xl font-black tracking-tight">
+                  <div className="mt-6 text-[34px] font-black tracking-tight">
                     {t.price}
-                    {t.price !== "Earn" && (
-                      <span className="text-lg font-semibold opacity-60">
-                        {" "}
-                        / mo
-                      </span>
-                    )}
                   </div>
 
                   <button
                     className={clsx(
-                      "mt-10 w-full py-4 rounded-2xl font-black transition-transform duration-300 hover:scale-[1.02] whitespace-nowrap",
+                      "mt-6 w-full py-4 rounded-2xl text-[14px] font-black transition-transform duration-300 hover:scale-[1.02] whitespace-nowrap",
                       t.theme === "dark"
                         ? "bg-white text-black"
                         : "bg-black text-white"
@@ -338,15 +332,15 @@ export const Pricing = ({ skipAnimation = false }) => {
                     {t.cta}
                   </button>
 
-                  <ul className="mt-10 space-y-5">
+                  <ul className="mt-6 space-y-3">
                     {t.perks.map((p) => (
                       <li
                         key={p}
-                        className="flex items-start gap-3 text-sm leading-relaxed"
+                        className="flex items-start gap-3 text-[16px] leading-relaxed"
                       >
                         <FaStar
                           className={clsx(
-                            "mt-1",
+                            "mt-1 shrink-0",
                             t.theme === "dark"
                               ? "text-yellow-300"
                               : "text-yellow-500"
@@ -357,7 +351,7 @@ export const Pricing = ({ skipAnimation = false }) => {
                     ))}
                   </ul>
 
-                  <div className="mt-auto pt-8 text-xs opacity-50">
+                  <div className="mt-auto pt-4 text-[12px] opacity-50">
                     Secure checkout • Cancel anytime
                   </div>
                 </div>
