@@ -304,6 +304,9 @@ export const SolutionSection = ({ skipAnimation = false }) => {
           />
         ))}
       </div>
+
+      {/* Bottom Fade Gradient for seamless blend into Pricing */}
+      <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-white to-transparent pointer-events-none z-10"></div>
     </section>
   );
 };
