@@ -323,7 +323,7 @@ export const Pricing = ({ skipAnimation = false }) => {
 
                   <button
                     className={clsx(
-                      "mt-6 w-full py-4 rounded-2xl text-[14px] font-black transition-transform duration-300 hover:scale-[1.02] whitespace-nowrap",
+                      "mt-6 w-full py-4 rounded-2xl text-[16px] font-black transition-transform duration-300 hover:scale-[1.02] whitespace-nowrap",
                       t.theme === "dark"
                         ? "bg-white text-black"
                         : "bg-black text-white"
@@ -336,7 +336,7 @@ export const Pricing = ({ skipAnimation = false }) => {
                     {t.perks.map((p) => (
                       <li
                         key={p}
-                        className="flex items-start gap-3 text-[16px] leading-relaxed"
+                        className="flex items-start gap-3 text-[14px] leading-relaxed"
                       >
                         <FaStar
                           className={clsx(
