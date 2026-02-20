@@ -74,7 +74,7 @@ export const Pricing = ({ skipAnimation = false }) => {
 
       gsap.set(cards, {
         left: "50%",
-        top: "50%",
+        top: "38%",
         xPercent: -50,
         yPercent: -50,
         rotation: 0,
@@ -154,6 +154,7 @@ export const Pricing = ({ skipAnimation = false }) => {
             height: ${skipAnimation ? 'auto' : '100vh'};
             overflow: ${skipAnimation ? 'visible' : 'hidden'};
             z-index: 10;
+            margin-top: -3rem;
             ${skipAnimation ? 'display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem; padding: 4rem 0 8rem 0;' : ''}
           }
 
@@ -213,7 +214,7 @@ export const Pricing = ({ skipAnimation = false }) => {
         }}
       />
 
-      <div className="container mx-auto px-4 pt-8 relative z-20">
+      <div className="container mx-auto px-4 pt-2 relative z-20">
         <div className="max-w-[820px] mx-auto text-center">
           <h2
             style={{ fontFamily: "Zuume-Bold", letterSpacing: "0.5px" }}
