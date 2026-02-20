@@ -78,7 +78,7 @@ export const Testimonials = () => {
     const thirdColumn = testimonials.slice(0, 3); // Reusing for 3rd col demo
 
     return (
-        <section ref={testimonialsRef} className="relative bg-gradient-to-b from-white via-[#F3F3F5] to-white py-0 md:py-10 overflow-hidden">
+        <section ref={testimonialsRef} className="relative bg-gradient-to-b from-white via-[#F3F3F5] to-white py-0 md:py-10 overflow-hidden -mt-20">
             {/* Subtle animated gradient blobs */}
             <motion.div
                 className="absolute -top-20 left-1/3 w-[400px] h-[400px] opacity-25 pointer-events-none"
