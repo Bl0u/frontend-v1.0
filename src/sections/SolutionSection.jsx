@@ -253,6 +253,9 @@ export const SolutionSection = ({ skipAnimation = false }) => {
         }`}
       style={skipAnimation ? { height: 'auto', minHeight: 'auto', overflow: 'visible' } : {}}
     >
+      {/* Top Fade Gradient for seamless blend (Hero-style) */}
+      <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-white to-transparent pointer-events-none z-10"></div>
+
       {/* Background blobs (tamed + behind) */}
       <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
         <div className="absolute top-[-12%] left-[-15%] w-[720px] h-[720px] bg-gray-300/15 rounded-full blur-[90px]" />
