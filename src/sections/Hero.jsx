@@ -77,7 +77,7 @@ export const Hero = ({ contentVisible = true, skipAnimation = false }) => {
                 Your browser does not support the video tag.
             </video>
 
-            <div className="max-w-7xl mx-auto px-8 lg:px-16 xl:px-24 text-center relative z-10">
+            <div className="max-w-[90rem] mx-auto px-8 lg:px-16 xl:px-24 text-center relative z-10">
 
                 {/* Badge */}
                 <motion.div
@@ -108,13 +108,13 @@ export const Hero = ({ contentVisible = true, skipAnimation = false }) => {
                         visible: { opacity: 1, y: 0, transition: { duration: 0.7, delay: 0.1 } }
                     }}
                 >
-                    Here Is the road towards your... {" "}
+                    Everything you need to study... {" "}
                     <span style={{
                         fontFamily: "Zuuma-Italic", fontStyle: "italic", fontWeight: 300,
                         letterSpacing: "-3px",
                         paddingRight: "10px",
                     }}>
-                        success
+                        in one place
                     </span>
                 </motion.h1>
 
@@ -131,7 +131,7 @@ export const Hero = ({ contentVisible = true, skipAnimation = false }) => {
                         className="text-[16px] text-[#010D3E]/80 tracking-tight mt-1 max-w-3xl mx-auto"
                         variants={fadeInUpVariants}
                     >
-                        Access premium resources, and find dedicated partners to turn your academic vision into reality.
+                        Access high-quality course materials, past exams, and assignments curated by senior students, and connect with committed partners to bring your academic goals to life.
                     </motion.p>
                     <motion.div
                         className="flex flex-col sm:flex-row gap-6 justify-center items-center mt-[30px]"

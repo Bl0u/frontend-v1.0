@@ -33,7 +33,6 @@ export const Pricing = ({ skipAnimation = false }) => {
       perks: [
         "1200 Stars (20% bonus)",
         "Unlock 12 premium resources",
-        "Book 1 expert session",
         "Verified student badge",
         "Priority support",
       ],
@@ -47,7 +46,6 @@ export const Pricing = ({ skipAnimation = false }) => {
       perks: [
         "3000 Stars (50% bonus)",
         "Unlock 30 premium resources",
-        "Book 3 expert sessions",
         "Verified student badge",
         "Priority support",
       ],
@@ -128,8 +126,8 @@ export const Pricing = ({ skipAnimation = false }) => {
         trigger: sectionRef.current,
         start: "top top",
         end: "+=400", // Reduced from 1200 (approx 50% faster release)
-        pin: true,
-        pinSpacing: true,
+        pin: false,
+        pinSpacing: false,
         onEnter: () => tl.play(),
         // Replay if user scrolls back up and down
         onEnterBack: () => tl.play(),

@@ -195,8 +195,8 @@ export const SolutionSection = ({ skipAnimation = false }) => {
 
       // Base states
       gsap.set(cards, { transformOrigin: "50% 0%" });
-      gsap.set(cards, { yPercent: 110, autoAlpha: 0, scale: 1 });
-      gsap.set(cards[0], { yPercent: 0, autoAlpha: 1 });
+      gsap.set(cards, { yPercent: 110, scale: 1 });
+      gsap.set(cards[0], { yPercent: 0 });
 
       const STACK_SCALE_STEP = 0.05;
 
@@ -216,7 +216,7 @@ export const SolutionSection = ({ skipAnimation = false }) => {
       for (let i = 1; i < cards.length; i++) {
         const card = cards[i];
 
-        tl.to(card, { yPercent: 0, autoAlpha: 1, duration: 1 }, `+=0.18`);
+        tl.to(card, { yPercent: 0, duration: 1 }, `+=0.18`);
 
         for (let j = 0; j < i; j++) {
           const prev = cards[j];
