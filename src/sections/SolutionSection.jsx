@@ -110,19 +110,13 @@ const Card = React.forwardRef(function Card(
 
         {/* Card Content Wrapper */}
         <div
-          className="relative h-full w-full rounded-[30px] p-6 md:p-10 lg:p-12 overflow-hidden"
+          className="relative h-full w-full rounded-[30px] overflow-hidden"
           style={{ backgroundColor: "#FFFFFF" }}
         >
           <div
-            className={`flex flex-col ${isReversed ? "md:flex-row-reverse" : "md:flex-row"
-              } items-center h-full gap-8 md:gap-12 relative z-10`}
+            className="flex flex-col md:flex-row items-center h-full relative z-10"
           >
-            {/* Vertical divider between text and lottie */}
-            <div
-              className="hidden md:block absolute left-1/2 -translate-x-1/2 w-px bg-black/15"
-              style={{ top: '15%', bottom: '15%' }}
-            />
-            <div className="w-full md:w-1/2 flex flex-col justify-center text-center md:text-left">
+            <div className="w-full md:w-1/2 flex flex-col justify-center text-center md:text-left bg-white h-full p-6 md:p-10 lg:p-12">
               <h3
                 className="text-3xl md:text-5xl font-bold tracking-tight mb-6 pb-2"
                 style={{ fontFamily: "Zuume-Bold", color: textColor, letterSpacing: "0.5px" }}
@@ -130,7 +124,7 @@ const Card = React.forwardRef(function Card(
                 {title}
               </h3>
 
-              <ul className="space-y-4">
+              <ul className="space-y-4 text-left">
                 {points.map((point, index) => (
                   <li
                     key={index}
@@ -148,7 +142,7 @@ const Card = React.forwardRef(function Card(
               </ul>
             </div>
 
-            <div className="w-full md:w-1/2 h-full flex items-center justify-center relative">
+            <div className="w-full md:w-1/2 h-full flex items-center justify-center relative bg-[#212529] p-6 md:p-10">
               <div className="w-full max-w-[350px] aspect-square">
                 <DotLottieReact src={lottieSrc} loop autoplay />
               </div>
