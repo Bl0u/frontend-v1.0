@@ -18,14 +18,23 @@ const LandingPage = () => {
     const introLayerRef = useRef(null);
 
     const [heroContentVisible, setHeroContentVisible] = useState(false);
-    const [skipAnimation, setSkipAnimation] = useState(() => {
-        // Option: persist skip state in session/local storage if desired
+
+    // 10-minute selective cache for intro animation
+    const [skipIntro, setSkipIntro] = useState(() => {
+        const lastIntroTime = localStorage.getItem('lastIntroTime_v2');
+        const now = Date.now();
+        const tenMinutes = 10 * 60 * 1000;
+
+        if (lastIntroTime && now - parseInt(lastIntroTime) < tenMinutes) {
+            return true;
+        }
         return false;
     });
+
     const [animationDone, setAnimationDone] = useState(false);
 
     useEffect(() => {
-        if (skipAnimation) {
+        if (skipIntro) {
             setAnimationDone(true);
             setHeroContentVisible(true);
             document.body.style.overflow = 'auto';
@@ -48,6 +57,7 @@ const LandingPage = () => {
             onComplete: () => {
                 setAnimationDone(true);
                 document.body.style.overflow = 'auto';
+                localStorage.setItem('lastIntroTime_v2', Date.now().toString());
                 if (introLayerRef.current) {
                     introLayerRef.current.style.display = 'none';
                 }
@@ -98,31 +108,13 @@ const LandingPage = () => {
             tl.kill();
             document.body.style.overflow = 'auto';
         };
-    }, [skipAnimation]);
-
-    const toggleSkip = () => {
-        const newSkip = !skipAnimation;
-        setSkipAnimation(newSkip);
-        if (newSkip) {
-            window.dispatchEvent(new CustomEvent('navbar-release'));
-        }
-        // Force scroll unlock if enabling/disabling mid-stream
-        document.body.style.overflow = 'auto';
-    };
+    }, [skipIntro]);
 
     return (
         <div className="landing-scroll-container min-h-screen bg-black">
-            {/* Skip Animation Button - Persistent */}
-            <button
-                onClick={toggleSkip}
-                className="fixed bottom-8 right-8 z-[200] bg-white/10 backdrop-blur-md border border-white/20 text-[#010D3E] px-6 py-3 rounded-full font-bold shadow-2xl hover:bg-white/20 transition-all duration-300 flex items-center gap-2 group"
-                style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
-            >
-                {skipAnimation ? 'Enable Animations' : 'Skip Animation'}
-                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse shadow-[0_0_10px_#3b82f6]"></div>
-            </button>
+            {/* Skip Animation Button removed as per request */}
 
-            {!skipAnimation && !animationDone && (
+            {!skipIntro && !animationDone && (
                 <div ref={introLayerRef} className="intro-text-layer" style={{
                     position: 'fixed',
                     inset: 0,
@@ -145,7 +137,7 @@ const LandingPage = () => {
                 ref={maskContainerRef}
                 className="masked-hero-layer"
                 style={{
-                    opacity: skipAnimation ? 1 : 0,
+                    opacity: skipIntro ? 1 : 0,
                     position: 'relative',
                     height: 'auto',
                     backgroundColor: 'var(--color-saas-background)',
@@ -153,16 +145,16 @@ const LandingPage = () => {
                 }}
             >
                 <div className="hero-content-wrapper">
-                    <Hero contentVisible={heroContentVisible} skipAnimation={skipAnimation} />
+                    <Hero contentVisible={heroContentVisible} skipAnimation={false} />
                 </div>
             </div>
 
             <div className="relative z-20 bg-white">
                 <LogoTicker />
                 <div className="relative">
-                    <MasterSVGOverlay skipAnimation={skipAnimation} />
-                    <SolutionSection skipAnimation={skipAnimation} />
-                    <Pricing skipAnimation={skipAnimation} />
+                    <MasterSVGOverlay skipAnimation={false} />
+                    <SolutionSection skipAnimation={false} />
+                    <Pricing skipAnimation={false} />
                     <Testimonials />
                     <CallToAction />
                     <Footer />
