@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Hero } from '../sections/Hero';
 import { LogoTicker } from '../sections/LogoTicker';
-import { SVGDrawingTwo } from '../sections/SVGDrawingTwo';
+import { MasterSVGOverlay } from '../sections/MasterSVGOverlay';
 import { SolutionSection } from '../sections/SolutionSection';
 import { Pricing } from '../sections/Pricing';
 import { Testimonials } from '../sections/Testimonials';
@@ -159,14 +159,14 @@ const LandingPage = () => {
 
             <div className="relative z-20 bg-white">
                 <LogoTicker />
-                <SolutionSection skipAnimation={skipAnimation} />
                 <div className="relative">
-                    <SVGDrawingTwo />
+                    <MasterSVGOverlay skipAnimation={skipAnimation} />
+                    <SolutionSection skipAnimation={skipAnimation} />
+                    <Pricing skipAnimation={skipAnimation} />
+                    <Testimonials />
+                    <CallToAction />
+                    <Footer />
                 </div>
-                <Pricing skipAnimation={skipAnimation} />
-                <Testimonials />
-                <CallToAction />
-                <Footer />
             </div>
         </div>
     );
