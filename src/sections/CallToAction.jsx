@@ -116,59 +116,60 @@ export const CallToAction = () => {
 
         {/* Glass Card Container with Interior Button */}
         <div className="relative max-w-[70rem] mx-auto">
-          <div className="relative grid grid-cols-1 md:grid-cols-2 bg-gradient-to-b from-white/70 to-white/30 backdrop-blur-2xl rounded-[40px] border border-white/40 shadow-[0_20px_60px_-30px_rgba(15,23,42,0.25)] overflow-hidden">
-
-            {/* Left Column: Resources */}
-            <motion.div
-              whileHover={{ y: -2 }}
-              className="relative p-8 md:p-12 flex flex-col items-center md:items-start group transition-colors duration-300"
-            >
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2.5 rounded-xl bg-blue-50 text-[#001E80] transition-transform duration-500 group-hover:rotate-6">
-                  <FaBookOpen size={20} />
+          <div className="relative bg-gradient-to-b from-white/70 to-white/30 backdrop-blur-2xl rounded-[40px] border border-white/40 shadow-[0_20px_60px_-30px_rgba(15,23,42,0.25)] overflow-hidden">
+            <div className="grid grid-cols-1 md:grid-cols-2">
+              {/* Left Column: Resources */}
+              <motion.div
+                whileHover={{ y: -2 }}
+                className="relative p-8 md:p-12 flex flex-col items-center md:items-start group transition-colors duration-300"
+              >
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="p-2.5 rounded-xl bg-blue-50 text-[#001E80] transition-transform duration-500 group-hover:rotate-6">
+                    <FaBookOpen size={20} />
+                  </div>
+                  <h3 className="text-2xl font-bold text-[#011440] uppercase tracking-wide" style={{ fontFamily: "Zuume-Bold" }}>Resources</h3>
                 </div>
-                <h3 className="text-2xl font-bold text-[#011440] uppercase tracking-wide" style={{ fontFamily: "Zuume-Bold" }}>Resources</h3>
-              </div>
 
-              <p className="text-lg text-[#010D3E]/70 leading-relaxed font-medium text-center md:text-left">
-                Find the material to prepare efficiently for your exams from earlier tests and through the contribution of others' journeys.{' '}
-                <Link to="/resources" className="inline-flex items-center text-[#001E80] hover:translate-x-1 transition-transform align-middle">
-                  <FaChevronRight size={14} className="ml-1" />
-                </Link>
-              </p>
-            </motion.div>
+                <p className="text-lg text-[#010D3E]/70 leading-relaxed font-medium text-center md:text-left">
+                  Find the material to prepare efficiently for your exams from earlier tests and through the contribution of others' journeys.{' '}
+                  <Link to="/resources" className="inline-flex items-center text-[#001E80] hover:translate-x-1 transition-transform align-middle">
+                    <FaChevronRight size={14} className="ml-1" />
+                  </Link>
+                </p>
+              </motion.div>
 
-            {/* Mid Divider */}
-            <div className="hidden md:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-px bg-[#010D3E]/10 h-[60%] z-20" />
+              {/* Mid Divider */}
+              <div className="hidden md:block absolute left-1/2 top-[40%] -translate-x-1/2 -translate-y-1/2 w-px bg-[#010D3E]/10 h-[40%] z-20" />
 
-            {/* Right Column: Partners */}
-            <motion.div
-              whileHover={{ y: -2 }}
-              className="relative p-8 md:p-12 border-t md:border-t-0 border-[#010D3E]/5 flex flex-col items-center md:items-start group transition-colors duration-300"
-            >
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2.5 rounded-xl bg-blue-50 text-[#001E80] transition-transform duration-500 group-hover:-rotate-6">
-                  <FaUsers size={20} />
+              {/* Right Column: Partners */}
+              <motion.div
+                whileHover={{ y: -2 }}
+                className="relative p-8 md:p-12 border-t md:border-t-0 border-[#010D3E]/5 flex flex-col items-center md:items-start group transition-colors duration-300"
+              >
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="p-2.5 rounded-xl bg-blue-50 text-[#001E80] transition-transform duration-500 group-hover:-rotate-6">
+                    <FaUsers size={20} />
+                  </div>
+                  <h3 className="text-2xl font-bold text-[#011440] uppercase tracking-wide" style={{ fontFamily: "Zuume-Bold" }}>Partners</h3>
                 </div>
-                <h3 className="text-2xl font-bold text-[#011440] uppercase tracking-wide" style={{ fontFamily: "Zuume-Bold" }}>Partners</h3>
-              </div>
 
-              <p className="text-lg text-[#010D3E]/70 leading-relaxed font-medium text-center md:text-left">
-                Find someone to help you out or be the one to help others. Share and gain knowledge with your peers.{' '}
-                <Link to="/partners" className="inline-flex items-center text-[#001E80] hover:translate-x-1 transition-transform align-middle">
-                  <FaChevronRight size={14} className="ml-1" />
-                </Link>
-              </p>
-            </motion.div>
-          </div>
+                <p className="text-lg text-[#010D3E]/70 leading-relaxed font-medium text-center md:text-left">
+                  Find someone to help you out or be the one to help others. Share and gain knowledge with your peers.{' '}
+                  <Link to="/partners" className="inline-flex items-center text-[#001E80] hover:translate-x-1 transition-transform align-middle">
+                    <FaChevronRight size={14} className="ml-1" />
+                  </Link>
+                </p>
+              </motion.div>
+            </div>
 
-          {/* Primary CTA Button Row - Centered below cards but within main container */}
-          <div className="flex justify-center mt-12 pb-10">
-            <LiquidButton
-              to="/register"
-              text="Register for free"
-              className="shadow-xl"
-            />
+            {/* Primary CTA Button Row - Integrated inside the glass container */}
+            <div className="flex justify-center pb-12 pt-4">
+              <LiquidButton
+                to="/register"
+                text="Register for free"
+                className="shadow-xl"
+              />
+            </div>
           </div>
         </div>
       </div>

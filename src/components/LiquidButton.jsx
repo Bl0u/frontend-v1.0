@@ -47,7 +47,7 @@ export const LiquidButton = ({
             whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.98 }}
             transition={{ type: "spring", stiffness: 400, damping: 17 }}
-            className={className}
+            className={`w-fit rounded-full ${className}`}
         >
             <Link
                 ref={buttonRef}
