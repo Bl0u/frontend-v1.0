@@ -16,6 +16,7 @@ import OldLandingPage from './pages/OldLandingPage';
 import HomePage from './pages/HomePage';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Onboarding from './pages/Onboarding';
 import Profile from './pages/Profile';
 import ResourceHub from './pages/ResourceHub';
 import ThreadDetail from './pages/ThreadDetail';
@@ -71,6 +72,7 @@ function App() {
         <Routes>
           {/* Standalone pages (no navbar) */}
           <Route path="/register" element={<Register />} />
+          <Route path="/onboarding" element={<Onboarding />} />
 
           {/* Pages with navbar */}
           <Route element={<MainLayout />}>

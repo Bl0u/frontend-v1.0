@@ -130,7 +130,7 @@ const Register = () => {
             toast.error('Please meet all password requirements');
             return;
         }
-        toast.success('Registration flow coming soon!');
+        navigate('/onboarding', { state: { email, password } });
     };
 
     if (loading) {
