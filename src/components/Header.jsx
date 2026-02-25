@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import chatService from '../features/chat/chatService';
 import { API_BASE_URL } from '../config';
+import { LiquidButton } from './LiquidButton';
 
 const Header = () => {
     const { user, logout } = useContext(AuthContext);
@@ -135,14 +136,14 @@ const Header = () => {
                                 className="text-sm font-medium text-slate-700 hover:text-black transition-colors relative group"
                             >
                                 {link.name}
-                                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#ff4d6d] transition-all group-hover:w-full"></span>
+                                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#6c757d] transition-all group-hover:w-full"></span>
                             </Link>
                         ))}
                         <Link
                             to="/pitch-hub"
                             className="flex items-center gap-2 text-sm font-medium text-slate-700 hover:text-black transition-colors relative group"
                         >
-                            <span className="bg-[#ff4d6d] text-white px-2 py-0.5 rounded-md text-[10px] font-bold uppercase">New</span>
+                            <span className="bg-[#495057] text-white px-2 py-0.5 rounded-md text-[10px] font-bold uppercase">New</span>
                             Pitch Hub
                         </Link>
                     </div>
@@ -210,15 +211,11 @@ const Header = () => {
                                 >
                                     Login
                                 </Link>
-                                <div className="mask-container-nature">
-                                    <span className="mas">REGISTER</span>
-                                    <Link
-                                        to="/register"
-                                        className="mask-btn-nature"
-                                    >
-                                        REGISTER
-                                    </Link>
-                                </div>
+                                <LiquidButton
+                                    to="/register"
+                                    text="REGISTER"
+                                    className="scale-90"
+                                />
                             </div>
                         )}
 
@@ -257,7 +254,7 @@ const Header = () => {
                                     onClick={() => setIsMenuOpen(false)}
                                     className="text-slate-800 font-medium text-sm flex items-center gap-2 hover:translate-x-1 transition-transform"
                                 >
-                                    Pitch Hub <span className="bg-[#ff4d6d] text-white px-2 py-0.5 rounded text-[10px]">NEW</span>
+                                    Pitch Hub <span className="bg-[#495057] text-white px-2 py-0.5 rounded text-[10px]">NEW</span>
                                 </Link>
 
                                 {user && (
