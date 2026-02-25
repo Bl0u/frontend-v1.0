@@ -1,5 +1,5 @@
 
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Lenis from 'lenis';
@@ -16,6 +16,7 @@ import OldLandingPage from './pages/OldLandingPage';
 import HomePage from './pages/HomePage';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Onboarding from './pages/Onboarding';
 import Profile from './pages/Profile';
 import ResourceHub from './pages/ResourceHub';
 import ThreadDetail from './pages/ThreadDetail';
@@ -30,8 +31,6 @@ import Chat from './pages/Chat';
 import PlanManager from './pages/PlanManager';
 
 import TopUp from './pages/TopUp'; // V2.0
-import { useContext } from 'react';
-import AuthContext from './context/AuthContext';
 
 // Layout for pages that need the container and top padding
 const ProjectLayout = ({ children }) => (
@@ -40,11 +39,12 @@ const ProjectLayout = ({ children }) => (
   </div>
 );
 
-const MainLayout = ({ children }) => {
+// Layout with navbar (Header + child routes via Outlet)
+const MainLayout = () => {
   return (
     <div className="min-h-screen text-gray-900 bg-transparent">
       <Header />
-      {children}
+      <Outlet />
     </div>
   );
 };
@@ -69,8 +69,14 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <MainLayout>
-          <Routes>
+        <Routes>
+          {/* Standalone pages (no navbar) */}
+          <Route path="/register" element={<Register />} />
+          <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/login" element={<Login />} />
+
+          {/* Pages with navbar */}
+          <Route element={<MainLayout />}>
             {/* Static Homepage */}
             <Route path="/" element={<HomePage />} />
             <Route path="/home" element={<HomePage />} />
@@ -80,8 +86,6 @@ function App() {
             <Route path="/old-lp" element={<OldLandingPage />} />
 
             {/* Project Pages (Contained with Padding) */}
-            <Route path="/login" element={<ProjectLayout><Login /></ProjectLayout>} />
-            <Route path="/register" element={<ProjectLayout><Register /></ProjectLayout>} />
             <Route path="/profile" element={<ProjectLayout><Profile /></ProjectLayout>} />
             <Route path="/dashboard" element={<ProjectLayout><Dashboard /></ProjectLayout>} />
             <Route path="/social-media" element={<ProjectLayout><SocialMediaEditor /></ProjectLayout>} />
@@ -95,9 +99,8 @@ function App() {
             <Route path="/chat" element={<ProjectLayout><Chat /></ProjectLayout>} />
             <Route path="/top-up" element={<ProjectLayout><TopUp /></ProjectLayout>} />
             <Route path="/plan/:id" element={<ProjectLayout><PlanManager /></ProjectLayout>} />
-
-          </Routes>
-        </MainLayout>
+          </Route>
+        </Routes>
         <ToastContainer position="bottom-right" />
       </Router>
     </AuthProvider>
@@ -106,3 +109,4 @@ function App() {
 
 
 export default App;
+
