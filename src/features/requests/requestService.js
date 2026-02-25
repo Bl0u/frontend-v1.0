@@ -65,7 +65,7 @@ const cancelRequest = async (requestId, token) => {
     return response.data;
 };
 
-// End Relationship (Mentorship or Partner)
+// End Relationship (Partner or Collaborator)
 const endRelationship = async (targetUserId, type, token) => {
     const config = {
         headers: { Authorization: `Bearer ${token}` },

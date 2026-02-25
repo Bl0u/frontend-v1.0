@@ -98,7 +98,6 @@ const Header = () => {
         { name: 'Home', path: '/' },
         { name: 'Resources', path: '/resources' },
         { name: 'Partners', path: '/partners' },
-        { name: 'Mentors', path: '/mentors' },
     ];
 
     const isLandingRoute = ['/', '/home', '/new-lp', '/old-lp'].includes(location.pathname);
@@ -140,7 +139,7 @@ const Header = () => {
                             </Link>
                         ))}
                         <Link
-                            to="/mentorship-request"
+                            to="/pitch-hub"
                             className="flex items-center gap-2 text-sm font-medium text-slate-700 hover:text-black transition-colors relative group"
                         >
                             <span className="bg-[#ff4d6d] text-white px-2 py-0.5 rounded-md text-[10px] font-bold uppercase">New</span>
@@ -254,7 +253,7 @@ const Header = () => {
                                     </Link>
                                 ))}
                                 <Link
-                                    to="/mentorship-request"
+                                    to="/pitch-hub"
                                     onClick={() => setIsMenuOpen(false)}
                                     className="text-slate-800 font-medium text-sm flex items-center gap-2 hover:translate-x-1 transition-transform"
                                 >

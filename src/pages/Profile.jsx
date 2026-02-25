@@ -5,7 +5,6 @@ import { toast } from 'react-toastify';
 import { API_BASE_URL } from '../config';
 
 import StudentProfileForm from '../components/StudentProfileForm';
-import MentorProfileForm from '../components/MentorProfileForm';
 
 const Profile = () => {
     const { user } = useContext(AuthContext);
@@ -38,19 +37,11 @@ const Profile = () => {
         <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md my-10">
             <h2 className="text-3xl font-bold mb-8 text-gray-800 border-b pb-4">Edit Profile</h2>
 
-            {user.role === 'student' ? (
-                <StudentProfileForm
-                    user={user}
-                    initialData={profileData}
-                    refreshProfile={fetchProfile}
-                />
-            ) : (
-                <MentorProfileForm
-                    user={user}
-                    initialData={profileData}
-                    refreshProfile={fetchProfile}
-                />
-            )}
+            <StudentProfileForm
+                user={user}
+                initialData={profileData}
+                refreshProfile={fetchProfile}
+            />
         </div>
     );
 };

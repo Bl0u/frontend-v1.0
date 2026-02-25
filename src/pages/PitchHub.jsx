@@ -5,7 +5,7 @@ import requestService from '../features/requests/requestService';
 import { toast } from 'react-toastify';
 import { FaRocket, FaHandHoldingHeart, FaUserGraduate, FaChevronDown, FaCheckCircle, FaPlus } from 'react-icons/fa';
 
-const MentorshipPitchHub = () => {
+const PitchHub = () => {
     const [pitches, setPitches] = useState([]);
     const [loading, setLoading] = useState(true);
     const { user: currentUser } = useContext(AuthContext);
@@ -29,14 +29,14 @@ const MentorshipPitchHub = () => {
     }, []);
 
     const handleClaim = async (pitchId) => {
-        if (!currentUser || currentUser.role !== 'mentor') {
-            toast.error('Only mentors can claim project pitches for pro-bono help.');
+        if (!currentUser) {
+            toast.error('Please login to claim a project pitch.');
             return;
         }
 
         try {
             await requestService.claimPublicPitch(pitchId, currentUser.token);
-            toast.success('Successfully claimed! The student has been notified.');
+            toast.success('Successfully claimed! The sender has been notified.');
             fetchPitches(); // Refresh feed
         } catch (error) {
             toast.error(error.response?.data?.message || 'Failed to claim pitch');
@@ -51,14 +51,14 @@ const MentorshipPitchHub = () => {
             <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl p-8 mb-10 text-white relative overflow-hidden shadow-xl shadow-indigo-100">
                 <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
                     <div className="text-center md:text-left">
-                        <h1 className="text-4xl font-extrabold mb-3">Mentorship Pitch Hub</h1>
+                        <h1 className="text-4xl font-extrabold mb-3">Project Pitch Hub</h1>
                         <p className="text-indigo-100 text-lg max-w-xl">
-                            Where ambitious students pitch projects and experts pick pro-bono monthly missions.
+                            Where ambitious users pitch projects and collaborators pick their next monthly missions.
                         </p>
                     </div>
-                    {currentUser?.role === 'student' && (
+                    {currentUser && (
                         <Link
-                            to="/request-mentorship"
+                            to="/pitch-form"
                             className="bg-white text-indigo-600 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-indigo-50 transition-all shadow-lg shadow-black/10 active:scale-95"
                         >
                             <FaPlus /> Pitch Your Project
@@ -90,7 +90,7 @@ const MentorshipPitchHub = () => {
                                         </h3>
                                         <p className="text-sm text-gray-500 flex items-center gap-1">
                                             <FaUserGraduate className="text-indigo-400" size={12} />
-                                            {pitch.sender?.name} · {pitch.sender?.major}
+                                            {pitch.sender?.name} · {pitch.sender?.major || 'Member'}
                                         </p>
                                     </div>
                                 </div>
@@ -101,12 +101,12 @@ const MentorshipPitchHub = () => {
                                     >
                                         View Detail <FaChevronDown className={`transition-transform duration-300 ${expandedPitch === pitch._id ? 'rotate-180' : ''}`} />
                                     </button>
-                                    {currentUser?.role === 'mentor' && (
+                                    {currentUser && currentUser._id !== pitch.sender?._id && (
                                         <button
                                             onClick={() => handleClaim(pitch._id)}
                                             className="bg-green-500 hover:bg-green-600 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-green-100 transition-all active:scale-95 text-sm"
                                         >
-                                            <FaHandHoldingHeart /> Claim Pro-Bono
+                                            <FaHandHoldingHeart /> Claim Partnership
                                         </button>
                                     )}
                                 </div>
@@ -132,7 +132,7 @@ const MentorshipPitchHub = () => {
                                     <div className="mt-8 pt-4 border-t border-gray-200/50 flex items-center justify-between">
                                         <p className="text-xs text-gray-400 font-medium">Posted {new Date(pitch.createdAt).toLocaleDateString()}</p>
                                         <Link to={`/u/${pitch.sender?.username}`} className="text-xs font-bold text-indigo-600 hover:underline">
-                                            View Student Profile →
+                                            View Profile →
                                         </Link>
                                     </div>
                                 </div>
@@ -145,10 +145,10 @@ const MentorshipPitchHub = () => {
                             <FaRocket size={32} className="text-gray-300" />
                         </div>
                         <h3 className="text-xl font-bold text-gray-600 mb-2">The hub is waiting for its next mission.</h3>
-                        <p className="text-gray-400 max-w-sm mx-auto">Be the first student to pitch your project and attract an expert mentor.</p>
-                        {currentUser?.role === 'student' && (
+                        <p className="text-gray-400 max-w-sm mx-auto">Be the first to pitch your project and attract a partner.</p>
+                        {currentUser && (
                             <Link
-                                to="/request-mentorship"
+                                to="/pitch-form"
                                 className="mt-6 inline-flex bg-indigo-600 text-white px-8 py-3 rounded-2xl font-bold transition-all shadow-lg hover:bg-indigo-700"
                             >
                                 Start Pitching
@@ -161,4 +161,4 @@ const MentorshipPitchHub = () => {
     );
 };
 
-export default MentorshipPitchHub;
+export default PitchHub;

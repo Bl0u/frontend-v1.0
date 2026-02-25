@@ -13,7 +13,7 @@ const Footer = () => {
                             LearnCrew
                         </h3>
                         <p className="text-[#ffccd5] leading-relaxed mb-6">
-                            Your trusted platform to find partners, connect with mentors, and access premium resources for your graduation project success.
+                            Your trusted platform to find partners, connect with collaborators, and access premium resources for your graduation project success.
                         </p>
                         {/* Social Links */}
                         <div className="flex gap-4">
@@ -45,18 +45,13 @@ const Footer = () => {
                                 </Link>
                             </li>
                             <li>
-                                <Link to="/mentors" className="text-[#ffccd5] hover:text-white transition-colors">
-                                    Browse Mentors
+                                <Link to="/pitch-hub" className="text-[#ffccd5] hover:text-white transition-colors">
+                                    Pitch Hub
                                 </Link>
                             </li>
                             <li>
                                 <Link to="/resources" className="text-[#ffccd5] hover:text-white transition-colors">
                                     Resources Hub
-                                </Link>
-                            </li>
-                            <li>
-                                <Link to="/mentorship-request" className="text-[#ffccd5] hover:text-white transition-colors">
-                                    Pitch Hub
                                 </Link>
                             </li>
                             <li>
