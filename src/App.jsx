@@ -73,6 +73,7 @@ function App() {
           {/* Standalone pages (no navbar) */}
           <Route path="/register" element={<Register />} />
           <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/login" element={<Login />} />
 
           {/* Pages with navbar */}
           <Route element={<MainLayout />}>
@@ -85,7 +86,6 @@ function App() {
             <Route path="/old-lp" element={<OldLandingPage />} />
 
             {/* Project Pages (Contained with Padding) */}
-            <Route path="/login" element={<ProjectLayout><Login /></ProjectLayout>} />
             <Route path="/profile" element={<ProjectLayout><Profile /></ProjectLayout>} />
             <Route path="/dashboard" element={<ProjectLayout><Dashboard /></ProjectLayout>} />
             <Route path="/social-media" element={<ProjectLayout><SocialMediaEditor /></ProjectLayout>} />
