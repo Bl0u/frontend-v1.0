@@ -1,0 +1,511 @@
+/* ===== Register Page 1.0 ===== */
+
+/* Full-viewport split layout */
+.register-page {
+    display: grid;
+    grid-template-columns: 45% 55%;
+    min-height: 100vh;
+    width: 100%;
+    overflow: hidden;
+}
+
+@media (max-width: 768px) {
+    .register-page {
+        grid-template-columns: 1fr;
+    }
+
+    .register-decor-panel {
+        display: none !important;
+    }
+}
+
+/* ===== LEFT PANEL — Form ===== */
+.register-form-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 48px 40px;
+    background: #ffffff;
+    position: relative;
+    z-index: 2;
+}
+
+.register-form-inner {
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+/* Heading */
+.register-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 28px;
+    letter-spacing: -0.5px;
+}
+
+/* Social Buttons */
+.social-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 20px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 12px;
+    background: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.925rem;
+    font-weight: 500;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    margin-bottom: 12px;
+}
+
+.social-btn:hover {
+    border-color: #b0b0b0;
+    background: #fafafa;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.social-btn:active {
+    transform: translateY(0);
+}
+
+.social-btn svg,
+.social-btn img {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+/* Divider "or" */
+.divider-or {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 20px 0;
+}
+
+.divider-or::before,
+.divider-or::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #e5e5e5;
+}
+
+.divider-or span {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    color: #999;
+    font-weight: 500;
+    text-transform: lowercase;
+}
+
+/* Form Labels */
+.register-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 6px;
+    display: block;
+}
+
+/* Input Fields */
+.register-input-wrapper {
+    position: relative;
+    margin-bottom: 16px;
+}
+
+.register-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.925rem;
+    color: #1a1a2e;
+    background: #fff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.register-input:focus {
+    border-color: #c9184a;
+    box-shadow: 0 0 0 3px rgba(201, 24, 74, 0.08);
+}
+
+.register-input::placeholder {
+    color: #b0b0b0;
+}
+
+/* Locked email */
+.register-input.locked {
+    background: #f8f9fa;
+    color: #6b7280;
+    cursor: default;
+    padding-right: 44px;
+}
+
+.email-edit-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: none;
+    background: #f0f0f0;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.email-edit-btn:hover {
+    background: #e5e5e5;
+    color: #374151;
+}
+
+/* Terms notice */
+.terms-notice {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    color: #9ca3af;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.terms-notice a {
+    color: #c9184a;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.terms-notice a:hover {
+    color: #a4133c;
+}
+
+/* Continue / Submit Button */
+.register-submit-btn {
+    width: 100%;
+    padding: 13px 24px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #c9184a, #ff4d6d);
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.register-submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(201, 24, 74, 0.3);
+}
+
+.register-submit-btn:active {
+    transform: translateY(0);
+}
+
+.register-submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Login link */
+.login-link-row {
+    text-align: center;
+    margin-top: 24px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    color: #9ca3af;
+}
+
+.login-link-row a {
+    color: #c9184a;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.login-link-row a:hover {
+    color: #a4133c;
+    text-decoration: underline;
+}
+
+/* ===== Password Requirements ===== */
+.password-requirements {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 16px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.password-requirements li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    color: #9ca3af;
+    transition: color 0.25s ease;
+}
+
+.password-requirements li.met {
+    color: #22c55e;
+}
+
+.password-requirements li.unmet {
+    color: #ef4444;
+}
+
+.password-requirements li .req-icon {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    flex-shrink: 0;
+}
+
+/* Password field toggle */
+.password-toggle-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: #9ca3af;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.password-toggle-btn:hover {
+    color: #374151;
+}
+
+
+/* ===== RIGHT PANEL — Decorative ===== */
+.register-decor-panel {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(160deg, #f5f0ff 0%, #eef2ff 40%, #f0f4ff 70%, #f8f9fa 100%);
+    overflow: hidden;
+}
+
+/* Aurora glow border — left edge of right panel */
+.aurora-border {
+    position: absolute;
+    top: 0;
+    left: -2px;
+    width: 6px;
+    height: 100%;
+    z-index: 3;
+    filter: blur(20px);
+    opacity: 0.7;
+    background: linear-gradient(180deg,
+            #c084fc 0%,
+            #818cf8 20%,
+            #60a5fa 40%,
+            #c084fc 60%,
+            #f472b6 80%,
+            #818cf8 100%);
+    background-size: 100% 200%;
+    animation: aurora-shift 6s ease-in-out infinite;
+}
+
+.aurora-border-wide {
+    position: absolute;
+    top: 0;
+    left: -8px;
+    width: 60px;
+    height: 100%;
+    z-index: 2;
+    filter: blur(50px);
+    opacity: 0.3;
+    background: linear-gradient(180deg,
+            #a78bfa 0%,
+            #6366f1 25%,
+            #3b82f6 50%,
+            #a78bfa 75%,
+            #ec4899 100%);
+    background-size: 100% 300%;
+    animation: aurora-shift 8s ease-in-out infinite reverse;
+}
+
+@keyframes aurora-shift {
+    0% {
+        background-position: 0% 0%;
+    }
+
+    50% {
+        background-position: 0% 100%;
+    }
+
+    100% {
+        background-position: 0% 0%;
+    }
+}
+
+/* Decorative background blobs */
+.decor-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.25;
+    pointer-events: none;
+}
+
+.decor-blob-1 {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, #c084fc, transparent);
+    top: -100px;
+    right: -50px;
+    animation: blob-float 10s ease-in-out infinite;
+}
+
+.decor-blob-2 {
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, #60a5fa, transparent);
+    bottom: -80px;
+    left: 10%;
+    animation: blob-float 12s ease-in-out infinite reverse;
+}
+
+.decor-blob-3 {
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, #f472b6, transparent);
+    top: 40%;
+    right: 20%;
+    animation: blob-float 8s ease-in-out infinite 2s;
+}
+
+/* Floating Message Box */
+.floating-msg-box {
+    position: relative;
+    z-index: 4;
+    width: 90%;
+    max-width: 460px;
+    background: linear-gradient(to bottom, #0a0a0a, #0a0a0a 60%, #001E80);
+    border-radius: 24px;
+    padding: 20px 28px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.25),
+        0 0 80px rgba(99, 102, 241, 0.08);
+    animation: float 6s ease-in-out infinite;
+}
+
+.floating-msg-box .msg-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    flex-shrink: 0;
+}
+
+.floating-msg-box .msg-icon svg {
+    width: 16px;
+    height: 16px;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.floating-msg-text-wrapper {
+    flex: 1;
+    min-height: 24px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+.floating-msg-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.85);
+    white-space: nowrap;
+}
+
+/* Typing cursor blink */
+.typing-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1.1em;
+    background: rgba(255, 255, 255, 0.6);
+    margin-left: 2px;
+    animation: cursor-blink 1s step-end infinite;
+    vertical-align: text-bottom;
+}
+
+@keyframes cursor-blink {
+
+    0%,
+    50% {
+        opacity: 1;
+    }
+
+    51%,
+    100% {
+        opacity: 0;
+    }
+}
+
+/* Send arrow icon */
+.floating-msg-box .msg-send {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: #6c757d;
+    flex-shrink: 0;
+}
+
+.floating-msg-box .msg-send svg {
+    width: 14px;
+    height: 14px;
+    color: #fff;
+}

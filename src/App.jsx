@@ -81,7 +81,7 @@ function App() {
 
             {/* Project Pages (Contained with Padding) */}
             <Route path="/login" element={<ProjectLayout><Login /></ProjectLayout>} />
-            <Route path="/register" element={<ProjectLayout><Register /></ProjectLayout>} />
+            <Route path="/register" element={<Register />} />
             <Route path="/profile" element={<ProjectLayout><Profile /></ProjectLayout>} />
             <Route path="/dashboard" element={<ProjectLayout><Dashboard /></ProjectLayout>} />
             <Route path="/social-media" element={<ProjectLayout><SocialMediaEditor /></ProjectLayout>} />
