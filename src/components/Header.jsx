@@ -26,7 +26,7 @@ const Header = () => {
 
     useEffect(() => {
         const handleScroll = () => {
-            const isLandingRoute = location.pathname === '/' || location.pathname === '/home' || location.pathname === '/landing-page';
+            const isLandingRoute = ['/', '/home', '/new-lp', '/old-lp'].includes(location.pathname);
 
             // Re-sync skipped state on change
             const skipButton = document.querySelector('button[class*="fixed bottom-8"]');
@@ -101,7 +101,7 @@ const Header = () => {
         { name: 'Mentors', path: '/mentors' },
     ];
 
-    const isLandingRoute = location.pathname === '/' || location.pathname === '/home' || location.pathname === '/landing-page';
+    const isLandingRoute = ['/', '/home', '/new-lp', '/old-lp'].includes(location.pathname);
     const isSticky = isLandingRoute && isSkipped;
 
     return (

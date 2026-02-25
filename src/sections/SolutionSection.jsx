@@ -16,7 +16,7 @@ const features = [
     ],
     lottieSrc:
       "https://lottie.host/37a092d5-4119-417c-93cc-9b90aa613d03/5ruDWwNrNb.lottie",
-    color: "#ffffff",
+    color: "#FFFFFF",
     textColor: "#010D3E",
     isReversed: false,
   },
@@ -30,7 +30,7 @@ const features = [
     ],
     lottieSrc:
       "https://lottie.host/e0164715-5f37-4b7d-afbb-724b5b60addc/5p9vgoA7NI.lottie",
-    color: "#F8F9FF",
+    color: "#FFFFFF",
     textColor: "#010D3E",
     isReversed: true,
   },
@@ -44,7 +44,7 @@ const features = [
     ],
     lottieSrc:
       "https://lottie.host/0de53125-14f7-431e-b1f8-2334708b6e49/cIYILQexyA.lottie",
-    color: "#f0f2ff",
+    color: "#FFFFFF",
     textColor: "#010D3E",
     isReversed: false,
   },
@@ -58,7 +58,7 @@ const features = [
     ],
     lottieSrc:
       "https://lottie.host/ad64e9fd-131f-4a0c-90d4-fd09a0b7689f/KGtz7770Y4.lottie",
-    color: "#ffffff",
+    color: "#FFFFFF",
     textColor: "#010D3E",
     isReversed: true,
   },
@@ -72,7 +72,7 @@ const features = [
     ],
     lottieSrc:
       "https://lottie.host/7771dde5-66df-4a0f-9e35-21a40e1d198b/LtPEHK4x1o.lottie",
-    color: "#ffffff",
+    color: "#FFFFFF",
     textColor: "#010D3E",
     isReversed: false,
     isAI: true,
@@ -94,45 +94,58 @@ const Card = React.forwardRef(function Card(
       style={{ zIndex: 10 + i }}
     >
       <div
-        className="relative h-[480px] w-[90%] md:w-[80%] lg:w-[65%] rounded-[32px] p-6 md:p-10 lg:p-12 origin-top shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden border border-white/20"
+        className="relative h-[480px] w-[90%] md:w-[80%] lg:w-[65%] rounded-[32px] origin-top overflow-hidden p-[2px]"
         style={{
-          backgroundColor: color,
-          // Stack offset (visual depth) — NOT the header spacing
+          boxShadow: '0 0 40px 8px rgba(255,255,255,0.6), 0 0 80px 20px rgba(255,255,255,0.3), 0 20px 50px rgba(0,0,0,0.08)',
           top: skipAnimation ? "0px" : `calc(18px + ${i * 14}px)`,
         }}
       >
+        {/* Animated Border Background */}
         <div
-          className={`flex flex-col ${isReversed ? "md:flex-row-reverse" : "md:flex-row"
-            } items-center h-full gap-8 md:gap-12 relative z-10`}
+          className="absolute inset-[-100%] animate-[spin_4s_linear_infinite]"
+          style={{
+            background: 'conic-gradient(from 0deg, #212529, #6c757d, black, white, #212529)',
+          }}
+        />
+
+        {/* Card Content Wrapper */}
+        <div
+          className="relative h-full w-full rounded-[30px] overflow-hidden"
+          style={{ backgroundColor: "#FFFFFF" }}
         >
-          <div className="w-full md:w-1/2 flex flex-col justify-center text-center md:text-left">
-            <h3
-              className="text-3xl md:text-5xl font-bold tracking-tight mb-6 pb-2"
-              style={{ fontFamily: "Zuume-Bold", color: textColor }}
-            >
-              {title}
-            </h3>
+          <div
+            className="flex flex-col md:flex-row items-center h-full relative z-10"
+          >
+            <div className="w-full md:w-1/2 flex flex-col justify-center text-center md:text-left bg-white h-full p-6 md:p-10 lg:p-12">
+              <h3
+                className="text-3xl md:text-5xl font-bold tracking-tight mb-6 pb-2"
+                style={{ fontFamily: "Zuume-Bold", color: textColor, letterSpacing: "0.5px" }}
+              >
+                {title}
+              </h3>
 
-            <ul className="space-y-4">
-              {points.map((point, index) => (
-                <li
-                  key={index}
-                  className="flex items-start gap-3 text-base md:text-lg opacity-90 leading-tight"
-                  style={{ color: textColor }}
-                >
-                  <span
-                    className={`mt-2 h-2 w-2 rounded-full shrink-0 ${textColor === "#ffffff" ? "bg-white" : "bg-[#010D3E]"
-                      }`}
-                  />
-                  <span>{point}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+              <ul className="space-y-4 text-left">
+                {points.map((point, index) => (
+                  <li
+                    key={index}
+                    className="flex items-start gap-3 text-base md:text-lg opacity-90 leading-tight"
+                    style={{ color: textColor }}
+                  >
+                    <span className="mt-1 shrink-0 w-5 h-5 rounded-full bg-[#001E80]/10 flex items-center justify-center">
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2 6L5 9L10 3" stroke="#001E80" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </span>
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-          <div className="w-full md:w-1/2 h-full flex items-center justify-center relative">
-            <div className="w-full max-w-[350px] aspect-square">
-              <DotLottieReact src={lottieSrc} loop autoplay />
+            <div className="w-full md:w-1/2 h-full flex items-center justify-center relative bg-[#212529] p-6 md:p-10">
+              <div className="w-full max-w-[350px] aspect-square">
+                <DotLottieReact src={lottieSrc} loop autoplay />
+              </div>
             </div>
           </div>
         </div>
@@ -148,14 +161,15 @@ export const SolutionSection = ({ skipAnimation = false }) => {
   const cardsRef = useRef([]);
 
   useLayoutEffect(() => {
+    if (!container.current || !stageRef.current || !headerRef.current) return;
+
     if (skipAnimation) {
       // Clean up any potential leftover GSAP styles on skip
-      gsap.set([container.current, stageRef.current, headerRef.current], {
+      gsap.set([container.current, stageRef.current, headerRef.current].filter(Boolean), {
         clearProps: "all"
       });
       return;
     }
-    if (!container.current || !stageRef.current || !headerRef.current) return;
 
     const ctx = gsap.context(() => {
       const cards = cardsRef.current.filter(Boolean);
@@ -175,8 +189,8 @@ export const SolutionSection = ({ skipAnimation = false }) => {
 
       // Base states
       gsap.set(cards, { transformOrigin: "50% 0%" });
-      gsap.set(cards, { yPercent: 110, autoAlpha: 0, scale: 1 });
-      gsap.set(cards[0], { yPercent: 0, autoAlpha: 1 });
+      gsap.set(cards, { yPercent: 110, scale: 1 });
+      gsap.set(cards[0], { yPercent: 0 });
 
       const STACK_SCALE_STEP = 0.05;
 
@@ -196,7 +210,7 @@ export const SolutionSection = ({ skipAnimation = false }) => {
       for (let i = 1; i < cards.length; i++) {
         const card = cards[i];
 
-        tl.to(card, { yPercent: 0, autoAlpha: 1, duration: 1 }, `+=0.18`);
+        tl.to(card, { yPercent: 0, duration: 1 }, `+=0.18`);
 
         for (let j = 0; j < i; j++) {
           const prev = cards[j];
@@ -229,31 +243,39 @@ export const SolutionSection = ({ skipAnimation = false }) => {
   return (
     <section
       ref={container}
-      className={`relative bg-[#EAEEFE] w-full ${skipAnimation ? "flex flex-col py-20 h-auto overflow-visible" : "block min-h-screen overflow-hidden isolate"
+      className={`relative bg-[#F3F3F5] w-full ${skipAnimation ? "flex flex-col py-20 h-auto overflow-visible" : "block min-h-screen overflow-hidden isolate"
         }`}
-      style={skipAnimation ? { height: 'auto !important', minHeight: 'auto !important', overflow: 'visible !important' } : {}}
+      style={skipAnimation ? { height: 'auto', minHeight: 'auto', overflow: 'visible' } : {}}
     >
+      {/* Top Fade Gradient for seamless blend (Hero-style) */}
+      <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-white to-transparent pointer-events-none z-10"></div>
+
+      {/* Light Beam Separator - 50% of card width */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[45%] md:w-[40%] lg:w-[32.5%] h-px bg-gradient-to-r from-transparent via-[#001E80]/20 to-transparent z-20">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent blur-sm"></div>
+      </div>
+
       {/* Background blobs (tamed + behind) */}
       <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
-        <div className="absolute top-[-12%] left-[-15%] w-[720px] h-[720px] bg-blue-200/20 rounded-full blur-[90px]" />
-        <div className="absolute bottom-[-12%] right-[-15%] w-[720px] h-[720px] bg-purple-200/18 rounded-full blur-[90px]" />
+        <div className="absolute top-[-12%] left-[-15%] w-[720px] h-[720px] bg-gray-300/15 rounded-full blur-[90px]" />
+        <div className="absolute bottom-[-12%] right-[-15%] w-[720px] h-[720px] bg-gray-300/12 rounded-full blur-[90px]" />
       </div>
 
       {/* Header (now reserves real space, no overlap) */}
       <div
         ref={headerRef}
         className={`${skipAnimation ? 'relative pt-4 pb-0' : 'sticky top-0 pt-4 pb-2'} z-40 flex flex-col items-center justify-center text-center`}
-        style={skipAnimation ? { position: 'relative !important', transform: 'none !important' } : {}}
+        style={skipAnimation ? { position: 'relative', transform: 'none' } : {}}
       >
         <div className="px-6 pointer-events-auto">
           <h2
             className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text leading-tight"
-            style={{ fontFamily: "Zuume-Bold" }}
+            style={{ fontFamily: "Zuume-Bold", letterSpacing: "0.5px" }}
           >
             What we offer
           </h2>
 
-          <p className="text-base md:text-lg text-[#010D3E]/80 max-w-2xl mx-auto mt-1">
+          <p className="text-[16px] text-[#010D3E]/80 max-w-2xl mx-auto mt-1">
             A complete ecosystem designed to empower your academic journey and
             professional growth.
           </p>
@@ -264,7 +286,7 @@ export const SolutionSection = ({ skipAnimation = false }) => {
       <div
         ref={stageRef}
         className={skipAnimation ? "flex flex-col items-center gap-0 w-full pt-0" : "relative"}
-        style={skipAnimation ? { height: 'auto !important', minHeight: 'auto !important', display: 'flex !important', flexDirection: 'column !important' } : {}}
+        style={skipAnimation ? { height: 'auto', minHeight: 'auto', display: 'flex', flexDirection: 'column' } : {}}
       >
         {features.map((feature, i) => (
           <Card
@@ -276,6 +298,9 @@ export const SolutionSection = ({ skipAnimation = false }) => {
           />
         ))}
       </div>
+
+      {/* Bottom Fade Gradient for seamless blend into Pricing */}
+      <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-white to-transparent pointer-events-none z-10"></div>
     </section>
   );
 };

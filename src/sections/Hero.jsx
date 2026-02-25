@@ -4,7 +4,7 @@ import { FaArrowRight } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import "../fonts/style/fontsStyle.css";
 import React from 'react';
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import { LiquidButton } from '../components/LiquidButton';
 
 export const Hero = ({ contentVisible = true, skipAnimation = false }) => {
     const heroRef = useRef(null);
@@ -64,89 +64,59 @@ export const Hero = ({ contentVisible = true, skipAnimation = false }) => {
     return (
         <section
             ref={heroRef}
-            className="relative min-h-screen flex flex-col justify-center py-20 md:py-24 overflow-hidden"
+            className="relative isolate min-h-screen flex flex-col justify-center py-20 md:py-24 overflow-hidden"
         >
-            {/* Base white background */}
-            <div className="absolute inset-0 -z-20 bg-white"></div>
+            {/* Background Video */}
+            <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover -z-10"
+            >
+                <source src="/assets/hero-section-background-5.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+            </video>
 
-            {/* Layer A: Primary animated blob (deep navy → cyan) drifting left↔right and up↔down */}
-            <motion.div
-                className="absolute pointer-events-none will-change-transform"
-                style={{
-                    width: '800px',
-                    height: '800px',
-                    background: 'radial-gradient(circle at 30% 50%, rgba(1, 13, 62, 0.4) 0%, rgba(0, 120, 212, 0.2) 40%, rgba(0, 173, 254, 0.1) 100%)',
-                    borderRadius: '50%',
-                    filter: 'blur(90px)',
-                    zIndex: '-10',
-                }}
-                animate={
-                    shouldReduceMotion
-                        ? { x: 0, y: 0 }
-                        : {
-                            // Drift left ↔ right and up ↔ down
-                            x: [-150, 150, -150],
-                            y: [-100, 100, -100],
-                        }
-                }
-                transition={{
-                    duration: 25,
-                    ease: 'easeInOut',
-                    repeat: shouldReduceMotion ? 0 : Infinity,
-                }}
-            />
+            <div className="max-w-[90rem] mx-auto px-8 lg:px-16 xl:px-24 text-center relative z-10">
 
-            {/* Layer B: Secondary animated blob (purple → magenta) moving in opposite direction */}
-            <motion.div
-                className="absolute pointer-events-none will-change-transform"
-                style={{
-                    width: '700px',
-                    height: '700px',
-                    background: 'radial-gradient(circle at 70% 60%, rgba(148, 3, 253, 0.35) 0%, rgba(255, 18, 220, 0.15) 50%, rgba(255, 185, 18, 0.08) 100%)',
-                    borderRadius: '50%',
-                    filter: 'blur(85px)',
-                    zIndex: '-10',
-                    top: '10%',
-                    right: '-10%',
-                }}
-                animate={
-                    shouldReduceMotion
-                        ? { x: 0, y: 0 }
-                        : {
-                            // Move opposite to Layer A for dynamic effect
-                            x: [150, -150, 150],
-                            y: [100, -100, 100],
-                        }
-                }
-                transition={{
-                    duration: 30,
-                    ease: 'easeInOut',
-                    repeat: shouldReduceMotion ? 0 : Infinity,
-                }}
-            />
+                {/* Premium Badge */}
+                <motion.div
+                    className="flex justify-center mb-4"
+                    initial="hidden"
+                    animate={controls}
+                    variants={{
+                        hidden: { opacity: 0, y: 10 },
+                        visible: { opacity: 1, y: 0, transition: { duration: 0.5, delay: 0 } }
+                    }}
+                >
+                    <div className="relative group p-[1.5px] rounded-xl overflow-hidden">
+                        {/* Animated Border Background */}
+                        <motion.div
+                            className="absolute inset-[-150%] opacity-60"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                            style={{
+                                background: 'conic-gradient(from 0deg, transparent 20%, #001E80 50%, transparent 80%)'
+                            }}
+                        />
 
-            {/* Layer C: Subtle noise texture overlay (5-10% opacity, non-animated) */}
-            <div
-                className="absolute inset-0 pointer-events-none will-change-auto"
-                style={{
-                    zIndex: '-9',
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' result='noise' /%3E%3C/filter%3E%3Crect width='400' height='400' fill='%23000000' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E")`,
-                    backgroundRepeat: 'repeat',
-                    backgroundSize: '400px 400px',
-                    opacity: 0.08,
-                }}
-            />
-
-
-            <div className="max-w-7xl mx-auto px-8 lg:px-16 xl:px-24 text-center relative z-10">
+                        <div className="relative inline-flex items-center gap-2 border border-[#222]/10 px-4 py-1.5 rounded-[11px] tracking-tight shadow-sm bg-white/80 backdrop-blur-xl group-hover:bg-white transition-colors duration-300">
+                            <svg className="w-3.5 h-3.5 text-[#001E80]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 2L14.4 8.4L21 9.6L16.2 14.4L17.4 21L12 17.4L6.6 21L7.8 14.4L3 9.6L9.6 8.4L12 2Z" fill="currentColor" />
+                            </svg>
+                            <span className="font-bold text-sm text-[#010D3E]">Trusted by 1000+ students</span>
+                        </div>
+                    </div>
+                </motion.div>
 
                 <motion.h1
                     style={{
                         fontFamily: "Zuume-Bold",
                         letterSpacing: "0.5px",
-                        overflow: "visible",
+                        // fontSize: "85px"
                     }}
-                    className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text mt-6 pb-2 leading-tight fjalla-one-regular"
+                    className="text-[5.25rem] font-bold tracking-tighter bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text mt-6 pb-2 leading-tight"
                     initial="hidden"
                     animate={controls}
                     variants={{
@@ -154,36 +124,15 @@ export const Hero = ({ contentVisible = true, skipAnimation = false }) => {
                         visible: { opacity: 1, y: 0, transition: { duration: 0.7, delay: 0.1 } }
                     }}
                 >
-                    Here Is the road towards your {" "}
+                    Everything you need to study... {" "}
                     <span style={{
                         fontFamily: "Zuuma-Italic", fontStyle: "italic", fontWeight: 300,
                         letterSpacing: "-3px",
                         paddingRight: "10px",
                     }}>
-                        success
+                        in one place
                     </span>
                 </motion.h1>
-
-                {/* Animated Lottie Road Path */}
-                <motion.div
-                    initial="hidden"
-                    animate={controls}
-                    variants={{
-                        hidden: { opacity: 0, scale: 0.8 },
-                        visible: {
-                            opacity: 0.6,
-                            scale: 1,
-                            transition: { duration: 1, delay: 0.4 }
-                        }
-                    }}
-                    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[1040px] pointer-events-none -z-1"
-                >
-                    <DotLottieReact
-                        src="https://lottie.host/8cca3222-f038-48a3-93e9-7a6f9559e271/DI5LT8uMAJ.lottie"
-                        loop
-                        autoplay
-                    />
-                </motion.div>
 
                 {/* Controlled Reveal Wrapper */}
                 <motion.div
@@ -195,91 +144,27 @@ export const Hero = ({ contentVisible = true, skipAnimation = false }) => {
                     }}
                 >
                     <motion.p
-                        className="text-lg md:text-xl text-[#010D3E] tracking-tight mt-6 max-w-3xl mx-auto"
+                        className="text-[16px] text-[#010D3E]/80 tracking-tight mt-1 max-w-3xl mx-auto"
                         variants={fadeInUpVariants}
                     >
-                        Access premium resources, find dedicated partners, and learn from industry experts to turn your academic vision into reality.
+                        Access high-quality course materials, past exams, and assignments curated by senior students, and connect with committed partners to bring your academic goals to life.
                     </motion.p>
                     <motion.div
                         className="flex flex-col sm:flex-row gap-6 justify-center items-center mt-[30px]"
                         variants={fadeInUpVariants}
                     >
-                        <motion.div
-                            whileHover={{ scale: 1.05, y: -2 }}
-                            whileTap={{ scale: 0.98 }}
-                            transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                        >
-                            <Link
-                                ref={buttonRef}
-                                to="/register"
-                                className="relative bg-[#1a1a2e] text-white px-10 py-4 rounded-full font-bold tracking-tight inline-flex items-center gap-3 overflow-hidden group shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_6px_30px_rgba(0,0,0,0.4)] transition-all duration-300"
-                                onMouseMove={handleMouseMove}
-                                onMouseEnter={() => setIsHovering(true)}
-                                onMouseLeave={handleMouseLeave}
-                            >
-                                <span className="relative z-10">Register for free</span>
-                                <FaArrowRight className="h-4 w-4 relative z-10 transition-transform duration-300 group-hover:translate-x-1" />
-                                {/* Animated gradient overlay */}
-                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"></div>
-
-                                {/* Liquid Particle container */}
-                                <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-full">
-                                    {particles.map((particle) => (
-                                        <motion.div
-                                            key={particle.id}
-                                            className="absolute rounded-full pointer-events-none blur-sm"
-                                            style={{
-                                                width: particle.size,
-                                                height: particle.size,
-                                                backgroundColor: particle.color,
-                                                left: particle.x,
-                                                top: particle.y,
-                                                boxShadow: `0 0 12px ${particle.color}, 0 0 24px ${particle.color}80`,
-                                                filter: `drop-shadow(0 0 8px ${particle.color})`,
-                                            }}
-                                            initial={{
-                                                scale: 0.5,
-                                                opacity: 1,
-                                            }}
-                                            animate={{
-                                                // Liquid wave motion - up and side to side
-                                                y: [
-                                                    0,
-                                                    -20,
-                                                    -40,
-                                                    -60,
-                                                    -80,
-                                                    -100
-                                                ],
-                                                x: [
-                                                    0,
-                                                    Math.sin(particle.waveOffset) * 30,
-                                                    Math.sin(particle.waveOffset + Math.PI / 2) * 20,
-                                                    Math.sin(particle.waveOffset + Math.PI) * 35,
-                                                    Math.sin(particle.waveOffset + Math.PI * 1.5) * 15,
-                                                    Math.sin(particle.waveOffset + Math.PI * 2) * 25,
-                                                ],
-                                                // Liquid morphing effect
-                                                scale: [0.5, 0.8, 1, 0.9, 0.6, 0],
-                                                opacity: [0.8, 1, 1, 0.8, 0.4, 0],
-                                                borderRadius: ['50%', '60% 40% 45% 55%', '50%', '45% 55% 50% 50%', '50%', '50%'],
-                                            }}
-                                            transition={{
-                                                duration: 1.5,
-                                                ease: 'easeOut',
-                                                times: [0, 0.2, 0.4, 0.6, 0.8, 1],
-                                            }}
-                                        />
-                                    ))}
-                                </div>
-                            </Link>
-                        </motion.div>
-                        <Link to="/partners" className="text-black font-bold tracking-tight flex items-center gap-2 hover:gap-3 transition-all hover:translate-x-1 border-2 border-black px-8 py-3 rounded-full hover:bg-black/5">
-                            Find Partners <FaArrowRight className="h-4 w-4" />
-                        </Link>
+                        <LiquidButton
+                            to="/register"
+                            text="Register for free"
+                            className="scale-110"
+                        />
                     </motion.div>
                 </motion.div>
             </div>
+
+            {/* Bottom Fade Gradient for seamless blend */}
+            <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-white to-transparent pointer-events-none z-10"></div>
+
         </section>
     );
 };

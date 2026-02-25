@@ -78,12 +78,12 @@ export const Testimonials = () => {
     const thirdColumn = testimonials.slice(0, 3); // Reusing for 3rd col demo
 
     return (
-        <section ref={testimonialsRef} className="relative bg-gradient-to-b from-white via-blue-50 to-white py-0 md:py-10 overflow-hidden">
+        <section ref={testimonialsRef} className="relative bg-gradient-to-b from-white via-[#F3F3F5] to-white py-0 md:py-10 overflow-hidden -mt-20">
             {/* Subtle animated gradient blobs */}
             <motion.div
                 className="absolute -top-20 left-1/3 w-[400px] h-[400px] opacity-25 pointer-events-none"
                 style={{
-                    background: 'linear-gradient(135deg, rgba(0, 173, 254, 0.25) 0%, rgba(148, 3, 253, 0.15) 100%)',
+                    background: 'linear-gradient(135deg, rgba(190, 190, 200, 0.25) 0%, rgba(180, 180, 195, 0.15) 100%)',
                     filter: 'blur(60px)',
                     borderRadius: '40% 60% 70% 30% / 60% 30% 70% 40%',
                 }}
@@ -101,7 +101,7 @@ export const Testimonials = () => {
             <motion.div
                 className="absolute bottom-0 -right-32 w-[500px] h-[500px] opacity-20 pointer-events-none"
                 style={{
-                    background: 'linear-gradient(225deg, rgba(255, 18, 220, 0.2) 0%, rgba(255, 185, 18, 0.15) 100%)',
+                    background: 'linear-gradient(225deg, rgba(200, 200, 210, 0.2) 0%, rgba(210, 210, 215, 0.15) 100%)',
                     filter: 'blur(65px)',
                     borderRadius: '30% 70% 70% 30% / 30% 30% 70% 70%',
                 }}
@@ -117,9 +117,24 @@ export const Testimonials = () => {
                 }}
             />
             <div className="container mx-auto px-4 md:px-6 relative z-10">
-                <div className="flex justify-center">
-                    <div className="inline-flex border border-[#222]/10 px-3 py-1 rounded-lg tracking-tight shadow-sm bg-white/30 backdrop-blur gap-1 mb-5">
-                        <span className="font-bold text-sm">Testimonials</span>
+                <div className="flex justify-center mb-5">
+                    <div className="relative group p-[1.5px] rounded-xl overflow-hidden">
+                        {/* Animated Border Background */}
+                        <motion.div
+                            className="absolute inset-[-150%] opacity-60"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                            style={{
+                                background: 'conic-gradient(from 0deg, transparent 20%, #001E80 50%, transparent 80%)'
+                            }}
+                        />
+
+                        <div className="relative inline-flex items-center gap-2 border border-[#222]/10 px-4 py-1.5 rounded-[11px] tracking-tight shadow-sm bg-white/80 backdrop-blur-xl group-hover:bg-white transition-colors duration-300">
+                            <svg className="w-3.5 h-3.5 text-[#001E80]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                            <span className="font-bold text-sm text-[#010D3E]">Testimonials</span>
+                        </div>
                     </div>
                 </div>
                 <h2 style={{
@@ -128,7 +143,7 @@ export const Testimonials = () => {
                 }} className="text-center text-5xl md:text-6xl lg:text-7xl font-black tracking-tight bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text mt-5 fjalla-one-regular">
                     What our users say
                 </h2>
-                <p className="text-center text-lg md:text-xl text-[#010D3E] mt-5 max-w-lg mx-auto">
+                <p className="text-center text-[16px] text-[#010D3E] mt-5 max-w-lg mx-auto">
                     From intuitive design to powerful features, our app has become an essential tool for users around the world.
                 </p>
 
