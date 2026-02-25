@@ -12,6 +12,8 @@ import { AuthProvider } from './context/AuthContext';
 import './styles/MaskAnimations.css';
 import Header from './components/Header';
 import LandingPage from './pages/LandingPage';
+import OldLandingPage from './pages/OldLandingPage';
+import HomePage from './pages/HomePage';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
@@ -78,10 +80,13 @@ function App() {
       <Router>
         <MainLayout>
           <Routes>
+            {/* Static Homepage */}
+            <Route path="/" element={<HomePage />} />
+            <Route path="/home" element={<HomePage />} />
+
             {/* Landing Pages (Full Width, No Padding) */}
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/landing-page" element={<LandingPage />} />
-            <Route path="/home" element={<LandingPage />} />
+            <Route path="/new-lp" element={<LandingPage />} />
+            <Route path="/old-lp" element={<OldLandingPage />} />
 
             {/* Project Pages (Contained with Padding) */}
             <Route path="/login" element={<ProjectLayout><Login /></ProjectLayout>} />
