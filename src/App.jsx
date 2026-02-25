@@ -20,27 +20,18 @@ import Profile from './pages/Profile';
 import ResourceHub from './pages/ResourceHub';
 import ThreadDetail from './pages/ThreadDetail';
 import Partners from './pages/Partners';
-import Mentors from './pages/Mentors';
-import MentorshipPitchHub from './pages/MentorshipPitchHub';
-import RequestMentorshipForm from './pages/RequestMentorshipForm';
-import MentorshipRequests from './pages/MentorshipRequests';
+import PitchHub from './pages/PitchHub';
+import PitchForm from './pages/PitchForm';
 import PublicProfile from './pages/PublicProfile';
 import DashboardRequests from './pages/DashboardRequests';
 import Dashboard from './pages/Dashboard';
 import SocialMediaEditor from './pages/SocialMediaEditor';
 import Chat from './pages/Chat';
 import PlanManager from './pages/PlanManager';
-import PlanViewer from './pages/PlanViewer';
 
 import TopUp from './pages/TopUp'; // V2.0
 import { useContext } from 'react';
 import AuthContext from './context/AuthContext';
-
-// Wrapper to decide which plan view to show
-const PlanWrapper = () => {
-  const { user } = useContext(AuthContext);
-  return user?.role === 'mentor' ? <PlanManager /> : <PlanViewer />;
-};
 
 // Layout for pages that need the container and top padding
 const ProjectLayout = ({ children }) => (
@@ -97,16 +88,13 @@ function App() {
             <Route path="/resources" element={<ProjectLayout><ResourceHub /></ProjectLayout>} />
             <Route path="/resources/thread/:id" element={<ProjectLayout><ThreadDetail /></ProjectLayout>} />
             <Route path="/partners" element={<ProjectLayout><Partners /></ProjectLayout>} />
-            <Route path="/mentors" element={<ProjectLayout><Mentors /></ProjectLayout>} />
-            <Route path="/mentorship-request" element={<ProjectLayout><MentorshipPitchHub /></ProjectLayout>} />
-            <Route path="/request-mentorship" element={<ProjectLayout><RequestMentorshipForm /></ProjectLayout>} />
-            <Route path="/request-mentorship/:mentorId" element={<ProjectLayout><RequestMentorshipForm /></ProjectLayout>} />
-            <Route path="/mentorship-requests" element={<ProjectLayout><MentorshipRequests /></ProjectLayout>} />
+            <Route path="/pitch-hub" element={<ProjectLayout><PitchHub /></ProjectLayout>} />
+            <Route path="/pitch-form" element={<ProjectLayout><PitchForm /></ProjectLayout>} />
             <Route path="/u/:username" element={<ProjectLayout><PublicProfile /></ProjectLayout>} />
             <Route path="/requests" element={<ProjectLayout><DashboardRequests /></ProjectLayout>} />
             <Route path="/chat" element={<ProjectLayout><Chat /></ProjectLayout>} />
             <Route path="/top-up" element={<ProjectLayout><TopUp /></ProjectLayout>} />
-            <Route path="/plan/:id" element={<ProjectLayout><PlanWrapper /></ProjectLayout>} />
+            <Route path="/plan/:id" element={<ProjectLayout><PlanManager /></ProjectLayout>} />
 
           </Routes>
         </MainLayout>

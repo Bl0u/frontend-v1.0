@@ -35,12 +35,12 @@ const features = [
     isReversed: true,
   },
   {
-    title: "Mentorship",
+    title: "Peer Guidance",
     points: [
-      "Access raw, experience-based advice from those who've reached your goals.",
-      "Structured guidance for career roadmaps and technical excellence.",
-      "Mock interviews, portfolio reviews, and seasoned perspectives.",
-      "Efficiently find mentors who are exactly where you want to be.",
+      "Access raw, experience-based advice from partners who've reached your goals.",
+      "Collaborative guidance for career roadmaps and technical excellence.",
+      "Peer reviews, shared perspectives, and mutual growth.",
+      "Find collaborators who have already mastered the skills you need.",
     ],
     lottieSrc:
       "https://lottie.host/0de53125-14f7-431e-b1f8-2334708b6e49/cIYILQexyA.lottie",
@@ -52,7 +52,7 @@ const features = [
     title: "Chatting",
     points: [
       "Real-time communication directly with your project partners.",
-      "Direct messaging with mentors for instant feedback and guidance.",
+      "Direct messaging with collaborators for instant feedback and guidance.",
       "Integrated file sharing and organized project channels.",
       "Stay synchronized with every member of your academic team.",
     ],
@@ -65,7 +65,7 @@ const features = [
   {
     title: "AI Discovery Assistant",
     points: [
-      "Smart matching logic to find best mentors, partners, and resources.",
+      "Smart matching logic to find best collaborators, partners, and resources.",
       "Share your specific requirements and get precise recommendations.",
       "Interactive assistant acts as your academic and professional co-pilot.",
       "Bridge the gap between your needs and the platform's vast ecosystem.",

@@ -14,7 +14,7 @@ export const Footer = () => {
                             <img src="/assets/logosaas.png" alt="LearnCrew Logo" height={40} className="relative h-10 w-auto" />
                         </div>
                         <p className="mt-4 text-[#BCBCBC]/80 leading-relaxed">
-                            Your trusted platform to find partners, connect with mentors, and access premium resources for your graduation project success.
+                            Your trusted platform to find partners, connect with collaborators, and access premium resources for your graduation project success.
                         </p>
                         <div className="flex gap-4 mt-6">
                             <FaTwitter className="text-white h-5 w-5 hover:text-white/80 transition-colors cursor-pointer" />
@@ -28,9 +28,8 @@ export const Footer = () => {
                         <h3 className="font-bold text-white mb-4">Platform</h3>
                         <nav className="flex flex-col gap-3">
                             <Link to="/partners" className="hover:text-white transition-colors">Find Partners</Link>
-                            <Link to="/mentors" className="hover:text-white transition-colors">Browse Mentors</Link>
+                            <Link to="/pitch-hub" className="hover:text-white transition-colors">Pitch Hub</Link>
                             <Link to="/resources" className="hover:text-white transition-colors">Resources Hub</Link>
-                            <Link to="/mentorship-request" className="hover:text-white transition-colors">Pitch Hub</Link>
                             <Link to="/top-up" className="hover:text-white transition-colors">Top Up Stars</Link>
                         </nav>
                     </div>

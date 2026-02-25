@@ -73,7 +73,7 @@ const PitchQuestionsManager = ({ user, initialQuestions, onUpdate }) => {
             <div className="p-8 border-b border-gray-50 bg-gray-50/30 flex justify-between items-center">
                 <div>
                     <h3 className="text-xl font-extrabold text-gray-800">Custom Pitch Questions</h3>
-                    <p className="text-sm text-gray-500 font-medium">Define what students must answer when booking a mentorship with you.</p>
+                    <p className="text-sm text-gray-500 font-medium">Define what partners must answer when pitching a collaboration to you.</p>
                 </div>
                 <button
                     onClick={addQuestion}
@@ -87,7 +87,7 @@ const PitchQuestionsManager = ({ user, initialQuestions, onUpdate }) => {
                 {questions.length === 0 ? (
                     <div className="text-center py-12 border-2 border-dashed border-gray-100 rounded-3xl">
                         <FaExclamationCircle className="mx-auto text-gray-300 mb-4" size={32} />
-                        <p className="text-gray-400 font-mediumitalic">No custom questions set. Default pitch hub questions will be used.</p>
+                        <p className="text-gray-400 font-medium italic">No custom questions set. Default pitch hub questions will be used.</p>
                     </div>
                 ) : (
                     <div className="space-y-6">

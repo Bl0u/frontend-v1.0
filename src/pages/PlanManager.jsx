@@ -148,29 +148,18 @@ const PlanManager = () => {
             </button>
 
             <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8 mb-8">
-                <h1 className="text-3xl font-black text-gray-900 mb-2">Mentorship Plan</h1>
+                <h1 className="text-3xl font-black text-gray-900 mb-2">Collaboration Plan</h1>
                 <p className="text-gray-600 font-medium">
-                    <span className="font-bold">Mentee:</span> {plan.mentee.name} (@{plan.mentee.username})
+                    <span className="font-bold">Partners:</span> {plan.partner1.name} & {plan.partner2.name}
                 </p>
             </div>
 
             {/* New Version Button */}
             {(() => {
-                // Defensive check: ensure plan.mentor exists
-                if (!plan.mentor || !plan.mentor._id) {
-                    console.warn('Plan mentor not populated:', plan.mentor);
-                    return null;
-                }
+                // Both partners can now add versions
+                const isPartner = plan.partner1._id.toString() === user._id || plan.partner2._id.toString() === user._id;
 
-                const isMentor = plan.mentor._id.toString() === user._id;
-                console.log('Add Version Button Debug:', {
-                    showNewVersionForm,
-                    planMentorId: plan.mentor._id.toString(),
-                    userId: user._id,
-                    isMentor,
-                    willShow: !showNewVersionForm && isMentor
-                });
-                return !showNewVersionForm && isMentor && (
+                return !showNewVersionForm && isPartner && (
                     <button
                         onClick={() => setShowNewVersionForm(true)}
                         className="mb-8 w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-indigo-100 transition-all flex items-center justify-center gap-3"
@@ -271,7 +260,7 @@ const PlanManager = () => {
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-4">
-                                    {editingVersion !== actualIdx && plan.mentor._id === user.id && (
+                                    {editingVersion !== actualIdx && (plan.partner1._id === user._id || plan.partner2._id === user._id) && (
                                         <>
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); handleEditVersion(actualIdx, version); }}

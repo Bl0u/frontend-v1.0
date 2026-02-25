@@ -16,7 +16,7 @@ const DashboardRequests = () => {
     const fetchInbox = async () => {
         try {
             const data = await requestService.getReceivedRequests(user.token);
-            // Show ALL items: mentorship, partnership, and notification types
+            // Show ALL items: partnership and notification types
             setInboxItems(data);
             setLoading(false);
         } catch (error) {
@@ -32,8 +32,6 @@ const DashboardRequests = () => {
 
     const getItemIcon = (type) => {
         switch (type) {
-            case 'mentorship':
-                return <FaGraduationCap className="text-indigo-600" />;
             case 'partner':
             case 'partnership':
                 return <FaUserFriends className="text-green-600" />;
@@ -46,8 +44,6 @@ const DashboardRequests = () => {
 
     const getItemTitle = (item) => {
         switch (item.type) {
-            case 'mentorship':
-                return '🔔 Mentorship Request';
             case 'partner':
             case 'partnership':
                 return '🤝 Partnership Request';
@@ -59,7 +55,7 @@ const DashboardRequests = () => {
     };
 
     const isActionable = (item) => {
-        return ['mentorship', 'partner', 'partnership'].includes(item.type) && item.status === 'pending';
+        return ['partner', 'partnership'].includes(item.type) && item.status === 'pending';
     };
 
     const handleAction = async (id, status) => {
@@ -148,7 +144,7 @@ const DashboardRequests = () => {
                                                 <FaUser /> View Profile
                                             </button>
                                         )}
-                                        {isActionable(item) && item.type === 'mentorship' && item.pitch && (
+                                        {isActionable(item) && item.pitch && (
                                             <button
                                                 onClick={() => {
                                                     setSelectedPitch(item.pitch);

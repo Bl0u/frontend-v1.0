@@ -171,8 +171,8 @@ const HomePage = () => {
                         { to: '/register', label: 'Register' },
                         { to: '/dashboard', label: 'Dashboard' },
                         { to: '/resources', label: 'Resources' },
-                        { to: '/mentors', label: 'Mentors' },
                         { to: '/partners', label: 'Partners' },
+                        { to: '/pitch-hub', label: 'Pitch Hub' },
                     ].map(link => (
                         <Link key={link.to} to={link.to} style={{
                             padding: '8px 20px',
