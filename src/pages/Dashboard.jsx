@@ -5,7 +5,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { API_BASE_URL } from '../config';
 
-import { FaHistory, FaCheckCircle, FaExternalLinkAlt, FaUserFriends, FaBook } from 'react-icons/fa';
+import { FaExternalLinkAlt, FaUserFriends, FaBook } from 'react-icons/fa';
 import requestService from '../features/requests/requestService';
 import planService from '../features/plans/planService';
 import PitchQuestionsManager from '../components/PitchQuestionsManager';
@@ -248,42 +248,6 @@ const Dashboard = () => {
                                     Find Partners →
                                 </Link>
                             </div>
-                        )}
-                    </div>
-                </section>
-
-                {/* Partnership Archive */}
-                <section className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-                    <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between">
-                        <h3 className="text-lg font-bold text-gray-800 flex items-center gap-3">
-                            <FaHistory className="text-[#001E80]/50" /> Archive
-                        </h3>
-                        <span className="bg-gray-50 px-3 py-1 rounded-full text-xs font-bold text-gray-400">
-                            {completedCount}
-                        </span>
-                    </div>
-                    <div className="p-6">
-                        {completedCount > 0 ? (
-                            <div className="space-y-3">
-                                {profile.partnerHistory.slice().reverse().map((history, idx) => (
-                                    <div key={idx} className="flex items-center justify-between p-4 rounded-2xl border border-gray-100 hover:bg-[#EAEEFE]/20 transition-all">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 bg-[#EAEEFE] rounded-xl flex items-center justify-center text-sm font-black text-[#001E80]">
-                                                {history.partnerName?.charAt(0)}
-                                            </div>
-                                            <div>
-                                                <Link to={`/u/${history.partnerUsername}`} className="font-bold text-gray-900 text-sm leading-tight hover:text-[#001E80] transition-colors">
-                                                    {history.partnerName}
-                                                </Link>
-                                                <p className="text-xs text-gray-400 font-medium">@{history.partnerUsername}</p>
-                                            </div>
-                                        </div>
-                                        <FaCheckCircle className="text-green-500" />
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <p className="text-center text-gray-400 py-12 text-sm">No completed partnerships yet.</p>
                         )}
                     </div>
                 </section>

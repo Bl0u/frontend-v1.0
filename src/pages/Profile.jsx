@@ -31,17 +31,33 @@ const Profile = () => {
     }, [user]);
 
     if (!user) return <p>Please login.</p>;
-    if (loading) return <p className="text-center mt-10">Loading profile...</p>;
+    if (loading) return (
+        <div className="flex items-center justify-center py-32">
+            <div className="w-8 h-8 border-2 border-[#001E80]/20 border-t-[#001E80] rounded-full animate-spin"></div>
+        </div>
+    );
 
     return (
-        <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md my-10">
-            <h2 className="text-3xl font-bold mb-8 text-gray-800 border-b pb-4">Edit Profile</h2>
+        <div className="max-w-5xl mx-auto space-y-8">
+            {/* LP-themed Header */}
+            <div>
+                <h1
+                    className="text-3xl font-black bg-gradient-to-b from-black to-[#001E80] bg-clip-text text-transparent pb-1"
+                    style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
+                >
+                    Profile
+                </h1>
+                <p className="text-[#010D3E]/50 text-sm font-medium mt-1">Manage your identity and academic details</p>
+            </div>
 
-            <StudentProfileForm
-                user={user}
-                initialData={profileData}
-                refreshProfile={fetchProfile}
-            />
+            {/* Form Card */}
+            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8">
+                <StudentProfileForm
+                    user={user}
+                    initialData={profileData}
+                    refreshProfile={fetchProfile}
+                />
+            </div>
         </div>
     );
 };
