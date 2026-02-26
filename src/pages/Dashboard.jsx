@@ -29,6 +29,13 @@ const Dashboard = () => {
     const [myThreads, setMyThreads] = useState([]);
     const [loadingThreads, setLoadingThreads] = useState(false);
 
+    // Contributions Filters
+    const [activeFilters, setActiveFilters] = useState({});
+    const [activeFilterType, setActiveFilterType] = useState(null);
+    const [uniqueTags, setUniqueTags] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
+    const filterContainerRef = useRef(null);
+
     const fetchProfile = async () => {
         if (!currentUser) return;
         try {
@@ -88,7 +95,17 @@ const Dashboard = () => {
             const fetchMyThreads = async () => {
                 setLoadingThreads(true);
                 try {
-                    const data = await resourceService.getThreads({ author: currentUser._id });
+                    let tagsParam = '';
+                    const tagValues = Object.values(activeFilters);
+                    if (tagValues.length > 0) {
+                        tagsParam = tagValues.join(',');
+                    }
+
+                    const data = await resourceService.getThreads({
+                        author: currentUser._id,
+                        search: searchTerm,
+                        tags: tagsParam
+                    });
                     setMyThreads(data);
                 } catch (error) {
                     toast.error('Failed to load contributions');
@@ -96,9 +113,86 @@ const Dashboard = () => {
                     setLoadingThreads(false);
                 }
             };
-            fetchMyThreads();
+
+            // Debounce search
+            const delayDebounceFn = setTimeout(() => {
+                fetchMyThreads();
+            }, 300);
+
+            return () => clearTimeout(delayDebounceFn);
         }
-    }, [activeTab, currentUser]);
+    }, [activeTab, currentUser, searchTerm, activeFilters]);
+
+    // Fetch Unique Tags for Filters
+    useEffect(() => {
+        if (activeTab === 'contributions') {
+            const fetchTags = async () => {
+                try {
+                    const tags = await resourceService.getUniqueTags();
+                    setUniqueTags(tags);
+                } catch (error) {
+                    console.error("Failed to load unique tags", error);
+                }
+            };
+            fetchTags();
+        }
+    }, [activeTab]);
+
+    // Filter Handlers
+    const handleApplyFilter = (type, value) => {
+        setActiveFilters(prev => ({ ...prev, [type]: value }));
+        setActiveFilterType(null);
+    };
+
+    const removeFilter = (type) => {
+        setActiveFilters(prev => {
+            const newFilters = { ...prev };
+            delete newFilters[type];
+            return newFilters;
+        });
+    };
+
+    const getDropdownOptions = (type) => {
+        if (!uniqueTags || uniqueTags.length === 0) return [];
+        if (type === 'University') {
+            const uniRawNames = ['Cairo University', 'Ain Shams University', 'Helwan University', 'Alexandria University', 'Mansoura University', 'Assiut University', 'Tanta University', 'Zagazig University'];
+            return uniRawNames.filter(u => uniqueTags.includes(`#${u.replace(/\s+/g, '')}`));
+        }
+        if (type === 'Professor') {
+            return uniqueTags.filter(t => t.startsWith('#Prof')).map(t => t.replace('#Prof', ''));
+        }
+        if (type === 'Subject' || type === 'Company') {
+            const uniTags = ['CairoUniversity', 'AinShamsUniversity', 'HelwanUniversity', 'AlexandriaUniversity', 'MansouraUniversity', 'AssiutUniversity', 'TantaUniversity', 'ZagazigUniversity'].map(u => `#${u}`);
+            const excludeTags = [...uniTags, '#Interview', '#SpecificSubject', '#college', '#interview', '#specific'];
+            return uniqueTags.filter(t => !excludeTags.includes(t) && !t.startsWith('#Prof')).map(t => t.replace(/^#/, ''));
+        }
+        return [];
+    };
+
+    // Close Dropdown Outside Click
+    useEffect(() => {
+        if (activeTab === 'contributions') {
+            const handleClickOutside = (event) => {
+                if (filterContainerRef.current && !filterContainerRef.current.contains(event.target)) {
+                    setActiveFilterType(null);
+                }
+            };
+            document.addEventListener('mousedown', handleClickOutside);
+            return () => document.removeEventListener('mousedown', handleClickOutside);
+        }
+    }, [activeTab]);
+
+    const handleDeleteThread = async (e, threadId) => {
+        e.stopPropagation();
+        if (!window.confirm('Delete this published thread permanently?')) return;
+        try {
+            await resourceService.deleteThread(threadId, currentUser.token);
+            toast.success('Thread Deleted');
+            setMyThreads(myThreads.filter(t => t._id !== threadId));
+        } catch (error) {
+            toast.error('Failed to delete thread');
+        }
+    };
 
     if (loading) return (
         <div className="flex items-center justify-center py-32">
@@ -308,12 +402,76 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-                {/* Table View */}
+                {/* Filter and Table View */}
                 <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden animate-in fade-in duration-500">
-                    <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between">
-                        <h3 className="text-lg font-bold text-gray-800 flex items-center gap-3">
-                            <FaBook className="text-[#001E80]" /> Published Threads
-                        </h3>
+                    <div className="px-8 py-6 border-b border-gray-50 flex flex-col gap-6">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-lg font-bold text-gray-800 flex items-center gap-3">
+                                <FaBook className="text-[#001E80]" /> Published Threads
+                            </h3>
+                            <div className="relative w-64">
+                                <input
+                                    type="text"
+                                    placeholder="Search your threads..."
+                                    className="w-full bg-gray-50 border border-gray-100 rounded-xl py-2 px-4 text-xs font-medium outline-none focus:bg-white focus:ring-2 focus:ring-[#001E80]/10 transition-all"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        {/* LinkedIn-Style Filter Bar */}
+                        <div className="flex flex-wrap items-center gap-3" ref={filterContainerRef}>
+                            <div className="flex items-center gap-2 text-[#001E80]/40 font-black text-[10px] uppercase tracking-widest mr-2 shrink-0">
+                                Filters:
+                            </div>
+
+                            {/* Available Filter Buttons */}
+                            {['University', 'Professor', 'Subject', 'Company'].map(filterId => {
+                                if (activeFilters[filterId]) return null;
+
+                                return (
+                                    <div key={filterId} className="relative shrink-0">
+                                        <button
+                                            onClick={() => setActiveFilterType(activeFilterType === filterId ? null : filterId)}
+                                            className={`px-4 py-1.5 rounded-full border text-[10px] font-bold uppercase tracking-widest transition-all ${activeFilterType === filterId ? 'bg-[#EAEEFE] border-[#001E80]/20 text-[#001E80]' : 'bg-white border-gray-100 text-gray-500 hover:bg-gray-50'}`}
+                                        >
+                                            + {filterId}
+                                        </button>
+
+                                        {/* Dropdown Options */}
+                                        {activeFilterType === filterId && (
+                                            <div className="absolute top-full left-0 mt-2 w-56 bg-white border border-gray-100 shadow-xl rounded-xl z-20 animate-in slide-in-from-top-2 duration-200">
+                                                <div className="max-h-48 overflow-y-auto p-1 scrollbar-hide">
+                                                    {getDropdownOptions(filterId).length > 0 ? (
+                                                        getDropdownOptions(filterId).map(option => (
+                                                            <button
+                                                                key={option}
+                                                                onClick={() => handleApplyFilter(filterId, option)}
+                                                                className="w-full text-left px-3 py-2 text-[11px] text-gray-700 hover:bg-[#EAEEFE] hover:text-[#001E80] rounded-lg font-bold transition-colors"
+                                                            >
+                                                                {option}
+                                                            </button>
+                                                        ))
+                                                    ) : (
+                                                        <p className="text-[10px] text-center py-3 text-gray-400 font-bold uppercase tracking-widest">No tags found</p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+
+                            {/* Active Filters */}
+                            {Object.entries(activeFilters).map(([type, value]) => (
+                                <div key={type} className="flex items-center gap-2 bg-[#001E80] text-white px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm animate-in zoom-in duration-200">
+                                    <span className="opacity-70">{type}:</span>
+                                    <span>{value}</span>
+                                    <button onClick={() => removeFilter(type)} className="ml-1 hover:text-red-300 transition-colors">✕</button>
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
                     {loadingThreads ? (
@@ -324,63 +482,83 @@ const Dashboard = () => {
                         <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse">
                                 <thead>
-                                    <tr className="bg-gray-50/50 border-b border-gray-100 text-[10px] font-black uppercase tracking-widest text-[#001E80]/40">
-                                        <th className="py-4 px-6 md:w-1/2">Thread Title</th>
-                                        <th className="py-4 px-6">Tags</th>
-                                        <th className="py-4 px-6 text-center">Stats</th>
-                                        <th className="py-4 px-6 text-right">View</th>
+                                    <tr className="bg-gray-50/50 border-b border-gray-100 text-[9px] font-black uppercase tracking-widest text-[#001E80]/40">
+                                        <th className="py-3 px-6 w-1/3">Thread</th>
+                                        <th className="py-3 px-6">Required Skills & Tags</th>
+                                        <th className="py-3 px-6 text-center w-24">Stats</th>
+                                        <th className="py-3 px-6 text-right w-24">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody className="text-sm">
                                     {myThreads.map((thread) => (
                                         <tr
                                             key={thread._id}
                                             onClick={() => navigate(`/resources/thread/${thread._id}`)}
                                             className="border-b border-gray-50 hover:bg-[#EAEEFE]/20 cursor-pointer transition-colors group"
                                         >
-                                            {/* Thread Title & Type */}
-                                            <td className="py-5 px-6">
-                                                <div className="flex items-center gap-2 mb-1">
-                                                    {thread.isCurated ? (
-                                                        <span className="px-2 py-0.5 bg-green-100 border border-green-200 text-green-700 rounded-md text-[9px] font-black uppercase tracking-widest">Guide</span>
-                                                    ) : (
-                                                        <span className="px-2 py-0.5 bg-gray-100 border border-gray-200 text-gray-500 rounded-md text-[9px] font-black uppercase tracking-widest">Community</span>
-                                                    )}
-                                                    <span className="text-[9px] font-black uppercase tracking-widest text-gray-400">
-                                                        {new Date(thread.createdAt).toLocaleDateString()}
-                                                    </span>
+                                            <td className="py-4 px-6 relative">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="flex-1 min-w-0">
+                                                        <h3 className="font-bold text-gray-900 truncate group-hover:text-[#001E80] transition-colors pr-4">{thread.title}</h3>
+                                                        <div className="flex items-center gap-2 mt-1">
+                                                            <span className="text-[9px] font-black uppercase tracking-widest text-gray-400">{new Date(thread.createdAt).toLocaleDateString()}</span>
+                                                            {thread.isCurated && (
+                                                                <span className="px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-[8px] font-black uppercase tracking-widest leading-none">Verified</span>
+                                                            )}
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <h3 className="text-base font-bold text-gray-800 line-clamp-1 group-hover:text-[#001E80] transition-colors">{thread.title}</h3>
                                             </td>
 
-                                            {/* Tags Col */}
-                                            <td className="py-5 px-6">
-                                                <div className="flex flex-wrap gap-1.5 max-w-[200px]">
-                                                    {thread.tags?.slice(0, 2).map((tag, idx) => (
-                                                        <span key={idx} className="px-2 py-1 bg-white border border-gray-200 text-gray-500 rounded-lg text-[9px] font-bold uppercase tracking-wider whitespace-nowrap">
+                                            <td className="py-4 px-6 relative">
+                                                <div className="flex items-center gap-1.5 flex-wrap">
+                                                    {thread.tags?.slice(0, 3).map((tag, idx) => (
+                                                        <span key={idx} className="px-2 py-1 bg-white border border-gray-100 text-gray-500 rounded text-[9px] font-bold uppercase tracking-wider whitespace-nowrap">
                                                             {tag}
                                                         </span>
                                                     ))}
-                                                    {thread.tags?.length > 2 && (
-                                                        <span className="px-2 py-1 bg-gray-50 text-gray-400 rounded-lg text-[9px] font-bold uppercase tracking-wider">
-                                                            +{thread.tags.length - 2}
-                                                        </span>
+                                                    {thread.tags?.length > 3 && (
+                                                        <div className="relative group/tags">
+                                                            <span className="px-2 py-1 bg-gray-50 text-gray-400 rounded text-[9px] font-bold uppercase tracking-wider cursor-help">
+                                                                +{thread.tags.length - 3}
+                                                            </span>
+                                                            <div className="absolute left-0 bottom-full mb-2 hidden group-hover/tags:flex flex-wrap gap-1 bg-gray-900 border border-gray-800 p-2 rounded-lg w-48 shadow-xl z-10">
+                                                                {thread.tags.slice(3).map((tag, idx) => (
+                                                                    <span key={idx} className="px-2 py-1 bg-white/10 text-white rounded text-[8px] font-bold uppercase tracking-wider whitespace-nowrap">
+                                                                        {tag}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+                                                        </div>
                                                     )}
                                                 </div>
                                             </td>
 
-                                            {/* Stats Col */}
-                                            <td className="py-5 px-6 text-center">
-                                                <div className="flex items-center justify-center gap-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                                                    <span className="flex flex-col"><span className="text-gray-900 text-xs mt-0.5">{thread.upvoteCount || 0}</span>Votes</span>
-                                                    <span className="flex flex-col"><span className="text-gray-900 text-xs mt-0.5">{thread.postCount || 0}</span>Posts</span>
+                                            <td className="py-4 px-6 text-center">
+                                                <div className="flex items-center justify-center gap-3 text-gray-400">
+                                                    <span className="flex items-center gap-1 font-bold text-xs" title="Upvotes">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                                                        {thread.upvoteCount || 0}
+                                                    </span>
+                                                    <span className="flex items-center gap-1 font-bold text-xs" title="Posts">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                                                        {thread.postCount || 0}
+                                                    </span>
                                                 </div>
                                             </td>
 
-                                            {/* Action Col */}
-                                            <td className="py-5 px-6 text-right">
-                                                <div className="w-8 h-8 rounded-full bg-white border border-gray-100 flex items-center justify-center ml-auto group-hover:bg-[#001E80] group-hover:text-white transition-all shadow-sm">
-                                                    <FaChevronRight size={12} className="text-gray-400 group-hover:text-white" />
+                                            <td className="py-4 px-6 text-right">
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <button
+                                                        onClick={(e) => handleDeleteThread(e, thread._id)}
+                                                        className="w-8 h-8 rounded-full flex items-center justify-center text-red-300 hover:text-white hover:bg-red-500 transition-all opacity-0 group-hover:opacity-100"
+                                                        title="Delete Thread"
+                                                    >
+                                                        ✕
+                                                    </button>
+                                                    <div className="w-8 h-8 rounded-full border border-gray-100 flex items-center justify-center group-hover:border-[#001E80] group-hover:bg-[#001E80] transition-colors">
+                                                        <FaChevronRight size={10} className="text-gray-300 group-hover:text-white transition-colors" />
+                                                    </div>
                                                 </div>
                                             </td>
                                         </tr>
@@ -389,11 +567,11 @@ const Dashboard = () => {
                             </table>
                         </div>
                     ) : (
-                        <div className="text-center py-12 px-4">
-                            <p className="text-sm text-gray-500 mb-4">You haven't published any threads yet.</p>
+                        <div className="text-center py-12 px-4 bg-gray-50/30">
+                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">No published threads found.</p>
                             <button
                                 onClick={() => navigate('/resources')}
-                                className="bg-[#001E80] text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all shadow-md"
+                                className="bg-[#001E80] text-white px-6 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all shadow-md hover:bg-[#010D3E]"
                             >
                                 Browse Hub
                             </button>

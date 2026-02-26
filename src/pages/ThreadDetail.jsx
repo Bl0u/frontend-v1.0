@@ -678,69 +678,67 @@ const ThreadDetail = () => {
                 </div>
             </div>
 
-            {/* Floating Reply Box */}
-            <div className="fixed bottom-0 left-0 right-0 p-6 z-40 bg-gradient-to-t from-gray-50 via-gray-50/90 to-transparent pointer-events-none">
-                <div className="max-w-6xl mx-auto flex">
-                    <div className="flex-1 max-w-[calc(100%-20rem-2.5rem)] pointer-events-auto">
-                        <form onSubmit={handleAddPost} className="bg-gray-900 rounded-[2rem] p-4 pr-6 pl-8 shadow-2xl flex items-center gap-4 border border-white/5 relative">
-                            {replyTo && (
-                                <div className="absolute -top-12 left-8 right-8 bg-indigo-600 text-white text-[9px] font-black uppercase tracking-widest px-4 py-2 rounded-t-xl flex justify-between items-center shadow-lg animate-in slide-in-from-bottom-4">
-                                    <span>Replying to {replyTo.author?.name}</span>
-                                    <button onClick={() => setReplyTo(null)} className="hover:text-amber-300">Cancel</button>
-                                </div>
-                            )}
-                            <button
-                                type="button"
-                                onClick={() => fileInputRef.current?.click()}
-                                className="shrink-0 w-12 h-12 rounded-2xl bg-white/5 hover:bg-white/10 text-white flex items-center justify-center transition-all active:scale-95 group relative"
-                            >
-                                <FaPaperclip size={18} />
-                                {file && <span className="absolute -top-1 -right-1 w-3 h-3 bg-indigo-500 rounded-full border-2 border-gray-900"></span>}
-                            </button>
-                            <input
-                                type="file"
-                                hidden
-                                ref={fileInputRef}
-                                onChange={(e) => setFile(e.target.files[0])}
-                            />
-                            <textarea
-                                className="flex-1 bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm font-medium text-white outline-none focus:ring-2 focus:ring-indigo-400 placeholder-white/40 min-h-[60px] max-h-[200px] resize-none"
-                                placeholder={needsAcknowledgment ? "Acknowledge instructions to start posting..." : (replyTo ? "Type your branch reply..." : "Contribute to mission stream... (Markdown allowed)")}
-                                value={reply}
-                                onChange={(e) => setReply(e.target.value)}
-                                required
-                                disabled={needsAcknowledgment}
-                            />
-                            <button
-                                type="submit"
-                                className="shrink-0 w-12 h-12 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center shadow-lg shadow-indigo-900 transition-all active:scale-95 disabled:opacity-50"
-                                disabled={needsAcknowledgment}
-                            >
-                                <FaPaperPlane size={18} />
-                            </button>
-                        </form>
-                        {needsAcknowledgment && (
-                            <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] rounded-[2.5rem] flex items-center justify-center">
-                                <button
-                                    onClick={() => setShowInstructions(true)}
-                                    className="bg-indigo-600 text-white px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-900 transition-all hover:scale-105 active:scale-95"
-                                >
-                                    Unlock Posting Entry
-                                </button>
+            {/* Inline Reply Box (Moved from fixed bottom) */}
+            <div className="flex flex-col lg:flex-row gap-10 mt-6 pt-6 border-t border-gray-100">
+                <div className="flex-1">
+                    <form onSubmit={handleAddPost} className="bg-gray-900 rounded-[2rem] p-4 pr-6 pl-8 shadow-2xl flex items-center gap-4 border border-white/5 relative">
+                        {replyTo && (
+                            <div className="absolute -top-12 left-8 right-8 bg-indigo-600 text-white text-[9px] font-black uppercase tracking-widest px-4 py-2 rounded-t-xl flex justify-between items-center shadow-lg animate-in slide-in-from-bottom-4">
+                                <span>Replying to {replyTo.author?.name}</span>
+                                <button onClick={() => setReplyTo(null)} className="hover:text-amber-300">Cancel</button>
                             </div>
                         )}
-                        {file && (
-                            <div className="mt-2 ml-4 flex items-center gap-2">
-                                <span className="text-[9px] font-black text-indigo-400 uppercase tracking-widest bg-gray-900/10 px-3 py-1 rounded-full backdrop-blur-sm shadow-sm border border-indigo-400/20">
-                                    Ready to upload: {file.name.substring(0, 20)}{file.name.length > 20 ? '...' : ''}
-                                </span>
-                                <button onClick={() => setFile(null)} className="text-red-400 text-[10px] font-black hover:underline px-2">✕</button>
-                            </div>
-                        )}
-                    </div>
-                    {/* Placeholder for sidebar-aligned-area - keep floating box in left column */}
-                    <div className="w-80 shrink-0 ml-10"></div>
+                        <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="shrink-0 w-12 h-12 rounded-2xl bg-white/5 hover:bg-white/10 text-white flex items-center justify-center transition-all active:scale-95 group relative"
+                        >
+                            <FaPaperclip size={18} />
+                            {file && <span className="absolute -top-1 -right-1 w-3 h-3 bg-indigo-500 rounded-full border-2 border-gray-900"></span>}
+                        </button>
+                        <input
+                            type="file"
+                            hidden
+                            ref={fileInputRef}
+                            onChange={(e) => setFile(e.target.files[0])}
+                        />
+                        <textarea
+                            className="flex-1 bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm font-medium text-white outline-none focus:ring-2 focus:ring-indigo-400 placeholder-white/40 min-h-[60px] max-h-[200px] resize-none"
+                            placeholder={needsAcknowledgment ? "Acknowledge instructions to start posting..." : (replyTo ? "Type your branch reply..." : "Contribute to mission stream... (Markdown allowed)")}
+                            value={reply}
+                            onChange={(e) => setReply(e.target.value)}
+                            required
+                            disabled={needsAcknowledgment}
+                        />
+                        <button
+                            type="submit"
+                            className="shrink-0 w-12 h-12 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center shadow-lg shadow-indigo-900 transition-all active:scale-95 disabled:opacity-50"
+                            disabled={needsAcknowledgment}
+                        >
+                            <FaPaperPlane size={18} />
+                        </button>
+                    </form>
+                    {needsAcknowledgment && (
+                        <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] rounded-[2.5rem] flex items-center justify-center">
+                            <button
+                                onClick={() => setShowInstructions(true)}
+                                className="bg-indigo-600 text-white px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-900 transition-all hover:scale-105 active:scale-95"
+                            >
+                                Unlock Posting Entry
+                            </button>
+                        </div>
+                    )}
+                    {file && (
+                        <div className="mt-2 ml-4 flex items-center gap-2">
+                            <span className="text-[9px] font-black text-indigo-400 uppercase tracking-widest bg-gray-900/10 px-3 py-1 rounded-full backdrop-blur-sm shadow-sm border border-indigo-400/20">
+                                Ready to upload: {file.name.substring(0, 20)}{file.name.length > 20 ? '...' : ''}
+                            </span>
+                            <button onClick={() => setFile(null)} className="text-red-400 text-[10px] font-black hover:underline px-2">✕</button>
+                        </div>
+                    )}
                 </div>
+                {/* Spacer block to match right panel width for alignment if needed, or leave empty */}
+                <div className="hidden lg:block lg:w-80 shrink-0 ml-10"></div>
             </div>
 
             {/* Review Modal */}
