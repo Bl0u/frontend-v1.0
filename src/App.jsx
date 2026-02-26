@@ -11,6 +11,7 @@ import { useEffect } from 'react';
 import { AuthProvider } from './context/AuthContext';
 import './styles/MaskAnimations.css';
 import Header from './components/Header';
+import Sidebar from './components/Sidebar';
 import LandingPage from './pages/LandingPage';
 import OldLandingPage from './pages/OldLandingPage';
 import HomePage from './pages/HomePage';
@@ -32,22 +33,25 @@ import PlanManager from './pages/PlanManager';
 
 import TopUp from './pages/TopUp'; // V2.0
 
-// Layout for pages that need the container and top padding
-const ProjectLayout = ({ children }) => (
-  <div className="container mx-auto px-4 pb-12 pt-28">
-    {children}
+// Layout with navbar (Header) — for PUBLIC routes only
+const MainLayout = () => (
+  <div className="min-h-screen text-gray-900 bg-transparent">
+    <Header />
+    <Outlet />
   </div>
 );
 
-// Layout with navbar (Header + child routes via Outlet)
-const MainLayout = () => {
-  return (
-    <div className="min-h-screen text-gray-900 bg-transparent">
-      <Header />
-      <Outlet />
-    </div>
-  );
-};
+// Layout with Sidebar — for AUTHENTICATED routes
+const DashboardLayout = () => (
+  <div className="dashboard-layout">
+    <Sidebar />
+    <main className="dashboard-content">
+      <div className="dashboard-content-inner">
+        <Outlet />
+      </div>
+    </main>
+  </div>
+);
 
 function App() {
   useEffect(() => {
@@ -70,35 +74,34 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          {/* Standalone pages (no navbar) */}
+          {/* Standalone pages (no chrome) */}
           <Route path="/register" element={<Register />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/login" element={<Login />} />
 
-          {/* Pages with navbar */}
+          {/* Public pages (Header navbar) */}
           <Route element={<MainLayout />}>
-            {/* Static Homepage */}
             <Route path="/" element={<HomePage />} />
-            <Route path="/home" element={<HomePage />} />
-
-            {/* Landing Pages (Full Width, No Padding) */}
             <Route path="/new-lp" element={<LandingPage />} />
             <Route path="/old-lp" element={<OldLandingPage />} />
+          </Route>
 
-            {/* Project Pages (Contained with Padding) */}
-            <Route path="/profile" element={<ProjectLayout><Profile /></ProjectLayout>} />
-            <Route path="/dashboard" element={<ProjectLayout><Dashboard /></ProjectLayout>} />
-            <Route path="/social-media" element={<ProjectLayout><SocialMediaEditor /></ProjectLayout>} />
-            <Route path="/resources" element={<ProjectLayout><ResourceHub /></ProjectLayout>} />
-            <Route path="/resources/thread/:id" element={<ProjectLayout><ThreadDetail /></ProjectLayout>} />
-            <Route path="/partners" element={<ProjectLayout><Partners /></ProjectLayout>} />
-            <Route path="/pitch-hub" element={<ProjectLayout><PitchHub /></ProjectLayout>} />
-            <Route path="/pitch-form" element={<ProjectLayout><PitchForm /></ProjectLayout>} />
-            <Route path="/u/:username" element={<ProjectLayout><PublicProfile /></ProjectLayout>} />
-            <Route path="/requests" element={<ProjectLayout><DashboardRequests /></ProjectLayout>} />
-            <Route path="/chat" element={<ProjectLayout><Chat /></ProjectLayout>} />
-            <Route path="/top-up" element={<ProjectLayout><TopUp /></ProjectLayout>} />
-            <Route path="/plan/:id" element={<ProjectLayout><PlanManager /></ProjectLayout>} />
+          {/* Authenticated pages (Sidebar) */}
+          <Route element={<DashboardLayout />}>
+            <Route path="/home" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/social-media" element={<SocialMediaEditor />} />
+            <Route path="/resources" element={<ResourceHub />} />
+            <Route path="/resources/thread/:id" element={<ThreadDetail />} />
+            <Route path="/partners" element={<Partners />} />
+            <Route path="/pitch-hub" element={<PitchHub />} />
+            <Route path="/pitch-form" element={<PitchForm />} />
+            <Route path="/u/:username" element={<PublicProfile />} />
+            <Route path="/requests" element={<DashboardRequests />} />
+            <Route path="/chat" element={<Chat />} />
+            <Route path="/top-up" element={<TopUp />} />
+            <Route path="/plan/:id" element={<PlanManager />} />
           </Route>
         </Routes>
         <ToastContainer position="bottom-right" />
