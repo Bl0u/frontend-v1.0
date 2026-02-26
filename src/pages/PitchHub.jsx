@@ -37,37 +37,46 @@ const PitchHub = () => {
         try {
             await requestService.claimPublicPitch(pitchId, currentUser.token);
             toast.success('Successfully claimed! The sender has been notified.');
-            fetchPitches(); // Refresh feed
+            fetchPitches();
         } catch (error) {
             toast.error(error.response?.data?.message || 'Failed to claim pitch');
         }
     };
 
-    if (loading) return <div className="text-center py-20">Scanning project signals...</div>;
+    if (loading) return (
+        <div className="flex items-center justify-center py-32">
+            <div className="w-8 h-8 border-2 border-[#001E80]/20 border-t-[#001E80] rounded-full animate-spin"></div>
+        </div>
+    );
 
     return (
-        <div className="max-w-5xl mx-auto px-4 py-8">
+        <div className="max-w-5xl mx-auto space-y-8">
             {/* Hero Section */}
-            <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl p-8 mb-10 text-white relative overflow-hidden shadow-xl shadow-indigo-100">
-                <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#EAEEFE] to-white border border-[#001E80]/5">
+                <div className="absolute top-0 right-0 w-72 h-72 bg-[#001E80]/5 rounded-full translate-x-1/3 -translate-y-1/3 blur-3xl"></div>
+                <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#001E80]/3 rounded-full -translate-x-1/4 translate-y-1/4 blur-2xl"></div>
+
+                <div className="relative z-10 p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6">
                     <div className="text-center md:text-left">
-                        <h1 className="text-4xl font-extrabold mb-3">Project Pitch Hub</h1>
-                        <p className="text-indigo-100 text-lg max-w-xl">
+                        <h1
+                            className="text-4xl md:text-5xl font-black bg-gradient-to-b from-black to-[#001E80] bg-clip-text text-transparent pb-1 leading-tight"
+                            style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
+                        >
+                            Project Pitch Hub
+                        </h1>
+                        <p className="text-[#010D3E]/50 text-base font-medium mt-2 max-w-xl">
                             Where ambitious users pitch projects and collaborators pick their next monthly missions.
                         </p>
                     </div>
                     {currentUser && (
                         <Link
                             to="/pitch-form"
-                            className="bg-white text-indigo-600 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-indigo-50 transition-all shadow-lg shadow-black/10 active:scale-95"
+                            className="bg-[#001E80] hover:bg-[#001E80]/85 text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-[#001E80]/10 transition-all active:scale-[0.97] flex-shrink-0"
                         >
                             <FaPlus /> Pitch Your Project
                         </Link>
                     )}
                 </div>
-                {/* Decorative Elements */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
-                <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-400/10 rounded-full translate-y-1/2 -translate-x-1/2 blur-2xl"></div>
             </div>
 
             {/* Pitch Feed */}
@@ -81,7 +90,7 @@ const PitchHub = () => {
                             {/* Card Header */}
                             <div className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-14 h-14 rounded-3xl bg-indigo-50 border-2 border-white shadow-md flex items-center justify-center text-xl font-black text-indigo-300 shrink-0">
+                                    <div className="w-14 h-14 rounded-3xl bg-[#EAEEFE] border-2 border-white shadow-md flex items-center justify-center text-xl font-black text-[#001E80] shrink-0">
                                         {pitch.sender?.name?.charAt(0)}
                                     </div>
                                     <div>
@@ -89,7 +98,7 @@ const PitchHub = () => {
                                             {pitch.pitch?.Hook || pitch.message}
                                         </h3>
                                         <p className="text-sm text-gray-500 flex items-center gap-1">
-                                            <FaUserGraduate className="text-indigo-400" size={12} />
+                                            <FaUserGraduate className="text-[#001E80]/40" size={12} />
                                             {pitch.sender?.name} · {pitch.sender?.major || 'Member'}
                                         </p>
                                     </div>
@@ -97,7 +106,7 @@ const PitchHub = () => {
                                 <div className="flex items-center gap-3">
                                     <button
                                         onClick={() => setExpandedPitch(expandedPitch === pitch._id ? null : pitch._id)}
-                                        className="px-4 py-2 text-sm font-bold text-gray-500 hover:text-indigo-600 flex items-center gap-1 transition-colors"
+                                        className="px-4 py-2 text-sm font-bold text-gray-500 hover:text-[#001E80] flex items-center gap-1 transition-colors"
                                     >
                                         View Detail <FaChevronDown className={`transition-transform duration-300 ${expandedPitch === pitch._id ? 'rotate-180' : ''}`} />
                                     </button>
@@ -119,10 +128,10 @@ const PitchHub = () => {
                                         {Object.entries(pitch.pitch || {}).map(([key, value]) => (
                                             key !== 'Hook' && (
                                                 <div key={key} className="space-y-1.5">
-                                                    <p className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest flex items-center gap-1">
+                                                    <p className="text-xs font-black text-[#001E80] uppercase tracking-widest flex items-center gap-1">
                                                         <FaCheckCircle size={10} /> {key}
                                                     </p>
-                                                    <p className="text-sm text-gray-700 leading-relaxed font-medium">
+                                                    <p className="text-base text-gray-700 leading-relaxed font-medium">
                                                         {value}
                                                     </p>
                                                 </div>
@@ -130,8 +139,8 @@ const PitchHub = () => {
                                         ))}
                                     </div>
                                     <div className="mt-8 pt-4 border-t border-gray-200/50 flex items-center justify-between">
-                                        <p className="text-xs text-gray-400 font-medium">Posted {new Date(pitch.createdAt).toLocaleDateString()}</p>
-                                        <Link to={`/u/${pitch.sender?.username}`} className="text-xs font-bold text-indigo-600 hover:underline">
+                                        <p className="text-sm text-gray-400 font-medium">Posted {new Date(pitch.createdAt).toLocaleDateString()}</p>
+                                        <Link to={`/u/${pitch.sender?.username}`} className="text-sm font-bold text-[#001E80] hover:underline">
                                             View Profile →
                                         </Link>
                                     </div>
@@ -140,16 +149,16 @@ const PitchHub = () => {
                         </div>
                     ))
                 ) : (
-                    <div className="text-center py-20 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
-                        <div className="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mb-6">
-                            <FaRocket size={32} className="text-gray-300" />
+                    <div className="text-center py-20 bg-white rounded-3xl border border-gray-100">
+                        <div className="inline-flex items-center justify-center w-20 h-20 bg-[#EAEEFE] rounded-full mb-6">
+                            <FaRocket size={32} className="text-[#001E80]/40" />
                         </div>
                         <h3 className="text-xl font-bold text-gray-600 mb-2">The hub is waiting for its next mission.</h3>
                         <p className="text-gray-400 max-w-sm mx-auto">Be the first to pitch your project and attract a partner.</p>
                         {currentUser && (
                             <Link
                                 to="/pitch-form"
-                                className="mt-6 inline-flex bg-indigo-600 text-white px-8 py-3 rounded-2xl font-bold transition-all shadow-lg hover:bg-indigo-700"
+                                className="mt-6 inline-flex bg-[#001E80] hover:bg-[#001E80]/85 text-white px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-[#001E80]/10"
                             >
                                 Start Pitching
                             </Link>
