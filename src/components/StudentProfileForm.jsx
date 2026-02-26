@@ -138,25 +138,34 @@ const StudentProfileForm = ({ user, initialData, refreshProfile }) => {
         }
     };
 
+    // ─── Shared input classes ────────────────────────────
+    const inputClass = "w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-[#001E80]/20 focus:border-[#001E80]/30 outline-none text-sm font-medium transition-colors";
+    const labelClass = "block text-[10px] font-black uppercase tracking-widest text-[#001E80] mb-2";
+    const sectionTitle = (icon, title) => (
+        <h4 className="text-lg font-bold text-gray-800 flex items-center gap-2 pb-3 mb-4 border-b border-gray-100">
+            <span>{icon}</span> {title}
+        </h4>
+    );
+
     const renderCoreIdentity = () => (
-        <div className="space-y-6 animate-fadeIn">
-            <h4 className="text-xl font-bold text-blue-800 border-b pb-2">👤 Core Identity</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-6">
+            {sectionTitle('👤', 'Core Identity')}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
-                    <label className="block text-gray-700 font-semibold mb-1">Display Name *</label>
-                    <input type="text" name="name" value={formData.name} onChange={onChange} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none" required />
+                    <label className={labelClass}>Display Name *</label>
+                    <input type="text" name="name" value={formData.name} onChange={onChange} className={inputClass} required />
                 </div>
                 <div>
-                    <label className="block text-gray-700 font-semibold mb-1">Username</label>
-                    <input type="text" name="username" value={formData.username} onChange={onChange} className="w-full px-3 py-2 border rounded-lg bg-gray-50 cursor-not-allowed" readOnly />
+                    <label className={labelClass}>Username</label>
+                    <input type="text" name="username" value={formData.username} onChange={onChange} className={`${inputClass} bg-gray-100 cursor-not-allowed`} readOnly />
                 </div>
                 <div>
-                    <label className="block text-gray-700 font-semibold mb-1">Major / Field *</label>
-                    <input type="text" name="major" value={formData.major} onChange={onChange} placeholder="e.g. Computer Science" className="w-full px-3 py-2 border rounded-lg" required />
+                    <label className={labelClass}>Major / Field *</label>
+                    <input type="text" name="major" value={formData.major} onChange={onChange} placeholder="e.g. Computer Science" className={inputClass} required />
                 </div>
                 <div>
-                    <label className="block text-gray-700 font-semibold mb-1">Academic Level *</label>
-                    <select name="academicLevel" value={formData.academicLevel} onChange={onChange} className="w-full px-3 py-2 border rounded-lg bg-white" required>
+                    <label className={labelClass}>Academic Level *</label>
+                    <select name="academicLevel" value={formData.academicLevel} onChange={onChange} className={inputClass} required>
                         <option value="">Select Level</option>
                         <option value="Level 1">Level 1</option>
                         <option value="Level 2">Level 2</option>
@@ -166,16 +175,16 @@ const StudentProfileForm = ({ user, initialData, refreshProfile }) => {
                     </select>
                 </div>
                 <div className="md:col-span-2">
-                    <label className="block text-gray-700 font-semibold mb-1">University / Faculty *</label>
-                    <input type="text" name="university" value={formData.university} onChange={onChange} placeholder="e.g. Cairo University - Faculty of Engineering" className="w-full px-3 py-2 border rounded-lg" required />
+                    <label className={labelClass}>University / Faculty *</label>
+                    <input type="text" name="university" value={formData.university} onChange={onChange} placeholder="e.g. Cairo University - Faculty of Engineering" className={inputClass} required />
                 </div>
                 <div className="md:col-span-2">
-                    <label className="block text-gray-700 font-semibold mb-1">Short Bio (Max 200 chars)</label>
-                    <textarea name="bio" value={formData.bio} onChange={onChange} maxLength={200} placeholder="Tell us a bit about yourself..." className="w-full px-3 py-2 border rounded-lg h-24 resize-none" />
-                    <p className="text-right text-xs text-gray-500 mt-1">{formData.bio.length}/200</p>
+                    <label className={labelClass}>Short Bio (Max 200 chars)</label>
+                    <textarea name="bio" value={formData.bio} onChange={onChange} maxLength={200} placeholder="Tell us a bit about yourself..." className={`${inputClass} h-24 resize-none`} />
+                    <p className="text-right text-xs text-gray-400 mt-1">{formData.bio.length}/200</p>
                 </div>
                 <div className="md:col-span-2">
-                    <label className="block text-gray-700 font-semibold mb-2">Social / Professional Links</label>
+                    <label className={labelClass}>Social / Professional Links</label>
                     <SocialLinksManager links={formData.socialLinks} onChange={setSocialLinks} />
                 </div>
             </div>
@@ -183,48 +192,48 @@ const StudentProfileForm = ({ user, initialData, refreshProfile }) => {
     );
 
     const renderPartnerNeeds = () => (
-        <div className="space-y-6 animate-fadeIn">
-            <h4 className="text-xl font-bold text-indigo-800 border-b pb-2">🤝 Partner Needs</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-6">
+            {sectionTitle('🤝', 'Partner Needs')}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
-                    <label className="block text-gray-700 font-semibold mb-1">Partner Type *</label>
-                    <select name="partnerType" value={formData.partnerType} onChange={onChange} className="w-full px-3 py-2 border rounded-lg bg-white" required>
+                    <label className={labelClass}>Partner Type *</label>
+                    <select name="partnerType" value={formData.partnerType} onChange={onChange} className={inputClass} required>
                         <option value="">Select Type</option>
-                        <option value="peer">Peer (Studying cùng)</option>
+                        <option value="peer">Peer (Study Together)</option>
                         <option value="project teammate">Project Teammate</option>
                     </select>
                 </div>
                 <div>
-                    <label className="block text-gray-700 font-semibold mb-1">Primary Goal *</label>
-                    <input type="text" name="matchingGoal" value={formData.matchingGoal} onChange={onChange} placeholder="e.g. Finish Senior Project" className="w-full px-3 py-2 border rounded-lg" required />
+                    <label className={labelClass}>Primary Goal *</label>
+                    <input type="text" name="matchingGoal" value={formData.matchingGoal} onChange={onChange} placeholder="e.g. Finish Senior Project" className={inputClass} required />
                 </div>
                 <div className="md:col-span-2">
-                    <label className="block text-gray-700 font-semibold mb-1">Topics / Tags (Required) *</label>
+                    <label className={labelClass}>Topics / Tags (Required) *</label>
                     <TagInput tags={formData.topics} setTags={setTopics} placeholder="Add topics (e.g. Web Dev, Calculus, AI)..." />
                 </div>
                 <div className="md:col-span-2">
-                    <label className="block text-gray-700 font-semibold mb-1">What do you need from a partner?</label>
-                    <textarea name="neededFromPartner" value={formData.neededFromPartner} onChange={onChange} placeholder="Describe specific skills or traits you seek..." className="w-full px-3 py-2 border rounded-lg h-24 resize-none" />
+                    <label className={labelClass}>What do you need from a partner?</label>
+                    <textarea name="neededFromPartner" value={formData.neededFromPartner} onChange={onChange} placeholder="Describe specific skills or traits you seek..." className={`${inputClass} h-24 resize-none`} />
                 </div>
             </div>
         </div>
     );
 
     const renderLogistics = () => (
-        <div className="space-y-6 animate-fadeIn">
-            <h4 className="text-xl font-bold text-green-800 border-b pb-2">📍 Location & Logistics</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-6">
+            {sectionTitle('📍', 'Location & Logistics')}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
-                    <label className="block text-gray-700 font-semibold mb-1">Timezone *</label>
-                    <input type="text" name="timezone" value={formData.timezone} onChange={onChange} placeholder="e.g. GMT+2, Cairo Time" className="w-full px-3 py-2 border rounded-lg" required />
+                    <label className={labelClass}>Timezone *</label>
+                    <input type="text" name="timezone" value={formData.timezone} onChange={onChange} placeholder="e.g. GMT+2, Cairo Time" className={inputClass} required />
                 </div>
                 <div>
-                    <label className="block text-gray-700 font-semibold mb-1">Languages *</label>
+                    <label className={labelClass}>Languages *</label>
                     <TagInput tags={formData.languages} setTags={setLanguages} placeholder="English, Arabic, etc." />
                 </div>
                 <div>
-                    <label className="block text-gray-700 font-semibold mb-1">Study Mode *</label>
-                    <select name="studyMode" value={formData.studyMode} onChange={onChange} className="w-full px-3 py-2 border rounded-lg bg-white" required>
+                    <label className={labelClass}>Study Mode *</label>
+                    <select name="studyMode" value={formData.studyMode} onChange={onChange} className={inputClass} required>
                         <option value="">Select Mode</option>
                         <option value="Online">Online</option>
                         <option value="In-person">In-person</option>
@@ -232,7 +241,7 @@ const StudentProfileForm = ({ user, initialData, refreshProfile }) => {
                     </select>
                 </div>
                 <div>
-                    <label className="block text-gray-700 font-semibold mb-1">Preferred Tools</label>
+                    <label className={labelClass}>Preferred Tools</label>
                     <TagInput tags={formData.preferredTools} setTags={setPreferredTools} placeholder="Zoom, Discord, Slack..." />
                 </div>
             </div>
@@ -240,34 +249,34 @@ const StudentProfileForm = ({ user, initialData, refreshProfile }) => {
     );
 
     const renderAvailability = () => (
-        <div className="space-y-6 animate-fadeIn">
-            <h4 className="text-xl font-bold text-orange-800 border-b pb-2">⏰ Availability & Commitment</h4>
-            <div className="space-y-4">
+        <div className="space-y-6">
+            {sectionTitle('⏰', 'Availability & Commitment')}
+            <div className="space-y-6">
                 <div>
-                    <label className="block text-gray-700 font-semibold mb-2">Available Days *</label>
+                    <label className={labelClass}>Available Days *</label>
                     <div className="flex flex-wrap gap-2">
                         {availableDays.map(day => (
                             <button type="button" key={day} onClick={() => handleDayToggle(day)}
-                                className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all ${formData.availabilityDays.includes(day) ? 'bg-orange-500 text-white border-orange-500 shadow-md' : 'bg-white text-gray-700 border-gray-300 hover:border-orange-400'}`}>
+                                className={`px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wide border transition-all ${formData.availabilityDays.includes(day) ? 'bg-[#001E80] text-white border-[#001E80] shadow-md shadow-[#001E80]/15' : 'bg-white text-gray-500 border-gray-100 hover:border-[#001E80]/20 hover:bg-[#EAEEFE]/30'}`}>
                                 {day}
                             </button>
                         ))}
                     </div>
                 </div>
                 <div>
-                    <label className="block text-gray-700 font-semibold mb-2">Time Ranges *</label>
+                    <label className={labelClass}>Time Ranges *</label>
                     <div className="flex flex-wrap gap-2">
                         {timeRanges.map(time => (
                             <button type="button" key={time} onClick={() => handleTimeToggle(time)}
-                                className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all ${formData.availabilityTimeRanges.includes(time) ? 'bg-orange-500 text-white border-orange-500 shadow-md' : 'bg-white text-gray-700 border-gray-300 hover:border-orange-400'}`}>
+                                className={`px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wide border transition-all ${formData.availabilityTimeRanges.includes(time) ? 'bg-[#001E80] text-white border-[#001E80] shadow-md shadow-[#001E80]/15' : 'bg-white text-gray-500 border-gray-100 hover:border-[#001E80]/20 hover:bg-[#EAEEFE]/30'}`}>
                                 {time}
                             </button>
                         ))}
                     </div>
                 </div>
                 <div>
-                    <label className="block text-gray-700 font-semibold mb-1">Commitment Level *</label>
-                    <select name="commitmentLevel" value={formData.commitmentLevel} onChange={onChange} className="w-full px-3 py-2 border rounded-lg bg-white" required>
+                    <label className={labelClass}>Commitment Level *</label>
+                    <select name="commitmentLevel" value={formData.commitmentLevel} onChange={onChange} className={inputClass} required>
                         <option value="">Select Level</option>
                         <option value="Casual">Casual</option>
                         <option value="Balanced">Balanced</option>
@@ -279,20 +288,20 @@ const StudentProfileForm = ({ user, initialData, refreshProfile }) => {
     );
 
     const renderStyle = () => (
-        <div className="space-y-6 animate-fadeIn">
-            <h4 className="text-xl font-bold text-purple-800 border-b pb-2">⚡ Style & Offsets</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-6">
+            {sectionTitle('⚡', 'Style & Offsets')}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
-                    <label className="block text-gray-700 font-semibold mb-1">Sessions / Week *</label>
-                    <input type="number" name="sessionsPerWeek" value={formData.sessionsPerWeek} onChange={onChange} min="1" max="7" className="w-full px-3 py-2 border rounded-lg" required />
+                    <label className={labelClass}>Sessions / Week *</label>
+                    <input type="number" name="sessionsPerWeek" value={formData.sessionsPerWeek} onChange={onChange} min="1" max="7" className={inputClass} required />
                 </div>
                 <div>
-                    <label className="block text-gray-700 font-semibold mb-1">Session Length *</label>
-                    <input type="text" name="sessionLength" value={formData.sessionLength} onChange={onChange} placeholder="e.g. 1-2 hours" className="w-full px-3 py-2 border rounded-lg" required />
+                    <label className={labelClass}>Session Length *</label>
+                    <input type="text" name="sessionLength" value={formData.sessionLength} onChange={onChange} placeholder="e.g. 1-2 hours" className={inputClass} required />
                 </div>
                 <div>
-                    <label className="block text-gray-700 font-semibold mb-1">Study Pace</label>
-                    <select name="pace" value={formData.pace} onChange={onChange} className="w-full px-3 py-2 border rounded-lg bg-white">
+                    <label className={labelClass}>Study Pace</label>
+                    <select name="pace" value={formData.pace} onChange={onChange} className={inputClass}>
                         <option value="">Select Pace</option>
                         <option value="Slow & deep">Slow & deep</option>
                         <option value="Balanced">Balanced</option>
@@ -300,8 +309,8 @@ const StudentProfileForm = ({ user, initialData, refreshProfile }) => {
                     </select>
                 </div>
                 <div className="md:col-span-2">
-                    <label className="block text-gray-700 font-semibold mb-1">"I Can Offer" (Skills/Help)</label>
-                    <textarea name="canOffer" value={formData.canOffer} onChange={onChange} placeholder="How can you help your partner? (e.g. React help, Math tutoring)..." className="w-full px-3 py-2 border rounded-lg h-24 resize-none" />
+                    <label className={labelClass}>"I Can Offer" (Skills/Help)</label>
+                    <textarea name="canOffer" value={formData.canOffer} onChange={onChange} placeholder="How can you help your partner? (e.g. React help, Math tutoring)..." className={`${inputClass} h-24 resize-none`} />
                 </div>
             </div>
         </div>
@@ -320,36 +329,36 @@ const StudentProfileForm = ({ user, initialData, refreshProfile }) => {
 
     return (
         <form onSubmit={onSubmit} className="space-y-8">
-            {/* Topic Navigation Dashboard */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mb-8">
+            {/* Topic Navigation */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
                 {TOPICS.map((topic) => (
                     <button
                         key={topic.id}
                         type="button"
                         onClick={() => setActiveTopic(topic.id)}
-                        className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all duration-200 ${activeTopic === topic.id
-                            ? 'bg-blue-600 text-white border-blue-600 shadow-lg scale-105'
-                            : 'bg-white text-gray-600 border-gray-100 hover:border-blue-200 hover:bg-blue-50'
+                        className={`flex flex-col items-center justify-center p-4 rounded-2xl border transition-all duration-200 ${activeTopic === topic.id
+                            ? 'bg-[#001E80] text-white border-[#001E80] shadow-lg shadow-[#001E80]/15 scale-[1.03]'
+                            : 'bg-white text-gray-500 border-gray-100 hover:border-[#001E80]/15 hover:bg-[#EAEEFE]/30'
                             }`}
                     >
                         <span className="text-2xl mb-2">{topic.icon}</span>
-                        <span className="text-xs font-bold uppercase tracking-wider">{topic.label}</span>
+                        <span className="text-[10px] font-bold uppercase tracking-wider">{topic.label}</span>
                     </button>
                 ))}
             </div>
 
             {/* Sub-form Content */}
-            <div className="bg-white p-6 md:p-8 rounded-2xl border border-gray-100 shadow-sm min-h-[400px]">
+            <div className="bg-gray-50/50 p-6 md:p-8 rounded-3xl border border-gray-100 min-h-[400px]">
                 {renderActiveSubForm()}
             </div>
 
             {/* Bottom Controls */}
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-6 mt-6 border-t">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-6 mt-2 border-t border-gray-100">
                 <div className="flex items-center gap-3">
-                    <input type="checkbox" name="lookingForPartner" checked={formData.lookingForPartner} onChange={onChange} className="w-5 h-5 accent-blue-600" id="lookingForPartner" />
-                    <label htmlFor="lookingForPartner" className="text-blue-800 font-bold">Actively seeking a partner</label>
+                    <input type="checkbox" name="lookingForPartner" checked={formData.lookingForPartner} onChange={onChange} className="w-5 h-5 accent-[#001E80] rounded" id="lookingForPartner" />
+                    <label htmlFor="lookingForPartner" className="text-[#001E80] font-bold text-sm">Actively seeking a partner</label>
                 </div>
-                <button type="submit" className="w-full md:w-auto bg-blue-600 text-white font-bold py-3 px-12 rounded-xl hover:bg-blue-700 transition-all shadow-lg hover:shadow-blue-200 active:scale-95">
+                <button type="submit" className="w-full md:w-auto bg-[#001E80] hover:bg-[#001E80]/85 text-white font-black text-xs uppercase tracking-[0.15em] py-4 px-12 rounded-2xl transition-all shadow-lg shadow-[#001E80]/10 active:scale-[0.98]">
                     Save Changes
                 </button>
             </div>
