@@ -5,9 +5,10 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { API_BASE_URL } from '../config';
 
-import { FaExternalLinkAlt, FaUserFriends, FaBook } from 'react-icons/fa';
+import { FaExternalLinkAlt, FaUserFriends, FaBook, FaChevronRight } from 'react-icons/fa';
 import requestService from '../features/requests/requestService';
 import planService from '../features/plans/planService';
+import resourceService from '../features/resources/resourceService';
 import PitchQuestionsManager from '../components/PitchQuestionsManager';
 
 const Dashboard = () => {
@@ -23,6 +24,10 @@ const Dashboard = () => {
     // History & Notes State
     const [selectedHistory, setSelectedHistory] = useState(null);
     const [showPitchModal, setShowPitchModal] = useState(false);
+
+    // Contributions State
+    const [myThreads, setMyThreads] = useState([]);
+    const [loadingThreads, setLoadingThreads] = useState(false);
 
     const fetchProfile = async () => {
         if (!currentUser) return;
@@ -76,6 +81,24 @@ const Dashboard = () => {
     useEffect(() => {
         if (currentUser) fetchProfile();
     }, [currentUser]);
+
+    // Fetch threads if active tab is contributions
+    useEffect(() => {
+        if (activeTab === 'contributions' && currentUser) {
+            const fetchMyThreads = async () => {
+                setLoadingThreads(true);
+                try {
+                    const data = await resourceService.getThreads({ author: currentUser._id });
+                    setMyThreads(data);
+                } catch (error) {
+                    toast.error('Failed to load contributions');
+                } finally {
+                    setLoadingThreads(false);
+                }
+            };
+            fetchMyThreads();
+        }
+    }, [activeTab, currentUser]);
 
     if (loading) return (
         <div className="flex items-center justify-center py-32">
@@ -251,6 +274,132 @@ const Dashboard = () => {
                         )}
                     </div>
                 </section>
+            </div>
+        );
+    }
+
+    // ─── CONTRIBUTIONS TAB ──────────────────────────────
+    if (activeTab === 'contributions') {
+        const guidesCount = myThreads.filter(t => t.isCurated).length;
+        const communityCount = myThreads.filter(t => !t.isCurated).length;
+
+        return (
+            <div className="max-w-5xl mx-auto space-y-8">
+                {/* Header */}
+                <div>
+                    <h1
+                        className="text-3xl font-black bg-gradient-to-b from-black to-[#001E80] bg-clip-text text-transparent pb-1"
+                        style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
+                    >
+                        My Contributions
+                    </h1>
+                    <p className="text-[#010D3E]/50 text-sm font-medium mt-1">Manage the guides and threads you've published to the community.</p>
+                </div>
+
+                {/* Metrics */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div className="bg-white rounded-3xl border border-gray-100 p-6 flex flex-col justify-center shadow-sm hover:border-[#001E80]/20 transition-all">
+                        <p className="text-[#001E80]/40 text-[10px] font-black uppercase tracking-widest mb-1">Guides Created</p>
+                        <p className="text-4xl font-black text-[#001E80]">{guidesCount}</p>
+                    </div>
+                    <div className="bg-white rounded-3xl border border-gray-100 p-6 flex flex-col justify-center shadow-sm hover:border-[#001E80]/20 transition-all">
+                        <p className="text-[#001E80]/40 text-[10px] font-black uppercase tracking-widest mb-1">Community Threads</p>
+                        <p className="text-4xl font-black text-[#001E80]">{communityCount}</p>
+                    </div>
+                </div>
+
+                {/* Table View */}
+                <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden animate-in fade-in duration-500">
+                    <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between">
+                        <h3 className="text-lg font-bold text-gray-800 flex items-center gap-3">
+                            <FaBook className="text-[#001E80]" /> Published Threads
+                        </h3>
+                    </div>
+
+                    {loadingThreads ? (
+                        <div className="flex items-center justify-center py-12">
+                            <div className="w-8 h-8 border-2 border-[#001E80]/20 border-t-[#001E80] rounded-full animate-spin"></div>
+                        </div>
+                    ) : myThreads.length > 0 ? (
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="bg-gray-50/50 border-b border-gray-100 text-[10px] font-black uppercase tracking-widest text-[#001E80]/40">
+                                        <th className="py-4 px-6 md:w-1/2">Thread Title</th>
+                                        <th className="py-4 px-6">Tags</th>
+                                        <th className="py-4 px-6 text-center">Stats</th>
+                                        <th className="py-4 px-6 text-right">View</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {myThreads.map((thread) => (
+                                        <tr
+                                            key={thread._id}
+                                            onClick={() => navigate(`/resources/thread/${thread._id}`)}
+                                            className="border-b border-gray-50 hover:bg-[#EAEEFE]/20 cursor-pointer transition-colors group"
+                                        >
+                                            {/* Thread Title & Type */}
+                                            <td className="py-5 px-6">
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    {thread.isCurated ? (
+                                                        <span className="px-2 py-0.5 bg-green-100 border border-green-200 text-green-700 rounded-md text-[9px] font-black uppercase tracking-widest">Guide</span>
+                                                    ) : (
+                                                        <span className="px-2 py-0.5 bg-gray-100 border border-gray-200 text-gray-500 rounded-md text-[9px] font-black uppercase tracking-widest">Community</span>
+                                                    )}
+                                                    <span className="text-[9px] font-black uppercase tracking-widest text-gray-400">
+                                                        {new Date(thread.createdAt).toLocaleDateString()}
+                                                    </span>
+                                                </div>
+                                                <h3 className="text-base font-bold text-gray-800 line-clamp-1 group-hover:text-[#001E80] transition-colors">{thread.title}</h3>
+                                            </td>
+
+                                            {/* Tags Col */}
+                                            <td className="py-5 px-6">
+                                                <div className="flex flex-wrap gap-1.5 max-w-[200px]">
+                                                    {thread.tags?.slice(0, 2).map((tag, idx) => (
+                                                        <span key={idx} className="px-2 py-1 bg-white border border-gray-200 text-gray-500 rounded-lg text-[9px] font-bold uppercase tracking-wider whitespace-nowrap">
+                                                            {tag}
+                                                        </span>
+                                                    ))}
+                                                    {thread.tags?.length > 2 && (
+                                                        <span className="px-2 py-1 bg-gray-50 text-gray-400 rounded-lg text-[9px] font-bold uppercase tracking-wider">
+                                                            +{thread.tags.length - 2}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </td>
+
+                                            {/* Stats Col */}
+                                            <td className="py-5 px-6 text-center">
+                                                <div className="flex items-center justify-center gap-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                                    <span className="flex flex-col"><span className="text-gray-900 text-xs mt-0.5">{thread.upvoteCount || 0}</span>Votes</span>
+                                                    <span className="flex flex-col"><span className="text-gray-900 text-xs mt-0.5">{thread.postCount || 0}</span>Posts</span>
+                                                </div>
+                                            </td>
+
+                                            {/* Action Col */}
+                                            <td className="py-5 px-6 text-right">
+                                                <div className="w-8 h-8 rounded-full bg-white border border-gray-100 flex items-center justify-center ml-auto group-hover:bg-[#001E80] group-hover:text-white transition-all shadow-sm">
+                                                    <FaChevronRight size={12} className="text-gray-400 group-hover:text-white" />
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : (
+                        <div className="text-center py-12 px-4">
+                            <p className="text-sm text-gray-500 mb-4">You haven't published any threads yet.</p>
+                            <button
+                                onClick={() => navigate('/resources')}
+                                className="bg-[#001E80] text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all shadow-md"
+                            >
+                                Browse Hub
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
         );
     }

@@ -8,7 +8,7 @@ import {
     FiHome, FiBookOpen, FiUsers, FiZap,
     FiUser, FiMessageCircle, FiInbox,
     FiCreditCard, FiLogOut, FiMenu, FiX,
-    FiClipboard, FiUserCheck
+    FiClipboard, FiUserCheck, FiActivity, FiChevronDown, FiHash
 } from 'react-icons/fi';
 import '../styles/Sidebar.css';
 
@@ -19,6 +19,7 @@ const Sidebar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [unreadCount, setUnreadCount] = useState(0);
     const [chatUnreadCount, setChatUnreadCount] = useState(0);
+    const [resourcesExpanded, setResourcesExpanded] = useState(false);
 
     // Fetch badge counts
     useEffect(() => {
@@ -74,6 +75,11 @@ const Sidebar = () => {
         return location.pathname === '/home' && location.search.includes(`tab=${tab}`);
     };
 
+    const isActiveResourceTab = (tab) => {
+        if (!tab) return location.pathname === '/resources' && !location.search;
+        return location.pathname === '/resources' && location.search.includes(`tab=${tab}`);
+    };
+
     if (!user) return null;
 
     return (
@@ -94,7 +100,7 @@ const Sidebar = () => {
             />
 
             {/* Sidebar */}
-            <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
+            <aside className={`sidebar ${isOpen ? 'open' : ''} overflow-y-auto h-screen pb-20 scrollbar-hide`}>
                 {/* Brand */}
                 <div className="sidebar-brand">
                     <Link to="/home">LearnCrew</Link>
@@ -107,10 +113,31 @@ const Sidebar = () => {
                         <span className="sidebar-link-icon"><FiHome /></span>
                         <span className="sidebar-link-text">Home</span>
                     </Link>
-                    <Link to="/resources" className={`sidebar-link ${isActive('/resources') ? 'active' : ''}`}>
-                        <span className="sidebar-link-icon"><FiBookOpen /></span>
-                        <span className="sidebar-link-text">Resources</span>
-                    </Link>
+
+                    {/* Resources Accordion */}
+                    <div className="sidebar-accordion">
+                        <button
+                            onClick={() => setResourcesExpanded(!resourcesExpanded)}
+                            className={`sidebar-link w-full justify-between ${(location.pathname === '/resources' && !resourcesExpanded) ? 'text-indigo-600' : ''}`}
+                        >
+                            <div className="flex items-center gap-3">
+                                <span className="sidebar-link-icon"><FiBookOpen /></span>
+                                <span className="sidebar-link-text">Resources Hub</span>
+                            </div>
+                            <FiChevronDown className={`transition-transform duration-300 ${resourcesExpanded ? 'rotate-180' : ''}`} />
+                        </button>
+                        <div className={`overflow-hidden transition-all duration-300 bg-white/50 rounded-b-xl ${resourcesExpanded || location.pathname === '/resources' ? 'max-h-40 opacity-100 py-2 mb-2' : 'max-h-0 opacity-0'}`}>
+                            <Link to="/resources?tab=curated" className={`sidebar-link pl-12 text-sm mx-2 mb-1 rounded-lg ${isActiveResourceTab('curated') ? 'active bg-white text-[#001E80] shadow-sm font-bold' : 'text-gray-600 hover:bg-white/80 hover:text-[#001E80]'}`}>
+                                <span className="sidebar-link-icon"><FiBookOpen size={14} /></span>
+                                <span className="sidebar-link-text">Guides</span>
+                            </Link>
+                            <Link to="/resources?tab=community" className={`sidebar-link pl-12 text-sm mx-2 rounded-lg ${isActiveResourceTab('community') ? 'active bg-white text-[#001E80] shadow-sm font-bold' : 'text-gray-600 hover:bg-white/80 hover:text-[#001E80]'}`}>
+                                <span className="sidebar-link-icon"><FiHash size={14} /></span>
+                                <span className="sidebar-link-text">Community</span>
+                            </Link>
+                        </div>
+                    </div>
+
                     <Link to="/partners" className={`sidebar-link ${isActive('/partners') ? 'active' : ''}`}>
                         <span className="sidebar-link-icon"><FiUsers /></span>
                         <span className="sidebar-link-text">Partners</span>
@@ -131,6 +158,10 @@ const Sidebar = () => {
                     <Link to="/home?tab=partnership" className={`sidebar-link ${isActiveDashboardTab('partnership') ? 'active' : ''}`}>
                         <span className="sidebar-link-icon"><FiUserCheck /></span>
                         <span className="sidebar-link-text">Partnerships</span>
+                    </Link>
+                    <Link to="/home?tab=contributions" className={`sidebar-link ${isActiveDashboardTab('contributions') ? 'active' : ''}`}>
+                        <span className="sidebar-link-icon"><FiActivity /></span>
+                        <span className="sidebar-link-text">Contributions</span>
                     </Link>
                     <Link to="/home?tab=pitch-questions" className={`sidebar-link ${isActiveDashboardTab('pitch-questions') ? 'active' : ''}`}>
                         <span className="sidebar-link-icon"><FiClipboard /></span>
