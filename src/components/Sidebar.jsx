@@ -20,6 +20,7 @@ const Sidebar = () => {
     const [unreadCount, setUnreadCount] = useState(0);
     const [chatUnreadCount, setChatUnreadCount] = useState(0);
     const [resourcesExpanded, setResourcesExpanded] = useState(false);
+    const [activityExpanded, setActivityExpanded] = useState(false);
 
     // Fetch badge counts
     useEffect(() => {
@@ -163,6 +164,31 @@ const Sidebar = () => {
                         <span className="sidebar-link-icon"><FiActivity /></span>
                         <span className="sidebar-link-text">Contributions</span>
                     </Link>
+
+                    {/* My Activity Accordion */}
+                    <div className="sidebar-accordion">
+                        <button
+                            onClick={() => setActivityExpanded(!activityExpanded)}
+                            className={`sidebar-link w-full justify-between ${(location.pathname === '/home' && ['moderate', 'paid', 'pinned'].some(t => location.search.includes(`tab=${t}`)) && !activityExpanded) ? 'text-indigo-600' : ''}`}
+                        >
+                            <div className="flex items-center gap-3">
+                                <span className="sidebar-link-icon"><FiActivity /></span>
+                                <span className="sidebar-link-text">My Activity</span>
+                            </div>
+                            <FiChevronDown className={`transition-transform duration-300 ${activityExpanded ? 'rotate-180' : ''}`} />
+                        </button>
+                        <div className={`overflow-hidden transition-all duration-300 bg-white/50 rounded-b-xl ${activityExpanded || ['moderate', 'paid', 'pinned'].some(t => location.search.includes(`tab=${t}`)) ? 'max-h-48 opacity-100 py-2 mb-2' : 'max-h-0 opacity-0'}`}>
+                            <Link to="/home?tab=moderate" className={`sidebar-link pl-12 text-sm mx-2 mb-1 rounded-lg ${isActiveDashboardTab('moderate') ? 'active bg-white text-[#001E80] shadow-sm font-bold' : 'text-gray-600 hover:bg-white/80 hover:text-[#001E80]'}`}>
+                                <span className="sidebar-link-text text-xs uppercase tracking-widest font-black">Moderate</span>
+                            </Link>
+                            <Link to="/home?tab=paid" className={`sidebar-link pl-12 text-sm mx-2 mb-1 rounded-lg ${isActiveDashboardTab('paid') ? 'active bg-white text-[#001E80] shadow-sm font-bold' : 'text-gray-600 hover:bg-white/80 hover:text-[#001E80]'}`}>
+                                <span className="sidebar-link-text text-xs uppercase tracking-widest font-black">Paid Threads</span>
+                            </Link>
+                            <Link to="/home?tab=pinned" className={`sidebar-link pl-12 text-sm mx-2 rounded-lg ${isActiveDashboardTab('pinned') ? 'active bg-white text-[#001E80] shadow-sm font-bold' : 'text-gray-600 hover:bg-white/80 hover:text-[#001E80]'}`}>
+                                <span className="sidebar-link-text text-xs uppercase tracking-widest font-black">Pinned</span>
+                            </Link>
+                        </div>
+                    </div>
                 </nav>
 
                 {/* ── ACCOUNT ── */}

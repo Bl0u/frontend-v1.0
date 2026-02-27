@@ -1,5 +1,6 @@
 import { useState, useEffect, useContext, useRef, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import resourceService from '../features/resources/resourceService';
@@ -7,7 +8,7 @@ import AuthContext from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import { API_BASE_URL } from '../config';
 
-import { FaArrowUp, FaComment, FaClock, FaPaperclip, FaChevronLeft, FaPaperPlane, FaInfoCircle, FaTags, FaUser, FaCheckCircle } from 'react-icons/fa';
+import { FaArrowUp, FaComment, FaClock, FaPaperclip, FaChevronLeft, FaPaperPlane, FaInfoCircle, FaTags, FaUser, FaCheckCircle, FaBookmark, FaRegBookmark } from 'react-icons/fa';
 
 const ThreadDetail = () => {
     const { id } = useParams();
@@ -17,6 +18,7 @@ const ThreadDetail = () => {
     const [loading, setLoading] = useState(true);
     const [reply, setReply] = useState('');
     const [file, setFile] = useState(null);
+    const [isPinned, setIsPinned] = useState(false);
     const fileInputRef = useRef(null);
 
     const handleAcknowledge = async () => {
@@ -58,6 +60,7 @@ const ThreadDetail = () => {
             setThread(data.thread);
             setPosts(data.posts);
             setHasAccess(data.hasAccess !== false); // V2.0: Backend returns hasAccess flag
+            setIsPinned(data.isPinned || false);
             setEditData({ title: data.thread.title, tags: data.thread.tags?.join(', ') || '' });
             setLoading(false);
         } catch (error) {
@@ -179,6 +182,18 @@ const ThreadDetail = () => {
             fetchDetail();
         } catch (error) {
             toast.error(error.response?.data?.message || 'Failed to sync validation');
+        }
+    };
+
+    const handleTogglePin = async () => {
+        if (!user) return toast.info('Log in to pin this mission');
+        try {
+            const config = { headers: { Authorization: `Bearer ${user.token}` } };
+            const res = await axios.put(`${API_BASE_URL}/api/resources/thread/${id}/pin`, {}, config);
+            setIsPinned(res.data.isPinned);
+            toast.success(res.data.isPinned ? 'Mission pinned to your dashboard' : 'Mission removed from pins');
+        } catch (error) {
+            toast.error('Failed to toggle pin');
         }
     };
 
@@ -508,8 +523,15 @@ const ThreadDetail = () => {
                 <div className="lg:w-80 shrink-0">
                     <div className="sticky top-10 space-y-6">
                         <div className="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm">
-                            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-6 flex items-center gap-2">
-                                <FaInfoCircle /> About Mission
+                            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-6 flex items-center justify-between">
+                                <span className="flex items-center gap-2"><FaInfoCircle /> About Mission</span>
+                                <button
+                                    onClick={handleTogglePin}
+                                    className={`p-2 rounded-lg transition-all ${isPinned ? 'text-[#001E80] bg-[#EAEEFE]' : 'text-gray-300 hover:text-indigo-400 hover:bg-gray-50'}`}
+                                    title={isPinned ? "Unpin Mission" : "Pin Mission"}
+                                >
+                                    {isPinned ? <FaBookmark size={14} /> : <FaRegBookmark size={14} />}
+                                </button>
                             </h4>
                             <div className="space-y-6">
                                 <div>
@@ -679,8 +701,8 @@ const ThreadDetail = () => {
             </div>
 
             {/* Fixed Reply Box at the Bottom */}
-            <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-white/90 backdrop-blur-md border-t border-gray-200">
-                <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-10">
+            <div className="fixed bottom-0 left-0 lg:left-64 right-0 z-50 p-4 bg-white/90 backdrop-blur-md border-t border-gray-200 lg:pr-80">
+                <div className="max-w-4xl mx-auto flex flex-col gap-10">
                     <div className="flex-1 relative">
                         <form onSubmit={handleAddPost} className="bg-gray-900 rounded-[2rem] p-4 pr-6 pl-8 shadow-2xl flex items-center gap-4 border border-white/5 relative">
                             {replyTo && (
@@ -738,8 +760,6 @@ const ThreadDetail = () => {
                             </div>
                         )}
                     </div>
-                    {/* Spacer block to match right panel width for alignment if needed, or leave empty */}
-                    <div className="hidden lg:block lg:w-80 shrink-0"></div>
                 </div>
             </div>
 

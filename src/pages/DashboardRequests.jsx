@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import requestService from '../features/requests/requestService';
 import AuthContext from '../context/AuthContext';
 import { toast } from 'react-toastify';
-import { FaBell, FaCheck, FaTimes, FaGraduationCap, FaUserFriends, FaFileAlt, FaUser, FaEye, FaChalkboardTeacher } from 'react-icons/fa';
+import { FaBell, FaCheck, FaTimes, FaGraduationCap, FaUserFriends, FaFileAlt, FaUser, FaEye, FaChalkboardTeacher, FaArrowLeft } from 'react-icons/fa';
 
 const DashboardRequests = () => {
     const { user } = useContext(AuthContext);
@@ -36,7 +36,7 @@ const DashboardRequests = () => {
             case 'partnership':
                 return <FaUserFriends className="text-green-600" />;
             case 'notification':
-                return <FaBell className="text-blue-600" />;
+                return <FaBell className="text-[#001E80]" />;
             default:
                 return <FaBell className="text-gray-600" />;
         }
@@ -82,15 +82,34 @@ const DashboardRequests = () => {
     if (loading) return <div className="text-center py-20 text-gray-500">Loading inbox...</div>;
 
     return (
-        <div className="max-w-5xl mx-auto my-10 px-4">
-            <div className="flex items-center gap-3 mb-8">
-                <FaBell className="text-3xl text-indigo-600" />
-                <h2 className="text-3xl font-black text-gray-900">Inbox</h2>
-                {inboxItems.length > 0 && (
-                    <span className="bg-indigo-600 text-white text-sm px-3 py-1 rounded-full font-bold">
-                        {inboxItems.length}
-                    </span>
-                )}
+        <div className="max-w-5xl mx-auto my-10 px-4 space-y-8">
+            <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 text-[#001E80]/60 hover:text-[#001E80] font-bold transition-colors">
+                <FaArrowLeft /> Back to Dashboard
+            </button>
+
+            {/* Premium Header */}
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#EAEEFE] to-white p-10 border border-[#001E80]/5">
+                <div className="relative z-10 flex items-center justify-between">
+                    <div>
+                        <p className="text-[#001E80]/50 text-xs font-black uppercase tracking-widest mb-2">Notifications</p>
+                        <h1
+                            className="text-4xl font-black bg-gradient-to-b from-black to-[#001E80] bg-clip-text text-transparent pb-1"
+                            style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
+                        >
+                            Mission Control
+                        </h1>
+                        <p className="text-[#010D3E]/60 font-medium text-sm mt-1">
+                            Stay updated on your partnerships and activity.
+                        </p>
+                    </div>
+                    {inboxItems.length > 0 && (
+                        <div className="bg-[#001E80] text-white px-6 py-3 rounded-2xl font-black text-xl shadow-lg shadow-[#001E80]/20">
+                            {inboxItems.length}
+                        </div>
+                    )}
+                </div>
+                {/* Background Decor */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-[#001E80]/5 rounded-full translate-x-1/3 -translate-y-1/3 blur-3xl"></div>
             </div>
 
             {inboxItems.length === 0 ? (
@@ -172,7 +191,7 @@ const DashboardRequests = () => {
                                                     const threadId = item.message.split('|||THREAD:')[1];
                                                     navigate(`/resources/thread/${threadId}`);
                                                 }}
-                                                className="flex items-center gap-2 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-1.5 rounded-xl transition-all font-medium text-xs"
+                                                className="flex items-center gap-2 bg-[#EAEEFE] hover:bg-[#EAEEFE]/80 text-[#001E80] px-3 py-1.5 rounded-xl transition-all font-medium text-xs"
                                             >
                                                 <FaChalkboardTeacher /> View Thread
                                             </button>
@@ -199,7 +218,7 @@ const DashboardRequests = () => {
                                     ) : (
                                         <button
                                             onClick={() => handleMarkAsRead(item._id)}
-                                            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl transition-all font-bold text-sm whitespace-nowrap"
+                                            className="flex items-center gap-2 bg-[#001E80] hover:bg-[#010D3E] text-white px-4 py-2 rounded-xl transition-all font-bold text-sm whitespace-nowrap"
                                         >
                                             <FaCheck /> Mark as Read
                                         </button>

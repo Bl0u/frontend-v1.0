@@ -27,6 +27,7 @@ const Dashboard = () => {
 
     // Contributions State
     const [myThreads, setMyThreads] = useState([]);
+    const [activityThreads, setActivityThreads] = useState([]);
     const [loadingThreads, setLoadingThreads] = useState(false);
 
     // Contributions Filters
@@ -128,6 +129,26 @@ const Dashboard = () => {
             return () => clearTimeout(delayDebounceFn);
         }
     }, [activeTab, currentUser, searchTerm, activeFilters]);
+
+    // Fetch Activity Threads (Moderate, Paid, Pinned)
+    useEffect(() => {
+        const activityTabs = ['moderate', 'paid', 'pinned'];
+        if (activityTabs.includes(activeTab) && currentUser) {
+            const fetchActivity = async () => {
+                setLoadingThreads(true);
+                try {
+                    const config = { headers: { Authorization: `Bearer ${currentUser.token}` } };
+                    const res = await axios.get(`${API_BASE_URL}/api/resources/activity?type=${activeTab}`, config);
+                    setActivityThreads(res.data);
+                } catch (error) {
+                    toast.error(`Failed to load ${activeTab} threads`);
+                } finally {
+                    setLoadingThreads(false);
+                }
+            };
+            fetchActivity();
+        }
+    }, [activeTab, currentUser]);
 
     // Fetch Unique Tags for Filters
     useEffect(() => {
@@ -234,7 +255,7 @@ const Dashboard = () => {
                     <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#001E80]/3 rounded-full -translate-x-1/4 translate-y-1/4 blur-2xl"></div>
                 </div>
 
-                {/* Stats Row */}
+                {/* Stats Row 1: Partnerships */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                     <div className="bg-gradient-to-br from-[#001E80] to-[#010D3E] rounded-2xl p-6 text-white shadow-lg shadow-[#001E80]/10">
                         <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mb-3">Active Partnerships</p>
@@ -247,6 +268,31 @@ const Dashboard = () => {
                     <div className="bg-gradient-to-br from-[#001E80] to-[#010D3E] rounded-2xl p-6 text-white shadow-lg shadow-[#001E80]/10">
                         <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mb-3">Impact Score</p>
                         <p className="text-4xl font-black">{activePartners.length + completedCount}</p>
+                    </div>
+                </div>
+
+                {/* Stats Row 2: Contributions */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+                        <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-3">Threads Created</p>
+                        <p className="text-4xl font-black text-[#001E80]">{profile.stats?.threadsCreated || 0}</p>
+                        <p className="text-xs text-gray-500 mt-2 font-medium">
+                            <span className="text-indigo-600 font-bold">{profile.stats?.guidesCreated || 0}</span> Guides · <span className="text-indigo-600 font-bold">{profile.stats?.communityThreads || 0}</span> Posts
+                        </p>
+                    </div>
+                    <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+                        <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-3">Total Comments</p>
+                        <p className="text-4xl font-black text-[#001E80]">{profile.stats?.commentsMade || 0}</p>
+                        <p className="text-xs text-gray-500 mt-2 font-medium">Interaction across all missions</p>
+                    </div>
+                    <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-3">Level Rank</p>
+                            <p className="text-2xl font-black text-[#001E80]">Contributor</p>
+                        </div>
+                        <div className="w-12 h-12 bg-[#EAEEFE] rounded-xl flex items-center justify-center text-[#001E80]">
+                            <FaBook className="text-xl" />
+                        </div>
                     </div>
                 </div>
 
@@ -590,6 +636,114 @@ const Dashboard = () => {
     }
 
 
+
+    // ─── ACTIVITY TABS (Moderate, Paid, Pinned) ─────────
+    const activityTabs = ['moderate', 'paid', 'pinned'];
+    if (activityTabs.includes(activeTab)) {
+        const titleMap = {
+            moderate: 'Mod Missions',
+            paid: 'Premium Access',
+            pinned: 'Pinned Missions'
+        };
+        const subMap = {
+            moderate: 'Threads where you serve as an active moderator.',
+            paid: 'Exclusive content you have unlocked with stars.',
+            pinned: 'Missions you have marked for quick access.'
+        };
+
+        return (
+            <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-500">
+                <div>
+                    <h1
+                        className="text-3xl font-black bg-gradient-to-b from-black to-[#001E80] bg-clip-text text-transparent pb-1"
+                        style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
+                    >
+                        {titleMap[activeTab]}
+                    </h1>
+                    <p className="text-[#010D3E]/50 text-sm font-medium mt-1">{subMap[activeTab]}</p>
+                </div>
+
+                <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+                    {loadingThreads ? (
+                        <div className="flex items-center justify-center py-20">
+                            <div className="w-8 h-8 border-2 border-[#001E80]/20 border-t-[#001E80] rounded-full animate-spin"></div>
+                        </div>
+                    ) : activityThreads.length > 0 ? (
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="bg-gray-50/50 border-b border-gray-100 text-[9px] font-black uppercase tracking-widest text-[#001E80]/40">
+                                        <th className="py-3 px-6 w-1/2">Mission</th>
+                                        <th className="py-3 px-6">Intelligence (Author)</th>
+                                        <th className="py-3 px-6 text-center">Status</th>
+                                        <th className="py-3 px-6 text-right">Access</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="text-sm">
+                                    {activityThreads.map((thread) => (
+                                        <tr
+                                            key={thread._id}
+                                            onClick={() => navigate(`/resources/thread/${thread._id}`)}
+                                            className="border-b border-gray-50 hover:bg-[#EAEEFE]/20 cursor-pointer transition-colors group"
+                                        >
+                                            <td className="py-6 px-6 relative">
+                                                <div className="flex-1 min-w-0">
+                                                    <h3 className="font-bold text-gray-900 truncate group-hover:text-[#001E80] transition-colors pr-4">{thread.title}</h3>
+                                                    <div className="flex items-center gap-1.5 mt-1.5">
+                                                        {thread.tags?.slice(0, 2).map((tag, idx) => (
+                                                            <span key={idx} className="px-1.5 py-0.5 bg-gray-50 text-gray-400 rounded text-[8px] font-bold uppercase tracking-wider">
+                                                                {tag}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            <td className="py-6 px-6">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center text-[#001E80] font-bold text-[10px]">
+                                                        {thread.author?.name?.charAt(0)}
+                                                    </div>
+                                                    <span className="text-xs font-bold text-gray-700">{thread.author?.name}</span>
+                                                </div>
+                                            </td>
+
+                                            <td className="py-6 px-6 text-center">
+                                                <div className="flex items-center justify-center gap-3 text-gray-400">
+                                                    <span className="flex items-center gap-1 font-bold text-[10px] uppercase tracking-widest" title="Posts">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                                                        {thread.postCount || 0}
+                                                    </span>
+                                                </div>
+                                            </td>
+
+                                            <td className="py-6 px-6 text-right">
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <div className="w-8 h-8 rounded-full border border-gray-100 flex items-center justify-center group-hover:border-[#001E80] group-hover:bg-[#001E80] transition-colors">
+                                                        <FaChevronRight size={10} className="text-gray-300 group-hover:text-white transition-colors" />
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : (
+                        <div className="text-center py-20 px-4 bg-gray-50/30">
+                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">No activity found in this section.</p>
+                            <button
+                                onClick={() => navigate('/resources')}
+                                className="bg-[#001E80] text-white px-6 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all shadow-md hover:bg-[#010D3E]"
+                            >
+                                Browse Intelligence
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    }
 
     return null;
 };
