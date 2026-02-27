@@ -701,8 +701,8 @@ const ThreadDetail = () => {
             </div>
 
             {/* Fixed Reply Box at the Bottom */}
-            <div className="fixed bottom-0 left-0 lg:left-64 right-0 z-50 p-4 bg-white/90 backdrop-blur-md border-t border-gray-200 lg:pr-80">
-                <div className="max-w-4xl mx-auto flex flex-col gap-10">
+            <div className="fixed bottom-0 left-0 lg:left-[250px] right-0 z-50 p-4 bg-white/90 backdrop-blur-md border-t border-gray-200">
+                <div className="max-w-6xl mx-auto px-4 flex flex-col lg:flex-row gap-10">
                     <div className="flex-1 relative">
                         <form onSubmit={handleAddPost} className="bg-gray-900 rounded-[2rem] p-4 pr-6 pl-8 shadow-2xl flex items-center gap-4 border border-white/5 relative">
                             {replyTo && (
@@ -760,6 +760,8 @@ const ThreadDetail = () => {
                             </div>
                         )}
                     </div>
+                    {/* Spacer block to match right panel width for alignment */}
+                    <div className="hidden lg:block lg:w-80 shrink-0"></div>
                 </div>
             </div>
 
