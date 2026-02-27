@@ -527,7 +527,7 @@ const ThreadDetail = () => {
                                     <div className="flex flex-wrap gap-2">
                                         {thread.tags?.map((tag, idx) => (
                                             <span key={idx} className="bg-gray-50 text-gray-500 text-[10px] font-bold px-3 py-1 rounded-lg border border-gray-100">
-                                                {tag}
+                                                {tag.replace(/^#(Subj|Comp|Prof)/, '#')}
                                             </span>
                                         ))}
                                     </div>

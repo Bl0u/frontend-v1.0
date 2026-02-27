@@ -96,7 +96,13 @@ const Dashboard = () => {
                 setLoadingThreads(true);
                 try {
                     let tagsParam = '';
-                    const tagValues = Object.values(activeFilters);
+                    const tagValues = Object.entries(activeFilters).map(([type, val]) => {
+                        const cleanVal = val.replace(/\s+/g, '').replace(/ \(.*?\)/g, '');
+                        if (type === 'Professor') return `Prof${cleanVal}`;
+                        if (type === 'Subject') return `Subj${cleanVal}`;
+                        if (type === 'Company') return `Comp${cleanVal}`;
+                        return cleanVal;
+                    });
                     if (tagValues.length > 0) {
                         tagsParam = tagValues.join(',');
                     }
@@ -161,10 +167,11 @@ const Dashboard = () => {
         if (type === 'Professor') {
             return uniqueTags.filter(t => t.startsWith('#Prof')).map(t => t.replace('#Prof', ''));
         }
-        if (type === 'Subject' || type === 'Company') {
-            const uniTags = ['CairoUniversity', 'AinShamsUniversity', 'HelwanUniversity', 'AlexandriaUniversity', 'MansouraUniversity', 'AssiutUniversity', 'TantaUniversity', 'ZagazigUniversity'].map(u => `#${u}`);
-            const excludeTags = [...uniTags, '#Interview', '#SpecificSubject', '#college', '#interview', '#specific'];
-            return uniqueTags.filter(t => !excludeTags.includes(t) && !t.startsWith('#Prof')).map(t => t.replace(/^#/, ''));
+        if (type === 'Subject') {
+            return uniqueTags.filter(t => t.startsWith('#Subj')).map(t => t.replace('#Subj', ''));
+        }
+        if (type === 'Company') {
+            return uniqueTags.filter(t => t.startsWith('#Comp')).map(t => t.replace('#Comp', ''));
         }
         return [];
     };
@@ -514,7 +521,7 @@ const Dashboard = () => {
                                                 <div className="flex items-center gap-1.5 flex-wrap">
                                                     {thread.tags?.slice(0, 3).map((tag, idx) => (
                                                         <span key={idx} className="px-2 py-1 bg-white border border-gray-100 text-gray-500 rounded text-[9px] font-bold uppercase tracking-wider whitespace-nowrap">
-                                                            {tag}
+                                                            {tag.replace(/^#(Subj|Comp|Prof)/, '#')}
                                                         </span>
                                                     ))}
                                                     {thread.tags?.length > 3 && (
@@ -525,7 +532,7 @@ const Dashboard = () => {
                                                             <div className="absolute left-0 bottom-full mb-2 hidden group-hover/tags:flex flex-wrap gap-1 bg-gray-900 border border-gray-800 p-2 rounded-lg w-48 shadow-xl z-10">
                                                                 {thread.tags.slice(3).map((tag, idx) => (
                                                                     <span key={idx} className="px-2 py-1 bg-white/10 text-white rounded text-[8px] font-bold uppercase tracking-wider whitespace-nowrap">
-                                                                        {tag}
+                                                                        {tag.replace(/^#(Subj|Comp|Prof)/, '#')}
                                                                     </span>
                                                                 ))}
                                                             </div>

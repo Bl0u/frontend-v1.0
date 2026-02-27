@@ -79,9 +79,9 @@ const PublicProfile = () => {
 
     // ─── Helper: Info pill ────────────────────────────
     const InfoPill = ({ label, value }) => value ? (
-        <div className="flex items-center justify-between p-3 rounded-2xl bg-gray-50">
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{label}</span>
-            <span className="text-base font-bold text-gray-800">{value}</span>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 rounded-2xl bg-gray-50 gap-1 sm:gap-4">
+            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap">{label}</span>
+            <span className="text-base font-bold text-gray-800 text-left sm:text-right break-words w-full sm:w-auto overflow-hidden">{value}</span>
         </div>
     ) : null;
 
@@ -234,7 +234,7 @@ const PublicProfile = () => {
                         )}
                         {profile.preferredTools?.length > 0 && (
                             <div>
-                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Tools</p>
+                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Communication Tools</p>
                                 <TagList items={profile.preferredTools} color="bg-gray-50 text-gray-700" />
                             </div>
                         )}

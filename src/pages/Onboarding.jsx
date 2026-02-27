@@ -12,14 +12,14 @@ import '../fonts/style/fontsStyle.css';
 
 // ─── Inline SVG Icons ──────────────────────────────────────────────────
 
-const IdentityIcon = () => (
+const PeerIcon = () => (
     <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M24 20c4.4 0 8-3.6 8-8s-3.6-8-8-8-8 3.6-8 8 3.6 8 8 8z" />
         <path d="M40 44c0-8.8-7.2-16-16-16S8 35.2 8 44" />
     </svg>
 );
 
-const MatchingIcon = () => (
+const ProjectIcon = () => (
     <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="16" cy="14" r="6" />
         <circle cx="32" cy="14" r="6" />
@@ -193,15 +193,27 @@ const Onboarding = () => {
                         <h2 className="onboarding-title" style={{ fontFamily: 'Zuume-Bold' }}>Matching Essentials</h2>
                         <p className="onboarding-subtitle">What kind of study partner are you looking for?</p>
 
-                        <div className="onboarding-form-grid">
-                            <div className="onboarding-input-wrap">
-                                <label>Partner Type *</label>
-                                <select name="partnerType" value={formData.partnerType} onChange={onChange}>
-                                    <option value="">Select Type</option>
-                                    <option value="peer">Peer (Studying cùng)</option>
-                                    <option value="project teammate">Project Teammate</option>
-                                </select>
+                        <div className="cards-grid cards-grid-2">
+                            <div
+                                className={`selection-card ${formData.partnerType === 'peer' ? 'selected' : ''}`}
+                                onClick={() => setFormData({ ...formData, partnerType: 'peer' })}
+                            >
+                                <div className="card-icon"><PeerIcon /></div>
+                                <span className="card-label">Peer (Study Together)</span>
+                                <div className="card-check"><FaCheck /></div>
                             </div>
+
+                            <div
+                                className={`selection-card ${formData.partnerType === 'project teammate' ? 'selected' : ''}`}
+                                onClick={() => setFormData({ ...formData, partnerType: 'project teammate' })}
+                            >
+                                <div className="card-icon"><ProjectIcon /></div>
+                                <span className="card-label">Project Teammate</span>
+                                <div className="card-check"><FaCheck /></div>
+                            </div>
+                        </div>
+
+                        <div className="onboarding-form-grid">
                             <div className="onboarding-input-wrap">
                                 <label>Primary Goal *</label>
                                 <input type="text" name="matchingGoal" value={formData.matchingGoal} onChange={onChange} placeholder="e.g. Exam prep" />

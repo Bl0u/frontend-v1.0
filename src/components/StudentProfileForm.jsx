@@ -241,7 +241,7 @@ const StudentProfileForm = ({ user, initialData, refreshProfile }) => {
                     </select>
                 </div>
                 <div>
-                    <label className={labelClass}>Preferred Tools</label>
+                    <label className={labelClass}>Preferred Communication Tools</label>
                     <TagInput tags={formData.preferredTools} setTags={setPreferredTools} placeholder="Zoom, Discord, Slack..." />
                 </div>
             </div>

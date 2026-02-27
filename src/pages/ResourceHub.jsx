@@ -76,6 +76,8 @@ const ResourceHub = () => {
     const formatFilterValueToTag = (type, value) => {
         const cleanVal = value.replace(/\s+/g, '').replace(/ \(.*?\)/g, ''); // Removes spaces and e.g. "(BUE)"
         if (type === 'Professor') return `Prof${cleanVal}`;
+        if (type === 'Subject') return `Subj${cleanVal}`;
+        if (type === 'Company') return `Comp${cleanVal}`;
         return cleanVal;
     };
 
@@ -172,12 +174,15 @@ const ResourceHub = () => {
                 .filter(t => t.startsWith('#Prof'))
                 .map(t => t.replace('#Prof', ''));
         }
-        if (type === 'Subject' || type === 'Company') {
-            const uniTags = SUGGESTION_LISTS.University.map(u => `#${u.replace(/\s+/g, '')}`);
-            const excludeTags = [...uniTags, '#Interview', '#SpecificSubject', '#college', '#interview', '#specific'];
+        if (type === 'Subject') {
             return uniqueTags
-                .filter(t => !excludeTags.includes(t) && !t.startsWith('#Prof'))
-                .map(t => t.replace(/^#/, ''));
+                .filter(t => t.startsWith('#Subj'))
+                .map(t => t.replace('#Subj', ''));
+        }
+        if (type === 'Company') {
+            return uniqueTags
+                .filter(t => t.startsWith('#Comp'))
+                .map(t => t.replace('#Comp', ''));
         }
         return [];
     };
@@ -193,9 +198,9 @@ const ResourceHub = () => {
                 if (createData.university) autoTags.push(`#${createData.university.replace(/\s+/g, '')}`);
                 if (createData.college) autoTags.push(`#${createData.college.replace(/\s+/g, '')}`);
                 if (createData.professor) autoTags.push(`#Prof${createData.professor.replace(/\s+/g, '')}`);
-                if (createData.subject) autoTags.push(`#${createData.subject.replace(/\s+/g, '')}`);
+                if (createData.subject) autoTags.push(`#Subj${createData.subject.replace(/\s+/g, '')}`);
             } else if (createData.category === 'interview') {
-                if (createData.company) autoTags.push(`#${createData.company.replace(/\s+/g, '')}`);
+                if (createData.company) autoTags.push(`#Comp${createData.company.replace(/\s+/g, '')}`);
                 if (createData.position) autoTags.push(`#${createData.position.replace(/\s+/g, '')}`);
                 autoTags.push('#Interview');
             } else if (createData.category === 'specific') {
@@ -591,7 +596,7 @@ const ResourceHub = () => {
                                                 <div className="flex flex-wrap gap-1 max-w-[150px] relative">
                                                     {thread.tags?.slice(0, 2).map((tag, idx) => (
                                                         <span key={idx} className="px-1.5 py-0.5 bg-[#001E80]/5 text-[#001E80] rounded text-[9px] font-bold uppercase tracking-wider whitespace-nowrap">
-                                                            {tag}
+                                                            {tag.replace(/^#(Subj|Comp|Prof)/, '#')}
                                                         </span>
                                                     ))}
                                                     {thread.tags?.length > 2 && (

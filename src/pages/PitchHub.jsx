@@ -71,7 +71,7 @@ const PitchHub = () => {
                     {currentUser && (
                         <Link
                             to="/pitch-form"
-                            className="bg-[#001E80] hover:bg-[#001E80]/85 text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-[#001E80]/10 transition-all active:scale-[0.97] flex-shrink-0"
+                            className="bg-[#001E80] hover:bg-blue-900 text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-blue-100 transition-all active:scale-[0.97] flex-shrink-0"
                         >
                             <FaPlus /> Pitch Your Project
                         </Link>

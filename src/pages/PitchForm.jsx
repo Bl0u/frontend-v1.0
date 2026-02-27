@@ -55,9 +55,10 @@ const PitchForm = () => {
         try {
             const config = { headers: { Authorization: `Bearer ${currentUser.token}` } };
 
-            await axios.post(`${API_BASE_URL}/api/requests/public-pitch`, {
+            await axios.post(`${API_BASE_URL}/api/requests`, {
                 pitch: pitchData.pitch,
-                message: `Project Pitch by ${currentUser.name}`
+                message: `Project Pitch by ${currentUser.name}`,
+                isPublic: true
             }, config);
 
             toast.success('Your project pitch is now live in the Hub!');
