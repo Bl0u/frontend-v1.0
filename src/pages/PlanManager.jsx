@@ -150,14 +150,14 @@ const PlanManager = () => {
             <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8 mb-8">
                 <h1 className="text-3xl font-black text-gray-900 mb-2">Collaboration Plan</h1>
                 <p className="text-gray-600 font-medium">
-                    <span className="font-bold">Partners:</span> {plan.partner1.name} & {plan.partner2.name}
+                    <span className="font-bold">Partners:</span> {plan.partner1?.name || plan.mentor?.name || 'Partner'} & {plan.partner2?.name || plan.student?.name || 'Partner'}
                 </p>
             </div>
 
             {/* New Version Button */}
             {(() => {
                 // Both partners can now add versions
-                const isPartner = plan.partner1._id.toString() === user._id || plan.partner2._id.toString() === user._id;
+                const isPartner = (plan.partner1?._id || plan.mentor?._id)?.toString() === user._id || (plan.partner2?._id || plan.student?._id)?.toString() === user._id;
 
                 return !showNewVersionForm && isPartner && (
                     <button
@@ -260,7 +260,7 @@ const PlanManager = () => {
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-4">
-                                    {editingVersion !== actualIdx && (plan.partner1._id === user._id || plan.partner2._id === user._id) && (
+                                    {editingVersion !== actualIdx && ((plan.partner1?._id || plan.mentor?._id)?.toString() === user._id || (plan.partner2?._id || plan.student?._id)?.toString() === user._id) && (
                                         <>
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); handleEditVersion(actualIdx, version); }}

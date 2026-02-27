@@ -79,9 +79,9 @@ const PublicProfile = () => {
 
     // ─── Helper: Info pill ────────────────────────────
     const InfoPill = ({ label, value }) => value ? (
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 rounded-2xl bg-gray-50 gap-1 sm:gap-4">
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap">{label}</span>
-            <span className="text-base font-bold text-gray-800 text-left sm:text-right break-words w-full sm:w-auto overflow-hidden">{value}</span>
+        <div className="bg-gray-50 p-4 rounded-2xl flex flex-col gap-1">
+            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{label}</span>
+            <span className="text-base font-medium text-gray-800 break-words leading-relaxed">{value}</span>
         </div>
     ) : null;
 
@@ -207,15 +207,15 @@ const PublicProfile = () => {
                         <InfoPill label="Goal" value={profile.matchingGoal} />
                         <InfoPill label="Type" value={profile.partnerType === 'peer' ? 'Peer Study' : profile.partnerType === 'project teammate' ? 'Project Teammate' : profile.partnerType} />
                         {profile.topics?.length > 0 && (
-                            <div>
-                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Topics</p>
-                                <TagList items={profile.topics} />
+                            <div className="bg-gray-50 p-4 rounded-2xl flex flex-col gap-1">
+                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Topics</span>
+                                <TagList items={profile.topics} color="bg-white text-[#001E80] shadow-sm border border-gray-100" />
                             </div>
                         )}
                         {profile.neededFromPartner && (
-                            <div className="bg-gray-50 p-4 rounded-2xl">
-                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Looking For</p>
-                                <p className="text-base text-gray-700 leading-relaxed">{profile.neededFromPartner}</p>
+                            <div className="bg-gray-50 p-4 rounded-2xl flex flex-col gap-1">
+                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Looking For</span>
+                                <span className="text-base font-medium text-gray-800 break-words leading-relaxed">{profile.neededFromPartner}</span>
                             </div>
                         )}
                     </div>
@@ -227,15 +227,15 @@ const PublicProfile = () => {
                         <h3 className="text-xs font-black uppercase tracking-widest text-[#001E80]">Logistics</h3>
                         <InfoPill label="Mode" value={profile.studyMode} />
                         {profile.languages?.length > 0 && (
-                            <div>
-                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Languages</p>
-                                <TagList items={profile.languages} color="bg-gray-50 text-gray-700" />
+                            <div className="bg-gray-50 p-4 rounded-2xl flex flex-col gap-1">
+                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Languages</span>
+                                <TagList items={profile.languages} color="bg-white text-gray-700 shadow-sm border border-gray-100" />
                             </div>
                         )}
                         {profile.preferredTools?.length > 0 && (
-                            <div>
-                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Communication Tools</p>
-                                <TagList items={profile.preferredTools} color="bg-gray-50 text-gray-700" />
+                            <div className="bg-gray-50 p-4 rounded-2xl flex flex-col gap-1">
+                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Communication Tools</span>
+                                <TagList items={profile.preferredTools} color="bg-white text-gray-700 shadow-sm border border-gray-100" />
                             </div>
                         )}
                     </div>
@@ -246,8 +246,8 @@ const PublicProfile = () => {
                     <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 space-y-4">
                         <h3 className="text-xs font-black uppercase tracking-widest text-[#001E80]">Availability</h3>
                         {profile.availability?.days?.length > 0 && (
-                            <div>
-                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Days</p>
+                            <div className="bg-gray-50 p-4 rounded-2xl flex flex-col gap-1">
+                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Days</span>
                                 <div className="flex flex-wrap gap-1.5">
                                     {profile.availability.days.map((day, i) => (
                                         <span key={i} className="px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wide bg-[#001E80] text-white">
@@ -258,9 +258,9 @@ const PublicProfile = () => {
                             </div>
                         )}
                         {profile.availability?.timeRanges?.length > 0 && (
-                            <div>
-                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Time Ranges</p>
-                                <TagList items={profile.availability.timeRanges} />
+                            <div className="bg-gray-50 p-4 rounded-2xl flex flex-col gap-1">
+                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Time Ranges</span>
+                                <TagList items={profile.availability.timeRanges} color="bg-white text-[#001E80] shadow-sm border border-gray-100" />
                             </div>
                         )}
                         <InfoPill label="Commitment" value={profile.commitmentLevel} />
@@ -275,9 +275,9 @@ const PublicProfile = () => {
                         <InfoPill label="Session Length" value={profile.sessionLength} />
                         <InfoPill label="Pace" value={profile.pace} />
                         {profile.canOffer && (
-                            <div className="bg-gray-50 p-4 rounded-2xl">
-                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Can Offer</p>
-                                <p className="text-sm text-gray-700 leading-relaxed">{profile.canOffer}</p>
+                            <div className="bg-gray-50 p-4 rounded-2xl flex flex-col gap-1">
+                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Can Offer</span>
+                                <span className="text-base font-medium text-gray-800 break-words leading-relaxed">{profile.canOffer}</span>
                             </div>
                         )}
                     </div>

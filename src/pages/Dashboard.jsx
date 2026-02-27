@@ -9,7 +9,7 @@ import { FaExternalLinkAlt, FaUserFriends, FaBook, FaChevronRight } from 'react-
 import requestService from '../features/requests/requestService';
 import planService from '../features/plans/planService';
 import resourceService from '../features/resources/resourceService';
-import PitchQuestionsManager from '../components/PitchQuestionsManager';
+
 
 const Dashboard = () => {
     const { user: currentUser } = useContext(AuthContext);
@@ -589,29 +589,7 @@ const Dashboard = () => {
         );
     }
 
-    // ─── PITCH QUESTIONS TAB ────────────────────────────
-    if (activeTab === 'pitch-questions') {
-        return (
-            <div className="max-w-5xl mx-auto space-y-8">
-                {/* Header */}
-                <div>
-                    <h1
-                        className="text-3xl font-black bg-gradient-to-b from-black to-[#001E80] bg-clip-text text-transparent pb-1"
-                        style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
-                    >
-                        Pitch Questions
-                    </h1>
-                    <p className="text-[#010D3E]/50 text-sm font-medium mt-1">Customize what partners answer when pitching to you</p>
-                </div>
 
-                <PitchQuestionsManager
-                    user={currentUser}
-                    initialQuestions={profile.pitchQuestions}
-                    onUpdate={(newQs) => setProfile({ ...profile, pitchQuestions: newQs })}
-                />
-            </div>
-        );
-    }
 
     return null;
 };

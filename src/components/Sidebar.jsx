@@ -163,10 +163,6 @@ const Sidebar = () => {
                         <span className="sidebar-link-icon"><FiActivity /></span>
                         <span className="sidebar-link-text">Contributions</span>
                     </Link>
-                    <Link to="/home?tab=pitch-questions" className={`sidebar-link ${isActiveDashboardTab('pitch-questions') ? 'active' : ''}`}>
-                        <span className="sidebar-link-icon"><FiClipboard /></span>
-                        <span className="sidebar-link-text">Pitch Questions</span>
-                    </Link>
                 </nav>
 
                 {/* ── ACCOUNT ── */}
