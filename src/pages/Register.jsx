@@ -103,7 +103,8 @@ const Register = () => {
     const passwordInputRef = useRef(null);
 
     useEffect(() => {
-        if (user) navigate('/');
+        const params = new URLSearchParams(window.location.search);
+        if (user && !params.get('add')) navigate('/');
     }, [user, navigate]);
 
     const handleContinue = (e) => {

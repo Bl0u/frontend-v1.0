@@ -8,7 +8,7 @@ import { API_BASE_URL } from '../config';
 
 
 const TopUp = () => {
-    const { user, login } = useContext(AuthContext);
+    const { user, updateUser } = useContext(AuthContext);
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
 
@@ -36,12 +36,8 @@ const TopUp = () => {
                 config
             );
 
-            // Update user in localStorage
-            const updatedUser = { ...user, stars: res.data.stars };
-            localStorage.setItem('user', JSON.stringify(updatedUser));
-
-            // Trigger storage event to update header/context
-            window.dispatchEvent(new Event('storage'));
+            // Update user in context and sessions
+            updateUser({ stars: res.data.stars });
 
             toast.success(`🎉 Successfully added ${stars} stars!`);
         } catch (error) {

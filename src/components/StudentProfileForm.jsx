@@ -14,7 +14,7 @@ const TOPICS = [
     { id: 'style', label: 'Style', icon: '⚡' }
 ];
 
-const StudentProfileForm = ({ user, initialData, refreshProfile }) => {
+const StudentProfileForm = ({ user, initialData, refreshProfile, refreshUser }) => {
     const [activeTopic, setActiveTopic] = useState('core');
     const [formData, setFormData] = useState({
         // 1️⃣ Core Identity
@@ -131,6 +131,7 @@ const StudentProfileForm = ({ user, initialData, refreshProfile }) => {
 
             await axios.put(`${API_BASE_URL}/api/users/profile`, payload, config);
             toast.success('Profile updated successfully!');
+            if (refreshUser) refreshUser();
             if (refreshProfile) refreshProfile();
         } catch (error) {
             console.error(error);

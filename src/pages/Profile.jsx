@@ -7,7 +7,7 @@ import { API_BASE_URL } from '../config';
 import StudentProfileForm from '../components/StudentProfileForm';
 
 const Profile = () => {
-    const { user } = useContext(AuthContext);
+    const { user, refreshUser } = useContext(AuthContext);
     const [profileData, setProfileData] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -56,6 +56,7 @@ const Profile = () => {
                     user={user}
                     initialData={profileData}
                     refreshProfile={fetchProfile}
+                    refreshUser={refreshUser}
                 />
             </div>
         </div>

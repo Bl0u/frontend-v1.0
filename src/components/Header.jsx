@@ -9,7 +9,7 @@ import { API_BASE_URL } from '../config';
 import { LiquidButton } from './LiquidButton';
 
 const Header = () => {
-    const { user, logout } = useContext(AuthContext);
+    const { user, sessions, logout, switchSession } = useContext(AuthContext);
     const navigate = useNavigate();
     const location = useLocation();
     const [unreadCount, setUnreadCount] = useState(0);
@@ -194,14 +194,70 @@ const Header = () => {
                                     Dashboard
                                 </Link>
 
-                                {/* Logout */}
-                                <button
-                                    onClick={onLogout}
-                                    className="flex items-center gap-2 text-slate-700 hover:text-[#ff4d6d] transition-colors duration-300"
-                                >
-                                    <FaSignOutAlt />
-                                    <span className="hidden sm:inline font-medium text-sm">Logout</span>
-                                </button>
+                                {/* Account Switcher */}
+                                <div className="relative group">
+                                    <button className="flex items-center gap-2 px-3 py-1.5 bg-black/5 rounded-full border border-black/5 hover:bg-black/10 transition-all duration-300">
+                                        <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-[#ff4d6d] to-[#ff8fa3] flex items-center justify-center text-[10px] text-white font-bold">
+                                            {user.username.charAt(0).toUpperCase()}
+                                        </div>
+                                        <span className="hidden lg:inline text-sm font-medium text-slate-700">{user.username}</span>
+                                    </button>
+
+                                    {/* Dropdown */}
+                                    <div className="absolute right-0 mt-2 w-64 bg-white/95 backdrop-blur-xl border border-black/5 rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right group-hover:scale-100 scale-95 z-[60] py-3">
+                                        <div className="px-4 py-2 border-b border-black/5 mb-2">
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Active Account</p>
+                                            <div className="flex items-center gap-3 mt-1">
+                                                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#ff4d6d] to-[#ff8fa3] flex items-center justify-center text-xs text-white font-bold">
+                                                    {user.username.charAt(0).toUpperCase()}
+                                                </div>
+                                                <div className="overflow-hidden">
+                                                    <p className="text-sm font-bold text-slate-800 truncate">{user.name}</p>
+                                                    <p className="text-[11px] text-slate-500 truncate">{user.email}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="px-2">
+                                            <p className="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Other Sessions</p>
+                                            {sessions.filter(s => s._id !== user._id).map((session, idx) => (
+                                                <button
+                                                    key={session._id}
+                                                    onClick={() => switchSession(sessions.findIndex(s => s._id === session._id))}
+                                                    className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-black/5 transition-colors text-left"
+                                                >
+                                                    <div className="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center text-[10px] text-slate-600 font-bold">
+                                                        {session.username.charAt(0).toUpperCase()}
+                                                    </div>
+                                                    <div className="overflow-hidden flex-1">
+                                                        <p className="text-[13px] font-semibold text-slate-700 truncate">{session.username}</p>
+                                                    </div>
+                                                    <div className="w-2 h-2 rounded-full bg-slate-300"></div>
+                                                </button>
+                                            ))}
+
+                                            <Link
+                                                to="/login?add=true"
+                                                className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-black/5 transition-colors text-slate-600 mt-1"
+                                            >
+                                                <div className="w-7 h-7 rounded-full border-2 border-dashed border-slate-300 flex items-center justify-center text-slate-400">
+                                                    +
+                                                </div>
+                                                <span className="text-[13px] font-semibold">Add another account</span>
+                                            </Link>
+                                        </div>
+
+                                        <div className="mt-3 pt-2 border-t border-black/5 px-2">
+                                            <button
+                                                onClick={() => logout()}
+                                                className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-red-50 text-red-500 transition-colors text-left"
+                                            >
+                                                <FaSignOutAlt className="text-sm" />
+                                                <span className="text-[13px] font-bold">Log out</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         ) : (
                             <div className="flex items-center gap-4">

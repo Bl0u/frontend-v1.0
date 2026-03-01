@@ -18,7 +18,14 @@ const Login = () => {
     const passwordInputRef = useRef(null);
 
     useEffect(() => {
-        if (user) navigate('/');
+        // Only redirect if we're not explicitly trying to add an account
+        // (For now, we just check if there's no 'add' param, but we'll simplify: 
+        // if user comes to login, they want to log in, even if already logged in as someone else)
+        // However, standard behavior is to redirect if already logged in.
+        // We will change this to allow login if specifically requested or keep it simple.
+        // Let's check for a query param 'add=true'
+        const params = new URLSearchParams(window.location.search);
+        if (user && !params.get('add')) navigate('/');
     }, [user, navigate]);
 
     // Autofocus password on step 2

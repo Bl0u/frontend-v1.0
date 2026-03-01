@@ -12,7 +12,7 @@ import { FaArrowUp, FaComment, FaClock, FaPaperclip, FaChevronLeft, FaPaperPlane
 
 const ThreadDetail = () => {
     const { id } = useParams();
-    const { user } = useContext(AuthContext);
+    const { user, updateUser } = useContext(AuthContext);
     const [thread, setThread] = useState(null);
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -83,13 +83,8 @@ const ThreadDetail = () => {
                 const response = await resourceService.purchaseThread(id, user.token);
                 toast.success('🎉 Thread unlocked!');
 
-                // Update user stars in localStorage and context
-                const updatedUser = { ...user, stars: response.stars };
-                localStorage.setItem('user', JSON.stringify(updatedUser));
-
-                // Trigger re-render by updating context (if setUser exists)
-                // Force context refresh by reloading user from localStorage
-                window.dispatchEvent(new Event('storage'));
+                // Update user in context and sessions
+                updateUser({ stars: response.stars });
 
                 // Refresh thread detail to update access
                 await fetchDetail();

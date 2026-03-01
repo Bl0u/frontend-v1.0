@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FaEnvelope, FaLinkedin, FaGithub, FaGlobe, FaStar, FaTwitter, FaMapMarkerAlt, FaExternalLinkAlt } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { API_BASE_URL } from '../config';
+import AuthContext from '../context/AuthContext';
 
 const PublicProfile = () => {
     const { username } = useParams();
@@ -18,7 +19,7 @@ const PublicProfile = () => {
     const [showReviewForm, setShowReviewForm] = useState(false);
     const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '' });
 
-    const currentUser = JSON.parse(localStorage.getItem('user'));
+    const { user: currentUser } = useContext(AuthContext);
 
     useEffect(() => {
         const fetchProfileData = async () => {
