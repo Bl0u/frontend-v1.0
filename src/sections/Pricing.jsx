@@ -242,8 +242,8 @@ export const Pricing = ({ skipAnimation = false }) => {
                     className={clsx(
                       "pricing-face pricing-cover flex flex-col items-center justify-center p-8 border backdrop-blur-xl",
                       t.theme === "dark"
-                        ? "bg-gradient-to-br from-[#001E80] to-[#010D3E] text-white border-white/10"
-                        : "bg-gradient-to-br from-[#EAEEFE] to-white text-[#010D3E] border-[#001E80]/5"
+                        ? "bg-gradient-to-br from-[#010821] to-[#010D3E] text-white border-white/10 shadow-[0_20px_60px_-15px_rgba(0,10,50,0.4)]"
+                        : "bg-gradient-to-br from-[#F8FAFF] to-[#EAEEFE] text-[#010D3E] border-[#001E80]/10 shadow-[0_20px_50px_-15px_rgba(0,30,128,0.1)]"
                     )}
                   >
                     <div
@@ -283,8 +283,8 @@ export const Pricing = ({ skipAnimation = false }) => {
                   className={clsx(
                     "pricing-face pricing-details p-8 border flex flex-col shadow-2xl backdrop-blur-xl",
                     t.theme === "dark"
-                      ? "bg-gradient-to-br from-[#001E80] to-[#010D3E] text-white border-white/10"
-                      : "bg-gradient-to-br from-[#EAEEFE] to-white text-[#010D3E] border-[#001E80]/5"
+                      ? "bg-gradient-to-br from-[#010821] to-[#010D3E] text-white border-white/10 shadow-[0_30px_70px_-20px_rgba(0,10,60,0.5)]"
+                      : "bg-gradient-to-br from-[#F8FAFF] to-[#EAEEFE] text-[#010D3E] border-[#001E80]/10 shadow-[0_20px_50px_-15px_rgba(0,30,128,0.1)]"
                   )}
                   style={skipAnimation ? { transform: 'rotateY(0deg)', position: 'relative' } : {}}
                 >
@@ -342,8 +342,8 @@ export const Pricing = ({ skipAnimation = false }) => {
                   </ul>
 
                   <div className={clsx(
-                    "mt-auto pt-4 text-[12px]",
-                    t.theme === "dark" ? "text-white/40" : "text-[#010D3E]/40"
+                    "mt-auto pt-4 text-[12px] opacity-60",
+                    t.theme === "dark" ? "text-blue-100" : "text-[#001E80]"
                   )}>
                     Secure checkout • {t.price} each
                   </div>
