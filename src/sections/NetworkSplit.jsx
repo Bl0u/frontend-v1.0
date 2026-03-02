@@ -1,6 +1,9 @@
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
 import { FaChalkboardTeacher, FaGraduationCap, FaArrowRight } from 'react-icons/fa';
+import { useState, useContext } from 'react';
+import AuthContext from '../context/AuthContext';
+import RecruitmentModal from '../components/RecruitmentModal';
+import { toast } from 'react-toastify';
 
 const NetworkBadge = ({ icon, text, delay = 0 }) => (
     <motion.div
@@ -39,6 +42,19 @@ const FeaturePoint = ({ text }) => (
 );
 
 const NetworkSplit = () => {
+    const { user } = useContext(AuthContext);
+    const [isMentorModalOpen, setIsMentorModalOpen] = useState(false);
+    const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
+
+    const handleApply = (type) => {
+        if (!user) {
+            toast.error('Please login to apply');
+            return;
+        }
+        if (type === 'mentor') setIsMentorModalOpen(true);
+        else setIsStudentModalOpen(true);
+    };
+
     return (
         <section className="relative py-20 bg-[#F3F3F5] overflow-hidden">
             {/* Blending "Trick" Gradients */}
@@ -160,15 +176,15 @@ const NetworkSplit = () => {
                     viewport={{ once: true }}
                     className="mt-16 flex flex-wrap justify-center gap-6"
                 >
-                    <Link
-                        to="/work-with-us"
+                    <button
+                        onClick={() => handleApply('mentor')}
                         className="inline-flex items-center gap-3 px-8 py-4 bg-[#001E80] text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-[#001E80]/20 hover:scale-105 transition-all group"
                     >
                         Become a Mentor <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
-                    </Link>
+                    </button>
 
-                    <Link
-                        to="/work-with-us"
+                    <button
+                        onClick={() => handleApply('student_lead')}
                         className="inline-flex items-center gap-3 px-8 py-4 bg-white border border-[#001E80]/10 text-[#001E80] rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-black/5 hover:scale-105 transition-all group"
                     >
                         <span className="flex items-center gap-2">
@@ -180,8 +196,22 @@ const NetworkSplit = () => {
                             Fill Information
                         </span>
                         <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
-                    </Link>
+                    </button>
                 </motion.div>
+
+                {/* Modals */}
+                <RecruitmentModal
+                    isOpen={isMentorModalOpen}
+                    onClose={() => setIsMentorModalOpen(false)}
+                    user={user}
+                    type="mentor"
+                />
+                <RecruitmentModal
+                    isOpen={isStudentModalOpen}
+                    onClose={() => setIsStudentModalOpen(false)}
+                    user={user}
+                    type="student_lead"
+                />
             </div>
 
             {/* Subtle SVG Background Pattern */}
