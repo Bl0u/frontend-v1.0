@@ -4,9 +4,23 @@ import { FaHandHoldingHeart, FaChalkboardTeacher, FaLightbulb, FaRocket } from '
 const MentorRecruitment = () => {
     return (
         <section className="relative py-32 bg-white overflow-hidden">
-            {/* Aurora Background Effect */}
-            <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[#EAEEFE] rounded-full translate-x-1/2 -translate-y-1/2 blur-[120px] opacity-60"></div>
-            <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-50 rounded-full -translate-x-1/4 translate-y-1/4 blur-[100px] opacity-40"></div>
+            {/* Network background effect - Synced with NetworkSplit */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                {/* Precise Dot Grid Background */}
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: [0.05, 0.1, 0.05] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute inset-0"
+                    style={{
+                        backgroundImage: 'radial-gradient(black 1.5px, transparent 1.5px)',
+                        backgroundSize: '40px 40px'
+                    }}
+                />
+
+                {/* Subtle Radial Mask for depth on light background */}
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_0%,white_80%)]"></div>
+            </div>
 
             <div className="container mx-auto px-6 relative z-10">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">

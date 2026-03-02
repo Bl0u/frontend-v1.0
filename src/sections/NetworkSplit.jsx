@@ -41,50 +41,22 @@ const FeaturePoint = ({ text }) => (
 const NetworkSplit = () => {
     return (
         <section className="relative py-20 bg-[#F3F3F5] overflow-hidden">
-            {/* "Fired Up" Background Elements */}
+            {/* "Fired Up" Background Elements - Synced with Ambassador Network dots */}
             <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                {/* Aura Blobs */}
+                {/* Precise Dot Grid Background */}
                 <motion.div
-                    animate={{
-                        scale: [1, 1.2, 1],
-                        opacity: [0.05, 0.08, 0.05],
-                        x: [0, 50, 0],
-                        y: [0, -30, 0]
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: [0.3, 0.5, 0.3] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute inset-0"
+                    style={{
+                        backgroundImage: 'radial-gradient(black 1.5px, transparent 1.5px)',
+                        backgroundSize: '40px 40px'
                     }}
-                    transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                    className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-[#001E80] rounded-full blur-[120px]"
-                />
-                <motion.div
-                    animate={{
-                        scale: [1, 1.1, 1],
-                        opacity: [0.03, 0.06, 0.03],
-                        x: [0, -40, 0],
-                        y: [0, 40, 0]
-                    }}
-                    transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
-                    className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#001E80] rounded-full blur-[120px]"
                 />
 
-                {/* Pulsing Network Nodes (Decorative) */}
-                {[...Array(6)].map((_, i) => (
-                    <motion.div
-                        key={i}
-                        className="absolute w-1.5 h-1.5 bg-[#001E80]/10 rounded-full"
-                        style={{
-                            left: `${Math.random() * 100}%`,
-                            top: `${Math.random() * 100}%`,
-                        }}
-                        animate={{
-                            opacity: [0.2, 0.5, 0.2],
-                            scale: [1, 1.5, 1],
-                        }}
-                        transition={{
-                            duration: 3 + Math.random() * 2,
-                            repeat: Infinity,
-                            delay: Math.random() * 2,
-                        }}
-                    />
-                ))}
+                {/* Subtle Radial Mask for depth */}
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_0%,#F3F3F5_80%)]"></div>
             </div>
 
             <div className="max-w-7xl mx-auto px-8 lg:px-16 relative z-10">

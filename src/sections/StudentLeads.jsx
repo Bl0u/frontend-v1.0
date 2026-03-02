@@ -4,13 +4,22 @@ import { FaGraduationCap, FaGlobeAmericas, FaUsers, FaChartLine } from 'react-ic
 const StudentLeads = () => {
     return (
         <section className="relative py-24 bg-[#010D3E] overflow-hidden">
-            {/* Network background effect */}
-            <div className="absolute inset-0 opacity-20">
-                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,#001E80,transparent_70%)]"></div>
-                <div className="absolute w-full h-full" style={{
-                    backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)',
-                    backgroundSize: '40px 40px'
-                }}></div>
+            {/* Network background effect - Synced with NetworkSplit */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                {/* Precise Dot Grid Background */}
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: [0.1, 0.2, 0.1] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute inset-0"
+                    style={{
+                        backgroundImage: 'radial-gradient(black 1.5px, transparent 1.5px)',
+                        backgroundSize: '40px 40px'
+                    }}
+                />
+
+                {/* Subtle Radial Mask for depth on dark background */}
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_0%,#010D3E_80%)]"></div>
             </div>
 
             <div className="container mx-auto px-6 relative z-10">
