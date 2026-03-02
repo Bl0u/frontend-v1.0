@@ -43,16 +43,16 @@ const FeaturePoint = ({ text }) => (
 
 const NetworkSplit = () => {
     const { user } = useContext(AuthContext);
-    const [isMentorModalOpen, setIsMentorModalOpen] = useState(false);
-    const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
+    const [isRecruitmentModalOpen, setIsRecruitmentModalOpen] = useState(false);
+    const [initialRecruitmentType, setInitialRecruitmentType] = useState(null);
 
-    const handleApply = (type) => {
+    const handleApply = (type = null) => {
         if (!user) {
             toast.error('Please login to apply');
             return;
         }
-        if (type === 'mentor') setIsMentorModalOpen(true);
-        else setIsStudentModalOpen(true);
+        setInitialRecruitmentType(type);
+        setIsRecruitmentModalOpen(true);
     };
 
     return (
@@ -174,43 +174,22 @@ const NetworkSplit = () => {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="mt-16 flex flex-wrap justify-center gap-6"
+                    className="mt-16 flex justify-center"
                 >
                     <button
-                        onClick={() => handleApply('mentor')}
-                        className="inline-flex items-center gap-3 px-8 py-4 bg-[#001E80] text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-[#001E80]/20 hover:scale-105 transition-all group"
+                        onClick={() => handleApply()}
+                        className="inline-flex items-center gap-3 px-10 py-5 bg-[#001E80] text-white rounded-[2rem] font-black text-sm uppercase tracking-widest shadow-2xl shadow-[#001E80]/30 hover:scale-105 active:scale-95 transition-all group"
                     >
-                        Become a Mentor <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
-                    </button>
-
-                    <button
-                        onClick={() => handleApply('student_lead')}
-                        className="inline-flex items-center gap-3 px-8 py-4 bg-white border border-[#001E80]/10 text-[#001E80] rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-black/5 hover:scale-105 transition-all group"
-                    >
-                        <span className="flex items-center gap-2">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                <path d="M12 16V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                <path d="M12 8H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                            Fill Information
-                        </span>
-                        <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
+                        Join our Network <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
                     </button>
                 </motion.div>
 
-                {/* Modals */}
+                {/* Unified Recruitment Modal */}
                 <RecruitmentModal
-                    isOpen={isMentorModalOpen}
-                    onClose={() => setIsMentorModalOpen(false)}
+                    isOpen={isRecruitmentModalOpen}
+                    onClose={() => setIsRecruitmentModalOpen(false)}
                     user={user}
-                    type="mentor"
-                />
-                <RecruitmentModal
-                    isOpen={isStudentModalOpen}
-                    onClose={() => setIsStudentModalOpen(false)}
-                    user={user}
-                    type="student_lead"
+                    type={initialRecruitmentType}
                 />
             </div>
 
