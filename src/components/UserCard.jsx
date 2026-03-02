@@ -3,13 +3,15 @@ import { Link, useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 import requestService from '../features/requests/requestService';
 import { toast } from 'react-toastify';
-import { FaExternalLinkAlt } from 'react-icons/fa';
+import { FaUserPlus, FaChevronRight, FaQuoteLeft } from 'react-icons/fa';
 
 const UserCard = ({ user }) => {
     const { user: currentUser } = useContext(AuthContext);
     const navigate = useNavigate();
 
-    const handleRequest = async (type) => {
+    const handleRequest = async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         if (!currentUser) {
             toast.error('Please login first');
             return;
@@ -27,85 +29,61 @@ const UserCard = ({ user }) => {
 
     const isMe = currentUser?._id === user._id;
 
+    // Content Focus: What is needed from a partner
+    const neededText = user.neededFromPartner || "No specific requirements listed. View my full profile to see if we're a match!";
+
     return (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col items-center text-center hover:shadow-xl hover:border-indigo-100 transition-all duration-300 relative group">
-            <Link to={`/u/${user.username}`} className="absolute top-4 right-4 text-gray-300 group-hover:text-indigo-500 transition-colors" title="View Public Profile">
-                <FaExternalLinkAlt size={14} />
-            </Link>
+        <div className="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-6 flex flex-col items-center text-center hover:shadow-xl hover:border-[#001E80]/10 transition-all duration-500 relative group overflow-hidden transition-all">
+            {/* Background Decor */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#EAEEFE]/30 rounded-full translate-x-1/2 -translate-y-1/2 blur-2xl group-hover:bg-[#001E80]/5 transition-colors duration-500"></div>
 
+            {/* Avatar Section */}
             <div className="relative mb-4">
-                <div className="w-20 h-20 rounded-3xl border-2 border-white shadow-md flex items-center justify-center text-3xl font-black text-white bg-indigo-500">
-                    {user.name?.charAt(0)}
+                <div className="w-24 h-24 rounded-[2rem] border-4 border-white shadow-lg flex items-center justify-center text-4xl font-black text-white bg-gradient-to-br from-[#001E80] to-[#010D3E] overflow-hidden">
+                    {user.avatar && user.avatar !== 'https://via.placeholder.com/150'
+                        ? <img src={user.avatar} alt="" className="w-full h-full object-cover" />
+                        : user.name?.charAt(0)
+                    }
                 </div>
-                <div className="absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-white bg-green-500"></div>
+                {user.lookingForPartner && (
+                    <div className="absolute bottom-1 right-1 w-5 h-5 rounded-full border-4 border-white bg-green-500 shadow-sm" title="Actively Seeking Partner"></div>
+                )}
             </div>
 
-            <h3 className="text-xl font-bold text-gray-900 mb-0.5">{user.name}</h3>
+            {/* Identity */}
+            <h3 className="text-xl font-black text-gray-900 mb-1 leading-tight tracking-tight">{user.name}</h3>
+            <p className="text-[#010D3E]/40 text-[10px] font-black uppercase tracking-[0.1em] mb-4">
+                {user.university || 'University'} <span className="text-[#001E80]/20 mx-1">·</span> {user.major || 'General'}
+            </p>
 
-            <div className="w-full text-center space-y-2 mt-1">
-                <p className="text-gray-500 text-xs font-medium uppercase tracking-wider">
-                    Partner · <span className="text-gray-800">{user.major || user.currentField || 'General'}</span>{' '}
-                    {user.academicLevel && (
-                        <span className="text-gray-400">· {user.academicLevel}</span>
-                    )}
-                </p>
-
-                {/* Impact Highlight */}
-                {(user.primaryStudyGoal || user.primaryMentorshipGoal) && (
-                    <div className="pt-1">
-                        <p className="text-sm font-bold text-gray-800 flex items-center justify-center gap-2">
-                            🎯 {user.primaryStudyGoal || user.primaryMentorshipGoal}
-                        </p>
-                    </div>
-                )}
-
-                {/* Collaboration Snapshot */}
-                <div className="flex items-center justify-center gap-3 text-xs text-gray-600 font-medium">
-                    <span className="flex items-center gap-1">
-                        <span className="text-indigo-500 text-sm">💻</span>
-                        {user.studyMode || user.mentorshipMode || 'Online'}
-                    </span>
-                    {(user.learningTraits?.[0] || user.preferredMenteeTraits?.[0]) && (
-                        <span className="flex items-center gap-1">
-                            <span className="text-pink-500 text-sm">✨</span>
-                            {user.learningTraits?.[0] || user.preferredMenteeTraits?.[0]}
-                        </span>
-                    )}
-                </div>
-
-                {/* Availability Slot */}
-                {(user.availability?.days?.length > 0 || user.availability?.timeRanges?.length > 0) && (
-                    <p className="text-[10px] text-gray-400 flex items-center justify-center gap-1 pt-0.5 font-bold uppercase">
-                        ⏰ {user.availability.timeRanges?.[0] || 'Flexible'} · {user.availability.days?.length || 0} days/week
+            {/* The Focus - Needed from Partner */}
+            <div className="w-full mb-5">
+                <div className="bg-gray-50/50 border border-gray-100 p-5 rounded-2xl relative text-left whitespace-normal">
+                    <FaQuoteLeft className="absolute -top-2 left-4 text-[#001E80]/10" size={14} />
+                    <p className="text-xs font-black text-[#001E80]/40 uppercase tracking-widest mb-2 px-1">Looking for:</p>
+                    <p className="text-xs text-gray-600 font-medium leading-relaxed line-clamp-3">
+                        {neededText}
                     </p>
-                )}
+                </div>
             </div>
 
-            <div className="mt-auto w-full flex flex-col gap-3 pt-6">
-                {!isMe && currentUser && (
+            {/* Actions */}
+            <div className="w-full space-y-3 pt-4 border-t border-gray-50">
+                <Link
+                    to={`/u/${user.username}`}
+                    className="w-full py-4 rounded-2xl bg-[#001E80] text-white flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest shadow-lg shadow-[#001E80]/10 hover:bg-[#001E80]/90 transition-all active:scale-[0.98]"
+                >
+                    View Full Profile <FaChevronRight size={10} className="mt-0.5" />
+                </Link>
+
+                {!isMe && currentUser && user.lookingForPartner && (
                     <button
-                        onClick={() => handleRequest('partner')}
-                        disabled={!user.lookingForPartner && !user.lookingForMentee}
-                        className={`w-full py-2.5 rounded-xl transition font-bold text-sm shadow-md active:scale-[0.98] ${(user.lookingForPartner || user.lookingForMentee)
-                            ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-                            : 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none'
-                            }`}
+                        onClick={handleRequest}
+                        className="w-full py-3 rounded-2xl bg-white border border-[#001E80]/10 text-[#001E80]/60 hover:text-[#001E80] hover:bg-[#EAEEFE]/30 hover:border-[#001E80]/20 transition-all font-bold text-[10px] uppercase tracking-widest flex items-center justify-center gap-2"
                     >
-                        {(user.lookingForPartner || user.lookingForMentee) ? 'Request Partnership' : 'Not Seeking Partners'}
+                        <FaUserPlus size={12} /> Send Request
                     </button>
                 )}
-
-                <div className="flex justify-center items-center gap-4 text-xs">
-                    <a
-                        href={`mailto:${user.email}`}
-                        className="text-gray-400 hover:text-indigo-600 transition underline decoration-dotted font-medium"
-                    >
-                        Contact
-                    </a>
-                    <Link to={`/u/${user.username}`} className="text-gray-400 hover:text-indigo-600 transition underline decoration-dotted font-medium">
-                        View Profile
-                    </Link>
-                </div>
             </div>
         </div>
     );

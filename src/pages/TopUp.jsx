@@ -8,7 +8,7 @@ import { API_BASE_URL } from '../config';
 
 
 const TopUp = () => {
-    const { user, login } = useContext(AuthContext);
+    const { user, updateUser } = useContext(AuthContext);
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
 
@@ -36,12 +36,8 @@ const TopUp = () => {
                 config
             );
 
-            // Update user in localStorage
-            const updatedUser = { ...user, stars: res.data.stars };
-            localStorage.setItem('user', JSON.stringify(updatedUser));
-
-            // Trigger storage event to update header/context
-            window.dispatchEvent(new Event('storage'));
+            // Update user in context and sessions
+            updateUser({ stars: res.data.stars });
 
             toast.success(`🎉 Successfully added ${stars} stars!`);
         } catch (error) {
@@ -53,7 +49,7 @@ const TopUp = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 py-12 px-4">
+        <div className="min-h-screen bg-gradient-to-br from-[#EAEEFE] to-white py-12 px-4">
             <div className="max-w-6xl mx-auto">
                 {/* Back Button */}
                 <button
@@ -66,7 +62,7 @@ const TopUp = () => {
                 {/* Header */}
                 <div className="text-center mb-12">
                     <div className="flex items-center justify-center gap-3 mb-4">
-                        <FaStar className="text-6xl text-amber-500 animate-pulse" />
+                        <FaStar className="text-6xl text-[#001E80] animate-pulse" />
                     </div>
                     <h1 className="text-5xl font-black text-gray-900 mb-4">Top Up Stars</h1>
                     <p className="text-lg text-gray-600 font-medium">
@@ -76,11 +72,11 @@ const TopUp = () => {
 
                 {/* Current Balance */}
                 {user && (
-                    <div className="max-w-md mx-auto mb-12 bg-white rounded-2xl p-6 shadow-xl border-2 border-amber-200">
+                    <div className="max-w-md mx-auto mb-12 bg-white rounded-2xl p-6 shadow-xl border-2 border-[#001E80]/10">
                         <p className="text-sm text-gray-500 font-bold uppercase tracking-widest mb-2">Current Balance</p>
                         <div className="flex items-center gap-3">
-                            <FaStar className="text-3xl text-amber-500" />
-                            <span className="text-4xl font-black text-amber-700">{user.stars || 0}</span>
+                            <FaStar className="text-3xl text-[#001E80]" />
+                            <span className="text-4xl font-black text-[#010D3E]">{user.stars || 0}</span>
                             <span className="text-lg text-gray-400 font-bold">Stars</span>
                         </div>
                     </div>
@@ -92,34 +88,34 @@ const TopUp = () => {
                         <div
                             key={pkg.stars}
                             className={`relative bg-white rounded-3xl p-8 border-2 transition-all hover:scale-105 hover:shadow-2xl ${pkg.popular
-                                ? 'border-amber-500 shadow-xl shadow-amber-100'
-                                : 'border-gray-200 hover:border-amber-300'
+                                ? 'border-[#001E80] shadow-xl shadow-[#001E80]/20'
+                                : 'border-gray-200 hover:border-[#001E80]/30'
                                 }`}
                         >
                             {pkg.popular && (
-                                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-500 to-yellow-500 text-white px-6 py-1.5 rounded-full text-xs font-black uppercase tracking-widest shadow-lg">
+                                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#001E80] text-white px-6 py-1.5 rounded-full text-xs font-black uppercase tracking-widest shadow-lg">
                                     Most Popular
                                 </div>
                             )}
 
                             <div className="text-center mb-6">
                                 <div className="flex items-center justify-center gap-2 mb-3">
-                                    <FaStar className="text-4xl text-amber-500" />
+                                    <FaStar className="text-4xl text-[#001E80]" />
                                     <span className="text-5xl font-black text-gray-900">{pkg.stars}</span>
                                 </div>
                                 <p className="text-sm text-gray-400 font-bold uppercase tracking-widest">Stars</p>
                             </div>
 
                             <div className="text-center mb-6">
-                                <span className="text-3xl font-black text-amber-600">{pkg.price} LE</span>
+                                <span className="text-3xl font-black text-[#001E80]">{pkg.price} LE</span>
                             </div>
 
                             <button
                                 onClick={() => handlePurchase(pkg.stars, pkg.price)}
                                 disabled={loading}
                                 className={`w-full py-4 rounded-2xl font-black uppercase tracking-widest text-sm transition-all ${pkg.popular
-                                    ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-white shadow-xl shadow-amber-200 hover:shadow-2xl'
-                                    : 'bg-gray-100 text-gray-700 hover:bg-amber-100 hover:text-amber-700'
+                                    ? 'bg-[#001E80] text-white shadow-xl shadow-[#001E80]/20 hover:shadow-2xl'
+                                    : 'bg-gray-100 text-gray-700 hover:bg-[#EAEEFE] hover:text-[#001E80]'
                                     } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
                                 {loading ? 'Processing...' : 'Buy Now'}

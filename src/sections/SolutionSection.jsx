@@ -104,7 +104,7 @@ const Card = React.forwardRef(function Card(
         <div
           className="absolute inset-[-100%] animate-[spin_4s_linear_infinite]"
           style={{
-            background: 'conic-gradient(from 0deg, #212529, #6c757d, black, white, #212529)',
+            background: 'conic-gradient(from 0deg, #010D3E, #001E80, black, white, #010D3E)',
           }}
         />
 
@@ -142,7 +142,7 @@ const Card = React.forwardRef(function Card(
               </ul>
             </div>
 
-            <div className="w-full md:w-1/2 h-full flex items-center justify-center relative bg-[#212529] p-6 md:p-10">
+            <div className="w-full md:w-1/2 h-full flex items-center justify-center relative bg-[#010821] p-6 md:p-10">
               <div className="w-full max-w-[350px] aspect-square">
                 <DotLottieReact src={lottieSrc} loop autoplay />
               </div>

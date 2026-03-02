@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaGoogle, FaLinkedinIn, FaArrowRight, FaPen, FaEye, FaEyeSlash, FaCheck, FaTimes, FaSearch, FaArrowLeft } from 'react-icons/fa';
+import { FaGoogle, FaLinkedinIn, FaPen, FaEye, FaEyeSlash, FaCheck, FaTimes, FaArrowLeft } from 'react-icons/fa';
 import AuthContext from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import '../styles/Register.css';
@@ -38,9 +38,6 @@ const FloatingMessageBox = () => {
 
     return (
         <div className="floating-msg-box">
-            <div className="msg-icon">
-                <FaSearch />
-            </div>
             <div className="floating-msg-text-wrapper">
                 <AnimatePresence mode="wait">
                     <motion.span
@@ -55,9 +52,6 @@ const FloatingMessageBox = () => {
                     </motion.span>
                 </AnimatePresence>
                 <span className="typing-cursor" />
-            </div>
-            <div className="msg-send">
-                <FaArrowRight />
             </div>
         </div>
     );
@@ -103,7 +97,8 @@ const Register = () => {
     const passwordInputRef = useRef(null);
 
     useEffect(() => {
-        if (user) navigate('/');
+        const params = new URLSearchParams(window.location.search);
+        if (user && !params.get('add')) navigate('/');
     }, [user, navigate]);
 
     const handleContinue = (e) => {

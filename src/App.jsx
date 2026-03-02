@@ -1,16 +1,14 @@
-
 import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-gsap.registerPlugin(ScrollTrigger);
-import { useEffect } from 'react';
-import { AuthProvider } from './context/AuthContext';
+import { useEffect, useContext } from 'react';
+import AuthContext, { AuthProvider } from './context/AuthContext';
 import './styles/MaskAnimations.css';
 import Header from './components/Header';
+import Sidebar from './components/Sidebar';
 import LandingPage from './pages/LandingPage';
 import OldLandingPage from './pages/OldLandingPage';
 import HomePage from './pages/HomePage';
@@ -29,38 +27,83 @@ import Dashboard from './pages/Dashboard';
 import SocialMediaEditor from './pages/SocialMediaEditor';
 import Chat from './pages/Chat';
 import PlanManager from './pages/PlanManager';
+import AIChatBot from './components/AIChatBot';
+import TopUp from './pages/TopUp';
+import WorkWithUs from './pages/WorkWithUs';
 
-import TopUp from './pages/TopUp'; // V2.0
+gsap.registerPlugin(ScrollTrigger);
 
-// Layout for pages that need the container and top padding
-const ProjectLayout = ({ children }) => (
-  <div className="container mx-auto px-4 pb-12 pt-28">
-    {children}
+// Layout with navbar (Header) — for PUBLIC routes only
+const MainLayout = () => (
+  <div className="min-h-screen text-gray-900 bg-transparent">
+    <Header />
+    <Outlet />
   </div>
 );
 
-// Layout with navbar (Header + child routes via Outlet)
-const MainLayout = () => {
+// Layout with Sidebar — for AUTHENTICATED routes
+const DashboardLayout = () => (
+  <div className="dashboard-layout">
+    <Sidebar />
+    <main className="dashboard-content">
+      <div className="dashboard-content-inner">
+        <Outlet />
+      </div>
+    </main>
+  </div>
+);
+
+const AppContent = () => {
+  const { user } = useContext(AuthContext);
+
   return (
-    <div className="min-h-screen text-gray-900 bg-transparent">
-      <Header />
-      <Outlet />
-    </div>
+    <>
+      <Routes>
+        {/* Standalone pages (no chrome) */}
+        <Route path="/register" element={<Register />} />
+        <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/login" element={<Login />} />
+
+        {/* Public pages (Header navbar) */}
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/new-lp" element={<LandingPage />} />
+          <Route path="/old-lp" element={<OldLandingPage />} />
+          <Route path="/work-with-us" element={<WorkWithUs />} />
+        </Route>
+
+        {/* Authenticated pages (Sidebar) */}
+        <Route element={<DashboardLayout />}>
+          <Route path="/home" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/social-media" element={<SocialMediaEditor />} />
+          <Route path="/resources" element={<ResourceHub />} />
+          <Route path="/resources/thread/:id" element={<ThreadDetail />} />
+          <Route path="/partners" element={<Partners />} />
+          <Route path="/pitch-hub" element={<PitchHub />} />
+          <Route path="/pitch-form" element={<PitchForm />} />
+          <Route path="/u/:username" element={<PublicProfile />} />
+          <Route path="/requests" element={<DashboardRequests />} />
+          <Route path="/chat" element={<Chat />} />
+          <Route path="/top-up" element={<TopUp />} />
+          <Route path="/plan/:id" element={<PlanManager />} />
+        </Route>
+      </Routes>
+      <ToastContainer position="bottom-right" />
+      <AIChatBot userToken={user?.token} />
+    </>
   );
 };
 
 function App() {
   useEffect(() => {
     const lenis = new Lenis();
-
     lenis.on('scroll', ScrollTrigger.update);
-
     gsap.ticker.add((time) => {
       lenis.raf(time * 1000);
     });
-
     gsap.ticker.lagSmoothing(0);
-
     return () => {
       lenis.destroy();
     };
@@ -69,44 +112,10 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <Routes>
-          {/* Standalone pages (no navbar) */}
-          <Route path="/register" element={<Register />} />
-          <Route path="/onboarding" element={<Onboarding />} />
-          <Route path="/login" element={<Login />} />
-
-          {/* Pages with navbar */}
-          <Route element={<MainLayout />}>
-            {/* Static Homepage */}
-            <Route path="/" element={<HomePage />} />
-            <Route path="/home" element={<HomePage />} />
-
-            {/* Landing Pages (Full Width, No Padding) */}
-            <Route path="/new-lp" element={<LandingPage />} />
-            <Route path="/old-lp" element={<OldLandingPage />} />
-
-            {/* Project Pages (Contained with Padding) */}
-            <Route path="/profile" element={<ProjectLayout><Profile /></ProjectLayout>} />
-            <Route path="/dashboard" element={<ProjectLayout><Dashboard /></ProjectLayout>} />
-            <Route path="/social-media" element={<ProjectLayout><SocialMediaEditor /></ProjectLayout>} />
-            <Route path="/resources" element={<ProjectLayout><ResourceHub /></ProjectLayout>} />
-            <Route path="/resources/thread/:id" element={<ProjectLayout><ThreadDetail /></ProjectLayout>} />
-            <Route path="/partners" element={<ProjectLayout><Partners /></ProjectLayout>} />
-            <Route path="/pitch-hub" element={<ProjectLayout><PitchHub /></ProjectLayout>} />
-            <Route path="/pitch-form" element={<ProjectLayout><PitchForm /></ProjectLayout>} />
-            <Route path="/u/:username" element={<ProjectLayout><PublicProfile /></ProjectLayout>} />
-            <Route path="/requests" element={<ProjectLayout><DashboardRequests /></ProjectLayout>} />
-            <Route path="/chat" element={<ProjectLayout><Chat /></ProjectLayout>} />
-            <Route path="/top-up" element={<ProjectLayout><TopUp /></ProjectLayout>} />
-            <Route path="/plan/:id" element={<ProjectLayout><PlanManager /></ProjectLayout>} />
-          </Route>
-        </Routes>
-        <ToastContainer position="bottom-right" />
+        <AppContent />
       </Router>
     </AuthProvider>
   );
 }
 
-
 export default App;
-

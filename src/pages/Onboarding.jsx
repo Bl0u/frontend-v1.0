@@ -92,16 +92,36 @@ const ProgressDots = ({ phase }) => (
         <div className={`progress-dot ${phase >= 2 ? 'active' : ''}`} />
         <div className={`progress-line ${phase >= 3 ? 'active' : ''}`} />
         <div className={`progress-dot ${phase >= 3 ? 'active' : ''}`} />
+        <div className={`progress-line ${phase >= 4 ? 'active' : ''}`} />
+        <div className={`progress-dot ${phase >= 4 ? 'active' : ''}`} />
     </div>
 );
 
 // ─── Main Onboarding Component ─────────────────────────────────────────
 const Onboarding = () => {
     const [phase, setPhase] = useState(1);
-    const [username, setUsername] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Legacy and Form State
+    const [formData, setFormData] = useState({
+        username: '',
+        name: '',
+        gender: '',
+        major: '',
+        academicLevel: '',
+        university: '',
+        partnerType: '',
+        matchingGoal: '',
+        topics: [],
+        availabilityDays: [],
+        timezone: 'GMT+2', // Default
+        studyMode: 'Online',
+        commitmentLevel: 'Balanced'
+    });
+
+    // New Role and Use Cases State
     const [role, setRole] = useState(''); // 'student' | 'graduate'
     const [useCases, setUseCases] = useState([]);
-    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const { register, logout } = useContext(AuthContext);
     const navigate = useNavigate();
@@ -111,7 +131,6 @@ const Onboarding = () => {
     const email = location.state?.email || '';
     const password = location.state?.password || '';
 
-    // Redirect if no credentials
     useEffect(() => {
         if (!email || !password) {
             navigate('/register');
@@ -123,6 +142,10 @@ const Onboarding = () => {
         navigate('/register');
     };
 
+    const onChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
     const handleUseCaseToggle = (id) => {
         setUseCases((prev) =>
             prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
@@ -131,15 +154,18 @@ const Onboarding = () => {
 
     const handleFinish = async () => {
         setIsSubmitting(true);
-        const formData = {
-            name: username,
-            username,
+        const finalData = {
+            ...formData,
+            role: role === 'graduate' ? 'student' : 'student', // backend expects 'student' or 'mentor'
             email,
             password,
-            role: role === 'graduate' ? 'student' : 'student', // backend expects 'student' or 'mentor'
+            availability: {
+                days: formData.availabilityDays,
+                timeRanges: ['Evening'] // Default on onboarding
+            }
         };
 
-        const success = await register(formData);
+        const success = await register(finalData);
         setIsSubmitting(false);
 
         if (success) {
@@ -149,52 +175,33 @@ const Onboarding = () => {
 
     return (
         <div className="onboarding-page">
-            {/* Logout */}
             <button className="onboarding-logout" onClick={handleLogout}>
-                <FiLogOut size={15} />
-                Log out
+                <FiLogOut size={15} /> Log out
             </button>
 
-            {/* Progress dots */}
             <ProgressDots phase={phase} />
 
-            {/* Phases */}
             <AnimatePresence mode="wait">
-                {/* ═══ Phase 1: Username ═══ */}
+                {/* ═══ Phase 1: Account Setup ═══ */}
                 {phase === 1 && (
-                    <motion.div
-                        key="phase-1"
-                        className="onboarding-phase"
-                        variants={phaseVariants}
-                        initial="initial"
-                        animate="animate"
-                        exit="exit"
-                        transition={{ duration: 0.35, ease: 'easeInOut' }}
-                    >
-                        <h2 className="onboarding-title" style={{ fontFamily: 'Zuume-Bold' }}>
-                            Choose your username
-                        </h2>
-                        <p className="onboarding-subtitle">
-                            This is how others will find you
-                        </p>
+                    <motion.div key="phase-1" className="onboarding-phase" variants={phaseVariants} initial="initial" animate="animate" exit="exit">
+                        <h2 className="onboarding-title" style={{ fontFamily: 'Zuume-Bold' }}>Secure your spot</h2>
+                        <p className="onboarding-subtitle">Choose a unique username to get started</p>
 
                         <div className="username-input-group">
                             <span className="username-prefix">@</span>
                             <input
                                 type="text"
+                                name="username"
                                 className="username-input"
                                 placeholder="username"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                                value={formData.username}
+                                onChange={(e) => setFormData({ ...formData, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') })}
                                 autoFocus
                             />
                         </div>
 
-                        <button
-                            className="onboarding-btn"
-                            onClick={() => setPhase(2)}
-                            disabled={username.length < 3}
-                        >
+                        <button className="onboarding-btn" onClick={() => setPhase(2)} disabled={formData.username.length < 3}>
                             Continue <FaArrowRight />
                         </button>
                     </motion.div>
@@ -252,10 +259,46 @@ const Onboarding = () => {
                     </motion.div>
                 )}
 
-                {/* ═══ Phase 3: Use Cases ═══ */}
+                {/* ═══ Phase 3: Core Identity (Gender) ═══ */}
                 {phase === 3 && (
+                    <motion.div key="phase-3" className="onboarding-phase" variants={phaseVariants} initial="initial" animate="animate" exit="exit">
+                        <h2 className="onboarding-title" style={{ fontFamily: 'Zuume-Bold' }}>Core Identity</h2>
+                        <p className="onboarding-subtitle">How should we address you?</p>
+
+                        <div className="cards-grid cards-grid-2">
+                            <div
+                                className={`selection-card ${formData.gender === 'Male' ? 'selected' : ''}`}
+                                onClick={() => setFormData({ ...formData, gender: 'Male' })}
+                            >
+                                <div className="card-icon text-3xl">👨</div>
+                                <span className="card-label">Male</span>
+                                <div className="card-check"><FaCheck /></div>
+                            </div>
+
+                            <div
+                                className={`selection-card ${formData.gender === 'Female' ? 'selected' : ''}`}
+                                onClick={() => setFormData({ ...formData, gender: 'Female' })}
+                            >
+                                <div className="card-icon text-3xl">👩</div>
+                                <span className="card-label">Female</span>
+                                <div className="card-check"><FaCheck /></div>
+                            </div>
+                        </div>
+
+                        <button className="onboarding-btn" onClick={() => setPhase(4)} disabled={!formData.gender}>
+                            Continue <FaArrowRight />
+                        </button>
+
+                        <button className="onboarding-back" onClick={() => setPhase(2)}>
+                            <FaArrowLeft /> Back
+                        </button>
+                    </motion.div>
+                )}
+
+                {/* ═══ Phase 4: Use Cases ═══ */}
+                {phase === 4 && (
                     <motion.div
-                        key="phase-3"
+                        key="phase-4"
                         className="onboarding-phase"
                         variants={phaseVariants}
                         initial="initial"
@@ -292,7 +335,7 @@ const Onboarding = () => {
                             {isSubmitting ? 'Creating account...' : 'Finish'} {!isSubmitting && <FaArrowRight />}
                         </button>
 
-                        <button className="onboarding-back" onClick={() => setPhase(2)}>
+                        <button className="onboarding-back" onClick={() => setPhase(3)}>
                             <FaArrowLeft /> Back
                         </button>
                     </motion.div>

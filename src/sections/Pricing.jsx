@@ -240,24 +240,24 @@ export const Pricing = ({ skipAnimation = false }) => {
                 {!skipAnimation && (
                   <div
                     className={clsx(
-                      "pricing-face pricing-cover flex flex-col items-center justify-center p-8 border",
+                      "pricing-face pricing-cover flex flex-col items-center justify-center p-8 border backdrop-blur-xl",
                       t.theme === "dark"
-                        ? "bg-[#212529] text-[#f8f9fa] border-[#495057]"
-                        : "bg-[#dee2e6] text-[#212529] border-[#adb5bd]"
+                        ? "bg-gradient-to-br from-[#010821] to-[#010D3E] text-white border-white/10 shadow-[0_20px_60px_-15px_rgba(0,10,50,0.4)]"
+                        : "bg-gradient-to-br from-[#F8FAFF] to-[#EAEEFE] text-[#010D3E] border-[#001E80]/10 shadow-[0_20px_50px_-15px_rgba(0,30,128,0.1)]"
                     )}
                   >
                     <div
                       className={clsx(
                         "w-20 h-20 rounded-full flex items-center justify-center border",
                         t.theme === "dark"
-                          ? "bg-[#343a40] border-[#495057]"
-                          : "bg-[#ced4da] border-[#adb5bd]"
+                          ? "bg-white/10 border-white/20"
+                          : "bg-white border-[#001E80]/10"
                       )}
                     >
                       <FaStar
                         className={clsx(
                           "text-4xl",
-                          t.theme === "dark" ? "text-[#adb5bd]" : "text-[#6c757d]"
+                          t.theme === "dark" ? "text-blue-200" : "text-[#001E80]"
                         )}
                       />
                     </div>
@@ -268,10 +268,10 @@ export const Pricing = ({ skipAnimation = false }) => {
 
                     <div
                       className={clsx(
-                        "mt-4 px-5 py-2 rounded-full text-[10px] font-bold tracking-[0.25em] uppercase border",
+                        "mt-6 px-5 py-2 rounded-full text-[10px] font-bold tracking-[0.25em] uppercase border backdrop-blur-md",
                         t.theme === "dark"
-                          ? "text-[#adb5bd] border-[#495057] bg-[#343a40]"
-                          : "text-[#6c757d] border-[#adb5bd] bg-[#ced4da]"
+                          ? "text-blue-100 border-white/20 bg-white/5"
+                          : "text-[#001E80]/60 border-[#001E80]/10 bg-white"
                       )}
                     >
                       Scroll to flip
@@ -281,10 +281,10 @@ export const Pricing = ({ skipAnimation = false }) => {
 
                 <div
                   className={clsx(
-                    "pricing-face pricing-details p-8 border flex flex-col shadow-2xl",
+                    "pricing-face pricing-details p-8 border flex flex-col shadow-2xl backdrop-blur-xl",
                     t.theme === "dark"
-                      ? "bg-[#212529] text-[#f8f9fa] border-[#495057]"
-                      : "bg-[#e9ecef] text-[#212529] border-[#adb5bd]"
+                      ? "bg-gradient-to-br from-[#010821] to-[#010D3E] text-white border-white/10 shadow-[0_30px_70px_-20px_rgba(0,10,60,0.5)]"
+                      : "bg-gradient-to-br from-[#F8FAFF] to-[#EAEEFE] text-[#010D3E] border-[#001E80]/10 shadow-[0_20px_50px_-15px_rgba(0,30,128,0.1)]"
                   )}
                   style={skipAnimation ? { transform: 'rotateY(0deg)', position: 'relative' } : {}}
                 >
@@ -292,7 +292,7 @@ export const Pricing = ({ skipAnimation = false }) => {
                     <h3
                       className={clsx(
                         "text-[18px] font-black uppercase tracking-wide whitespace-nowrap",
-                        t.theme === "dark" ? "text-[#f8f9fa]" : "text-[#212529]"
+                        t.theme === "dark" ? "text-white" : "text-[#010D3E]"
                       )}
                     >
                       {t.title}
@@ -313,10 +313,10 @@ export const Pricing = ({ skipAnimation = false }) => {
 
                   <button
                     className={clsx(
-                      "mt-4 w-full py-4 rounded-2xl text-[16px] font-black transition-transform duration-300 hover:scale-[1.02] whitespace-nowrap",
+                      "mt-6 w-full py-4 rounded-2xl text-[16px] font-black transition-transform duration-300 hover:scale-[1.02] whitespace-nowrap shadow-lg",
                       t.theme === "dark"
-                        ? "bg-[#f8f9fa] text-[#212529]"
-                        : "bg-[#343a40] text-white"
+                        ? "bg-white text-[#001E80] shadow-blue-500/20"
+                        : "bg-[#001E80] text-white shadow-[#001E80]/20"
                     )}
                   >
                     {t.cta}
@@ -332,17 +332,20 @@ export const Pricing = ({ skipAnimation = false }) => {
                           className={clsx(
                             "mt-1 shrink-0",
                             t.theme === "dark"
-                              ? "text-[#adb5bd]"
-                              : "text-[#adb5bd]"
+                              ? "text-blue-300"
+                              : "text-[#001E80]"
                           )}
                         />
-                        <span className={clsx("font-medium", t.theme === "dark" ? "text-[#dee2e6]" : "text-[#495057]")}>{p}</span>
+                        <span className={clsx("font-medium", t.theme === "dark" ? "text-white/80" : "text-[#010D3E]/70")}>{p}</span>
                       </li>
                     ))}
                   </ul>
 
-                  <div className="mt-auto pt-2 text-[12px] text-[#6c757d]">
-                    Secure checkout • Cancel anytime
+                  <div className={clsx(
+                    "mt-auto pt-4 text-[12px] opacity-60",
+                    t.theme === "dark" ? "text-blue-100" : "text-[#001E80]"
+                  )}>
+                    Secure checkout • {t.price} each
                   </div>
                 </div>
               </div>

@@ -39,11 +39,11 @@ const getPublicPitches = async () => {
 };
 
 // Claim a Public Pitch
-const claimPublicPitch = async (pitchId, token) => {
+const claimPublicPitch = async (pitchId, token, role = 'teammate') => {
     const config = {
         headers: { Authorization: `Bearer ${token}` },
     };
-    const response = await axios.put(API_URL + `${pitchId}/claim`, {}, config);
+    const response = await axios.put(API_URL + `${pitchId}/claim`, { role }, config);
     return response.data;
 };
 

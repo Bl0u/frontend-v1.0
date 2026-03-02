@@ -1,43 +1,60 @@
-import { useState, useEffect, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useContext, useRef } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { API_BASE_URL } from '../config';
 
-import { FaUserEdit, FaShareAlt, FaGraduationCap, FaChalkboardTeacher, FaHistory, FaCheckCircle, FaProjectDiagram, FaExternalLinkAlt, FaUserFriends, FaClipboardList, FaFileAlt, FaBook } from 'react-icons/fa';
+import { FaExternalLinkAlt, FaUserFriends, FaBook, FaChevronRight } from 'react-icons/fa';
 import requestService from '../features/requests/requestService';
 import planService from '../features/plans/planService';
-import PitchQuestionsManager from '../components/PitchQuestionsManager';
+import resourceService from '../features/resources/resourceService';
+import { FilterBar } from '../components/FilterBar';
+
+const SUGGESTION_LISTS = {
+    University: [
+        'Cairo University', 'Alexandria University', 'Ain Shams University', 'Assiut University', 'Mansoura University',
+        'Zagazig University', 'Helwan University', 'Suez Canal University', '6th of October University',
+        'Misr University for Science and Technology', 'German University in Cairo (GUC)', 'American University in Cairo (AUC)',
+        'Al Alamein International University', 'Delta University for Science and Technology', 'British University in Egypt (BUE)'
+    ]
+};
 
 const Dashboard = () => {
     const { user: currentUser } = useContext(AuthContext);
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState('partnership'); // 'partnership', 'pitch-questions', or 'plan-template'
+
+    // Tab driven by URL: /home (default), /home?tab=partnership, /home?tab=pitch-questions
+    const activeTab = searchParams.get('tab') || 'home';
 
     // History & Notes State
     const [selectedHistory, setSelectedHistory] = useState(null);
     const [showPitchModal, setShowPitchModal] = useState(false);
-    const [editingHistoryId, setEditingHistoryId] = useState(null);
-    const [noteText, setNoteText] = useState('');
-    const [planTemplate, setPlanTemplate] = useState('');
+
+    // Contributions State
+    const [myThreads, setMyThreads] = useState([]);
+    const [activityThreads, setActivityThreads] = useState([]);
+    const [loadingThreads, setLoadingThreads] = useState(false);
+
+    // Contributions Filters
+    const [activeFilters, setActiveFilters] = useState({});
+    const [activeFilterType, setActiveFilterType] = useState(null);
+    const [uniqueTags, setUniqueTags] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
+    const filterContainerRef = useRef(null);
 
     const fetchProfile = async () => {
-        if (!currentUser) return; // Prevent fetch if logged out
-
+        if (!currentUser) return;
         try {
             const config = { headers: { Authorization: `Bearer ${currentUser.token}` } };
             const res = await axios.get(`${API_BASE_URL}/api/users/${currentUser._id}`, config);
             setProfile(res.data);
-            setPlanTemplate(res.data.planTemplate || '');
         } catch (error) {
             console.error('Error fetching dashboard data', error);
-            // Only show error if user is still logged in
-            if (currentUser) {
-                toast.error('Failed to load dashboard');
-            }
+            if (currentUser) toast.error('Failed to load dashboard');
         } finally {
             setLoading(false);
         }
@@ -45,22 +62,16 @@ const Dashboard = () => {
 
     const handleOpenPlan = async (targetUserId) => {
         if (!currentUser) return;
-
         try {
             const plan = await planService.getPlanByPair(targetUserId, currentUser.token);
             navigate(`/plan/${plan._id}`);
         } catch (error) {
-            console.log('Plan fetch error:', error.response?.data?.message || error.message);
-
-            // If no plan exists, anyone in the partnership can create one
             try {
                 const newPlan = await planService.createPlan(
                     targetUserId,
                     {
                         title: 'Initial Collaboration Plan',
-                        content: profile.planTemplate || `# Welcome to our Collaboration!
-
-This is our shared roadmap. We can update this regularly with goals, milestones, and resources.`
+                        content: `# Welcome to our Collaboration!\n\nThis is our shared roadmap. We can update this regularly with goals, milestones, and resources.`
                     },
                     currentUser.token
                 );
@@ -74,294 +85,608 @@ This is our shared roadmap. We can update this regularly with goals, milestones,
     };
 
     const handleEndRelationship = async (targetUserId, type) => {
-        const confirmMsg = 'Are you sure you want to end this partnership?';
-
-        if (!window.confirm(confirmMsg)) return;
+        if (!window.confirm('Are you sure you want to end this partnership?')) return;
         try {
             await requestService.endRelationship(targetUserId, type, currentUser.token);
             toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} completed! Great work.`);
-            fetchProfile(); // Refresh data
+            fetchProfile();
         } catch (error) {
             toast.error(error.response?.data?.message || `Failed to end ${type}`);
         }
-    };
-
-    const handleSaveNote = async (historyId) => {
-        try {
-            const config = { headers: { Authorization: `Bearer ${currentUser.token}` } };
-            await axios.put(`${API_BASE_URL}/api/requests/history/note`, { historyId, notes: noteText }, config);
-            toast.success('Note updated!');
-            setEditingHistoryId(null);
-            fetchProfile();
-        } catch (error) {
-            toast.error('Failed to save note');
-        }
-    };
-
-    const handleSaveTemplate = async () => {
-        try {
-            const config = { headers: { Authorization: `Bearer ${currentUser.token}` } };
-            await axios.put(`${API_BASE_URL}/api/users/profile`, { planTemplate }, config);
-            toast.success('Collaboration Plan Template updated!');
-            fetchProfile();
-        } catch (error) {
-            toast.error('Failed to update plan template');
-        }
-    };
-
-    const startEditingNote = (item) => {
-        setEditingHistoryId(item._id);
-        setNoteText(item.notes || '');
     };
 
     useEffect(() => {
         if (currentUser) fetchProfile();
     }, [currentUser]);
 
-    if (loading) return <div className="text-center py-20 text-gray-400">Loading your mission control...</div>;
-    if (!profile) return <div className="text-center py-20">Profile not found.</div>;
+    // Fetch threads if active tab is contributions
+    useEffect(() => {
+        if (activeTab === 'contributions' && currentUser) {
+            const fetchMyThreads = async () => {
+                setLoadingThreads(true);
+                try {
+                    let tagsParam = '';
+                    const tagValues = Object.entries(activeFilters).map(([type, val]) => {
+                        const cleanVal = val.replace(/\s+/g, '').replace(/ \(.*?\)/g, '');
+                        if (type === 'Professor') return `Prof${cleanVal}`;
+                        if (type === 'Subject') return `Subj${cleanVal}`;
+                        if (type === 'Company') return `Comp${cleanVal}`;
+                        return cleanVal;
+                    });
+                    if (tagValues.length > 0) {
+                        tagsParam = tagValues.join(',');
+                    }
 
-    const isMentor = profile.role === 'mentor';
+                    const data = await resourceService.getThreads({
+                        author: currentUser._id,
+                        search: searchTerm,
+                        tags: tagsParam
+                    });
+                    setMyThreads(data);
+                } catch (error) {
+                    toast.error('Failed to load contributions');
+                } finally {
+                    setLoadingThreads(false);
+                }
+            };
 
-    return (
-        <div className="max-w-6xl mx-auto px-4 py-8">
-            {/* Pitch Modal */}
-            {showPitchModal && selectedHistory && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
-                        <div className="p-8 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                            <div>
-                                <h2 className="text-2xl font-black text-gray-900 leading-tight">Project Pitch Answers</h2>
-                                <p className="text-sm text-gray-500 font-medium">Collaboration with {selectedHistory.menteeName || selectedHistory.mentorName || 'Partner'}</p>
-                            </div>
-                            <button onClick={() => setShowPitchModal(false)} className="text-gray-400 hover:text-gray-600 font-bold p-2 bg-white rounded-xl shadow-sm border border-gray-100 transition-all">✕</button>
-                        </div>
-                        <div className="p-8 space-y-6">
-                            {selectedHistory.pitchAnswers ? Object.entries(selectedHistory.pitchAnswers).map(([key, val]) => (
-                                <div key={key} className="space-y-2">
-                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-indigo-600">{key.startsWith('q_') ? 'Question' : key}</h4>
-                                    <div className="text-gray-700 bg-gray-50 p-4 rounded-2xl border border-gray-100/50 text-sm leading-relaxed font-medium">
-                                        {Array.isArray(val) ? (
-                                            <ul className="list-disc pl-4 space-y-1">
-                                                {val.map((item, i) => <li key={i}>{item}</li>)}
-                                            </ul>
-                                        ) : val}
-                                    </div>
-                                </div>
-                            )) : <p className="text-center text-gray-400 italic py-10">No pitch data available for this record.</p>}
-                        </div>
-                    </div>
-                </div>
-            )}
+            // Debounce search
+            const delayDebounceFn = setTimeout(() => {
+                fetchMyThreads();
+            }, 300);
 
-            {/* Header / Hero */}
-            <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-xl shadow-gray-200/50 mb-8 overflow-hidden relative">
-                <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-                    <div className="flex items-center gap-6">
-                        <div className="w-24 h-24 rounded-3xl bg-indigo-50 border-4 border-white flex items-center justify-center text-4xl font-black text-indigo-300 shadow-sm">
-                            {profile.name?.charAt(0)}
-                        </div>
-                        <div>
-                            <h1 className="text-3xl font-extrabold text-gray-900 leading-tight">Welcome back, {profile.name}</h1>
-                            <p className="text-gray-400 font-medium flex items-center gap-2">
-                                <FaUserFriends className="text-indigo-500" />
-                                PARTNER · {profile.major || profile.currentField}
-                            </p>
-                        </div>
-                    </div>
-                    <div className="flex flex-wrap gap-3">
-                        <Link
-                            to="/profile"
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-100 transition-all active:scale-95 flex items-center gap-3"
-                        >
-                            <FaUserEdit size={16} /> Mission Profile
-                        </Link>
-                    </div>
-                </div>
-                {/* Background Decor */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full translate-x-1/2 -translate-y-1/2 blur-2xl"></div>
-            </div>
+            return () => clearTimeout(delayDebounceFn);
+        }
+    }, [activeTab, currentUser, searchTerm, activeFilters]);
 
-            {/* Mini Navbar */}
-            <div className="flex gap-4 mb-8 bg-gray-100/50 p-1.5 rounded-2xl w-fit">
-                <button
-                    onClick={() => setActiveTab('partnership')}
-                    className={`px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${activeTab === 'partnership' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
-                >
-                    Partnerships
-                </button>
-                <button
-                    onClick={() => setActiveTab('pitch-questions')}
-                    className={`px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${activeTab === 'pitch-questions' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
-                >
-                    Pitch Questions
-                </button>
-                <button
-                    onClick={() => setActiveTab('plan-template')}
-                    className={`px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${activeTab === 'plan-template' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
-                >
-                    Plan Template
-                </button>
-            </div>
+    // Fetch Activity Threads (Moderate, Paid, Pinned)
+    useEffect(() => {
+        const activityTabs = ['moderate', 'paid', 'pinned'];
+        if (activityTabs.includes(activeTab) && currentUser) {
+            const fetchActivity = async () => {
+                setLoadingThreads(true);
+                try {
+                    const config = { headers: { Authorization: `Bearer ${currentUser.token}` } };
+                    const res = await axios.get(`${API_BASE_URL}/api/resources/activity?type=${activeTab}`, config);
+                    setActivityThreads(res.data);
+                } catch (error) {
+                    toast.error(`Failed to load ${activeTab} threads`);
+                } finally {
+                    setLoadingThreads(false);
+                }
+            };
+            fetchActivity();
+        }
+    }, [activeTab, currentUser]);
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Track Record / History Section */}
-                <div className="lg:col-span-2 space-y-8">
-                    {activeTab === 'partnership' ? (
-                        <>
-                            {/* PARTNERSHIP SECTION (Active) */}
-                            <section className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-                                <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between bg-gray-50/30">
-                                    <h3 className="text-xl font-extrabold text-gray-800 flex items-center gap-3">
-                                        <FaUserFriends className="text-blue-500" /> Active Partnerships
-                                    </h3>
-                                    <span className="bg-white px-3 py-1 rounded-full text-xs font-bold text-gray-400 border border-gray-100">
-                                        {profile.enrolledPartners?.filter(p => p.status === 'active').length || 0} Current
-                                    </span>
-                                </div>
-                                <div className="p-6">
-                                    {profile.enrolledPartners?.filter(p => p.status === 'active').length > 0 ? (
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            {profile.enrolledPartners.filter(p => p.status === 'active').map((enrollment, idx) => (
-                                                <div key={idx} className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border border-transparent hover:border-blue-100 hover:bg-white transition-all">
-                                                    <div className="w-12 h-12 bg-white rounded-xl border border-gray-100 flex items-center justify-center text-lg font-black text-gray-200 overflow-hidden">
-                                                        {enrollment.user?.avatar ? <img src={enrollment.user.avatar} alt="" className="w-full h-full object-cover" /> : enrollment.user?.name?.charAt(0)}
-                                                    </div>
-                                                    <div>
-                                                        <Link to={`/u/${enrollment.user?.username}`} className="font-bold text-gray-900 leading-tight hover:text-blue-600 transition-colors">
-                                                            {enrollment.user?.name || 'Unknown User'}
-                                                        </Link>
-                                                        <p className="text-xs text-gray-400">Collaborator</p>
-                                                    </div>
-                                                    <div className="flex flex-col items-end gap-2 ml-auto">
-                                                        <button
-                                                            onClick={() => handleOpenPlan(enrollment.user?._id)}
-                                                            className="text-[10px] font-bold text-blue-600 hover:text-blue-700 uppercase tracking-tighter flex items-center gap-1"
-                                                        >
-                                                            <FaBook /> Manage Plan
-                                                        </button>
-                                                        {enrollment.user?.username && (
-                                                            <Link to={`/u/${enrollment.user.username}`} className="text-blue-400 hover:text-blue-600 transition-colors">
-                                                                <FaExternalLinkAlt size={14} />
-                                                            </Link>
-                                                        )}
-                                                        <button
-                                                            onClick={() => handleEndRelationship(enrollment.user?._id, 'partner')}
-                                                            className="text-[10px] font-bold text-red-400 hover:text-red-600 uppercase tracking-tighter"
-                                                        >
-                                                            End Session
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div className="text-center py-10">
-                                            <p className="text-gray-400 text-sm italic">No active partnerships.</p>
-                                        </div>
-                                    )}
-                                </div>
-                            </section>
+    // Fetch Unique Tags for Filters
+    useEffect(() => {
+        if (activeTab === 'contributions') {
+            const fetchTags = async () => {
+                try {
+                    const tags = await resourceService.getUniqueTags();
+                    setUniqueTags(tags);
+                } catch (error) {
+                    console.error("Failed to load unique tags", error);
+                }
+            };
+            fetchTags();
+        }
+    }, [activeTab]);
 
-                            {/* PARTNERSHIP ARCHIVE */}
-                            <section className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-                                <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between bg-gray-50/30">
-                                    <h3 className="text-xl font-extrabold text-gray-800 flex items-center gap-3">
-                                        <FaHistory className="text-blue-400" /> Partnership Archive
-                                    </h3>
-                                </div>
-                                <div className="p-8">
-                                    <div className="space-y-4">
-                                        {profile.partnerHistory?.length > 0 ? (
-                                            profile.partnerHistory.slice().reverse().map((history, idx) => (
-                                                <div key={idx} className="flex items-center justify-between p-5 bg-gray-50 rounded-2xl border border-gray-100/50 hover:bg-white transition-all">
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="w-12 h-12 bg-white rounded-xl border border-gray-100 flex items-center justify-center text-lg font-black text-gray-200">
-                                                            {history.partnerName?.charAt(0)}
-                                                        </div>
-                                                        <div>
-                                                            <Link to={`/u/${history.partnerUsername}`} className="font-bold text-gray-900 leading-tight hover:text-indigo-600 transition-colors">
-                                                                {history.partnerName}
-                                                            </Link>
-                                                            <p className="text-xs text-gray-400 font-medium">@{history.partnerUsername}</p>
-                                                        </div>
-                                                    </div>
-                                                    <FaCheckCircle className="text-green-500" />
-                                                </div>
-                                            ))
-                                        ) : (
-                                            <p className="text-center text-gray-400 py-10 italic font-medium">No completed partnerships yet.</p>
-                                        )}
-                                    </div>
-                                </div>
-                            </section>
-                        </>
-                    ) : activeTab === 'pitch-questions' ? (
-                        <PitchQuestionsManager
-                            user={currentUser}
-                            initialQuestions={profile.pitchQuestions}
-                            onUpdate={(newQs) => setProfile({ ...profile, pitchQuestions: newQs })}
-                        />
-                    ) : activeTab === 'plan-template' ? (
-                        <section className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8">
-                            <div className="mb-6">
-                                <h3 className="text-xl font-extrabold text-gray-800 mb-2">Default Collaboration Plan Template</h3>
-                                <p className="text-sm text-gray-500">This template will be used when you create new collaboration plans with partners. Supports Markdown formatting.</p>
-                            </div>
-                            <textarea
-                                className="w-full h-96 p-6 border-2 border-gray-200 rounded-2xl focus:border-indigo-500 focus:outline-none font-mono text-sm resize-none"
-                                placeholder="# Welcome!\n\nThis is your shared collaboration roadmap..."
-                                value={planTemplate}
-                                onChange={(e) => setPlanTemplate(e.target.value)}
-                            />
-                            <button
-                                onClick={handleSaveTemplate}
-                                className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-bold transition-all"
-                            >
-                                Save Template
-                            </button>
-                        </section>
-                    ) : null}
-                </div>
+    const dynamicSuggestions = {
+        University: (SUGGESTION_LISTS.University || []).filter(u => uniqueTags.includes(`#${u.replace(/\s+/g, '')}`)),
+        Professor: uniqueTags.filter(t => t.startsWith('#Prof')).map(t => t.replace('#Prof', '')),
+        Subject: uniqueTags.filter(t => t.startsWith('#Subj')).map(t => t.replace('#Subj', '')),
+        Company: uniqueTags.filter(t => t.startsWith('#Comp')).map(t => t.replace('#Comp', '')),
+        Position: uniqueTags.filter(t => !t.startsWith('#Subj') && !t.startsWith('#Comp') && !t.startsWith('#Prof') && t.startsWith('#') && t !== '#Interview').map(t => t.replace('#', ''))
+    };
 
-                {/* Sidebar Stats */}
-                <div className="space-y-6">
-                    <div className="bg-gradient-to-br from-indigo-700 to-indigo-600 rounded-3xl p-8 text-white shadow-2xl shadow-indigo-200">
-                        <h4 className="text-lg font-bold mb-6 opacity-80 uppercase tracking-widest text-[10px]">Impact Summary</h4>
-                        <div className="space-y-6">
-                            <div>
-                                <p className="text-4xl font-black">
-                                    {profile.partnerHistory?.length || 0}
-                                </p>
-                                <p className="text-indigo-200 text-[10px] font-black uppercase tracking-widest mt-1">Partnerships Completed</p>
-                            </div>
-                            <div className="pt-6 border-t border-indigo-500/30">
-                                <p className="text-4xl font-black">
-                                    {profile.enrolledPartners?.filter(p => p.status === 'active').length || 0}
-                                </p>
-                                <p className="text-indigo-200 text-[10px] font-black uppercase tracking-widest mt-1">Active Partnerships</p>
-                            </div>
-                        </div>
-                    </div>
+    // Filter Handlers
 
-                    {/* Role Info Snippet */}
-                    <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm">
-                        <h4 className="text-xs font-extrabold mb-4 text-gray-400 uppercase tracking-widest">Operation Status</h4>
-                        <div className="space-y-4">
-                            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-2xl">
-                                <span className="text-xs font-bold text-gray-500 uppercase">Current Role</span>
-                                <span className="text-xs font-black text-indigo-600 uppercase">PARTNER</span>
-                            </div>
-                            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-2xl">
-                                <span className="text-xs font-bold text-gray-500 uppercase">Availability</span>
-                                <span className="text-xs font-black text-green-500 uppercase">Operational</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    // Close Dropdown Outside Click
+    useEffect(() => {
+        if (activeTab === 'contributions') {
+            const handleClickOutside = (event) => {
+                if (filterContainerRef.current && !filterContainerRef.current.contains(event.target)) {
+                    setActiveFilterType(null);
+                }
+            };
+            document.addEventListener('mousedown', handleClickOutside);
+            return () => document.removeEventListener('mousedown', handleClickOutside);
+        }
+    }, [activeTab]);
+
+    const handleDeleteThread = async (e, threadId) => {
+        e.stopPropagation();
+        if (!window.confirm('Delete this published thread permanently?')) return;
+        try {
+            await resourceService.deleteThread(threadId, currentUser.token);
+            toast.success('Thread Deleted');
+            setMyThreads(myThreads.filter(t => t._id !== threadId));
+        } catch (error) {
+            toast.error('Failed to delete thread');
+        }
+    };
+
+    if (loading) return (
+        <div className="flex items-center justify-center py-32">
+            <div className="w-8 h-8 border-2 border-[#001E80]/20 border-t-[#001E80] rounded-full animate-spin"></div>
         </div>
     );
+    if (!profile) return <div className="text-center py-20 text-gray-400">Profile not found.</div>;
+
+    const activePartners = profile.enrolledPartners?.filter(p => p.status === 'active') || [];
+    const completedCount = profile.partnerHistory?.length || 0;
+
+    // ─── HOME TAB (default) ────────────────────────────
+    if (!searchParams.get('tab') || activeTab === 'home') {
+        return (
+            <div className="max-w-5xl mx-auto space-y-8">
+                {/* Welcome Header */}
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#EAEEFE] to-white p-10 border border-[#001E80]/5">
+                    <div className="relative z-10">
+                        <p className="text-[#001E80]/50 text-sm font-semibold tracking-wide uppercase mb-2">Dashboard</p>
+                        <h1
+                            className="text-4xl md:text-5xl font-black bg-gradient-to-b from-black to-[#001E80] bg-clip-text text-transparent pb-1 leading-tight"
+                            style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
+                        >
+                            Welcome back, {profile.name}
+                        </h1>
+                        <p className="text-[#010D3E]/60 mt-2 font-medium">
+                            {profile.major || profile.currentField || 'Student'}
+                        </p>
+                    </div>
+                    {/* Background Decor */}
+                    <div className="absolute top-0 right-0 w-72 h-72 bg-[#001E80]/5 rounded-full translate-x-1/3 -translate-y-1/3 blur-3xl"></div>
+                    <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#001E80]/3 rounded-full -translate-x-1/4 translate-y-1/4 blur-2xl"></div>
+                </div>
+
+                {/* Stats Row 1: Partnerships */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <div className="bg-gradient-to-br from-[#001E80] to-[#010D3E] rounded-2xl p-6 text-white shadow-lg shadow-[#001E80]/10">
+                        <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mb-3">Active Partnerships</p>
+                        <p className="text-4xl font-black">{activePartners.length}</p>
+                    </div>
+                    <div className="bg-gradient-to-br from-[#001E80] to-[#010D3E] rounded-2xl p-6 text-white shadow-lg shadow-[#001E80]/10">
+                        <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mb-3">Completed</p>
+                        <p className="text-4xl font-black">{completedCount}</p>
+                    </div>
+                    <div className="bg-gradient-to-br from-[#001E80] to-[#010D3E] rounded-2xl p-6 text-white shadow-lg shadow-[#001E80]/10">
+                        <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mb-3">Impact Score</p>
+                        <p className="text-4xl font-black">{activePartners.length + completedCount}</p>
+                    </div>
+                </div>
+
+                {/* Stats Row 2: Contributions */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+                        <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-3">Threads Created</p>
+                        <p className="text-4xl font-black text-[#001E80]">{profile.stats?.threadsCreated || 0}</p>
+                        <p className="text-xs text-gray-500 mt-2 font-medium">
+                            <span className="text-indigo-600 font-bold">{profile.stats?.guidesCreated || 0}</span> Guides · <span className="text-indigo-600 font-bold">{profile.stats?.communityThreads || 0}</span> Posts
+                        </p>
+                    </div>
+                    <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+                        <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-3">Total Comments</p>
+                        <p className="text-4xl font-black text-[#001E80]">{profile.stats?.commentsMade || 0}</p>
+                        <p className="text-xs text-gray-500 mt-2 font-medium">Interaction across all missions</p>
+                    </div>
+                    <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-3">Level Rank</p>
+                            <p className="text-2xl font-black text-[#001E80]">Contributor</p>
+                        </div>
+                        <div className="w-12 h-12 bg-[#EAEEFE] rounded-xl flex items-center justify-center text-[#001E80]">
+                            <FaBook className="text-xl" />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Active Partnerships */}
+                <section className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+                    <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between">
+                        <h3 className="text-lg font-bold text-gray-800 flex items-center gap-3">
+                            <FaUserFriends className="text-[#001E80]" /> Active Partnerships
+                        </h3>
+                        <span className="bg-[#EAEEFE] px-3 py-1 rounded-full text-xs font-bold text-[#001E80]">
+                            {activePartners.length}
+                        </span>
+                    </div>
+                    <div className="p-6">
+                        {activePartners.length > 0 ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {activePartners.map((enrollment, idx) => (
+                                    <div key={idx} className="flex items-center gap-4 p-4 rounded-2xl border border-gray-100 hover:border-[#001E80]/10 hover:bg-[#EAEEFE]/30 transition-all">
+                                        <div className="w-12 h-12 bg-gradient-to-br from-[#001E80] to-[#010D3E] rounded-xl flex items-center justify-center text-base font-black text-white overflow-hidden">
+                                            {enrollment.user?.avatar ? <img src={enrollment.user.avatar} alt="" className="w-full h-full object-cover" /> : enrollment.user?.name?.charAt(0)}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <Link to={`/u/${enrollment.user?.username}`} className="font-bold text-gray-900 leading-tight hover:text-[#001E80] transition-colors">
+                                                {enrollment.user?.name || 'Unknown User'}
+                                            </Link>
+                                            <p className="text-xs text-gray-400">Collaborator</p>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <button
+                                                onClick={() => handleOpenPlan(enrollment.user?._id)}
+                                                className="text-[10px] font-bold text-[#001E80] hover:text-[#001E80]/70 uppercase tracking-tight flex items-center gap-1 transition-colors"
+                                            >
+                                                <FaBook /> Plan
+                                            </button>
+                                            {enrollment.user?.username && (
+                                                <Link to={`/u/${enrollment.user.username}`} className="text-[#001E80]/40 hover:text-[#001E80] transition-colors">
+                                                    <FaExternalLinkAlt size={12} />
+                                                </Link>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-12">
+                                <p className="text-gray-400 text-sm">No active partnerships yet.</p>
+                                <Link to="/partners" className="inline-block mt-4 text-sm font-bold text-[#001E80] hover:underline">
+                                    Find Partners →
+                                </Link>
+                            </div>
+                        )}
+                    </div>
+                </section>
+            </div>
+        );
+    }
+
+    // ─── PARTNERSHIP TAB ────────────────────────────────
+    if (activeTab === 'partnership') {
+        return (
+            <div className="max-w-5xl mx-auto space-y-8">
+                {/* Header */}
+                <div>
+                    <h1
+                        className="text-3xl font-black bg-gradient-to-b from-black to-[#001E80] bg-clip-text text-transparent pb-1"
+                        style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
+                    >
+                        Partnerships
+                    </h1>
+                    <p className="text-[#010D3E]/50 text-sm font-medium mt-1">Manage your active and past collaborations</p>
+                </div>
+
+                {/* Active Partnerships */}
+                <section className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+                    <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between">
+                        <h3 className="text-lg font-bold text-gray-800 flex items-center gap-3">
+                            <FaUserFriends className="text-[#001E80]" /> Active
+                        </h3>
+                        <span className="bg-[#EAEEFE] px-3 py-1 rounded-full text-xs font-bold text-[#001E80]">
+                            {activePartners.length}
+                        </span>
+                    </div>
+                    <div className="p-6">
+                        {activePartners.length > 0 ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {activePartners.map((enrollment, idx) => (
+                                    <div key={idx} className="flex items-center gap-4 p-4 rounded-2xl border border-gray-100 hover:border-[#001E80]/10 hover:bg-[#EAEEFE]/30 transition-all">
+                                        <div className="w-12 h-12 bg-gradient-to-br from-[#001E80] to-[#010D3E] rounded-xl flex items-center justify-center text-base font-black text-white overflow-hidden">
+                                            {enrollment.user?.avatar ? <img src={enrollment.user.avatar} alt="" className="w-full h-full object-cover" /> : enrollment.user?.name?.charAt(0)}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <Link to={`/u/${enrollment.user?.username}`} className="font-bold text-gray-900 leading-tight hover:text-[#001E80] transition-colors">
+                                                {enrollment.user?.name || 'Unknown User'}
+                                            </Link>
+                                            <p className="text-xs text-gray-400">Collaborator</p>
+                                        </div>
+                                        <div className="flex flex-col items-end gap-2">
+                                            <button
+                                                onClick={() => handleOpenPlan(enrollment.user?._id)}
+                                                className="text-[10px] font-bold text-[#001E80] hover:text-[#001E80]/70 uppercase tracking-tight flex items-center gap-1 transition-colors"
+                                            >
+                                                <FaBook /> Manage Plan
+                                            </button>
+                                            {enrollment.user?.username && (
+                                                <Link to={`/u/${enrollment.user.username}`} className="text-[#001E80]/40 hover:text-[#001E80] transition-colors">
+                                                    <FaExternalLinkAlt size={12} />
+                                                </Link>
+                                            )}
+                                            <button
+                                                onClick={() => handleEndRelationship(enrollment.user?._id, 'partner')}
+                                                className="text-[10px] font-bold text-red-400 hover:text-red-600 uppercase tracking-tight transition-colors"
+                                            >
+                                                End Session
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-12">
+                                <p className="text-gray-400 text-sm">No active partnerships.</p>
+                                <Link to="/partners" className="inline-block mt-4 text-sm font-bold text-[#001E80] hover:underline">
+                                    Find Partners →
+                                </Link>
+                            </div>
+                        )}
+                    </div>
+                </section>
+            </div>
+        );
+    }
+
+    // ─── CONTRIBUTIONS TAB ──────────────────────────────
+    if (activeTab === 'contributions') {
+        const guidesCount = myThreads.filter(t => t.isCurated).length;
+        const communityCount = myThreads.filter(t => !t.isCurated).length;
+
+        return (
+            <div className="max-w-5xl mx-auto space-y-8">
+                {/* Header */}
+                <div>
+                    <h1
+                        className="text-3xl font-black bg-gradient-to-b from-black to-[#001E80] bg-clip-text text-transparent pb-1"
+                        style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
+                    >
+                        My Contributions
+                    </h1>
+                    <p className="text-[#010D3E]/50 text-sm font-medium mt-1">Manage the guides and threads you've published to the community.</p>
+                </div>
+
+                {/* Metrics */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div className="bg-white rounded-3xl border border-gray-100 p-6 flex flex-col justify-center shadow-sm hover:border-[#001E80]/20 transition-all">
+                        <p className="text-[#001E80]/40 text-[10px] font-black uppercase tracking-widest mb-1">Guides Created</p>
+                        <p className="text-4xl font-black text-[#001E80]">{guidesCount}</p>
+                    </div>
+                    <div className="bg-white rounded-3xl border border-gray-100 p-6 flex flex-col justify-center shadow-sm hover:border-[#001E80]/20 transition-all">
+                        <p className="text-[#001E80]/40 text-[10px] font-black uppercase tracking-widest mb-1">Community Threads</p>
+                        <p className="text-4xl font-black text-[#001E80]">{communityCount}</p>
+                    </div>
+                </div>
+
+                {/* Filter and Table View */}
+                <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden animate-in fade-in duration-500">
+                    <div className="px-8 py-6 border-b border-gray-50 flex flex-col gap-6">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-lg font-bold text-gray-800 flex items-center gap-3">
+                                <FaBook className="text-[#001E80]" /> Published Threads
+                            </h3>
+                            <div className="relative w-64">
+                                <input
+                                    type="text"
+                                    placeholder="Search your threads..."
+                                    className="w-full bg-gray-50 border border-gray-100 rounded-xl py-2 px-4 text-xs font-medium outline-none focus:bg-white focus:ring-2 focus:ring-[#001E80]/10 transition-all"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Filter Bar */}
+                        <FilterBar
+                            activeFilters={activeFilters}
+                            onFilterChange={setActiveFilters}
+                            suggestionLists={dynamicSuggestions}
+                        />
+                    </div>
+
+                    {loadingThreads ? (
+                        <div className="flex items-center justify-center py-12">
+                            <div className="w-8 h-8 border-2 border-[#001E80]/20 border-t-[#001E80] rounded-full animate-spin"></div>
+                        </div>
+                    ) : myThreads.length > 0 ? (
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="bg-gray-50/50 border-b border-gray-100 text-[9px] font-black uppercase tracking-widest text-[#001E80]/40">
+                                        <th className="py-3 px-6 w-1/3">Thread</th>
+                                        <th className="py-3 px-6">Required Skills & Tags</th>
+                                        <th className="py-3 px-6 text-center w-24">Stats</th>
+                                        <th className="py-3 px-6 text-right w-24">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="text-sm">
+                                    {myThreads.map((thread) => (
+                                        <tr
+                                            key={thread._id}
+                                            onClick={() => navigate(`/resources/thread/${thread._id}`)}
+                                            className="border-b border-gray-50 hover:bg-[#EAEEFE]/20 cursor-pointer transition-colors group"
+                                        >
+                                            <td className="py-4 px-6 relative">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="flex-1 min-w-0">
+                                                        <h3 className="font-bold text-gray-900 truncate group-hover:text-[#001E80] transition-colors pr-4">{thread.title}</h3>
+                                                        <div className="flex items-center gap-2 mt-1">
+                                                            <span className="text-[9px] font-black uppercase tracking-widest text-gray-400">{new Date(thread.createdAt).toLocaleDateString()}</span>
+                                                            {thread.isCurated && (
+                                                                <span className="px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-[8px] font-black uppercase tracking-widest leading-none">Verified</span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            <td className="py-4 px-6 relative">
+                                                <div className="flex items-center gap-1.5 flex-wrap">
+                                                    {thread.tags?.slice(0, 3).map((tag, idx) => (
+                                                        <span key={idx} className="px-2 py-1 bg-white border border-gray-100 text-gray-500 rounded text-[9px] font-bold uppercase tracking-wider whitespace-nowrap">
+                                                            {tag.replace(/^#(Subj|Comp|Prof)/, '#')}
+                                                        </span>
+                                                    ))}
+                                                    {thread.tags?.length > 3 && (
+                                                        <div className="relative group/tags">
+                                                            <span className="px-2 py-1 bg-gray-50 text-gray-400 rounded text-[9px] font-bold uppercase tracking-wider cursor-help">
+                                                                +{thread.tags.length - 3}
+                                                            </span>
+                                                            <div className="absolute left-0 bottom-full mb-2 hidden group-hover/tags:flex flex-wrap gap-1 bg-gray-900 border border-gray-800 p-2 rounded-lg w-48 shadow-xl z-10">
+                                                                {thread.tags.slice(3).map((tag, idx) => (
+                                                                    <span key={idx} className="px-2 py-1 bg-white/10 text-white rounded text-[8px] font-bold uppercase tracking-wider whitespace-nowrap">
+                                                                        {tag.replace(/^#(Subj|Comp|Prof)/, '#')}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </td>
+
+                                            <td className="py-4 px-6 text-center">
+                                                <div className="flex items-center justify-center gap-3 text-gray-400">
+                                                    <span className="flex items-center gap-1 font-bold text-xs" title="Upvotes">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                                                        {thread.upvoteCount || 0}
+                                                    </span>
+                                                    <span className="flex items-center gap-1 font-bold text-xs" title="Posts">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                                                        {thread.postCount || 0}
+                                                    </span>
+                                                </div>
+                                            </td>
+
+                                            <td className="py-4 px-6 text-right">
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <button
+                                                        onClick={(e) => handleDeleteThread(e, thread._id)}
+                                                        className="w-8 h-8 rounded-full flex items-center justify-center text-red-300 hover:text-white hover:bg-red-500 transition-all opacity-0 group-hover:opacity-100"
+                                                        title="Delete Thread"
+                                                    >
+                                                        ✕
+                                                    </button>
+                                                    <div className="w-8 h-8 rounded-full border border-gray-100 flex items-center justify-center group-hover:border-[#001E80] group-hover:bg-[#001E80] transition-colors">
+                                                        <FaChevronRight size={10} className="text-gray-300 group-hover:text-white transition-colors" />
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : (
+                        <div className="text-center py-12 px-4 bg-gray-50/30">
+                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">No published threads found.</p>
+                            <button
+                                onClick={() => navigate('/resources')}
+                                className="bg-[#001E80] text-white px-6 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all shadow-md hover:bg-[#010D3E]"
+                            >
+                                Browse Hub
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
+
+
+    // ─── ACTIVITY TABS (Moderate, Paid, Pinned) ─────────
+    const activityTabs = ['moderate', 'paid', 'pinned'];
+    if (activityTabs.includes(activeTab)) {
+        const titleMap = {
+            moderate: 'Mod Missions',
+            paid: 'Premium Access',
+            pinned: 'Pinned Missions'
+        };
+        const subMap = {
+            moderate: 'Threads where you serve as an active moderator.',
+            paid: 'Exclusive content you have unlocked with stars.',
+            pinned: 'Missions you have marked for quick access.'
+        };
+
+        return (
+            <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-500">
+                <div>
+                    <h1
+                        className="text-3xl font-black bg-gradient-to-b from-black to-[#001E80] bg-clip-text text-transparent pb-1"
+                        style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
+                    >
+                        {titleMap[activeTab]}
+                    </h1>
+                    <p className="text-[#010D3E]/50 text-sm font-medium mt-1">{subMap[activeTab]}</p>
+                </div>
+
+                <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+                    {loadingThreads ? (
+                        <div className="flex items-center justify-center py-20">
+                            <div className="w-8 h-8 border-2 border-[#001E80]/20 border-t-[#001E80] rounded-full animate-spin"></div>
+                        </div>
+                    ) : activityThreads.length > 0 ? (
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="bg-gray-50/50 border-b border-gray-100 text-[9px] font-black uppercase tracking-widest text-[#001E80]/40">
+                                        <th className="py-3 px-6 w-1/2">Mission</th>
+                                        <th className="py-3 px-6">Intelligence (Author)</th>
+                                        <th className="py-3 px-6 text-center">Status</th>
+                                        <th className="py-3 px-6 text-right">Access</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="text-sm">
+                                    {activityThreads.map((thread) => (
+                                        <tr
+                                            key={thread._id}
+                                            onClick={() => navigate(`/resources/thread/${thread._id}`)}
+                                            className="border-b border-gray-50 hover:bg-[#EAEEFE]/20 cursor-pointer transition-colors group"
+                                        >
+                                            <td className="py-6 px-6 relative">
+                                                <div className="flex-1 min-w-0">
+                                                    <h3 className="font-bold text-gray-900 truncate group-hover:text-[#001E80] transition-colors pr-4">{thread.title}</h3>
+                                                    <div className="flex items-center gap-1.5 mt-1.5">
+                                                        {thread.tags?.slice(0, 2).map((tag, idx) => (
+                                                            <span key={idx} className="px-1.5 py-0.5 bg-gray-50 text-gray-400 rounded text-[8px] font-bold uppercase tracking-wider">
+                                                                {tag}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            <td className="py-6 px-6">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center text-[#001E80] font-bold text-[10px]">
+                                                        {thread.author?.name?.charAt(0)}
+                                                    </div>
+                                                    <span className="text-xs font-bold text-gray-700">{thread.author?.name}</span>
+                                                </div>
+                                            </td>
+
+                                            <td className="py-6 px-6 text-center">
+                                                <div className="flex items-center justify-center gap-3 text-gray-400">
+                                                    <span className="flex items-center gap-1 font-bold text-[10px] uppercase tracking-widest" title="Posts">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                                                        {thread.postCount || 0}
+                                                    </span>
+                                                </div>
+                                            </td>
+
+                                            <td className="py-6 px-6 text-right">
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <div className="w-8 h-8 rounded-full border border-gray-100 flex items-center justify-center group-hover:border-[#001E80] group-hover:bg-[#001E80] transition-colors">
+                                                        <FaChevronRight size={10} className="text-gray-300 group-hover:text-white transition-colors" />
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : (
+                        <div className="text-center py-20 px-4 bg-gray-50/30">
+                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">No activity found in this section.</p>
+                            <button
+                                onClick={() => navigate('/resources')}
+                                className="bg-[#001E80] text-white px-6 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all shadow-md hover:bg-[#010D3E]"
+                            >
+                                Browse Intelligence
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
+    return null;
 };
 
 export default Dashboard;

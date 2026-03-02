@@ -7,6 +7,7 @@ import { Pricing } from '../sections/Pricing';
 import { Testimonials } from '../sections/Testimonials';
 import { Footer } from '../sections/Footer';
 import { CallToAction } from '../sections/CallToAction';
+import NetworkSplit from '../sections/NetworkSplit';
 import "../fonts/style/fontsStyle.css";
 import gsap from 'gsap';
 
@@ -154,6 +155,7 @@ const LandingPage = () => {
                 <div className="relative">
                     <MasterSVGOverlay skipAnimation={false} />
                     <SolutionSection skipAnimation={false} />
+                    <NetworkSplit />
                     <Pricing skipAnimation={false} />
                     <Testimonials />
                     <CallToAction />
