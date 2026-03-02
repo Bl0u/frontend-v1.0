@@ -29,6 +29,7 @@ import Chat from './pages/Chat';
 import PlanManager from './pages/PlanManager';
 import AIChatBot from './components/AIChatBot';
 import TopUp from './pages/TopUp';
+import WorkWithUs from './pages/WorkWithUs';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -68,6 +69,7 @@ const AppContent = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/new-lp" element={<LandingPage />} />
           <Route path="/old-lp" element={<OldLandingPage />} />
+          <Route path="/work-with-us" element={<WorkWithUs />} />
         </Route>
 
         {/* Authenticated pages (Sidebar) */}

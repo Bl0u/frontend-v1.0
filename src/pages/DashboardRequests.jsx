@@ -9,15 +9,20 @@ const DashboardRequests = () => {
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
     const [inboxItems, setInboxItems] = useState([]);
+    const [historyItems, setHistoryItems] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState('inbox'); // 'inbox' | 'history'
     const [showPitchModal, setShowPitchModal] = useState(false);
     const [selectedPitch, setSelectedPitch] = useState(null);
 
     const fetchInbox = async () => {
         try {
             const data = await requestService.getReceivedRequests(user.token);
-            // Show ALL items: partnership and notification types
-            setInboxItems(data);
+            // Split into pending (inbox) and resolved (history)
+            const pending = data.filter(item => item.status === 'pending');
+            const resolved = data.filter(item => item.status !== 'pending');
+            setInboxItems(pending);
+            setHistoryItems(resolved);
             setLoading(false);
         } catch (error) {
             console.error(error);
@@ -112,122 +117,134 @@ const DashboardRequests = () => {
                 <div className="absolute top-0 right-0 w-64 h-64 bg-[#001E80]/5 rounded-full translate-x-1/3 -translate-y-1/3 blur-3xl"></div>
             </div>
 
-            {inboxItems.length === 0 ? (
-                <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-gray-200">
-                    <FaBell className="text-6xl text-gray-200 mx-auto mb-4" />
-                    <p className="text-gray-400 font-medium">Your inbox is empty</p>
-                </div>
-            ) : (
-                <div className="grid gap-4">
-                    {inboxItems.map((item) => (
-                        <div key={item._id} className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-all">
-                            <div className="flex items-start gap-4">
-                                {/* Icon */}
-                                <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-xl shrink-0">
-                                    {getItemIcon(item.type)}
-                                </div>
+            {/* Tabs */}
+            <div className="flex gap-4 border-b border-gray-100 pb-px">
+                <button
+                    onClick={() => setActiveTab('inbox')}
+                    className={`pb-4 px-2 font-black text-xs uppercase tracking-widest transition-all relative ${activeTab === 'inbox' ? 'text-[#001E80]' : 'text-gray-400 hover:text-gray-600'}`}
+                >
+                    Inbox ({inboxItems.length})
+                    {activeTab === 'inbox' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#001E80]" />}
+                </button>
+                <button
+                    onClick={() => setActiveTab('history')}
+                    className={`pb-4 px-2 font-black text-xs uppercase tracking-widest transition-all relative ${activeTab === 'history' ? 'text-[#001E80]' : 'text-gray-400 hover:text-gray-600'}`}
+                >
+                    Partnerships History ({historyItems.length})
+                    {activeTab === 'history' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#001E80]" />}
+                </button>
+            </div>
 
-                                {/* Content */}
-                                <div className="flex-grow">
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <h4 className="text-sm font-bold text-gray-900">
-                                            {getItemTitle(item)}
-                                        </h4>
-                                        {item.sender?.name && (
-                                            <span className="text-xs text-gray-400">
-                                                from {item.sender.name}
-                                            </span>
-                                        )}
-                                    </div>
-                                    <p className="text-gray-700 text-base mt-2">
-                                        {item.message?.includes('|||')
-                                            ? item.message.split('|||')[0]
-                                            : item.message}
-                                    </p>
-                                    {item.createdAt && (
-                                        <p className="text-gray-400 text-xs mt-2">
-                                            {new Date(item.createdAt).toLocaleString()}
-                                        </p>
+            <div className="grid gap-4">
+                {(activeTab === 'inbox' ? inboxItems : historyItems).map((item) => (
+                    <div key={item._id} className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-all">
+                        <div className="flex items-start gap-4">
+                            {/* Icon */}
+                            <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-xl shrink-0">
+                                {getItemIcon(item.type)}
+                            </div>
+
+                            {/* Content */}
+                            <div className="flex-grow">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <h4 className="text-sm font-bold text-gray-900">
+                                        {getItemTitle(item)}
+                                    </h4>
+                                    {item.sender?.name && (
+                                        <span className="text-xs text-gray-400">
+                                            from {item.sender.name}
+                                        </span>
                                     )}
                                 </div>
+                                <p className="text-gray-700 text-base mt-2">
+                                    {item.message?.includes('|||')
+                                        ? item.message.split('|||')[0]
+                                        : item.message}
+                                </p>
+                                {item.createdAt && (
+                                    <p className="text-gray-400 text-xs mt-2">
+                                        {new Date(item.createdAt).toLocaleString()}
+                                    </p>
+                                )}
+                            </div>
 
-                                {/* Actions */}
-                                <div className="shrink-0 flex flex-col gap-2">
-                                    {/* View Profile/Pitch Buttons */}
-                                    <div className="flex gap-2">
-                                        {isActionable(item) && item.sender && (
-                                            <button
-                                                onClick={() => navigate(`/u/${item.sender.username}`)}
-                                                className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-xl transition-all font-medium text-xs"
-                                            >
-                                                <FaUser /> View Profile
-                                            </button>
-                                        )}
-                                        {isActionable(item) && item.pitch && (
-                                            <button
-                                                onClick={() => {
-                                                    setSelectedPitch(item.pitch);
-                                                    setShowPitchModal(true);
-                                                }}
-                                                className="flex items-center gap-2 bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1.5 rounded-xl transition-all font-medium text-xs"
-                                            >
-                                                <FaEye /> View Pitch
-                                            </button>
-                                        )}
-                                        {item.message?.includes('|||PLAN:') && (
-                                            <button
-                                                onClick={() => {
-                                                    const planId = item.message.split('|||PLAN:')[1].trim();
-                                                    navigate(`/plan/${planId}`);
-                                                }}
-                                                className="flex items-center gap-2 bg-purple-100 hover:bg-purple-200 text-purple-700 px-3 py-1.5 rounded-xl transition-all font-medium text-xs"
-                                            >
-                                                <FaFileAlt /> View Plan
-                                            </button>
-                                        )}
-                                        {item.message?.includes('|||THREAD:') && (
-                                            <button
-                                                onClick={() => {
-                                                    const threadId = item.message.split('|||THREAD:')[1];
-                                                    navigate(`/resources/thread/${threadId}`);
-                                                }}
-                                                className="flex items-center gap-2 bg-[#EAEEFE] hover:bg-[#EAEEFE]/80 text-[#001E80] px-3 py-1.5 rounded-xl transition-all font-medium text-xs"
-                                            >
-                                                <FaChalkboardTeacher /> View Thread
-                                            </button>
-                                        )}
-
-                                    </div>
-
-                                    {/* Main Action Buttons */}
-                                    {isActionable(item) ? (
-                                        <div className="flex gap-2">
-                                            <button
-                                                onClick={() => handleAction(item._id, 'accepted')}
-                                                className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl transition-all font-bold text-sm"
-                                            >
-                                                <FaCheck /> Accept
-                                            </button>
-                                            <button
-                                                onClick={() => handleAction(item._id, 'rejected')}
-                                                className="flex items-center gap-2 bg-white border border-red-200 text-red-500 hover:bg-red-50 px-4 py-2 rounded-xl transition-all font-bold text-sm"
-                                            >
-                                                <FaTimes /> Reject
-                                            </button>
-                                        </div>
-                                    ) : (
+                            {/* Actions */}
+                            <div className="shrink-0 flex flex-col gap-2">
+                                {/* View Profile/Pitch Buttons */}
+                                <div className="flex gap-2">
+                                    {isActionable(item) && item.sender && (
                                         <button
-                                            onClick={() => handleMarkAsRead(item._id)}
-                                            className="flex items-center gap-2 bg-[#001E80] hover:bg-[#010D3E] text-white px-4 py-2 rounded-xl transition-all font-bold text-sm whitespace-nowrap"
+                                            onClick={() => navigate(`/u/${item.sender.username}`)}
+                                            className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-xl transition-all font-medium text-xs"
                                         >
-                                            <FaCheck /> Mark as Read
+                                            <FaUser /> View Profile
                                         </button>
                                     )}
+                                    {isActionable(item) && item.pitch && (
+                                        <button
+                                            onClick={() => {
+                                                setSelectedPitch(item.pitch);
+                                                setShowPitchModal(true);
+                                            }}
+                                            className="flex items-center gap-2 bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1.5 rounded-xl transition-all font-medium text-xs"
+                                        >
+                                            <FaEye /> View Pitch
+                                        </button>
+                                    )}
+                                    {item.message?.includes('|||PLAN:') && (
+                                        <button
+                                            onClick={() => {
+                                                const planId = item.message.split('|||PLAN:')[1].trim();
+                                                navigate(`/plan/${planId}`);
+                                            }}
+                                            className="flex items-center gap-2 bg-purple-100 hover:bg-purple-200 text-purple-700 px-3 py-1.5 rounded-xl transition-all font-medium text-xs"
+                                        >
+                                            <FaFileAlt /> View Plan
+                                        </button>
+                                    )}
+                                    {item.message?.includes('|||THREAD:') && (
+                                        <button
+                                            onClick={() => {
+                                                const threadId = item.message.split('|||THREAD:')[1];
+                                                navigate(`/resources/thread/${threadId}`);
+                                            }}
+                                            className="flex items-center gap-2 bg-[#EAEEFE] hover:bg-[#EAEEFE]/80 text-[#001E80] px-3 py-1.5 rounded-xl transition-all font-medium text-xs"
+                                        >
+                                            <FaChalkboardTeacher /> View Thread
+                                        </button>
+                                    )}
+
                                 </div>
+
+                                {/* Main Action Buttons */}
+                                {isActionable(item) ? (
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => handleAction(item._id, 'accepted')}
+                                            className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl transition-all font-bold text-sm"
+                                        >
+                                            <FaCheck /> Accept
+                                        </button>
+                                        <button
+                                            onClick={() => handleAction(item._id, 'rejected')}
+                                            className="flex items-center gap-2 bg-white border border-red-200 text-red-500 hover:bg-red-50 px-4 py-2 rounded-xl transition-all font-bold text-sm"
+                                        >
+                                            <FaTimes /> Reject
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <button
+                                        onClick={() => handleMarkAsRead(item._id)}
+                                        className="flex items-center gap-2 bg-[#001E80] hover:bg-[#010D3E] text-white px-4 py-2 rounded-xl transition-all font-bold text-sm whitespace-nowrap"
+                                    >
+                                        <FaCheck /> Mark as Read
+                                    </button>
+                                )}
                             </div>
                         </div>
-                    ))}
-                </div>
+                    </div>
+                ))}
+            </div>
             )}
 
             {/* Pitch Modal */}

@@ -144,13 +144,6 @@ export const CallToAction = () => {
             </div>
 
             {/* Primary CTA Button Row - Integrated inside the glass container */}
-            <div className="flex justify-center pb-12 pt-4">
-              <LiquidButton
-                to="/register"
-                text="Register for free"
-                className="shadow-xl"
-              />
-            </div>
           </div>
         </div>
       </div>

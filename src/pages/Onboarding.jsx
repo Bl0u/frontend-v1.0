@@ -92,6 +92,8 @@ const ProgressDots = ({ phase }) => (
         <div className={`progress-dot ${phase >= 2 ? 'active' : ''}`} />
         <div className={`progress-line ${phase >= 3 ? 'active' : ''}`} />
         <div className={`progress-dot ${phase >= 3 ? 'active' : ''}`} />
+        <div className={`progress-line ${phase >= 4 ? 'active' : ''}`} />
+        <div className={`progress-dot ${phase >= 4 ? 'active' : ''}`} />
     </div>
 );
 
@@ -104,6 +106,7 @@ const Onboarding = () => {
     const [formData, setFormData] = useState({
         username: '',
         name: '',
+        gender: '',
         major: '',
         academicLevel: '',
         university: '',
@@ -256,10 +259,46 @@ const Onboarding = () => {
                     </motion.div>
                 )}
 
-                {/* ═══ Phase 3: Use Cases ═══ */}
+                {/* ═══ Phase 3: Core Identity (Gender) ═══ */}
                 {phase === 3 && (
+                    <motion.div key="phase-3" className="onboarding-phase" variants={phaseVariants} initial="initial" animate="animate" exit="exit">
+                        <h2 className="onboarding-title" style={{ fontFamily: 'Zuume-Bold' }}>Core Identity</h2>
+                        <p className="onboarding-subtitle">How should we address you?</p>
+
+                        <div className="cards-grid cards-grid-2">
+                            <div
+                                className={`selection-card ${formData.gender === 'Male' ? 'selected' : ''}`}
+                                onClick={() => setFormData({ ...formData, gender: 'Male' })}
+                            >
+                                <div className="card-icon text-3xl">👨</div>
+                                <span className="card-label">Male</span>
+                                <div className="card-check"><FaCheck /></div>
+                            </div>
+
+                            <div
+                                className={`selection-card ${formData.gender === 'Female' ? 'selected' : ''}`}
+                                onClick={() => setFormData({ ...formData, gender: 'Female' })}
+                            >
+                                <div className="card-icon text-3xl">👩</div>
+                                <span className="card-label">Female</span>
+                                <div className="card-check"><FaCheck /></div>
+                            </div>
+                        </div>
+
+                        <button className="onboarding-btn" onClick={() => setPhase(4)} disabled={!formData.gender}>
+                            Continue <FaArrowRight />
+                        </button>
+
+                        <button className="onboarding-back" onClick={() => setPhase(2)}>
+                            <FaArrowLeft /> Back
+                        </button>
+                    </motion.div>
+                )}
+
+                {/* ═══ Phase 4: Use Cases ═══ */}
+                {phase === 4 && (
                     <motion.div
-                        key="phase-3"
+                        key="phase-4"
                         className="onboarding-phase"
                         variants={phaseVariants}
                         initial="initial"
@@ -296,7 +335,7 @@ const Onboarding = () => {
                             {isSubmitting ? 'Creating account...' : 'Finish'} {!isSubmitting && <FaArrowRight />}
                         </button>
 
-                        <button className="onboarding-back" onClick={() => setPhase(2)}>
+                        <button className="onboarding-back" onClick={() => setPhase(3)}>
                             <FaArrowLeft /> Back
                         </button>
                     </motion.div>

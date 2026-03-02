@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaGoogle, FaLinkedinIn, FaArrowRight, FaPen, FaEye, FaEyeSlash, FaCheck, FaTimes, FaSearch, FaArrowLeft } from 'react-icons/fa';
+import { FaGoogle, FaLinkedinIn, FaPen, FaEye, FaEyeSlash, FaCheck, FaTimes, FaArrowLeft } from 'react-icons/fa';
 import AuthContext from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import '../styles/Register.css';
