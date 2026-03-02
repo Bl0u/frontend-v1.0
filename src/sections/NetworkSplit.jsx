@@ -84,7 +84,13 @@ const NetworkSplit = () => {
                                 style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
                             >
                                 Feeling generous and wanna help other students? <br />
-                                <span className="text-[#001E80]">Here is the right place.</span>
+                                <span className="text-[#001E80]" style={{
+                                    fontFamily: 'Zuuma-Italic',
+                                    fontStyle: 'italic',
+                                    fontWeight: 300,
+                                    letterSpacing: '-1.5px',
+                                    textTransform: 'none'
+                                }}>Here is the right place.</span>
                             </h3>
                             <p className="text-[16px] text-[#010D3E]/80 tracking-tight font-medium max-w-lg">
                                 Here you can claim pro-bonos and help students with their project, and give back to the community.
@@ -113,7 +119,13 @@ const NetworkSplit = () => {
                                 style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
                             >
                                 Looking to help other students? <br />
-                                <span className="text-[#001E80]">You're in the right place.</span>
+                                <span className="text-[#001E80]" style={{
+                                    fontFamily: 'Zuuma-Italic',
+                                    fontStyle: 'italic',
+                                    fontWeight: 300,
+                                    letterSpacing: '-1.5px',
+                                    textTransform: 'none'
+                                }}>You're in the right place.</span>
                             </h3>
                             <p className="text-[16px] text-[#010D3E]/80 tracking-tight font-medium max-w-lg">
                                 Be your level's student lead and contact us.
