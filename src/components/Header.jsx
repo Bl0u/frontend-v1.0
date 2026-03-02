@@ -117,7 +117,7 @@ const Header = () => {
                 initial={{ y: -100, opacity: 0 }}
                 animate={{ y: isVisible ? 0 : -100, opacity: isVisible ? 1 : 0 }}
                 transition={{ duration: 0.6, ease: "easeOut" }}
-                className="w-full max-w-6xl rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] overflow-hidden"
+                className="w-full max-w-6xl rounded-[24px] border border-[#001E80]/10 bg-white/40 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,30,128,0.1)] transition-all duration-300"
             >
                 <div className="flex items-center justify-between px-6 py-4 md:px-12 md:py-4">
                     {/* Logo - Styled like Hero Hook */}
@@ -156,7 +156,7 @@ const Header = () => {
                                 <Link to="/requests" className="flex items-center text-slate-700 hover:text-black relative transition-colors duration-300">
                                     <FaInbox className="text-lg" />
                                     {unreadCount > 0 && (
-                                        <span className="absolute -top-2 -right-2 bg-[#ff4d6d] text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full animate-pulse">
+                                        <span className="absolute -top-2 -right-2 bg-[#001E80] text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full animate-pulse shadow-sm">
                                             {unreadCount > 9 ? '9+' : unreadCount}
                                         </span>
                                     )}
@@ -166,7 +166,7 @@ const Header = () => {
                                 <Link to="/chat" className="flex items-center text-slate-700 hover:text-black relative transition-colors duration-300">
                                     <FaCommentDots className="text-lg" />
                                     {chatUnreadCount > 0 && (
-                                        <span className="absolute -top-2 -right-2 bg-[#ff4d6d] text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full animate-pulse">
+                                        <span className="absolute -top-2 -right-2 bg-[#001E80] text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full animate-pulse shadow-sm">
                                             {chatUnreadCount > 9 ? '9+' : chatUnreadCount}
                                         </span>
                                     )}
@@ -181,7 +181,7 @@ const Header = () => {
                                 {/* Top Up */}
                                 <Link
                                     to="/top-up"
-                                    className="hidden md:block px-4 py-2 bg-[#ff4d6d] text-white text-sm font-bold rounded-lg hover:bg-[#c9184a] transition-all duration-300 shadow-sm"
+                                    className="hidden md:block px-6 py-2.5 bg-[#001E80] text-white text-sm font-bold rounded-xl hover:bg-[#010D3E] transition-all duration-300 shadow-lg shadow-[#001E80]/20 hover:scale-[1.02] active:scale-[0.98]"
                                 >
                                     Top Up
                                 </Link>
@@ -197,7 +197,7 @@ const Header = () => {
                                 {/* Account Switcher */}
                                 <div className="relative group">
                                     <button className="flex items-center gap-2 px-3 py-1.5 bg-black/5 rounded-full border border-black/5 hover:bg-black/10 transition-all duration-300">
-                                        <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-[#ff4d6d] to-[#ff8fa3] flex items-center justify-center text-[10px] text-white font-bold">
+                                        <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-[#001E80] to-[#60a5fa] flex items-center justify-center text-[10px] text-white font-bold shadow-sm">
                                             {user.username.charAt(0).toUpperCase()}
                                         </div>
                                         <span className="hidden lg:inline text-sm font-medium text-slate-700">{user.username}</span>
@@ -208,7 +208,7 @@ const Header = () => {
                                         <div className="px-4 py-2 border-b border-black/5 mb-2">
                                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Active Account</p>
                                             <div className="flex items-center gap-3 mt-1">
-                                                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#ff4d6d] to-[#ff8fa3] flex items-center justify-center text-xs text-white font-bold">
+                                                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#001E80] to-[#60a5fa] flex items-center justify-center text-xs text-white font-bold shadow-md">
                                                     {user.username.charAt(0).toUpperCase()}
                                                 </div>
                                                 <div className="overflow-hidden">
@@ -324,7 +324,7 @@ const Header = () => {
                                             <Link
                                                 to="/top-up"
                                                 onClick={() => setIsMenuOpen(false)}
-                                                className="px-4 py-2 bg-[#ff4d6d] text-white text-xs font-bold rounded-lg"
+                                                className="px-6 py-2 bg-[#001E80] text-white text-xs font-bold rounded-lg shadow-md transition-all active:scale-95"
                                             >
                                                 Top Up
                                             </Link>
@@ -338,7 +338,7 @@ const Header = () => {
                                         </Link>
                                         <button
                                             onClick={() => { onLogout(); setIsMenuOpen(false); }}
-                                            className="text-left text-[#ff4d6d] font-medium text-sm"
+                                            className="text-left text-[#001E80] font-bold text-sm hover:translate-x-1 transition-transform"
                                         >
                                             Logout
                                         </button>
