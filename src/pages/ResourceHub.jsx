@@ -5,8 +5,9 @@ import AuthContext from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import {
     FaSearch, FaChevronRight, FaFilter,
-    FaBook, FaUsers, FaGraduationCap, FaBuilding, FaChalkboardTeacher, FaBookOpen, FaPenNib
+    FaBook, FaUsers, FaGraduationCap, FaBuilding, FaChalkboardTeacher, FaBookOpen, FaPenNib, FaRobot
 } from 'react-icons/fa';
+import AIChatBot from '../components/AIChatBot';
 
 // Fixed Lists for Suggestions to control naming conventions
 const SUGGESTION_LISTS = {
@@ -157,6 +158,16 @@ const ResourceHub = () => {
         // Strip (ACRONYM) from display name for the filter pill text
         const cleanName = uniName.replace(/ \(.*?\)/g, '');
         handleApplyFilter('University', cleanName);
+    };
+
+    const handleAIApplyFilters = (aiFilters) => {
+        const newFilters = { ...activeFilters };
+        if (aiFilters.university) newFilters.University = aiFilters.university;
+        if (aiFilters.subject) newFilters.Subject = aiFilters.subject;
+        if (aiFilters.professor) newFilters.Professor = aiFilters.professor;
+        if (aiFilters.company) newFilters.Company = aiFilters.company;
+        setActiveFilters(newFilters);
+        toast.info('AI Recommendations Applied');
     };
 
     // View Mode: Grid for default universities, otherwise Table.
@@ -679,6 +690,9 @@ const ResourceHub = () => {
                     </div>
                 </div>
             )}
+
+            {/* AI Assistant */}
+            <AIChatBot onApplyFilters={handleAIApplyFilters} userToken={user?.token} />
         </div>
     );
 };
