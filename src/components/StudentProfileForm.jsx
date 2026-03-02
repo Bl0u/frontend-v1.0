@@ -16,6 +16,33 @@ const TOPICS = [
     { id: 'style', label: 'Style', icon: '⚡' }
 ];
 
+const PREDEFINED_TOPICS = [
+    // Tech & Dev
+    'Web Development', 'Mobile Development', 'AI & Machine Learning', 'Data Science',
+    'Cybersecurity', 'Cloud Computing', 'Embedded Systems', 'Game Development',
+    'DevOps', 'UI/UX Design', 'Software Architecture', 'Blockchain',
+    // Academic Subjects
+    'Calculus', 'Linear Algebra', 'Discrete Math', 'Physics', 'Probability & Statistics',
+    'Data Structures', 'Algorithms', 'Operating Systems', 'Networking', 'Databases',
+    'Logic Design', 'Computer Vision', 'NLP', 'HCI',
+    // Milestones & Prep
+    'Graduation Project', 'Senior Design', 'Internship Prep', 'Interview Prep',
+    'Competitive Programming', 'Research Paper', 'Open Source', 'Building MVP'
+];
+
+const PREDEFINED_SKILLS = [
+    'React', 'Node.js', 'Python', 'Java', 'C++', 'C#', 'SQL', 'MongoDB',
+    'AWS', 'Docker', 'Git', 'Figma', 'TensorFlow', 'PyTorch', 'Unity', 'Flutter'
+];
+
+const PREDEFINED_LANGUAGES = [
+    'Arabic', 'English', 'French', 'German', 'Spanish', 'Italian', 'Turkish', 'Chinese', 'Japanese'
+];
+
+const PREDEFINED_TOOLS = [
+    'Zoom', 'Microsoft Teams', 'Discord', 'Google Meet', 'Slack', 'WhatsApp', 'Telegram', 'Trello', 'Notion', 'Github'
+];
+
 
 const StudentProfileForm = ({ user, initialData, refreshProfile, refreshUser }) => {
     const [activeTopic, setActiveTopic] = useState('core');
@@ -265,7 +292,12 @@ const StudentProfileForm = ({ user, initialData, refreshProfile, refreshUser }) 
                 </div>
                 <div className="md:col-span-2">
                     <label className={labelClass}>Topics / Tags (Required) *</label>
-                    <TagInput tags={formData.topics} setTags={setTopics} placeholder="Add topics (e.g. Web Dev, Calculus, AI)..." />
+                    <TagInput
+                        tags={formData.topics}
+                        setTags={setTopics}
+                        suggestions={PREDEFINED_TOPICS}
+                        placeholder="Search or add topics..."
+                    />
                 </div>
                 <div className="md:col-span-2">
                     <label className={labelClass}>What do you need from a partner?</label>
@@ -285,7 +317,12 @@ const StudentProfileForm = ({ user, initialData, refreshProfile, refreshUser }) 
                 </div>
                 <div>
                     <label className={labelClass}>Languages *</label>
-                    <TagInput tags={formData.languages} setTags={setLanguages} placeholder="English, Arabic, etc." />
+                    <TagInput
+                        tags={formData.languages}
+                        setTags={setLanguages}
+                        suggestions={PREDEFINED_LANGUAGES}
+                        placeholder="English, Arabic, etc."
+                    />
                 </div>
                 <div>
                     <label className={labelClass}>Study Mode *</label>
@@ -298,7 +335,12 @@ const StudentProfileForm = ({ user, initialData, refreshProfile, refreshUser }) 
                 </div>
                 <div>
                     <label className={labelClass}>Preferred Communication Tools</label>
-                    <TagInput tags={formData.preferredTools} setTags={setPreferredTools} placeholder="Zoom, Discord, Slack..." />
+                    <TagInput
+                        tags={formData.preferredTools}
+                        setTags={setPreferredTools}
+                        suggestions={PREDEFINED_TOOLS}
+                        placeholder="Zoom, Discord, Slack..."
+                    />
                 </div>
             </div>
         </div>
