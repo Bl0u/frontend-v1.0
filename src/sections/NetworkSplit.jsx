@@ -1,6 +1,9 @@
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
 import { FaChalkboardTeacher, FaGraduationCap, FaArrowRight } from 'react-icons/fa';
+import { useState, useContext } from 'react';
+import AuthContext from '../context/AuthContext';
+import RecruitmentModal from '../components/RecruitmentModal';
+import { toast } from 'react-toastify';
 
 const NetworkBadge = ({ icon, text, delay = 0 }) => (
     <motion.div
@@ -39,6 +42,19 @@ const FeaturePoint = ({ text }) => (
 );
 
 const NetworkSplit = () => {
+    const { user } = useContext(AuthContext);
+    const [isMentorModalOpen, setIsMentorModalOpen] = useState(false);
+    const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
+
+    const handleApply = (type) => {
+        if (!user) {
+            toast.error('Please login to apply');
+            return;
+        }
+        if (type === 'mentor') setIsMentorModalOpen(true);
+        else setIsStudentModalOpen(true);
+    };
+
     return (
         <section className="relative py-20 bg-[#F3F3F5] overflow-hidden">
             {/* Blending "Trick" Gradients */}
@@ -64,6 +80,29 @@ const NetworkSplit = () => {
             </div>
 
             <div className="max-w-7xl mx-auto px-8 lg:px-16 relative z-10">
+                {/* Row 1: Unified Hook */}
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="text-center mb-16 lg:mb-24 max-w-4xl mx-auto"
+                >
+                    <h3
+                        className="text-4xl md:text-5xl lg:text-7xl font-black text-[#010D3E] leading-[1.1] uppercase Zuume-Bold"
+                        style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
+                    >
+                        Looking to help other students? <br />
+                        <span className="text-[#001E80]" style={{
+                            fontFamily: 'Zuuma-Italic',
+                            fontStyle: 'italic',
+                            fontWeight: 300,
+                            letterSpacing: '-1.5px',
+                            textTransform: 'none'
+                        }}>You're in the right place.</span>
+                    </h3>
+                </motion.div>
+
+                {/* Row 2: Recruitment Details */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24 items-start relative">
 
                     {/* Central Vertical Divider */}
@@ -76,25 +115,20 @@ const NetworkSplit = () => {
                         viewport={{ once: true }}
                         className="space-y-8"
                     >
-                        <NetworkBadge icon={<FaChalkboardTeacher size={14} />} text="Expert Mentors" delay={0.1} />
+                        <div className="space-y-6">
+                            <NetworkBadge icon={<FaChalkboardTeacher size={14} />} text="Expert Mentors" delay={0.1} />
 
-                        <div className="space-y-4">
-                            <h3
-                                className="text-3xl md:text-5xl font-black text-[#010D3E] leading-[1.1] uppercase Zuume-Bold"
-                                style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
-                            >
-                                Feeling generous and wanna help other students? <br />
-                                <span className="text-[#001E80]" style={{
-                                    fontFamily: 'Zuuma-Italic',
-                                    fontStyle: 'italic',
-                                    fontWeight: 300,
-                                    letterSpacing: '-1.5px',
-                                    textTransform: 'none'
-                                }}>Here is the right place.</span>
-                            </h3>
-                            <p className="text-[16px] text-[#010D3E]/80 tracking-tight font-medium max-w-lg">
-                                Here you can claim pro-bonos and help students with their project, and give back to the community.
-                            </p>
+                            <div className="space-y-4">
+                                <h4
+                                    className="text-2xl md:text-3xl font-black text-[#010D3E] uppercase Zuume-Bold"
+                                    style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
+                                >
+                                    Claim Pro-Bonos
+                                </h4>
+                                <p className="text-[16px] text-[#010D3E]/80 tracking-tight font-medium max-w-lg leading-relaxed">
+                                    Help students with their graduation projects, share your industry expertise, and give back to the community.
+                                </p>
+                            </div>
                         </div>
 
                         <ul className="space-y-4">
@@ -111,25 +145,20 @@ const NetworkSplit = () => {
                         viewport={{ once: true }}
                         className="space-y-8 flex flex-col items-start"
                     >
-                        <NetworkBadge icon={<FaGraduationCap size={14} />} text="Hub Association" delay={0.2} />
+                        <div className="space-y-6">
+                            <NetworkBadge icon={<FaGraduationCap size={14} />} text="Hub Association" delay={0.2} />
 
-                        <div className="space-y-4">
-                            <h3
-                                className="text-3xl md:text-5xl font-black text-[#010D3E] leading-[1.1] uppercase Zuume-Bold"
-                                style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
-                            >
-                                Looking to help other students? <br />
-                                <span className="text-[#001E80]" style={{
-                                    fontFamily: 'Zuuma-Italic',
-                                    fontStyle: 'italic',
-                                    fontWeight: 300,
-                                    letterSpacing: '-1.5px',
-                                    textTransform: 'none'
-                                }}>You're in the right place.</span>
-                            </h3>
-                            <p className="text-[16px] text-[#010D3E]/80 tracking-tight font-medium max-w-lg">
-                                Be your level's student lead and contact us.
-                            </p>
+                            <div className="space-y-4">
+                                <h4
+                                    className="text-2xl md:text-3xl font-black text-[#010D3E] uppercase Zuume-Bold"
+                                    style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
+                                >
+                                    Become a Student Lead
+                                </h4>
+                                <p className="text-[16px] text-[#010D3E]/80 tracking-tight font-medium max-w-lg leading-relaxed">
+                                    Represent your level in the Hub network, coordinate resources for your peers, and lead your faculty.
+                                </p>
+                            </div>
                         </div>
 
                         <ul className="space-y-4">
@@ -147,15 +176,15 @@ const NetworkSplit = () => {
                     viewport={{ once: true }}
                     className="mt-16 flex flex-wrap justify-center gap-6"
                 >
-                    <Link
-                        to="/work-with-us"
+                    <button
+                        onClick={() => handleApply('mentor')}
                         className="inline-flex items-center gap-3 px-8 py-4 bg-[#001E80] text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-[#001E80]/20 hover:scale-105 transition-all group"
                     >
                         Become a Mentor <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
-                    </Link>
+                    </button>
 
-                    <Link
-                        to="/work-with-us"
+                    <button
+                        onClick={() => handleApply('student_lead')}
                         className="inline-flex items-center gap-3 px-8 py-4 bg-white border border-[#001E80]/10 text-[#001E80] rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-black/5 hover:scale-105 transition-all group"
                     >
                         <span className="flex items-center gap-2">
@@ -167,8 +196,22 @@ const NetworkSplit = () => {
                             Fill Information
                         </span>
                         <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
-                    </Link>
+                    </button>
                 </motion.div>
+
+                {/* Modals */}
+                <RecruitmentModal
+                    isOpen={isMentorModalOpen}
+                    onClose={() => setIsMentorModalOpen(false)}
+                    user={user}
+                    type="mentor"
+                />
+                <RecruitmentModal
+                    isOpen={isStudentModalOpen}
+                    onClose={() => setIsStudentModalOpen(false)}
+                    user={user}
+                    type="student_lead"
+                />
             </div>
 
             {/* Subtle SVG Background Pattern */}
