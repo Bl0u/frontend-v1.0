@@ -245,7 +245,6 @@ const DashboardRequests = () => {
                     </div>
                 ))}
             </div>
-            )}
 
             {/* Pitch Modal */}
             {showPitchModal && selectedPitch && (

@@ -88,7 +88,7 @@ export const CallToAction = () => {
         {/* Header Section - Tighter Gap */}
         <div className="flex flex-col items-center mb-8 md:mb-10">
           <h2
-            className="text-4xl md:text-5xl lg:text-[48px] font-bold tracking-tight bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text leading-tight uppercase text-center"
+            className="text-4xl md:text-5xl lg:text-[72px] font-bold tracking-tight bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text leading-tight uppercase text-center"
             style={{ fontFamily: "Zuume-Bold", letterSpacing: "0.2px" }}
           >
             Ready to find your success?
