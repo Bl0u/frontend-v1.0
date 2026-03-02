@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { API_BASE_URL } from '../config';
+import { FaChevronDown, FaSearch } from 'react-icons/fa';
 
 import TagInput from './TagInput';
 import SocialLinksManager from './SocialLinksManager';
+import SearchableDropdown from './SearchableDropdown';
 
 const TOPICS = [
     { id: 'core', label: 'Core Identity', icon: '👤' },
@@ -14,17 +16,20 @@ const TOPICS = [
     { id: 'style', label: 'Style', icon: '⚡' }
 ];
 
+
 const StudentProfileForm = ({ user, initialData, refreshProfile, refreshUser }) => {
     const [activeTopic, setActiveTopic] = useState('core');
     const [formData, setFormData] = useState({
         // 1️⃣ Core Identity
         name: '',
         username: '',
+        gender: '',
         major: '',
         academicLevel: '',
         university: '',
         bio: '',
         socialLinks: [],
+        isPrivate: false,
         // 2️⃣ Partner Needs
         partnerType: '',
         matchingGoal: '',
@@ -58,6 +63,8 @@ const StudentProfileForm = ({ user, initialData, refreshProfile, refreshUser }) 
             setFormData({
                 name: initialData.name || '',
                 username: initialData.username || '',
+                gender: initialData.gender || '',
+                isPrivate: initialData.isPrivate || false,
                 major: initialData.major || '',
                 academicLevel: initialData.academicLevel || '',
                 university: initialData.university || '',
@@ -161,8 +168,19 @@ const StudentProfileForm = ({ user, initialData, refreshProfile, refreshUser }) 
                     <input type="text" name="username" value={formData.username} onChange={onChange} className={`${inputClass} bg-gray-100 cursor-not-allowed`} readOnly />
                 </div>
                 <div>
-                    <label className={labelClass}>Major / Field *</label>
-                    <input type="text" name="major" value={formData.major} onChange={onChange} placeholder="e.g. Computer Science" className={inputClass} required />
+                    <label className={labelClass}>Gender *</label>
+                    <div className="flex gap-4">
+                        {['Male', 'Female'].map(g => (
+                            <button
+                                key={g}
+                                type="button"
+                                onClick={() => setFormData(prev => ({ ...prev, gender: g }))}
+                                className={`flex-1 py-3 rounded-2xl font-bold text-xs uppercase tracking-widest border transition-all ${formData.gender === g ? 'bg-[#001E80] text-white border-[#001E80]' : 'bg-white text-gray-400 border-gray-100 hover:border-[#001E80]/20'}`}
+                            >
+                                {g}
+                            </button>
+                        ))}
+                    </div>
                 </div>
                 <div>
                     <label className={labelClass}>Academic Level *</label>
@@ -174,6 +192,10 @@ const StudentProfileForm = ({ user, initialData, refreshProfile, refreshUser }) 
                         <option value="Level 4">Level 4</option>
                         <option value="Graduated">Graduated</option>
                     </select>
+                </div>
+                <div className="md:col-span-2">
+                    <label className={labelClass}>Major / Field *</label>
+                    <input type="text" name="major" value={formData.major} onChange={onChange} placeholder="e.g. Computer Science" className={inputClass} required />
                 </div>
                 <div className="md:col-span-2">
                     <label className={labelClass}>University / Faculty *</label>
@@ -188,6 +210,21 @@ const StudentProfileForm = ({ user, initialData, refreshProfile, refreshUser }) 
                     <label className={labelClass}>Social / Professional Links</label>
                     <SocialLinksManager links={formData.socialLinks} onChange={setSocialLinks} />
                 </div>
+                <div className="md:col-span-2 p-5 bg-blue-50/30 rounded-3xl border border-blue-50">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h5 className="font-bold text-[#001E80] text-sm">Private Profile</h5>
+                            <p className="text-xs text-gray-500 mt-0.5">Hide your profile from public view and direct links.</p>
+                        </div>
+                        <input
+                            type="checkbox"
+                            name="isPrivate"
+                            checked={formData.isPrivate}
+                            onChange={onChange}
+                            className="w-10 h-5 accent-[#001E80] cursor-pointer"
+                        />
+                    </div>
+                </div>
             </div>
         </div>
     );
@@ -201,12 +238,30 @@ const StudentProfileForm = ({ user, initialData, refreshProfile, refreshUser }) 
                     <select name="partnerType" value={formData.partnerType} onChange={onChange} className={inputClass} required>
                         <option value="">Select Type</option>
                         <option value="peer">Peer (Study Together)</option>
-                        <option value="project teammate">Project Teammate</option>
+                        <option value="project teammate">Project Teammate (responsibility based)</option>
                     </select>
                 </div>
                 <div>
-                    <label className={labelClass}>Primary Goal *</label>
-                    <input type="text" name="matchingGoal" value={formData.matchingGoal} onChange={onChange} placeholder="e.g. Finish Senior Project" className={inputClass} required />
+                    <SearchableDropdown
+                        label="Primary Goal"
+                        value={formData.matchingGoal}
+                        onChange={onChange}
+                        options={[
+                            "Finish Senior Project",
+                            "Prepare for Midterms",
+                            "Solve Earlier Exams",
+                            "Master a Specific Subject (DSA, AI, etc.)",
+                            "Improve GPA",
+                            "Collaboration on Research",
+                            "Peer Reviewing Assignments",
+                            "Prepare for Competitions",
+                            "Building a Portfolio",
+                            "Learning a New Tool/Stack"
+                        ]}
+                        placeholder="Search or choose a goal..."
+                        name="matchingGoal"
+                        required
+                    />
                 </div>
                 <div className="md:col-span-2">
                     <label className={labelClass}>Topics / Tags (Required) *</label>
@@ -330,6 +385,27 @@ const StudentProfileForm = ({ user, initialData, refreshProfile, refreshUser }) 
 
     return (
         <form onSubmit={onSubmit} className="space-y-8">
+            {/* Top Controls - Repositioned Focused Search Toggle */}
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-6 border-b border-gray-100 mb-2">
+                <div className="flex items-center gap-4 bg-[#EAEEFE]/30 px-6 py-4 rounded-3xl border border-[#001E80]/10 flex-grow md:flex-grow-0">
+                    <div className="p-2.5 bg-white rounded-xl shadow-sm text-[#001E80]">
+                        <span className="text-xl">🤝</span>
+                    </div>
+                    <div>
+                        <div className="flex items-center gap-3">
+                            <input type="checkbox" name="lookingForPartner" checked={formData.lookingForPartner} onChange={onChange} className="w-5 h-5 accent-[#001E80] rounded" id="lookingForPartner" />
+                            <label htmlFor="lookingForPartner" className="text-[#001E80] font-black text-sm uppercase tracking-widest cursor-pointer">Actively seeking a partner</label>
+                        </div>
+                        <p className="text-[10px] text-[#001E80]/50 font-medium mt-1 uppercase tracking-tight">Enable this to appear in the community partner pool</p>
+                    </div>
+                </div>
+
+                <div className="hidden lg:flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">System Status: Mission Ready</span>
+                </div>
+            </div>
+
             {/* Topic Navigation */}
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
                 {TOPICS.map((topic) => (
@@ -349,18 +425,14 @@ const StudentProfileForm = ({ user, initialData, refreshProfile, refreshUser }) 
             </div>
 
             {/* Sub-form Content */}
-            <div className="bg-gray-50/50 p-6 md:p-8 rounded-3xl border border-gray-100 min-h-[400px]">
+            <div className="bg-gray-50/50 p-6 md:p-8 rounded-[40px] border border-gray-100 min-h-[400px]">
                 {renderActiveSubForm()}
             </div>
 
             {/* Bottom Controls */}
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-6 mt-2 border-t border-gray-100">
-                <div className="flex items-center gap-3">
-                    <input type="checkbox" name="lookingForPartner" checked={formData.lookingForPartner} onChange={onChange} className="w-5 h-5 accent-[#001E80] rounded" id="lookingForPartner" />
-                    <label htmlFor="lookingForPartner" className="text-[#001E80] font-bold text-sm">Actively seeking a partner</label>
-                </div>
-                <button type="submit" className="w-full md:w-auto bg-[#001E80] hover:bg-[#001E80]/85 text-white font-black text-xs uppercase tracking-[0.15em] py-4 px-12 rounded-2xl transition-all shadow-lg shadow-[#001E80]/10 active:scale-[0.98]">
-                    Save Changes
+            <div className="flex justify-end pt-6 mt-2 border-t border-gray-100">
+                <button type="submit" className="w-full md:w-auto bg-[#001E80] hover:bg-[#001E80]/85 text-white font-black text-xs uppercase tracking-[0.15em] py-5 px-16 rounded-[2rem] transition-all shadow-xl shadow-[#001E80]/20 active:scale-[0.98]">
+                    Optimize Profile
                 </button>
             </div>
         </form>

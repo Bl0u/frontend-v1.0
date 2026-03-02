@@ -8,6 +8,8 @@ import {
     FaBook, FaUsers, FaGraduationCap, FaBuilding, FaChalkboardTeacher, FaBookOpen, FaPenNib, FaRobot
 } from 'react-icons/fa';
 import AIChatBot from '../components/AIChatBot';
+import { FilterBar } from '../components/FilterBar';
+import SearchableDropdown from '../components/SearchableDropdown';
 
 // Fixed Lists for Suggestions to control naming conventions
 const SUGGESTION_LISTS = {
@@ -21,10 +23,16 @@ const SUGGESTION_LISTS = {
         'Dr. John Doe', 'Dr. Ahmed', 'Dr. Hesham', 'Dr. Sarah', 'Dr. Ibrahim'
     ],
     Subject: [
-        'DSA', 'Algorithms', 'Software Engineering', 'Databases', 'Computer Vision', 'Machine Learning', 'AI'
+        'DSA', 'Algorithms', 'OS', 'Networking', 'Databases', 'Software Engineering', 'AI', 'ML', 'Computer Vision', 'Cybersecurity',
+        'Web Development', 'Cloud Computing', 'Embedded Systems', 'HCI', 'Discrete Math', 'Logic Design', 'Parallel Processing'
     ],
     Company: [
-        'Google', 'Microsoft', 'Amazon', 'Meta', 'Apple', 'Instabug', 'Valeo', 'Vodafone'
+        'Google', 'Microsoft', 'Amazon', 'Meta', 'Apple', 'Instabug', 'Valeo', 'Vodafone', 'IBM', 'Intel'
+    ],
+    Position: [
+        'Frontend Engineer', 'Backend Engineer', 'Fullstack Engineer', 'Mobile Developer', 'DevOps Engineer',
+        'Data Scientist', 'ML Engineer', 'Cybersecurity Analyst', 'UI/UX Designer', 'Product Manager',
+        'QA Engineer', 'Embedded Systems Engineer', 'Solution Architect'
     ]
 };
 
@@ -79,6 +87,7 @@ const ResourceHub = () => {
         if (type === 'Professor') return `Prof${cleanVal}`;
         if (type === 'Subject') return `Subj${cleanVal}`;
         if (type === 'Company') return `Comp${cleanVal}`;
+        if (type === 'Position') return cleanVal; // Positions are searched directly as tags (e.g. #FrontendEngineer)
         return cleanVal;
     };
 
@@ -141,6 +150,7 @@ const ResourceHub = () => {
         const subjParam = searchParams.get('subject');
         const profParam = searchParams.get('professor');
         const compParam = searchParams.get('company');
+        const posParam = searchParams.get('position');
 
         const newFilters = {};
 
@@ -152,6 +162,7 @@ const ResourceHub = () => {
         if (subjParam) newFilters.Subject = subjParam;
         if (profParam) newFilters.Professor = profParam;
         if (compParam) newFilters.Company = compParam;
+        if (posParam) newFilters.Position = posParam;
 
         if (Object.keys(newFilters).length > 0) {
             setActiveFilters(newFilters);
@@ -189,6 +200,7 @@ const ResourceHub = () => {
         if (aiFilters.subject) newFilters.Subject = aiFilters.subject;
         if (aiFilters.professor) newFilters.Professor = aiFilters.professor;
         if (aiFilters.company) newFilters.Company = aiFilters.company;
+        if (aiFilters.position) newFilters.Position = aiFilters.position;
         setActiveFilters(newFilters);
         toast.info('AI Recommendations Applied');
     };
@@ -197,28 +209,12 @@ const ResourceHub = () => {
     const viewMode = (!searchTerm && Object.keys(activeFilters).length === 0) ? 'grid' : 'table';
 
     // Get dynamically filtered options based on db tags
-    const getDropdownOptions = (type) => {
-        if (!uniqueTags || uniqueTags.length === 0) return [];
-        if (type === 'University') {
-            const uniRawNames = SUGGESTION_LISTS.University;
-            return uniRawNames.filter(u => uniqueTags.includes(`#${u.replace(/\s+/g, '')}`));
-        }
-        if (type === 'Professor') {
-            return uniqueTags
-                .filter(t => t.startsWith('#Prof'))
-                .map(t => t.replace('#Prof', ''));
-        }
-        if (type === 'Subject') {
-            return uniqueTags
-                .filter(t => t.startsWith('#Subj'))
-                .map(t => t.replace('#Subj', ''));
-        }
-        if (type === 'Company') {
-            return uniqueTags
-                .filter(t => t.startsWith('#Comp'))
-                .map(t => t.replace('#Comp', ''));
-        }
-        return [];
+    const dynamicSuggestions = {
+        University: SUGGESTION_LISTS.University.filter(u => uniqueTags.includes(`#${u.replace(/\s+/g, '')}`)),
+        Professor: uniqueTags.filter(t => t.startsWith('#Prof')).map(t => t.replace('#Prof', '')),
+        Subject: uniqueTags.filter(t => t.startsWith('#Subj')).map(t => t.replace('#Subj', '')),
+        Company: uniqueTags.filter(t => t.startsWith('#Comp')).map(t => t.replace('#Comp', '')),
+        Position: uniqueTags.filter(t => !t.startsWith('#Subj') && !t.startsWith('#Comp') && !t.startsWith('#Prof') && t.startsWith('#') && t !== '#Interview').map(t => t.replace('#', ''))
     };
 
     // Thread Creation
@@ -296,17 +292,14 @@ const ResourceHub = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {createData.category === 'college' && (
                             <>
-                                <div className="space-y-1">
-                                    <label className="text-[10px] font-black text-[#001E80] uppercase ml-2">University</label>
-                                    <select
-                                        className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:ring-2 focus:ring-[#001E80]/20 focus:border-[#001E80] transition-all cursor-pointer"
-                                        value={createData.university}
-                                        onChange={(e) => setCreateData({ ...createData, university: e.target.value })}
-                                    >
-                                        <option value="">Select University</option>
-                                        {SUGGESTION_LISTS.University.map(u => <option key={u} value={u}>{u}</option>)}
-                                    </select>
-                                </div>
+                                <SearchableDropdown
+                                    label="University"
+                                    value={createData.university}
+                                    onChange={(e) => setCreateData({ ...createData, university: e.target.value })}
+                                    options={SUGGESTION_LISTS.University}
+                                    placeholder="Select University"
+                                    name="university"
+                                />
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-black text-[#001E80] uppercase ml-2">Professor</label>
                                     <input
@@ -317,12 +310,13 @@ const ResourceHub = () => {
                                     />
                                 </div>
                                 <div className="space-y-1 md:col-span-2">
-                                    <label className="text-[10px] font-black text-[#001E80] uppercase ml-2">Subject</label>
-                                    <input
-                                        className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:ring-2 focus:ring-[#001E80]/20 focus:border-[#001E80] transition-all"
-                                        placeholder="Subject Name (e.g. Data Structures)"
+                                    <SearchableDropdown
+                                        label="Subject"
                                         value={createData.subject}
                                         onChange={(e) => setCreateData({ ...createData, subject: e.target.value })}
+                                        options={SUGGESTION_LISTS.Subject}
+                                        placeholder="Subject Name (e.g. Data Structures)"
+                                        name="subject"
                                     />
                                 </div>
                             </>
@@ -339,15 +333,14 @@ const ResourceHub = () => {
                                         onChange={(e) => setCreateData({ ...createData, company: e.target.value })}
                                     />
                                 </div>
-                                <div className="space-y-1">
-                                    <label className="text-[10px] font-black text-[#001E80] uppercase ml-2">Position</label>
-                                    <input
-                                        className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:ring-2 focus:ring-[#001E80]/20 focus:border-[#001E80] transition-all"
-                                        placeholder="Software Engineer"
-                                        value={createData.position}
-                                        onChange={(e) => setCreateData({ ...createData, position: e.target.value })}
-                                    />
-                                </div>
+                                <SearchableDropdown
+                                    label="Position"
+                                    value={createData.position}
+                                    onChange={(e) => setCreateData({ ...createData, position: e.target.value })}
+                                    options={SUGGESTION_LISTS.Position}
+                                    placeholder="Software Engineer"
+                                    name="position"
+                                />
                             </>
                         )}
                     </div>
@@ -477,71 +470,12 @@ const ResourceHub = () => {
                 </div>
             </div>
 
-            {/* LinkedIn-Style Filter Bar (Multi-Select) */}
-            <div className="flex flex-wrap items-center gap-3 pb-4 border-b border-gray-100" ref={filterContainerRef}>
-                <div className="flex items-center gap-2 text-[#001E80]/40 font-black text-[10px] uppercase tracking-widest mr-2 shrink-0">
-                    <FaFilter /> Filters:
-                </div>
+            <FilterBar
+                activeFilters={activeFilters}
+                onFilterChange={setActiveFilters}
+                suggestionLists={dynamicSuggestions}
+            />
 
-                {/* Available Filter Buttons */}
-                {FILTER_TYPES.map(filter => {
-                    // Hide the button if this filter type is already active
-                    if (activeFilters[filter.id]) return null;
-
-                    return (
-                        <div key={filter.id} className="relative shrink-0">
-                            <button
-                                onClick={() => {
-                                    setActiveFilterType(activeFilterType === filter.id ? null : filter.id);
-                                }}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-full border text-[11px] font-bold uppercase tracking-widest transition-all ${activeFilterType === filter.id
-                                    ? 'bg-[#EAEEFE] border-[#001E80]/20 text-[#001E80]'
-                                    : 'bg-white border-gray-100 text-gray-500 hover:bg-gray-50'
-                                    }`}
-                            >
-                                <filter.icon size={12} /> {filter.id}
-                            </button>
-
-                            {/* Input / Suggestion Dropdown */}
-                            {activeFilterType === filter.id && (
-                                <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-gray-100 shadow-xl rounded-xl z-20 animate-in slide-in-from-top-2 duration-200">
-                                    <div className="max-h-48 overflow-y-auto p-1">
-                                        {getDropdownOptions(filter.id).length > 0 ? (
-                                            getDropdownOptions(filter.id).map(option => (
-                                                <button
-                                                    key={option}
-                                                    onClick={() => handleApplyFilter(filter.id, option)}
-                                                    className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-[#EAEEFE] hover:text-[#001E80] rounded-lg font-medium transition-colors"
-                                                >
-                                                    {option}
-                                                </button>
-                                            ))
-                                        ) : (
-                                            <p className="text-xs text-center py-3 text-gray-400 font-medium">No active threads for this category.</p>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    );
-                })}
-
-                {/* Active Filter Pills */}
-                {Object.entries(activeFilters).map(([type, value]) => (
-                    <div key={type} className="flex items-center gap-2 shrink-0 animate-in zoom-in-95 duration-200">
-                        <span className="px-4 py-2 bg-[#EAEEFE] border border-[#001E80]/10 text-[#001E80] rounded-l-full text-[11px] font-bold shadow-sm whitespace-nowrap">
-                            <span className="opacity-60 font-black uppercase tracking-widest text-[9px] mr-1">{type}:</span> {value}
-                        </span>
-                        <button
-                            onClick={() => removeFilter(type)}
-                            className="bg-white border border-gray-100 hover:bg-red-50 hover:border-red-100 text-gray-400 hover:text-red-500 h-full px-3 py-2 -ml-2 rounded-r-full flex items-center justify-center transition-colors shadow-sm"
-                            title={`Remove ${type} filter`}
-                        >
-                            ✕
-                        </button>
-                    </div>
-                ))}
-            </div>
 
             {/* Body: Grid vs Table */}
             {loading ? (

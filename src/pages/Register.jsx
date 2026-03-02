@@ -38,9 +38,6 @@ const FloatingMessageBox = () => {
 
     return (
         <div className="floating-msg-box">
-            <div className="msg-icon">
-                <FaSearch />
-            </div>
             <div className="floating-msg-text-wrapper">
                 <AnimatePresence mode="wait">
                     <motion.span
@@ -55,9 +52,6 @@ const FloatingMessageBox = () => {
                     </motion.span>
                 </AnimatePresence>
                 <span className="typing-cursor" />
-            </div>
-            <div className="msg-send">
-                <FaArrowRight />
             </div>
         </div>
     );

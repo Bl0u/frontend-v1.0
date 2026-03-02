@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 import requestService from '../features/requests/requestService';
 import { toast } from 'react-toastify';
-import { FaRocket, FaHandHoldingHeart, FaUserGraduate, FaChevronDown, FaCheckCircle, FaPlus } from 'react-icons/fa';
+import { FaRocket, FaHandHoldingHeart, FaUserGraduate, FaChevronDown, FaCheckCircle, FaPlus, FaUserFriends } from 'react-icons/fa';
 
 const PitchHub = () => {
     const [pitches, setPitches] = useState([]);
@@ -28,15 +28,15 @@ const PitchHub = () => {
         fetchPitches();
     }, []);
 
-    const handleClaim = async (pitchId) => {
+    const handleClaim = async (pitchId, role = 'teammate') => {
         if (!currentUser) {
             toast.error('Please login to claim a project pitch.');
             return;
         }
 
         try {
-            await requestService.claimPublicPitch(pitchId, currentUser.token);
-            toast.success('Successfully claimed! The sender has been notified.');
+            await requestService.claimPublicPitch(pitchId, currentUser.token, role);
+            toast.success(`Successfully joined as ${role}! The sender has been notified.`);
             fetchPitches();
         } catch (error) {
             toast.error(error.response?.data?.message || 'Failed to claim pitch');
@@ -94,13 +94,31 @@ const PitchHub = () => {
                                         {pitch.sender?.name?.charAt(0)}
                                     </div>
                                     <div>
-                                        <h3 className="text-lg font-bold text-gray-900 leading-tight">
-                                            {pitch.pitch?.Hook || pitch.message}
-                                        </h3>
-                                        <p className="text-sm text-gray-500 flex items-center gap-1">
-                                            <FaUserGraduate className="text-[#001E80]/40" size={12} />
-                                            {pitch.sender?.name} · {pitch.sender?.major || 'Member'}
-                                        </p>
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <h3 className="text-lg font-bold text-gray-900 leading-tight">
+                                                {pitch.pitch?.Hook || pitch.message}
+                                            </h3>
+                                            {pitch.isProBono && (
+                                                <span className="px-2 py-0.5 rounded-md bg-pink-50 text-pink-500 text-[9px] font-black uppercase tracking-wider border border-pink-100">Pro-Bono</span>
+                                            )}
+                                            {pitch.mentorNeeded && (
+                                                <span className="px-2 py-0.5 rounded-md bg-[#EAEEFE] text-[#001E80] text-[9px] font-black uppercase tracking-wider border border-[#001E80]/10">Mentor Needed</span>
+                                            )}
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <p className="text-sm text-gray-500 flex items-center gap-1">
+                                                <FaUserGraduate className="text-[#001E80]/40" size={12} />
+                                                {pitch.sender?.name} · {pitch.sender?.major || 'Member'}
+                                            </p>
+                                            <div className="w-1 h-1 rounded-full bg-gray-300" />
+                                            <div className="flex items-center gap-1.5 text-[11px] font-bold text-[#001E80]">
+                                                <FaUserFriends size={10} className="opacity-50" />
+                                                {pitch.contributors?.length || 0} / {pitch.teamSize} Teammates
+                                                {pitch.mentorNeeded && (
+                                                    <span className="opacity-50 ml-1">· {pitch.mentor ? '1/1 Mentor' : '0/1 Mentor'}</span>
+                                                )}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3">
@@ -110,14 +128,87 @@ const PitchHub = () => {
                                     >
                                         View Detail <FaChevronDown className={`transition-transform duration-300 ${expandedPitch === pitch._id ? 'rotate-180' : ''}`} />
                                     </button>
+
                                     {currentUser && currentUser._id !== pitch.sender?._id && (
-                                        <button
-                                            onClick={() => handleClaim(pitch._id)}
-                                            className="bg-green-500 hover:bg-green-600 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-green-100 transition-all active:scale-95 text-sm"
-                                        >
-                                            <FaHandHoldingHeart /> Claim Partnership
-                                        </button>
+                                        <div className="flex gap-2">
+                                            {/* Teammate Button */}
+                                            {pitch.contributors?.length < pitch.teamSize && (
+                                                <button
+                                                    onClick={() => handleClaim(pitch._id, 'teammate')}
+                                                    disabled={pitch.contributors?.some(c => c._id === currentUser._id)}
+                                                    className={`px-4 py-2 rounded-xl font-bold flex items-center gap-2 shadow-lg transition-all active:scale-95 text-[11px] uppercase tracking-wider ${pitch.contributors?.some(c => c._id === currentUser._id)
+                                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none'
+                                                        : 'bg-green-500 hover:bg-green-600 text-white shadow-green-100'
+                                                        }`}
+                                                >
+                                                    <FaHandHoldingHeart /> {pitch.contributors?.some(c => c._id === currentUser._id) ? 'Joined' : 'Join Team'}
+                                                </button>
+                                            )}
+
+                                            {/* Mentor Button */}
+                                            {pitch.mentorNeeded && !pitch.mentor && (
+                                                <button
+                                                    onClick={() => handleClaim(pitch._id, 'mentor')}
+                                                    className="bg-[#001E80] hover:bg-blue-900 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-blue-100 transition-all active:scale-95 text-[11px] uppercase tracking-wider"
+                                                >
+                                                    🎓 Mentor Mission
+                                                </button>
+                                            )}
+                                        </div>
                                     )}
+                                </div>
+                            </div>
+
+                            {/* Project Staffing Progress Bar */}
+                            <div className="px-6 pb-4">
+                                <div className="flex items-center justify-between mb-2">
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex -space-x-2">
+                                            {(pitch.contributors || []).slice(0, 5).map((contributor, idx) => (
+                                                <div
+                                                    key={idx}
+                                                    className="w-7 h-7 rounded-full border-2 border-white bg-gray-200 shadow-sm overflow-hidden"
+                                                    title={`Teammate: ${contributor.name}`}
+                                                >
+                                                    {contributor.avatar ? (
+                                                        <img src={contributor.avatar} alt="" className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center text-[10px] font-black text-white bg-[#001E80]">
+                                                            {contributor.name?.charAt(0)}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
+                                            {pitch.mentor && (
+                                                <div
+                                                    className="w-7 h-7 rounded-full border-2 border-[#001E80] bg-white shadow-md flex items-center justify-center text-xl overflow-hidden"
+                                                    title="Mentor Joined"
+                                                >
+                                                    🎓
+                                                </div>
+                                            )}
+                                        </div>
+                                        <span className="text-[10px] font-black text-[#001E80]/40 uppercase tracking-widest">
+                                            Staffing: {pitch.progress || 0}%
+                                        </span>
+                                    </div>
+
+                                    <div className="flex items-center gap-1.5">
+                                        {pitch.mentorNeeded && (
+                                            <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-tight border ${pitch.mentor ? 'bg-green-50 text-green-600 border-green-100' : 'bg-gray-50 text-gray-400 border-gray-100'}`}>
+                                                {pitch.mentor ? 'Mentor Found' : 'Needs Mentor'}
+                                            </span>
+                                        )}
+                                        <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-tight border ${pitch.contributors?.length >= pitch.teamSize ? 'bg-green-50 text-green-600 border-green-100' : 'bg-gray-50 text-gray-400 border-gray-100'}`}>
+                                            {pitch.contributors?.length >= pitch.teamSize ? 'Team Full' : `${pitch.teamSize - pitch.contributors.length} Teammates Needed`}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full bg-gradient-to-r from-[#001E80] to-indigo-400 transition-all duration-1000"
+                                        style={{ width: `${pitch.progress || 0}%` }}
+                                    />
                                 </div>
                             </div>
 

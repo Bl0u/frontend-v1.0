@@ -40,14 +40,23 @@ const Partners = () => {
     return (
         <div className="max-w-6xl mx-auto space-y-8">
             {/* LP-themed Header */}
-            <div>
-                <h1
-                    className="text-3xl font-black bg-gradient-to-b from-black to-[#001E80] bg-clip-text text-transparent pb-1"
-                    style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
+            <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
+                <div>
+                    <h1
+                        className="text-3xl font-black bg-gradient-to-b from-black to-[#001E80] bg-clip-text text-transparent pb-1"
+                        style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
+                    >
+                        Partner Pool
+                    </h1>
+                    <p className="text-[#010D3E]/50 text-sm font-medium mt-1">Find a teammate for your graduation project</p>
+                </div>
+
+                <button
+                    onClick={() => toast.info('Partnership archives coming soon in your personal dashboard!')}
+                    className="flex items-center gap-2 px-6 py-3 bg-white border border-gray-100 rounded-2xl font-bold text-xs uppercase tracking-widest text-gray-500 hover:text-[#001E80] hover:border-[#001E80]/20 transition-all shadow-sm"
                 >
-                    Partner Pool
-                </h1>
-                <p className="text-[#010D3E]/50 text-sm font-medium mt-1">Find a teammate for your graduation project</p>
+                    📜 Partnership History
+                </button>
             </div>
 
             {/* Search Bar */}

@@ -87,25 +87,6 @@ export const CallToAction = () => {
       <div className="max-w-[85rem] mx-auto relative z-10">
         {/* Header Section - Tighter Gap */}
         <div className="flex flex-col items-center mb-8 md:mb-10">
-          <div className="relative group p-[1.5px] rounded-xl overflow-hidden mb-4">
-            {/* Animated Border Background */}
-            <motion.div
-              className="absolute inset-[-150%] opacity-60"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-              style={{
-                background: 'conic-gradient(from 0deg, transparent 20%, #001E80 50%, transparent 80%)'
-              }}
-            />
-
-            <div className="relative inline-flex items-center gap-2 border border-[#222]/10 px-4 py-1.5 rounded-[11px] tracking-tight shadow-sm bg-white/80 backdrop-blur-xl group-hover:bg-white transition-colors duration-300">
-              <svg className="w-3.5 h-3.5 text-[#001E80]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M13 10V3L4 14H11V21L20 10H13Z" fill="currentColor" />
-              </svg>
-              <span className="font-bold text-sm text-[#010D3E]">Start for free</span>
-            </div>
-          </div>
-
           <h2
             className="text-4xl md:text-5xl lg:text-[48px] font-bold tracking-tight bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text leading-tight uppercase text-center"
             style={{ fontFamily: "Zuume-Bold", letterSpacing: "0.2px" }}

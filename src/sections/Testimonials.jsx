@@ -55,7 +55,7 @@ const TestimonialsColumn = ({ className, testimonials, duration }) => (
             className="flex flex-col gap-6 pb-6"
         >
             {[...testimonials, ...testimonials].map(({ text, imageSrc, name, username }, index) => (
-                <div key={index} className="card p-10 border border-[#F1F1F1] rounded-3xl shadow-[0_7px_14px_#EAEAEA] max-w-xs w-full bg-white">
+                <div key={index} className="card p-6 border border-[#F1F1F1] rounded-3xl shadow-[0_7px_14px_#EAEAEA] max-w-xs w-full bg-white">
                     <div>{text}</div>
                     <div className="flex items-center gap-2 mt-5">
                         <img src={imageSrc} alt={name} className="h-10 w-10 rounded-full" />
@@ -147,10 +147,32 @@ export const Testimonials = () => {
                     From intuitive design to powerful features, our app has become an essential tool for users around the world.
                 </p>
 
-                <div className="flex justify-center gap-6 mt-10 [mask-image:linear-gradient(to_bottom,transparent,black_25%,black_75%,transparent)] max-h-[738px] overflow-hidden">
+                <div className="flex justify-center gap-6 mt-10 [mask-image:linear-gradient(to_bottom,transparent,black_25%,black_75%,transparent)] max-h-[440px] overflow-hidden">
                     <TestimonialsColumn testimonials={firstColumn} duration={15} />
                     <TestimonialsColumn testimonials={secondColumn} className="hidden md:block" duration={19} />
                     <TestimonialsColumn testimonials={thirdColumn} className="hidden lg:block" duration={17} />
+                </div>
+
+                <div className="flex justify-center mt-12 relative z-20">
+                    <button
+                        onClick={() => window.location.href = '#'}
+                        className="group relative px-8 py-3 bg-white border border-[#222]/10 rounded-2xl font-bold text-sm text-[#010D3E] shadow-sm hover:shadow-md transition-all active:scale-95 overflow-hidden"
+                    >
+                        <motion.div
+                            className="absolute inset-[-150%] opacity-0 group-hover:opacity-20 transition-opacity"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                            style={{
+                                background: 'conic-gradient(from 0deg, transparent 20%, #001E80 50%, transparent 80%)'
+                            }}
+                        />
+                        <span className="relative flex items-center gap-2">
+                            Leave a Review
+                            <svg className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </span>
+                    </button>
                 </div>
             </div>
         </section>

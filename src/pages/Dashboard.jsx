@@ -9,7 +9,16 @@ import { FaExternalLinkAlt, FaUserFriends, FaBook, FaChevronRight } from 'react-
 import requestService from '../features/requests/requestService';
 import planService from '../features/plans/planService';
 import resourceService from '../features/resources/resourceService';
+import { FilterBar } from '../components/FilterBar';
 
+const SUGGESTION_LISTS = {
+    University: [
+        'Cairo University', 'Alexandria University', 'Ain Shams University', 'Assiut University', 'Mansoura University',
+        'Zagazig University', 'Helwan University', 'Suez Canal University', '6th of October University',
+        'Misr University for Science and Technology', 'German University in Cairo (GUC)', 'American University in Cairo (AUC)',
+        'Al Alamein International University', 'Delta University for Science and Technology', 'British University in Egypt (BUE)'
+    ]
+};
 
 const Dashboard = () => {
     const { user: currentUser } = useContext(AuthContext);
@@ -165,37 +174,15 @@ const Dashboard = () => {
         }
     }, [activeTab]);
 
+    const dynamicSuggestions = {
+        University: (SUGGESTION_LISTS.University || []).filter(u => uniqueTags.includes(`#${u.replace(/\s+/g, '')}`)),
+        Professor: uniqueTags.filter(t => t.startsWith('#Prof')).map(t => t.replace('#Prof', '')),
+        Subject: uniqueTags.filter(t => t.startsWith('#Subj')).map(t => t.replace('#Subj', '')),
+        Company: uniqueTags.filter(t => t.startsWith('#Comp')).map(t => t.replace('#Comp', '')),
+        Position: uniqueTags.filter(t => !t.startsWith('#Subj') && !t.startsWith('#Comp') && !t.startsWith('#Prof') && t.startsWith('#') && t !== '#Interview').map(t => t.replace('#', ''))
+    };
+
     // Filter Handlers
-    const handleApplyFilter = (type, value) => {
-        setActiveFilters(prev => ({ ...prev, [type]: value }));
-        setActiveFilterType(null);
-    };
-
-    const removeFilter = (type) => {
-        setActiveFilters(prev => {
-            const newFilters = { ...prev };
-            delete newFilters[type];
-            return newFilters;
-        });
-    };
-
-    const getDropdownOptions = (type) => {
-        if (!uniqueTags || uniqueTags.length === 0) return [];
-        if (type === 'University') {
-            const uniRawNames = ['Cairo University', 'Ain Shams University', 'Helwan University', 'Alexandria University', 'Mansoura University', 'Assiut University', 'Tanta University', 'Zagazig University'];
-            return uniRawNames.filter(u => uniqueTags.includes(`#${u.replace(/\s+/g, '')}`));
-        }
-        if (type === 'Professor') {
-            return uniqueTags.filter(t => t.startsWith('#Prof')).map(t => t.replace('#Prof', ''));
-        }
-        if (type === 'Subject') {
-            return uniqueTags.filter(t => t.startsWith('#Subj')).map(t => t.replace('#Subj', ''));
-        }
-        if (type === 'Company') {
-            return uniqueTags.filter(t => t.startsWith('#Comp')).map(t => t.replace('#Comp', ''));
-        }
-        return [];
-    };
 
     // Close Dropdown Outside Click
     useEffect(() => {
@@ -473,58 +460,12 @@ const Dashboard = () => {
                             </div>
                         </div>
 
-                        {/* LinkedIn-Style Filter Bar */}
-                        <div className="flex flex-wrap items-center gap-3" ref={filterContainerRef}>
-                            <div className="flex items-center gap-2 text-[#001E80]/40 font-black text-[10px] uppercase tracking-widest mr-2 shrink-0">
-                                Filters:
-                            </div>
-
-                            {/* Available Filter Buttons */}
-                            {['University', 'Professor', 'Subject', 'Company'].map(filterId => {
-                                if (activeFilters[filterId]) return null;
-
-                                return (
-                                    <div key={filterId} className="relative shrink-0">
-                                        <button
-                                            onClick={() => setActiveFilterType(activeFilterType === filterId ? null : filterId)}
-                                            className={`px-4 py-1.5 rounded-full border text-[10px] font-bold uppercase tracking-widest transition-all ${activeFilterType === filterId ? 'bg-[#EAEEFE] border-[#001E80]/20 text-[#001E80]' : 'bg-white border-gray-100 text-gray-500 hover:bg-gray-50'}`}
-                                        >
-                                            + {filterId}
-                                        </button>
-
-                                        {/* Dropdown Options */}
-                                        {activeFilterType === filterId && (
-                                            <div className="absolute top-full left-0 mt-2 w-56 bg-white border border-gray-100 shadow-xl rounded-xl z-20 animate-in slide-in-from-top-2 duration-200">
-                                                <div className="max-h-48 overflow-y-auto p-1 scrollbar-hide">
-                                                    {getDropdownOptions(filterId).length > 0 ? (
-                                                        getDropdownOptions(filterId).map(option => (
-                                                            <button
-                                                                key={option}
-                                                                onClick={() => handleApplyFilter(filterId, option)}
-                                                                className="w-full text-left px-3 py-2 text-[11px] text-gray-700 hover:bg-[#EAEEFE] hover:text-[#001E80] rounded-lg font-bold transition-colors"
-                                                            >
-                                                                {option}
-                                                            </button>
-                                                        ))
-                                                    ) : (
-                                                        <p className="text-[10px] text-center py-3 text-gray-400 font-bold uppercase tracking-widest">No tags found</p>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                );
-                            })}
-
-                            {/* Active Filters */}
-                            {Object.entries(activeFilters).map(([type, value]) => (
-                                <div key={type} className="flex items-center gap-2 bg-[#001E80] text-white px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm animate-in zoom-in duration-200">
-                                    <span className="opacity-70">{type}:</span>
-                                    <span>{value}</span>
-                                    <button onClick={() => removeFilter(type)} className="ml-1 hover:text-red-300 transition-colors">✕</button>
-                                </div>
-                            ))}
-                        </div>
+                        {/* Filter Bar */}
+                        <FilterBar
+                            activeFilters={activeFilters}
+                            onFilterChange={setActiveFilters}
+                            suggestionLists={dynamicSuggestions}
+                        />
                     </div>
 
                     {loadingThreads ? (
