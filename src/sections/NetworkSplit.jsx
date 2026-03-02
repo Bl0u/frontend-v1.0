@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { FaChalkboardTeacher, FaGraduationCap } from 'react-icons/fa';
+import { FaChalkboardTeacher, FaGraduationCap, FaArrowRight } from 'react-icons/fa';
 
 const NetworkBadge = ({ icon, text, delay = 0 }) => (
     <motion.div
@@ -8,11 +8,11 @@ const NetworkBadge = ({ icon, text, delay = 0 }) => (
         whileInView={{ opacity: 1, scale: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6, delay }}
-        className="relative group p-[1px] rounded-xl overflow-hidden inline-flex"
+        className="relative group p-[1.5px] rounded-xl overflow-hidden inline-flex"
     >
-        {/* Animated Border Background */}
+        {/* Persistent Animated Border Background (Hero Style) */}
         <motion.div
-            className="absolute inset-[-150%] opacity-0 group-hover:opacity-40 transition-opacity"
+            className="absolute inset-[-150%] opacity-60"
             animate={{ rotate: 360 }}
             transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
             style={{
@@ -27,35 +27,59 @@ const NetworkBadge = ({ icon, text, delay = 0 }) => (
     </motion.div>
 );
 
+const FeaturePoint = ({ text }) => (
+    <li className="flex items-start gap-3 text-base opacity-90 leading-tight text-[#010D3E]/80">
+        <span className="mt-1 shrink-0 w-5 h-5 rounded-full bg-[#001E80]/10 flex items-center justify-center">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2 6L5 9L10 3" stroke="#001E80" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+        </span>
+        <span>{text}</span>
+    </li>
+);
+
 const NetworkSplit = () => {
     return (
-        <section className="relative py-24 bg-[#F3F3F5] overflow-hidden">
-            <div className="container mx-auto px-6 relative z-10">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <section className="relative py-32 bg-[#F3F3F5] overflow-hidden">
+            <div className="max-w-7xl mx-auto px-8 lg:px-16 relative z-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24 items-start relative">
+
+                    {/* Central Vertical Divider */}
+                    <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[#001E80]/10 to-transparent -translate-x-1/2"></div>
 
                     {/* Mentors Column (Left) */}
                     <motion.div
                         initial={{ opacity: 0, x: -30 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
-                        className="space-y-6"
+                        className="space-y-8"
                     >
                         <NetworkBadge icon={<FaChalkboardTeacher size={14} />} text="Expert Mentors" delay={0.1} />
-                        <h2
-                            className="text-4xl md:text-5xl font-black text-[#010D3E] leading-tight"
-                            style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
-                        >
-                            GUIDE THE NEXT <br />
-                            <span className="text-[#001E80]">GENERATION.</span>
-                        </h2>
-                        <p className="text-[#010D3E]/60 text-lg font-medium max-w-md">
-                            Share your expertise and help students navigate complex graduation missions.
-                        </p>
+
+                        <div className="space-y-4">
+                            <h3
+                                className="text-3xl md:text-5xl font-black text-[#010D3E] leading-[1.1] uppercase Zuume-Bold"
+                                style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
+                            >
+                                Feeling generous and wanna help other students? <br />
+                                <span className="text-[#001E80]">Here is the right place.</span>
+                            </h3>
+                            <p className="text-[16px] text-[#010D3E]/80 tracking-tight font-medium max-w-lg">
+                                Here you can claim pro-bonos and help students with their project, and give back to the community.
+                            </p>
+                        </div>
+
+                        <ul className="space-y-4">
+                            <FeaturePoint text="Guide ambitious graduation teams" />
+                            <FeaturePoint text="Share industry insights and best practices" />
+                            <FeaturePoint text="Build your reputation as a thought leader" />
+                        </ul>
+
                         <Link
                             to="/work-with-us"
-                            className="inline-flex items-center gap-2 font-black text-xs uppercase tracking-widest text-[#001E80] group"
+                            className="inline-flex items-center gap-3 px-8 py-4 bg-[#001E80] text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-[#001E80]/20 hover:scale-105 transition-all group"
                         >
-                            Learn More <span className="group-hover:translate-x-1 transition-transform">→</span>
+                            Become a Mentor <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
                         </Link>
                     </motion.div>
 
@@ -64,24 +88,42 @@ const NetworkSplit = () => {
                         initial={{ opacity: 0, x: 30 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
-                        className="space-y-6 md:text-right flex flex-col md:items-end"
+                        className="space-y-8 flex flex-col items-start"
                     >
                         <NetworkBadge icon={<FaGraduationCap size={14} />} text="Hub Association" delay={0.2} />
-                        <h2
-                            className="text-4xl md:text-5xl font-black text-[#010D3E] leading-tight"
-                            style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
-                        >
-                            LEAD YOUR <br />
-                            <span className="text-[#001E80]">COMMUNITY.</span>
-                        </h2>
-                        <p className="text-[#010D3E]/60 text-lg font-medium max-w-md">
-                            Become a Hub lead in your university and build a thriving ecosystem.
-                        </p>
+
+                        <div className="space-y-4">
+                            <h3
+                                className="text-3xl md:text-5xl font-black text-[#010D3E] leading-[1.1] uppercase Zuume-Bold"
+                                style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
+                            >
+                                Looking to help other students? <br />
+                                <span className="text-[#001E80]">You're in the right place.</span>
+                            </h3>
+                            <p className="text-[16px] text-[#010D3E]/80 tracking-tight font-medium max-w-lg">
+                                Be your level's student lead and contact us.
+                            </p>
+                        </div>
+
+                        <ul className="space-y-4">
+                            <FeaturePoint text="Coordinate resources for your faculty level" />
+                            <FeaturePoint text="Help maintain your level's resource threads" />
+                            <FeaturePoint text="Represent your peers in the Hub network" />
+                        </ul>
+
                         <Link
                             to="/work-with-us"
-                            className="inline-flex items-center gap-2 font-black text-xs uppercase tracking-widest text-[#001E80] group"
+                            className="inline-flex items-center gap-3 px-8 py-4 bg-white border border-[#001E80]/10 text-[#001E80] rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-black/5 hover:scale-105 transition-all group"
                         >
-                            Learn More <span className="group-hover:translate-x-1 transition-transform">→</span>
+                            <span className="flex items-center gap-2">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                    <path d="M12 16V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                    <path d="M12 8H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                                Fill Information
+                            </span>
+                            <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
                         </Link>
                     </motion.div>
                 </div>
