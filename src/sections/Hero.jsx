@@ -139,6 +139,8 @@ export const Hero = ({ contentVisible = true, skipAnimation = false }) => {
                 <motion.div
                     initial="hidden"
                     animate={controls}
+                    onViewportEnter={() => window.dispatchEvent(new CustomEvent('hero-view-change', { detail: { inHero: true } }))}
+                    onViewportLeave={() => window.dispatchEvent(new CustomEvent('hero-view-change', { detail: { inHero: false } }))}
                     variants={{
                         hidden: { opacity: 0, y: 20, pointerEvents: "none" },
                         visible: { opacity: 1, y: 0, pointerEvents: "auto", transition: { staggerChildren: 0.2, delayChildren: 0.5 } }
@@ -154,31 +156,38 @@ export const Hero = ({ contentVisible = true, skipAnimation = false }) => {
                         className="flex flex-col gap-6 justify-center items-center mt-[40px]"
                         variants={fadeInUpVariants}
                     >
-                        {/* Mock AI Message Box */}
-                        <div className="w-full max-w-2xl bg-gradient-to-b from-black via-black via-[60%] to-[#001E80] rounded-[24px] p-4 flex items-center gap-4 border border-white/10 shadow-2xl relative overflow-hidden group min-h-[80px]">
+                        {/* AI Agent Search Bar */}
+                        <div className="w-full max-w-2xl bg-black/50 backdrop-blur-md rounded-[24px] p-4 flex items-center gap-4 border border-white/10 shadow-2xl relative overflow-hidden group min-h-[80px]">
                             {/* Gemini Aura Effect */}
                             <div className="absolute -left-20 top-0 w-64 h-64 bg-[#00ADFE]/10 blur-[80px] rounded-full pointer-events-none group-hover:bg-[#00ADFE]/20 transition-colors duration-500"></div>
 
-                            <div className="flex items-center justify-center w-9 h-9 rounded-full bg-white/5 text-white/40 ml-1">
-                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                                </svg>
-                            </div>
-
-                            <div className="flex-1 flex flex-col items-start px-2">
+                            <div className="flex-1 flex flex-col items-start px-4">
                                 <input
                                     type="text"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' && searchQuery.trim()) {
+                                            window.dispatchEvent(new CustomEvent('open-ai-chat', { detail: { query: searchQuery } }));
+                                            setSearchQuery('');
+                                        }
+                                    }}
                                     placeholder="Search for your university, exams, material, partners..."
                                     className="w-full bg-transparent border-none outline-none text-[17px] text-white/90 font-medium font-sans placeholder:text-white/40 focus:ring-0 p-0"
                                 />
                             </div>
 
-                            <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-[#6c757d] text-white mr-1 shadow-lg cursor-pointer hover:bg-[#5a6268] hover:scale-105 transition-all active:scale-95">
+                            <button
+                                onClick={() => {
+                                    if (searchQuery.trim()) {
+                                        window.dispatchEvent(new CustomEvent('open-ai-chat', { detail: { query: searchQuery } }));
+                                        setSearchQuery('');
+                                    }
+                                }}
+                                className="flex items-center justify-center w-9 h-9 rounded-lg bg-white/10 text-white mr-1 shadow-lg cursor-pointer hover:bg-white/20 hover:scale-105 transition-all active:scale-95 border border-white/5"
+                            >
                                 <FaArrowRight className="w-3.5 h-3.5" />
-                            </div>
+                            </button>
                         </div>
                     </motion.div>
                 </motion.div>

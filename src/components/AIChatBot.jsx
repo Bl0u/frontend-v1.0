@@ -1,17 +1,25 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaRobot, FaPaperPlane, FaTimes, FaGraduationCap, FaBook, FaSearch, FaArrowRight } from 'react-icons/fa';
+import { FaRobot, FaPaperPlane, FaTimes, FaSearch } from 'react-icons/fa';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { API_BASE_URL } from '../config';
 
-const AIChatBot = ({ onApplyFilters, userToken }) => {
+const AIChatBot = ({ userToken }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [input, setInput] = useState('');
     const [messages, setMessages] = useState([
         { role: 'bot', text: 'Hello! I am your AI Academic Assistant. Ask me to find specific threads, professors, or subjects across any university!', type: 'text' }
     ]);
     const [loading, setLoading] = useState(false);
+    const [isVisible, setIsVisible] = useState(true);
     const scrollRef = useRef(null);
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    // Hide chatbot on specific pages
+    const hideOnRoutes = ['/login', '/register', '/onboarding'];
+    const shouldHide = hideOnRoutes.includes(location.pathname);
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -19,12 +27,40 @@ const AIChatBot = ({ onApplyFilters, userToken }) => {
         }
     }, [messages]);
 
-    const handleSend = async (e) => {
-        e.preventDefault();
-        if (!input.trim() || loading) return;
+    // Handle global triggers (e.g. from Hero search)
+    useEffect(() => {
+        const handleOpenChat = (e) => {
+            const query = e.detail?.query;
+            if (query) {
+                setIsOpen(true);
+                handleSend(null, query);
+            } else {
+                setIsOpen(true);
+            }
+        };
 
-        const userMsg = input.trim();
-        setInput('');
+        const handleVisibilityChange = (e) => {
+            setIsVisible(!e.detail?.inHero);
+        };
+
+        window.addEventListener('open-ai-chat', handleOpenChat);
+        window.addEventListener('hero-view-change', handleVisibilityChange);
+
+        return () => {
+            window.removeEventListener('open-ai-chat', handleOpenChat);
+            window.removeEventListener('hero-view-change', handleVisibilityChange);
+        };
+    }, [userToken]);
+
+    const handleSend = async (e, manualQuery = null) => {
+        if (e) e.preventDefault();
+        const queryText = manualQuery || input;
+
+        if (!queryText.trim() || loading) return;
+
+        const userMsg = queryText.trim();
+        if (!manualQuery) setInput('');
+
         setMessages(prev => [...prev, { role: 'user', text: userMsg, type: 'text' }]);
         setLoading(true);
 
@@ -43,22 +79,43 @@ const AIChatBot = ({ onApplyFilters, userToken }) => {
             setMessages(prev => [...prev, botResponse]);
         } catch (error) {
             console.error('AI Error:', error);
-            setMessages(prev => [...prev, { role: 'bot', text: 'Sorry, I hit a snag while interpreting that. Please try again or use the manual filters.', role: 'bot', type: 'text' }]);
+            setMessages(prev => [...prev, { role: 'bot', text: 'Sorry, I hit a snag while interpreting that. Please try again or use the manual filters.', type: 'text' }]);
         } finally {
             setLoading(false);
         }
     };
 
+    const handleApplyFilters = (filters) => {
+        // Construct query string for ResourceHub
+        const params = new URLSearchParams();
+        if (filters.university) params.append('university', filters.university);
+        if (filters.subject) params.append('subject', filters.subject);
+        if (filters.professor) params.append('professor', filters.professor);
+        if (filters.company) params.append('company', filters.company);
+
+        navigate(`/resources?${params.toString()}`);
+        setIsOpen(false);
+    };
+
+    if (shouldHide) return null;
+
     return (
         <>
             {/* Toggle Button */}
-            <button
-                onClick={() => setIsOpen(true)}
-                className="fixed bottom-8 right-8 w-16 h-16 bg-gradient-to-br from-[#001E80] to-[#010D3E] text-white rounded-full flex items-center justify-center shadow-2xl shadow-[#001E80]/40 z-50 hover:scale-110 active:scale-95 transition-all group"
-            >
-                <FaRobot size={28} className="group-hover:rotate-12 transition-transform" />
-                <span className="absolute -top-2 -right-2 bg-amber-400 text-black text-[10px] font-black px-2 py-0.5 rounded-full border-2 border-white">Assistant</span>
-            </button>
+            <AnimatePresence>
+                {isVisible && !isOpen && (
+                    <motion.button
+                        initial={{ opacity: 0, scale: 0.5, rotate: -20 }}
+                        animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                        exit={{ opacity: 0, scale: 0.5, rotate: 20 }}
+                        onClick={() => setIsOpen(true)}
+                        className="fixed bottom-8 right-8 w-16 h-16 bg-gradient-to-br from-[#001E80] to-[#010D3E] text-white rounded-full flex items-center justify-center shadow-2xl shadow-[#001E80]/40 z-[9999] hover:scale-110 active:scale-95 transition-all group"
+                    >
+                        <FaRobot size={28} className="group-hover:rotate-12 transition-transform" />
+                        <span className="absolute -top-2 -right-2 bg-amber-400 text-black text-[10px] font-black px-2 py-0.5 rounded-full border-2 border-white">Assistant</span>
+                    </motion.button>
+                )}
+            </AnimatePresence>
 
             {/* Chat Panel */}
             <AnimatePresence>
@@ -67,7 +124,7 @@ const AIChatBot = ({ onApplyFilters, userToken }) => {
                         initial={{ opacity: 0, y: 100, scale: 0.9, x: 50 }}
                         animate={{ opacity: 1, y: 0, scale: 1, x: 0 }}
                         exit={{ opacity: 0, y: 100, scale: 0.9, x: 50 }}
-                        className="fixed bottom-8 right-8 w-[400px] h-[600px] bg-white rounded-[2rem] shadow-[0_30px_100px_rgba(0,30,128,0.2)] z-50 overflow-hidden flex flex-col border border-[#001E80]/10"
+                        className="fixed bottom-8 right-8 w-[400px] h-[600px] bg-white rounded-[2rem] shadow-[0_30px_100px_rgba(0,30,128,0.2)] z-[9999] overflow-hidden flex flex-col border border-[#001E80]/10"
                     >
                         {/* Header */}
                         <div className="bg-gradient-to-r from-[#001E80] to-[#010D3E] p-6 flex items-center justify-between text-white shrink-0">
@@ -123,10 +180,7 @@ const AIChatBot = ({ onApplyFilters, userToken }) => {
 
                                                 {/* Action Button */}
                                                 <button
-                                                    onClick={() => {
-                                                        onApplyFilters(msg.filters);
-                                                        setIsOpen(false);
-                                                    }}
+                                                    onClick={() => handleApplyFilters(msg.filters)}
                                                     className="w-full mt-2 py-2 bg-white border border-[#001E80]/20 text-[#001E80] text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-[#001E80] hover:text-white transition-all flex items-center justify-center gap-2"
                                                 >
                                                     <FaSearch size={10} /> Sync Main Hub to these Filters

@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 export const LogoTicker = () => {
     const logos = [
@@ -56,12 +57,17 @@ export const LogoTicker = () => {
                             }}
                         >
                             {[...logos, ...logos].map((logo, index) => (
-                                <img
+                                <Link
                                     key={index}
-                                    src={logo.src}
-                                    alt={logo.alt}
-                                    className="h-12 w-auto object-contain"
-                                />
+                                    to={`/resources?university=${encodeURIComponent(logo.alt.replace(' Logo', ''))}`}
+                                    className="h-12 w-auto object-contain hover:scale-110 transition-transform cursor-pointer"
+                                >
+                                    <img
+                                        src={logo.src}
+                                        alt={logo.alt}
+                                        className="h-full w-auto object-contain"
+                                    />
+                                </Link>
                             ))}
                         </motion.div>
                     </div>

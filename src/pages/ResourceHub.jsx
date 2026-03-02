@@ -135,6 +135,29 @@ const ResourceHub = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    // Sync activeFilters with URL query parameters
+    useEffect(() => {
+        const uniParam = searchParams.get('university');
+        const subjParam = searchParams.get('subject');
+        const profParam = searchParams.get('professor');
+        const compParam = searchParams.get('company');
+
+        const newFilters = {};
+
+        if (uniParam) {
+            // Check if it's a short name and map to full name
+            const university = UNIVERSITIES_DATA.find(u => u.shortName === uniParam || u.name === uniParam);
+            newFilters.University = university ? university.name : uniParam;
+        }
+        if (subjParam) newFilters.Subject = subjParam;
+        if (profParam) newFilters.Professor = profParam;
+        if (compParam) newFilters.Company = compParam;
+
+        if (Object.keys(newFilters).length > 0) {
+            setActiveFilters(newFilters);
+        }
+    }, [searchParams]);
+
     const handleTabChange = (tab) => {
         setSearchParams({ tab });
         setActiveFilters({});
@@ -691,8 +714,6 @@ const ResourceHub = () => {
                 </div>
             )}
 
-            {/* AI Assistant */}
-            <AIChatBot onApplyFilters={handleAIApplyFilters} userToken={user?.token} />
         </div>
     );
 };

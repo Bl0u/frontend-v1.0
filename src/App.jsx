@@ -1,14 +1,11 @@
-
 import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-gsap.registerPlugin(ScrollTrigger);
-import { useEffect } from 'react';
-import { AuthProvider } from './context/AuthContext';
+import { useEffect, useContext } from 'react';
+import AuthContext, { AuthProvider } from './context/AuthContext';
 import './styles/MaskAnimations.css';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
@@ -30,8 +27,10 @@ import Dashboard from './pages/Dashboard';
 import SocialMediaEditor from './pages/SocialMediaEditor';
 import Chat from './pages/Chat';
 import PlanManager from './pages/PlanManager';
+import AIChatBot from './components/AIChatBot';
+import TopUp from './pages/TopUp';
 
-import TopUp from './pages/TopUp'; // V2.0
+gsap.registerPlugin(ScrollTrigger);
 
 // Layout with navbar (Header) — for PUBLIC routes only
 const MainLayout = () => (
@@ -53,18 +52,56 @@ const DashboardLayout = () => (
   </div>
 );
 
+const AppContent = () => {
+  const { user } = useContext(AuthContext);
+
+  return (
+    <>
+      <Routes>
+        {/* Standalone pages (no chrome) */}
+        <Route path="/register" element={<Register />} />
+        <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/login" element={<Login />} />
+
+        {/* Public pages (Header navbar) */}
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/new-lp" element={<LandingPage />} />
+          <Route path="/old-lp" element={<OldLandingPage />} />
+        </Route>
+
+        {/* Authenticated pages (Sidebar) */}
+        <Route element={<DashboardLayout />}>
+          <Route path="/home" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/social-media" element={<SocialMediaEditor />} />
+          <Route path="/resources" element={<ResourceHub />} />
+          <Route path="/resources/thread/:id" element={<ThreadDetail />} />
+          <Route path="/partners" element={<Partners />} />
+          <Route path="/pitch-hub" element={<PitchHub />} />
+          <Route path="/pitch-form" element={<PitchForm />} />
+          <Route path="/u/:username" element={<PublicProfile />} />
+          <Route path="/requests" element={<DashboardRequests />} />
+          <Route path="/chat" element={<Chat />} />
+          <Route path="/top-up" element={<TopUp />} />
+          <Route path="/plan/:id" element={<PlanManager />} />
+        </Route>
+      </Routes>
+      <ToastContainer position="bottom-right" />
+      <AIChatBot userToken={user?.token} />
+    </>
+  );
+};
+
 function App() {
   useEffect(() => {
     const lenis = new Lenis();
-
     lenis.on('scroll', ScrollTrigger.update);
-
     gsap.ticker.add((time) => {
       lenis.raf(time * 1000);
     });
-
     gsap.ticker.lagSmoothing(0);
-
     return () => {
       lenis.destroy();
     };
@@ -73,43 +110,10 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <Routes>
-          {/* Standalone pages (no chrome) */}
-          <Route path="/register" element={<Register />} />
-          <Route path="/onboarding" element={<Onboarding />} />
-          <Route path="/login" element={<Login />} />
-
-          {/* Public pages (Header navbar) */}
-          <Route element={<MainLayout />}>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/new-lp" element={<LandingPage />} />
-            <Route path="/old-lp" element={<OldLandingPage />} />
-          </Route>
-
-          {/* Authenticated pages (Sidebar) */}
-          <Route element={<DashboardLayout />}>
-            <Route path="/home" element={<Dashboard />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/social-media" element={<SocialMediaEditor />} />
-            <Route path="/resources" element={<ResourceHub />} />
-            <Route path="/resources/thread/:id" element={<ThreadDetail />} />
-            <Route path="/partners" element={<Partners />} />
-            <Route path="/pitch-hub" element={<PitchHub />} />
-            <Route path="/pitch-form" element={<PitchForm />} />
-            <Route path="/u/:username" element={<PublicProfile />} />
-            <Route path="/requests" element={<DashboardRequests />} />
-            <Route path="/chat" element={<Chat />} />
-            <Route path="/top-up" element={<TopUp />} />
-            <Route path="/plan/:id" element={<PlanManager />} />
-          </Route>
-        </Routes>
-        <ToastContainer position="bottom-right" />
+        <AppContent />
       </Router>
     </AuthProvider>
   );
 }
 
-
 export default App;
-
