@@ -41,6 +41,10 @@ const FeaturePoint = ({ text }) => (
 const NetworkSplit = () => {
     return (
         <section className="relative py-20 bg-[#F3F3F5] overflow-hidden">
+            {/* Blending "Trick" Gradients */}
+            <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-white to-transparent pointer-events-none z-10"></div>
+            <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white to-transparent pointer-events-none z-10"></div>
+
             {/* "Fired Up" Background Elements - Synced with Ambassador Network dots */}
             <div className="absolute inset-0 pointer-events-none overflow-hidden">
                 {/* Precise Dot Grid Background */}
