@@ -6,7 +6,7 @@ import {
     FaBookOpen, FaBuilding, FaBriefcase, FaTimes
 } from 'react-icons/fa';
 
-const FILTER_TYPES = [
+const DEFAULT_FILTER_TYPES = [
     { id: 'University', icon: FaGraduationCap, placeholder: 'Search University...' },
     { id: 'Professor', icon: FaChalkboardTeacher, placeholder: 'Search Professor...' },
     { id: 'Subject', icon: FaBookOpen, placeholder: 'Search Subject...' },
@@ -14,7 +14,7 @@ const FILTER_TYPES = [
     { id: 'Position', icon: FaBriefcase, placeholder: 'Search Role (e.g. Frontend)...' }
 ];
 
-export const FilterBar = ({ activeFilters, onFilterChange, suggestionLists }) => {
+export const FilterBar = ({ activeFilters, onFilterChange, suggestionLists, filterTypes = DEFAULT_FILTER_TYPES }) => {
     const [activeFilterType, setActiveFilterType] = useState(null);
     const [search, setSearch] = useState('');
     const filterContainerRef = useRef(null);
@@ -50,7 +50,7 @@ export const FilterBar = ({ activeFilters, onFilterChange, suggestionLists }) =>
                     <FaFilter size={12} className="text-[#001E80]" />
                 </div>
 
-                {FILTER_TYPES.map((type) => {
+                {filterTypes.map((type) => {
                     const isActive = activeFilters[type.id];
                     const isOpen = activeFilterType === type.id;
                     const Icon = type.icon;

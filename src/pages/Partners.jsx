@@ -3,35 +3,38 @@ import axios from 'axios';
 import { API_BASE_URL } from '../config';
 
 import UserCard from '../components/UserCard';
-import { FaSearch } from 'react-icons/fa';
+import { FaSearch, FaGraduationCap, FaBookOpen, FaBuilding, FaGlobe } from 'react-icons/fa';
+import { FilterBar } from '../components/FilterBar';
+import userService from '../features/users/userService';
+
+const PARTNER_FILTER_TYPES = [
+    { id: 'University', icon: FaGraduationCap, placeholder: 'Search University...' },
+    { id: 'Major', icon: FaBookOpen, placeholder: 'Search Major...' },
+    { id: 'City', icon: FaBuilding, placeholder: 'Search City...' },
+    { id: 'Country', icon: FaGlobe, placeholder: 'Search Country...' }
+];
 
 const Partners = () => {
     const [partners, setPartners] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [filters, setFilters] = useState({
-        university: '',
-        major: '',
-        city: '',
-        country: '',
-        academicLevel: ''
-    });
+    const [filters, setFilters] = useState({}); // Unified with FilterBar: { University: '...', Major: '...' }
+    const [suggestionLists, setSuggestionLists] = useState({});
 
     const fetchPartners = async (search = '', currentFilters = filters) => {
         setLoading(true);
         try {
-            let queryParams = new URLSearchParams({ role: 'student' });
+            let queryParams = new URLSearchParams({ role: 'student', lookingForPartner: 'true' });
 
             if (search) {
                 queryParams.append('search', search);
-            } else {
-                queryParams.append('lookingForPartner', 'true');
             }
 
-            // Append filters
-            Object.entries(currentFilters).forEach(([key, value]) => {
-                if (value) queryParams.append(key, value);
-            });
+            // Append filters (Map UI keys to Backend keys)
+            if (currentFilters.University) queryParams.append('university', currentFilters.University);
+            if (currentFilters.Major) queryParams.append('major', currentFilters.Major);
+            if (currentFilters.City) queryParams.append('city', currentFilters.City);
+            if (currentFilters.Country) queryParams.append('country', currentFilters.Country);
 
             const res = await axios.get(`${API_BASE_URL}/api/users?${queryParams.toString()}`);
             setPartners(res.data);
@@ -43,29 +46,25 @@ const Partners = () => {
     };
 
     useEffect(() => {
+        const fetchFilters = async () => {
+            try {
+                const data = await userService.getUniquePartnerFilters();
+                setSuggestionLists(data);
+            } catch (error) {
+                console.error('Error fetching filter suggestions', error);
+            }
+        };
+        fetchFilters();
         fetchPartners(searchTerm, filters);
-    }, [filters]); // Auto-fetch when filters change
+    }, [filters]);
 
     const handleSearch = (e) => {
         e.preventDefault();
         fetchPartners(searchTerm, filters);
     };
 
-    const handleFilterChange = (e) => {
-        setFilters(prev => ({
-            ...prev,
-            [e.target.name]: e.target.value
-        }));
-    };
-
     const clearFilters = () => {
-        setFilters({
-            university: '',
-            major: '',
-            city: '',
-            country: '',
-            academicLevel: ''
-        });
+        setFilters({});
         setSearchTerm('');
     };
 
@@ -119,65 +118,14 @@ const Partners = () => {
                 )}
             </div>
 
-            {/* Filter Bar Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">University</label>
-                    <input
-                        name="university"
-                        value={filters.university}
-                        onChange={handleFilterChange}
-                        placeholder="e.g. Cairo Univ"
-                        className="w-full px-4 py-2 bg-white border border-gray-100 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#001E80]/10 outline-none transition-all"
-                    />
-                </div>
-                <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">College/Major</label>
-                    <input
-                        name="major"
-                        value={filters.major}
-                        onChange={handleFilterChange}
-                        placeholder="e.g. CS, Eng"
-                        className="w-full px-4 py-2 bg-white border border-gray-100 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#001E80]/10 outline-none transition-all"
-                    />
-                </div>
-                <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">City</label>
-                    <input
-                        name="city"
-                        value={filters.city}
-                        onChange={handleFilterChange}
-                        placeholder="e.g. Cairo"
-                        className="w-full px-4 py-2 bg-white border border-gray-100 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#001E80]/10 outline-none transition-all"
-                    />
-                </div>
-                <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Country</label>
-                    <input
-                        name="country"
-                        value={filters.country}
-                        onChange={handleFilterChange}
-                        placeholder="e.g. Egypt"
-                        className="w-full px-4 py-2 bg-white border border-gray-100 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#001E80]/10 outline-none transition-all"
-                    />
-                </div>
-                <div className="space-y-1.5 col-span-2 md:col-span-1">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Level</label>
-                    <select
-                        name="academicLevel"
-                        value={filters.academicLevel}
-                        onChange={handleFilterChange}
-                        className="w-full px-4 py-2 bg-white border border-gray-100 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#001E80]/10 outline-none transition-all appearance-none cursor-pointer"
-                    >
-                        <option value="">All Levels</option>
-                        <option value="Level 1">Level 1</option>
-                        <option value="Level 2">Level 2</option>
-                        <option value="Level 3">Level 3</option>
-                        <option value="Level 4">Level 4</option>
-                        <option value="Graduated">Graduated</option>
-                    </select>
-                </div>
-            </div>
+            <FilterBar
+                activeFilters={filters}
+                onFilterChange={setFilters}
+                suggestionLists={suggestionLists}
+                filterTypes={PARTNER_FILTER_TYPES}
+            />
+
+
 
             {loading ? (
                 <div className="flex items-center justify-center py-16">

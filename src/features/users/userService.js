@@ -36,11 +36,17 @@ const unblockUser = async (userId, token) => {
     return response.data;
 };
 
+const getUniquePartnerFilters = async () => {
+    const response = await axios.get(`${API_BASE_URL}/api/users/filters`);
+    return response.data;
+};
+
 const userService = {
     getUsers,
     getUserById,
     blockUser,
-    unblockUser
+    unblockUser,
+    getUniquePartnerFilters
 };
 
 export default userService;
