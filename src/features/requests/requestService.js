@@ -47,6 +47,24 @@ const claimPublicPitch = async (pitchId, token, role = 'teammate') => {
     return response.data;
 };
 
+// Approve Pitch Claim
+const approvePitchClaim = async (requestId, token) => {
+    const config = {
+        headers: { Authorization: `Bearer ${token}` },
+    };
+    const response = await axios.put(API_URL + `${requestId}/approve-claim`, {}, config);
+    return response.data;
+};
+
+// Reject Pitch Claim
+const rejectPitchClaim = async (requestId, token) => {
+    const config = {
+        headers: { Authorization: `Bearer ${token}` },
+    };
+    const response = await axios.put(API_URL + `${requestId}/reject-claim`, {}, config);
+    return response.data;
+};
+
 // Respond to Request
 const respondToRequest = async (requestId, status, token) => {
     const config = {
@@ -98,6 +116,8 @@ const requestService = {
     getSentRequests,
     getPublicPitches,
     claimPublicPitch,
+    approvePitchClaim,
+    rejectPitchClaim,
     respondToRequest,
     cancelRequest,
     markAsRead,

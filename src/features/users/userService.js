@@ -18,9 +18,29 @@ const getUserById = async (userId) => {
     return response.data;
 };
 
+// Block User
+const blockUser = async (userId, token) => {
+    const config = {
+        headers: { Authorization: `Bearer ${token}` },
+    };
+    const response = await axios.post(API_URL + `block/${userId}`, {}, config);
+    return response.data;
+};
+
+// Unblock User
+const unblockUser = async (userId, token) => {
+    const config = {
+        headers: { Authorization: `Bearer ${token}` },
+    };
+    const response = await axios.delete(API_URL + `block/${userId}`, config);
+    return response.data;
+};
+
 const userService = {
     getUsers,
-    getUserById
+    getUserById,
+    blockUser,
+    unblockUser
 };
 
 export default userService;

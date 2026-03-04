@@ -5,6 +5,8 @@ import { FaEnvelope, FaLinkedin, FaGithub, FaGlobe, FaStar, FaTwitter, FaMapMark
 import { toast } from 'react-toastify';
 import { API_BASE_URL } from '../config';
 import AuthContext from '../context/AuthContext';
+import userService from '../features/users/userService';
+import reportService from '../features/reports/reportService';
 
 const PublicProfile = () => {
     const { username } = useParams();
@@ -16,8 +18,12 @@ const PublicProfile = () => {
     // Reviews State
     const [reviews, setReviews] = useState([]);
     const [isConnected, setIsConnected] = useState(false);
-    const [showReviewForm, setShowReviewForm] = useState(false);
     const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '' });
+
+    // Report/Block State
+    const [showReportModal, setShowReportModal] = useState(false);
+    const [reportForm, setReportForm] = useState({ reason: 'Spam', details: '' });
+    const [isBlocked, setIsBlocked] = useState(false);
 
     const { user: currentUser } = useContext(AuthContext);
 
@@ -35,6 +41,10 @@ const PublicProfile = () => {
                     const config = { headers: { Authorization: `Bearer ${currentUser.token}` } };
                     const connRes = await axios.get(`${API_BASE_URL}/api/requests/check/${userId}`, config);
                     setIsConnected(connRes.data.isConnected);
+
+                    // Check if blocked
+                    const meRes = await axios.get(`${API_BASE_URL}/api/users/${currentUser._id}`, config);
+                    setIsBlocked(meRes.data.blockedUsers?.includes(userId));
                 }
                 setLoading(false);
             } catch (err) {
@@ -44,7 +54,40 @@ const PublicProfile = () => {
             }
         };
         fetchProfileData();
-    }, [username]);
+    }, [username, currentUser]);
+
+    const handleBlock = async () => {
+        if (!window.confirm(`Are you sure you want to ${isBlocked ? 'unblock' : 'block'} ${profile.name}?`)) return;
+
+        try {
+            if (isBlocked) {
+                await userService.unblockUser(profile._id, currentUser.token);
+                toast.success('User unblocked');
+            } else {
+                await userService.blockUser(profile._id, currentUser.token);
+                toast.success('User blocked');
+            }
+            setIsBlocked(!isBlocked);
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Action failed');
+        }
+    };
+
+    const handleReportSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            await reportService.createReport({
+                reportedUserId: profile._id,
+                reason: reportForm.reason,
+                details: reportForm.details
+            }, currentUser.token);
+            toast.success('Report submitted. Thank you for keeping Learn-Crew safe.');
+            setShowReportModal(false);
+            setReportForm({ reason: 'Spam', details: '' });
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Report failed');
+        }
+    };
 
     const handleReviewSubmit = async (e) => {
         e.preventDefault();
@@ -142,12 +185,26 @@ const PublicProfile = () => {
                                 </span>
                             )}
                             {currentUser && currentUser._id !== profile._id && (
-                                <button
-                                    onClick={() => navigate(`/chat?u=${profile._id}`)}
-                                    className="px-5 py-2 rounded-xl text-xs font-black uppercase tracking-widest bg-[#001E80] text-white hover:bg-[#001E80]/85 shadow-lg shadow-[#001E80]/10 transition-all active:scale-[0.97] flex items-center gap-2"
-                                >
-                                    <FaEnvelope size={11} /> Message
-                                </button>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => navigate(`/chat?u=${profile._id}`)}
+                                        className="px-5 py-2 rounded-xl text-xs font-black uppercase tracking-widest bg-[#001E80] text-white hover:bg-[#001E80]/85 shadow-lg shadow-[#001E80]/10 transition-all active:scale-[0.97] flex items-center gap-2"
+                                    >
+                                        <FaEnvelope size={11} /> Message
+                                    </button>
+                                    <button
+                                        onClick={() => setShowReportModal(true)}
+                                        className="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white border border-red-100 text-red-400 hover:bg-red-50 transition-all"
+                                    >
+                                        Report
+                                    </button>
+                                    <button
+                                        onClick={handleBlock}
+                                        className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${isBlocked ? 'bg-gray-800 text-white' : 'bg-white border border-gray-200 text-gray-400 hover:bg-gray-50'}`}
+                                    >
+                                        {isBlocked ? 'Unblock' : 'Block'}
+                                    </button>
+                                </div>
                             )}
                         </div>
                     </div>
@@ -408,6 +465,61 @@ const PublicProfile = () => {
                     )}
                 </div>
             </div>
+
+            {/* ─── Report Modal ────────────────────────── */}
+            {showReportModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowReportModal(false)}>
+                    <div className="bg-white rounded-3xl max-w-lg w-full p-8 space-y-6" onClick={(e) => e.stopPropagation()}>
+                        <div>
+                            <p className="text-[#001E80]/40 text-xs font-black uppercase tracking-widest mb-1">Safety Center</p>
+                            <h2 className="text-3xl font-black text-gray-900" style={{ fontFamily: 'Zuume-Bold' }}>Report Account</h2>
+                            <p className="text-gray-500 text-sm font-medium">Please tell us why you are reporting {profile.name}.</p>
+                        </div>
+
+                        <form onSubmit={handleReportSubmit} className="space-y-4">
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-[#001E80] ml-1">Reason</label>
+                                <select
+                                    value={reportForm.reason}
+                                    onChange={(e) => setReportForm({ ...reportForm, reason: e.target.value })}
+                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-[#001E80]/10 outline-none text-sm font-bold"
+                                >
+                                    <option value="Spam">Spam</option>
+                                    <option value="Inappropriate Content">Inappropriate Content</option>
+                                    <option value="Harassment">Harassment</option>
+                                    <option value="Fake Profile">Fake Profile</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-[#001E80] ml-1">Details (Optional)</label>
+                                <textarea
+                                    value={reportForm.details}
+                                    onChange={(e) => setReportForm({ ...reportForm, details: e.target.value })}
+                                    rows="4"
+                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-[#001E80]/10 outline-none text-sm resize-none"
+                                    placeholder="Provide more context..."
+                                />
+                            </div>
+                            <div className="flex gap-3 pt-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowReportModal(false)}
+                                    className="flex-1 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest text-gray-400 hover:text-gray-600 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="flex-1 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest bg-red-500 text-white hover:bg-red-600 shadow-lg shadow-red-100 transition-all active:scale-[0.97]"
+                                >
+                                    Submit Report
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

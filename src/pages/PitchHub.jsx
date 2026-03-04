@@ -35,11 +35,15 @@ const PitchHub = () => {
         }
 
         try {
-            await requestService.claimPublicPitch(pitchId, currentUser.token, role);
-            toast.success(`Successfully joined as ${role}! The sender has been notified.`);
+            const data = await requestService.claimPublicPitch(pitchId, currentUser.token, role);
+            if (data.isPendingApproval) {
+                toast.info('Join request sent to project owner for approval');
+            } else {
+                toast.success(`Successfully joined as ${role}! The sender has been notified.`);
+            }
             fetchPitches();
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Failed to claim pitch');
+            toast.error(error.response?.data?.message || 'Failed to join mission');
         }
     };
 
@@ -141,7 +145,9 @@ const PitchHub = () => {
                                                         : 'bg-green-500 hover:bg-green-600 text-white shadow-green-100'
                                                         }`}
                                                 >
-                                                    <FaHandHoldingHeart /> {pitch.contributors?.some(c => c._id === currentUser._id) ? 'Joined' : 'Join Team'}
+                                                    <FaHandHoldingHeart /> {pitch.contributors?.some(c => c._id === currentUser._id)
+                                                        ? 'Joined'
+                                                        : (pitch.isProBono ? 'Request to Join' : 'Join Team')}
                                                 </button>
                                             )}
 

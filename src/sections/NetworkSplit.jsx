@@ -32,7 +32,7 @@ const NetworkBadge = ({ icon, text, delay = 0 }) => (
 
 const FeaturePoint = ({ text }) => (
     <li className="flex items-start gap-3 text-base opacity-90 leading-tight text-[#010D3E]/80">
-        <span className="mt-1 shrink-0 w-5 h-5 rounded-full bg-[#001E80]/10 flex items-center justify-center">
+        <span className="mt-[2px] shrink-0 w-5 h-5 rounded-full bg-[#001E80]/10 flex items-center justify-center">
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M2 6L5 9L10 3" stroke="#001E80" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
@@ -123,7 +123,7 @@ const NetworkSplit = () => {
                                     className="text-2xl md:text-3xl font-black text-[#010D3E] uppercase Zuume-Bold"
                                     style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
                                 >
-                                    Claim Pro-Bonos
+                                    Claim Pro-Bono
                                 </h4>
                                 <p className="text-[16px] text-[#010D3E]/80 tracking-tight font-medium max-w-lg leading-relaxed">
                                     Help students with their graduation projects, share your industry expertise, and give back to the community.
