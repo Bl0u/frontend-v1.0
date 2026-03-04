@@ -100,7 +100,7 @@ const PitchHub = () => {
                                     <div>
                                         <div className="flex items-center gap-2 mb-1">
                                             <h3 className="text-lg font-bold text-gray-900 leading-tight">
-                                                {pitch.pitch?.Hook || pitch.message}
+                                                {pitch.pitch?.Hook || pitch.pitch?.['The Hook (Short summary)'] || pitch.message}
                                             </h3>
                                             {pitch.isProBono && (
                                                 <span className="px-2 py-0.5 rounded-md bg-pink-50 text-pink-500 text-[9px] font-black uppercase tracking-wider border border-pink-100">Pro-Bono</span>
@@ -147,7 +147,7 @@ const PitchHub = () => {
                                                 >
                                                     <FaHandHoldingHeart /> {pitch.contributors?.some(c => c._id === currentUser._id)
                                                         ? 'Joined'
-                                                        : (pitch.isProBono ? 'Request to Join' : 'Join Team')}
+                                                        : 'Request to Join'}
                                                 </button>
                                             )}
 
