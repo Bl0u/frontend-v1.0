@@ -7,7 +7,7 @@ import { FaStar, FaArrowLeft, FaWallet, FaMobileAlt, FaCheckCircle, FaTimesCircl
 import { API_BASE_URL } from '../config';
 
 const TopUp = () => {
-    const { user, updateUser } = useContext(AuthContext);
+    const { user, updateUser, refreshUser } = useContext(AuthContext);
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const [loading, setLoading] = useState(false);
@@ -26,6 +26,15 @@ const TopUp = () => {
 
     // ── Detect return from Paymob ──
     useEffect(() => {
+        // Check if we just refreshed after a successful payment
+        const justPaid = localStorage.getItem('paymentSuccess');
+        if (justPaid) {
+            localStorage.removeItem('paymentSuccess');
+            setPaymentResult('success');
+            setStep('result');
+            return;
+        }
+
         const success = searchParams.get('success');
         const pending = searchParams.get('pending');
 
@@ -34,14 +43,38 @@ const TopUp = () => {
                 setPaymentResult('success');
                 setStep('result');
                 toast.success('🎉 Payment successful! Stars have been added.');
-                // Refresh user data
-                if (user?.token) {
-                    axios.get(`${API_BASE_URL}/api/users/${user._id}`, {
-                        headers: { Authorization: `Bearer ${user.token}` }
-                    }).then(res => {
-                        updateUser({ stars: res.data.stars });
-                    }).catch(() => { });
-                }
+
+                // Fetch updated stars and directly update localStorage
+                const fetchAndUpdateStars = async () => {
+                    try {
+                        const storedSessions = JSON.parse(localStorage.getItem('sessions') || '[]');
+                        const activeIndex = parseInt(localStorage.getItem('activeSessionIndex')) || 0;
+                        const session = storedSessions[activeIndex];
+                        if (!session) return;
+
+                        const res = await axios.get(`${API_BASE_URL}/api/users/${session._id}`, {
+                            headers: { Authorization: `Bearer ${session.token}` }
+                        });
+
+                        if (res.data?.stars !== undefined) {
+                            // Directly update localStorage with new stars
+                            storedSessions[activeIndex] = {
+                                ...storedSessions[activeIndex],
+                                stars: res.data.stars
+                            };
+                            localStorage.setItem('sessions', JSON.stringify(storedSessions));
+                            // Set flag so success screen shows after reload
+                            localStorage.setItem('paymentSuccess', 'true');
+                            // Reload to clean URL and force full context refresh
+                            window.location.replace('/top-up');
+                        }
+                    } catch (err) {
+                        console.error('Failed to refresh stars:', err);
+                    }
+                };
+
+                // Wait 1.5s for webhook to process, then fetch
+                setTimeout(fetchAndUpdateStars, 1500);
             } else {
                 setPaymentResult('failed');
                 setStep('result');
@@ -171,8 +204,8 @@ const TopUp = () => {
                                 key={pkg.stars}
                                 onClick={() => { setSelectedPkg(pkg); setStep('phone'); }}
                                 className={`relative bg-white rounded-3xl p-8 border-2 transition-all cursor-pointer hover:scale-105 hover:shadow-2xl ${pkg.popular
-                                        ? 'border-[#001E80] shadow-xl shadow-[#001E80]/20'
-                                        : 'border-gray-200 hover:border-[#001E80]/30'
+                                    ? 'border-[#001E80] shadow-xl shadow-[#001E80]/20'
+                                    : 'border-gray-200 hover:border-[#001E80]/30'
                                     }`}
                             >
                                 {pkg.popular && (
@@ -191,8 +224,8 @@ const TopUp = () => {
                                     <span className="text-3xl font-black text-[#001E80]">{pkg.price} LE</span>
                                 </div>
                                 <div className={`w-full py-4 rounded-2xl font-black uppercase tracking-widest text-sm text-center transition-all ${pkg.popular
-                                        ? 'bg-[#001E80] text-white shadow-xl shadow-[#001E80]/20'
-                                        : 'bg-gray-100 text-gray-700'
+                                    ? 'bg-[#001E80] text-white shadow-xl shadow-[#001E80]/20'
+                                    : 'bg-gray-100 text-gray-700'
                                     }`}>
                                     Select
                                 </div>
@@ -249,8 +282,8 @@ const TopUp = () => {
                             onClick={handlePurchase}
                             disabled={loading || walletPhone.length !== 11}
                             className={`w-full py-4 rounded-2xl font-black uppercase tracking-widest text-sm transition-all ${loading || walletPhone.length !== 11
-                                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                                    : 'bg-[#001E80] text-white shadow-xl shadow-[#001E80]/20 hover:bg-[#010D3E] hover:shadow-2xl active:scale-[0.98]'
+                                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                : 'bg-[#001E80] text-white shadow-xl shadow-[#001E80]/20 hover:bg-[#010D3E] hover:shadow-2xl active:scale-[0.98]'
                                 }`}
                         >
                             {loading ? 'Redirecting to payment...' : `Pay ${selectedPkg.price} LE`}
