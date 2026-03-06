@@ -19,6 +19,7 @@ const PublicProfile = () => {
     const [reviews, setReviews] = useState([]);
     const [isConnected, setIsConnected] = useState(false);
     const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '' });
+    const [showReviewForm, setShowReviewForm] = useState(false);
 
     // Report/Block State
     const [showReportModal, setShowReportModal] = useState(false);
