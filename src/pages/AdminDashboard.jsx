@@ -4,6 +4,7 @@ import AuthContext from '../context/AuthContext';
 import adminService from '../features/admin/adminService';
 import { toast } from 'react-toastify';
 import '../styles/AdminDashboard.css';
+import SearchableDropdown from '../components/SearchableDropdown';
 
 // ───────────────────────────────────────
 // TAB CONSTANTS
@@ -46,6 +47,29 @@ const AdminDashboard = () => {
     const [resetConfirmText, setResetConfirmText] = useState('');
     const [resetLoading, setResetLoading] = useState(false);
     const [resetResult, setResetResult] = useState(null);
+    const [promoteModal, setPromoteModal] = useState(null); // { userId, username, currentRole }
+    const [promoRole, setPromoRole] = useState('');
+    const [promoUni, setPromoUni] = useState('');
+    const [promoCollege, setPromoCollege] = useState('');
+    const [promoLevel, setPromoLevel] = useState('');
+
+    // Constants for promotion
+    const UNIVERSITIES = [
+        'Cairo University', 'Alexandria University', 'Ain Shams University', 'Assiut University', 'Mansoura University',
+        'Zagazig University', 'Helwan University', 'Suez Canal University', '6th of October University',
+        'Misr University for Science and Technology', 'German University in Cairo (GUC)', 'American University in Cairo (AUC)',
+        'Al Alamein International University', 'Delta University for Science and Technology', 'British University in Egypt (BUE)',
+        'Arab Academy (AASTMT)', 'Nile University', 'E-JUST'
+    ];
+
+    const COLLEGES = [
+        'Engineering', 'Medicine', 'Pharmacy', 'Commerce', 'Arts', 'Law', 'Science',
+        'Computer and Information', 'Agriculture', 'Dentistry', 'Nursing', 'Education',
+        'Economics and Political Science', 'Al-Alsun (Languages)', 'Mass Communication',
+        'Fine Arts', 'Applied Arts'
+    ];
+
+    const LEVELS = ['Level 1', 'Level 2', 'Level 3', 'Level 4', 'Graduated'];
 
     // Guard: redirect if not admin
     useEffect(() => {
@@ -223,6 +247,27 @@ const AdminDashboard = () => {
         }
     };
 
+    const handlePromote = async () => {
+        if (!promoteModal) return;
+        try {
+            const data = await adminService.promoteUser(user.token, promoteModal.userId, {
+                role: promoRole,
+                university: promoUni,
+                college: promoCollege,
+                academicLevel: promoLevel
+            });
+            toast.success(data.message);
+            setPromoteModal(null);
+            setPromoRole('');
+            setPromoUni('');
+            setPromoCollege('');
+            setPromoLevel('');
+            fetchUsers(users.page);
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Promotion failed');
+        }
+    };
+
     const handleResetDatabase = async () => {
         if (resetConfirmText !== 'RESET') return;
         setResetLoading(true);
@@ -390,6 +435,13 @@ const AdminDashboard = () => {
                                                         onClick={() => setStarsModal({ userId: u._id, username: u.username, currentStars: u.stars || 0 })}
                                                     >
                                                         ⭐ Adjust
+                                                    </button>
+                                                    <button
+                                                        className="admin-btn primary"
+                                                        style={{ background: '#001E80', color: 'white' }}
+                                                        onClick={() => setPromoteModal({ userId: u._id, username: u.username, currentRole: u.role })}
+                                                    >
+                                                        Promote
                                                     </button>
                                                     <button
                                                         className="admin-btn danger"
@@ -939,6 +991,78 @@ const AdminDashboard = () => {
                                 </div>
                             </>
                         )}
+                    </div>
+                </div>
+            )}
+
+            {/* Promotion Modal */}
+            {promoteModal && (
+                <div className="admin-modal-overlay" onClick={() => setPromoteModal(null)}>
+                    <div className="admin-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 450 }}>
+                        <h3 className="admin-modal-title">Promote @{promoteModal.username}</h3>
+                        <p className="admin-modal-subtitle">Current role: <strong className="text-navy">{promoteModal.currentRole}</strong></p>
+
+                        <div className="space-y-4 my-6">
+                            <div className="space-y-1">
+                                <label className="admin-label">Select New Role</label>
+                                <select
+                                    className="admin-modal-input"
+                                    value={promoRole}
+                                    onChange={(e) => setPromoRole(e.target.value)}
+                                >
+                                    <option value="">Select a role...</option>
+                                    <option value="student">Student (Standard)</option>
+                                    <option value="mentor">Mentor</option>
+                                    <option value="studentLead">Student Lead</option>
+                                    <option value="admin">Administrator</option>
+                                </select>
+                            </div>
+
+                            {promoRole === 'studentLead' && (
+                                <div className="space-y-5 border-t border-gray-50 pt-5 mt-5 animate-in fade-in slide-in-from-top-2 duration-300">
+                                    <SearchableDropdown
+                                        label="University"
+                                        options={UNIVERSITIES}
+                                        value={promoUni}
+                                        onChange={(e) => setPromoUni(e.target.value)}
+                                        placeholder="Search university..."
+                                        name="university"
+                                    />
+                                    <SearchableDropdown
+                                        label="College / Faculty"
+                                        options={COLLEGES}
+                                        value={promoCollege}
+                                        onChange={(e) => setPromoCollege(e.target.value)}
+                                        placeholder="Search college..."
+                                        name="college"
+                                    />
+                                    <div className="space-y-1">
+                                        <label className="admin-label">Academic Level</label>
+                                        <select
+                                            className="admin-modal-input"
+                                            value={promoLevel}
+                                            onChange={(e) => setPromoLevel(e.target.value)}
+                                        >
+                                            <option value="">Select level...</option>
+                                            {LEVELS.map(lvl => (
+                                                <option key={lvl} value={lvl}>{lvl}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="admin-modal-actions">
+                            <button className="admin-btn" onClick={() => setPromoteModal(null)}>Cancel</button>
+                            <button
+                                className="admin-btn primary"
+                                disabled={!promoRole || (promoRole === 'studentLead' && (!promoUni || !promoCollege || !promoLevel))}
+                                onClick={handlePromote}
+                            >
+                                Confirm Promotion
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

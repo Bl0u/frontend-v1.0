@@ -89,6 +89,11 @@ const resetDatabase = async (token) => {
     return res.data;
 };
 
+const promoteUser = async (token, userId, data) => {
+    const res = await axios.put(`${API_BASE_URL}/api/admin/users/${userId}/promote`, data, getConfig(token));
+    return res.data;
+};
+
 const adminService = {
     getStats,
     getUsers,
@@ -103,7 +108,8 @@ const adminService = {
     getPayments,
     getRecruitment,
     updateRecruitment,
-    resetDatabase
+    resetDatabase,
+    promoteUser
 };
 
 export default adminService;
