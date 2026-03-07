@@ -1,9 +1,50 @@
 import { motion } from 'framer-motion';
-import { FaChalkboardTeacher, FaGraduationCap, FaArrowRight } from 'react-icons/fa';
+import { FaChalkboardTeacher, FaGraduationCap, FaArrowRight, FaPlus } from 'react-icons/fa';
 import { useState, useContext } from 'react';
 import AuthContext from '../context/AuthContext';
 import RecruitmentModal from '../components/RecruitmentModal';
+import RoleDetailsModal from '../components/RoleDetailsModal';
 import { toast } from 'react-toastify';
+
+const ROLE_DATA = {
+    mentor: {
+        title: "Expert Mentor",
+        description: "Bridge the gap between academic theory and real-world impact. Join our mentor network and guide learners worldwide on high-impact projects.",
+        responsibilities: [
+            { title: "Project Guidance", desc: "Guide teams through technical hurdles — architecture, stack selection, debugging, and design patterns." },
+            { title: "Knowledge Sharing", desc: "Teach how professionals actually build, ship, and scale software. Bridge the gap between theory and production." }
+        ],
+        benefits: [
+            { title: '"Verified Mentor" Badge', desc: "A distinct profile badge visible across the entire Hub platform." },
+            { title: "Mentor Leaderboard", desc: "Your impact is tracked: projects guided, teams helped, ratings received. Top mentors are publicly highlighted." },
+            { title: "Thought Leader Status", desc: "The more you contribute, the more visible you become in the Hub ecosystem." },
+            { title: "Direct Global Impact", desc: "Your guidance could be the difference between a mediocre project and a career-launching one — for learners worldwide." },
+            { title: "Give Back", desc: "Be the mentor you wished you had. Remember how hard it was when you were starting out." },
+            { title: "Mentor Network", desc: "An exclusive circle of industry professionals who mentor on the Hub." }
+        ],
+        requirements: ["Industry professional", "Real project experience", "Teaching mindset", "Committed to pro-bono impact"]
+    },
+    studentLead: {
+        title: "Student Lead",
+        description: "Represent your level in the Hub network, coordinate resources for your peers, and lead your faculty level with authority.",
+        responsibilities: [
+            { title: "Resource Coordination", desc: "Organize past exams, lecture notes, and study materials. Ensure the level thread stays fresh." },
+            { title: "Community Building", desc: "Welcome new students, moderate the level group chat, and help peers find project partners." }
+        ],
+        benefits: [
+            { title: "Exclusive Position", desc: "Up to 3 Student Leads per level — a selective and prestigious role. You're not one of many." },
+            { title: 'Official "Hub Student Lead" Title', desc: "Displayed on your Hub profile with a verified badge visible to all users." },
+            { title: "Private Lead Network", desc: "A cross-university group of ambitious leaders. Share strategies and build lifelong connections." },
+            { title: "Direct Line to Hub Team", desc: "Your feedback gets priority. You actively shape how the platform evolves." },
+            { title: "Monthly Stars Bonus", desc: "A recurring allocation of Stars to unlock premium resources for free." },
+            { title: "Free Premium Access", desc: "Full access to all premium resources at your level to verify quality." },
+            { title: "Priority Support", desc: "Your issues and requests are always handled first." },
+            { title: "Recommendation Letter", desc: "Top-performing leads can request a formal recommendation from the Hub team." },
+            { title: "Leadership Experience", desc: "Manage a real community, coordinate resources, and build real-world skills." }
+        ],
+        requirements: ["Current university student", "Active Hub user", "Reliable and consistent", "Passionate about helping peers"]
+    }
+};
 
 const NetworkBadge = ({ icon, text, delay = 0 }) => (
     <motion.div
@@ -46,6 +87,9 @@ const NetworkSplit = () => {
     const [isRecruitmentModalOpen, setIsRecruitmentModalOpen] = useState(false);
     const [initialRecruitmentType, setInitialRecruitmentType] = useState(null);
 
+    const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+    const [selectedRoleData, setSelectedRoleData] = useState(null);
+
     const handleApply = (type = null) => {
         if (!user) {
             toast.error('Please login to apply');
@@ -53,6 +97,11 @@ const NetworkSplit = () => {
         }
         setInitialRecruitmentType(type);
         setIsRecruitmentModalOpen(true);
+    };
+
+    const handleReadMore = (roleKey) => {
+        setSelectedRoleData(ROLE_DATA[roleKey]);
+        setIsRoleModalOpen(true);
     };
 
     return (
@@ -128,6 +177,12 @@ const NetworkSplit = () => {
                                 <p className="text-[16px] text-[#010D3E]/80 tracking-tight font-medium max-w-lg leading-relaxed">
                                     Help students with their graduation projects, share your industry expertise, and give back to the community.
                                 </p>
+                                <button
+                                    onClick={() => handleReadMore('mentor')}
+                                    className="inline-flex items-center gap-2 text-[#001E80] text-xs font-black uppercase tracking-widest hover:gap-3 transition-all group"
+                                >
+                                    Read More <FaPlus size={10} className="mt-[1px] opacity-40 group-hover:opacity-100" />
+                                </button>
                             </div>
                         </div>
 
@@ -158,6 +213,12 @@ const NetworkSplit = () => {
                                 <p className="text-[16px] text-[#010D3E]/80 tracking-tight font-medium max-w-lg leading-relaxed">
                                     Represent your level in the Hub network, coordinate resources for your peers, and lead your faculty.
                                 </p>
+                                <button
+                                    onClick={() => handleReadMore('studentLead')}
+                                    className="inline-flex items-center gap-2 text-[#001E80] text-xs font-black uppercase tracking-widest hover:gap-3 transition-all group"
+                                >
+                                    Read More <FaPlus size={10} className="mt-[1px] opacity-40 group-hover:opacity-100" />
+                                </button>
                             </div>
                         </div>
 
@@ -190,6 +251,13 @@ const NetworkSplit = () => {
                     onClose={() => setIsRecruitmentModalOpen(false)}
                     user={user}
                     type={initialRecruitmentType}
+                />
+
+                {/* Role Details Modal (Read More) */}
+                <RoleDetailsModal
+                    isOpen={isRoleModalOpen}
+                    onClose={() => setIsRoleModalOpen(false)}
+                    roleData={selectedRoleData}
                 />
             </div>
 
