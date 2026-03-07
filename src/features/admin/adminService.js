@@ -81,6 +81,14 @@ const updateRecruitment = async (token, applicationId, status) => {
     return res.data;
 };
 
+const resetDatabase = async (token) => {
+    const res = await axios.delete(`${API_BASE_URL}/api/admin/reset`, {
+        ...getConfig(token),
+        data: { confirmation: 'RESET_EVERYTHING' }
+    });
+    return res.data;
+};
+
 const adminService = {
     getStats,
     getUsers,
@@ -94,7 +102,8 @@ const adminService = {
     updateReport,
     getPayments,
     getRecruitment,
-    updateRecruitment
+    updateRecruitment,
+    resetDatabase
 };
 
 export default adminService;

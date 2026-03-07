@@ -42,6 +42,10 @@ const AdminDashboard = () => {
     const [starsModal, setStarsModal] = useState(null); // { userId, username, currentStars }
     const [starsAmount, setStarsAmount] = useState('');
     const [confirmDelete, setConfirmDelete] = useState(null); // { type: 'user'|'thread', id, name }
+    const [resetModal, setResetModal] = useState(false);
+    const [resetConfirmText, setResetConfirmText] = useState('');
+    const [resetLoading, setResetLoading] = useState(false);
+    const [resetResult, setResetResult] = useState(null);
 
     // Guard: redirect if not admin
     useEffect(() => {
@@ -219,6 +223,23 @@ const AdminDashboard = () => {
         }
     };
 
+    const handleResetDatabase = async () => {
+        if (resetConfirmText !== 'RESET') return;
+        setResetLoading(true);
+        try {
+            const data = await adminService.resetDatabase(user.token);
+            toast.success(data.message);
+            setResetResult(data.summary);
+            setResetConfirmText('');
+            // Refresh stats
+            fetchStats();
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Reset failed');
+        } finally {
+            setResetLoading(false);
+        }
+    };
+
     // ───────────────────────────────────────
     // HELPERS
     // ───────────────────────────────────────
@@ -252,15 +273,38 @@ const AdminDashboard = () => {
         ];
 
         return (
-            <div className="admin-stats-grid">
-                {statCards.map((card) => (
-                    <div key={card.label} className="admin-stat-card" style={{ '--card-accent': card.accent }}>
-                        <div className="admin-stat-icon">{card.icon}</div>
-                        <div className="admin-stat-label">{card.label}</div>
-                        <div className="admin-stat-value">{card.value}</div>
-                    </div>
-                ))}
-            </div>
+            <>
+                <div className="admin-stats-grid">
+                    {statCards.map((card) => (
+                        <div key={card.label} className="admin-stat-card" style={{ '--card-accent': card.accent }}>
+                            <div className="admin-stat-icon">{card.icon}</div>
+                            <div className="admin-stat-label">{card.label}</div>
+                            <div className="admin-stat-value">{card.value}</div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Danger Zone */}
+                <div style={{
+                    marginTop: 40,
+                    padding: 24,
+                    background: 'rgba(239, 68, 68, 0.04)',
+                    border: '1px solid rgba(239, 68, 68, 0.15)',
+                    borderRadius: 16
+                }}>
+                    <h3 style={{ color: '#f87171', fontSize: '0.9rem', fontWeight: 700, marginBottom: 8 }}>⚠️ Danger Zone</h3>
+                    <p style={{ color: '#94a3b8', fontSize: '0.82rem', marginBottom: 16 }}>
+                        Reset the entire database. This will delete <strong style={{ color: '#f87171' }}>all users, threads, posts, messages, payments, reports, and everything else</strong> — except admin accounts.
+                    </p>
+                    <button
+                        className="admin-btn danger"
+                        style={{ padding: '10px 24px', fontSize: '0.85rem' }}
+                        onClick={() => { setResetModal(true); setResetResult(null); setResetConfirmText(''); }}
+                    >
+                        🔴 Reset Entire Database
+                    </button>
+                </div>
+            </>
         );
     };
 
@@ -662,8 +706,8 @@ const AdminDashboard = () => {
                                         <td>{p.paymentMethod || 'wallet'}</td>
                                         <td>
                                             <span className={`admin-badge ${p.status === 'success' ? 'success' :
-                                                    p.status === 'pending' ? 'warning' :
-                                                        p.status === 'refunded' ? 'info' : 'danger'
+                                                p.status === 'pending' ? 'warning' :
+                                                    p.status === 'refunded' ? 'info' : 'danger'
                                                 }`}>{p.status}</span>
                                         </td>
                                         <td>{formatDate(p.createdAt)}</td>
@@ -724,8 +768,8 @@ const AdminDashboard = () => {
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                 <span className="admin-recruitment-type admin-badge info">{app.type?.replace('_', ' ')}</span>
                                 <span className={`admin-badge ${app.status === 'pending' ? 'warning' :
-                                        app.status === 'accepted' ? 'success' :
-                                            app.status === 'rejected' ? 'danger' : 'neutral'
+                                    app.status === 'accepted' ? 'success' :
+                                        app.status === 'rejected' ? 'danger' : 'neutral'
                                     }`}>{app.status}</span>
                             </div>
                         </div>
@@ -821,6 +865,75 @@ const AdminDashboard = () => {
                             <button className="admin-btn" onClick={() => setConfirmDelete(null)}>Cancel</button>
                             <button className="admin-btn danger" onClick={handleConfirmDelete}>Delete Permanently</button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Reset Database Modal */}
+            {resetModal && (
+                <div className="admin-modal-overlay" onClick={() => setResetModal(false)}>
+                    <div className="admin-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 520 }}>
+                        <h3 style={{ color: '#f87171' }}>🔴 Reset Entire Database</h3>
+
+                        {resetResult ? (
+                            <>
+                                <p style={{ fontSize: '0.85rem', color: '#4ade80', marginBottom: 16, fontWeight: 600 }}>
+                                    ✅ Database has been reset successfully!
+                                </p>
+                                <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 12, padding: 16, marginBottom: 16 }}>
+                                    <table className="admin-table" style={{ minWidth: 'unset' }}>
+                                        <thead>
+                                            <tr>
+                                                <th style={{ padding: '8px 12px' }}>Collection</th>
+                                                <th style={{ padding: '8px 12px' }}>Deleted</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {resetResult.map((item, i) => (
+                                                <tr key={i}>
+                                                    <td style={{ padding: '6px 12px' }}>{item.collection}</td>
+                                                    <td style={{ padding: '6px 12px', fontWeight: 700, color: item.deleted > 0 ? '#f87171' : '#64748b' }}>
+                                                        {item.deleted}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div className="admin-modal-actions">
+                                    <button className="admin-btn primary" onClick={() => setResetModal(false)}>Close</button>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <div className="admin-confirm-text">
+                                    This will <strong>permanently delete</strong> all data from every collection in the database.
+                                    Only admin accounts will be preserved. This action <strong>cannot be undone</strong>.
+                                </div>
+                                <p style={{ fontSize: '0.82rem', color: '#94a3b8', marginBottom: 8 }}>
+                                    Type <strong style={{ color: '#f87171', letterSpacing: 2 }}>RESET</strong> to confirm:
+                                </p>
+                                <input
+                                    type="text"
+                                    className="admin-modal-input"
+                                    placeholder="Type RESET here..."
+                                    value={resetConfirmText}
+                                    onChange={(e) => setResetConfirmText(e.target.value.toUpperCase())}
+                                    style={{ borderColor: resetConfirmText === 'RESET' ? 'rgba(239, 68, 68, 0.5)' : undefined }}
+                                />
+                                <div className="admin-modal-actions">
+                                    <button className="admin-btn" onClick={() => setResetModal(false)}>Cancel</button>
+                                    <button
+                                        className="admin-btn danger"
+                                        disabled={resetConfirmText !== 'RESET' || resetLoading}
+                                        onClick={handleResetDatabase}
+                                        style={{ opacity: resetConfirmText !== 'RESET' ? 0.4 : 1 }}
+                                    >
+                                        {resetLoading ? 'Resetting...' : '🔴 Confirm Reset'}
+                                    </button>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             )}
