@@ -9,12 +9,12 @@ import '../styles/AdminDashboard.css';
 // TAB CONSTANTS
 // ───────────────────────────────────────
 const TABS = [
-    { key: 'overview', label: 'Overview', icon: '📊' },
-    { key: 'users', label: 'Users', icon: '👥' },
-    { key: 'threads', label: 'Threads', icon: '📝' },
-    { key: 'reports', label: 'Reports', icon: '🚩' },
-    { key: 'payments', label: 'Payments', icon: '💳' },
-    { key: 'recruitment', label: 'Recruitment', icon: '📋' },
+    { key: 'overview', label: 'Overview' },
+    { key: 'users', label: 'Users' },
+    { key: 'threads', label: 'Threads' },
+    { key: 'reports', label: 'Reports' },
+    { key: 'payments', label: 'Payments' },
+    { key: 'recruitment', label: 'Recruitment' },
 ];
 
 const AdminDashboard = () => {
@@ -258,26 +258,39 @@ const AdminDashboard = () => {
     const renderOverview = () => {
         if (!stats) return <div className="admin-loading"><div className="admin-spinner" /> Loading stats...</div>;
 
-        const statCards = [
-            { label: 'Total Users', value: stats.totalUsers, icon: '👥', accent: '#818cf8' },
-            { label: 'Banned Users', value: stats.bannedUsers, icon: '🚫', accent: '#ef4444' },
-            { label: 'Total Threads', value: stats.totalThreads, icon: '📝', accent: '#a78bfa' },
-            { label: 'Total Posts', value: stats.totalPosts, icon: '💬', accent: '#38bdf8' },
-            { label: 'Stars in Circulation', value: stats.starsInCirculation, icon: '⭐', accent: '#fbbf24' },
-            { label: 'Successful Payments', value: stats.totalPayments, icon: '✅', accent: '#4ade80' },
-            { label: 'Total Revenue (EGP)', value: `${stats.totalRevenue?.toLocaleString()}`, icon: '💰', accent: '#22d3ee' },
-            { label: 'Pending Reports', value: stats.pendingReports, icon: '🚩', accent: '#f87171' },
-            { label: 'Total Reports', value: stats.totalReports, icon: '📋', accent: '#fb923c' },
-            { label: 'Recruitment Apps', value: stats.totalRecruitment, icon: '📨', accent: '#c084fc' },
-            { label: 'Pending Recruitment', value: stats.pendingRecruitment, icon: '⏳', accent: '#e879f9' },
+        const heroCards = [
+            { label: 'Total Users', value: stats.totalUsers },
+            { label: 'Total Threads', value: stats.totalThreads },
+            { label: 'Total Revenue', value: `${stats.totalRevenue?.toLocaleString()} EGP` },
+        ];
+
+        const regularCards = [
+            { label: 'Banned Users', value: stats.bannedUsers },
+            { label: 'Total Posts', value: stats.totalPosts },
+            { label: 'Stars in Circulation', value: stats.starsInCirculation?.toLocaleString() },
+            { label: 'Successful Payments', value: stats.totalPayments },
+            { label: 'Pending Reports', value: stats.pendingReports },
+            { label: 'Total Reports', value: stats.totalReports },
+            { label: 'Recruitment Apps', value: stats.totalRecruitment },
+            { label: 'Pending Recruitment', value: stats.pendingRecruitment },
         ];
 
         return (
             <>
+                {/* Hero row */}
+                <div className="admin-stats-grid" style={{ marginBottom: 16 }}>
+                    {heroCards.map((card) => (
+                        <div key={card.label} className="admin-stat-card hero">
+                            <div className="admin-stat-label">{card.label}</div>
+                            <div className="admin-stat-value">{card.value}</div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Detail row */}
                 <div className="admin-stats-grid">
-                    {statCards.map((card) => (
-                        <div key={card.label} className="admin-stat-card" style={{ '--card-accent': card.accent }}>
-                            <div className="admin-stat-icon">{card.icon}</div>
+                    {regularCards.map((card) => (
+                        <div key={card.label} className="admin-stat-card">
                             <div className="admin-stat-label">{card.label}</div>
                             <div className="admin-stat-value">{card.value}</div>
                         </div>
@@ -285,23 +298,17 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* Danger Zone */}
-                <div style={{
-                    marginTop: 40,
-                    padding: 24,
-                    background: 'rgba(239, 68, 68, 0.04)',
-                    border: '1px solid rgba(239, 68, 68, 0.15)',
-                    borderRadius: 16
-                }}>
-                    <h3 style={{ color: '#f87171', fontSize: '0.9rem', fontWeight: 700, marginBottom: 8 }}>⚠️ Danger Zone</h3>
-                    <p style={{ color: '#94a3b8', fontSize: '0.82rem', marginBottom: 16 }}>
-                        Reset the entire database. This will delete <strong style={{ color: '#f87171' }}>all users, threads, posts, messages, payments, reports, and everything else</strong> — except admin accounts.
+                <div className="admin-danger-zone">
+                    <h3>Danger Zone</h3>
+                    <p>
+                        Reset the entire database. This will delete <strong>all users, threads, posts, messages, payments, reports, and everything else</strong> — except admin accounts.
                     </p>
                     <button
                         className="admin-btn danger"
-                        style={{ padding: '10px 24px', fontSize: '0.85rem' }}
+                        style={{ padding: '10px 24px' }}
                         onClick={() => { setResetModal(true); setResetResult(null); setResetConfirmText(''); }}
                     >
-                        🔴 Reset Entire Database
+                        Reset Entire Database
                     </button>
                 </div>
             </>
@@ -540,7 +547,7 @@ const AdminDashboard = () => {
                                 {threads.threads.map((t) => (
                                     <tr key={t._id}>
                                         <td>
-                                            <span style={{ fontWeight: 600, color: '#f1f5f9', cursor: 'pointer' }}
+                                            <span style={{ fontWeight: 700, color: '#1a1a2e', cursor: 'pointer' }}
                                                 onClick={() => navigate(`/resources/thread/${t._id}`)}>
                                                 {t.title?.length > 40 ? t.title.substring(0, 40) + '...' : t.title}
                                             </span>
@@ -617,9 +624,9 @@ const AdminDashboard = () => {
                     <div key={r._id} className="admin-report-card">
                         <div className="admin-report-header">
                             <div className="admin-report-users">
-                                <span style={{ color: '#a5b4fc', fontWeight: 600 }}>@{r.reporter?.username || 'Unknown'}</span>
+                                <span style={{ color: '#001E80', fontWeight: 700 }}>@{r.reporter?.username || 'Unknown'}</span>
                                 <span className="admin-report-arrow">→ reported →</span>
-                                <span style={{ color: '#f87171', fontWeight: 600 }}>@{r.reportedUser?.username || 'Unknown'}</span>
+                                <span style={{ color: '#dc2626', fontWeight: 700 }}>@{r.reportedUser?.username || 'Unknown'}</span>
                                 {r.reportedUser?.isBanned && <span className="admin-badge danger" style={{ marginLeft: 4 }}>Banned</span>}
                             </div>
                             <span className={`admin-badge ${r.status === 'pending' ? 'warning' : r.status === 'reviewed' ? 'success' : 'neutral'}`}>
@@ -633,13 +640,13 @@ const AdminDashboard = () => {
                             {r.status === 'pending' && (
                                 <div className="admin-actions">
                                     <button className="admin-btn success" onClick={() => handleUpdateReport(r._id, 'reviewed')}>
-                                        ✓ Mark Reviewed
+                                        Mark Reviewed
                                     </button>
                                     <button className="admin-btn" onClick={() => handleUpdateReport(r._id, 'dismissed')}>
-                                        ✕ Dismiss
+                                        Dismiss
                                     </button>
                                     <button className="admin-btn danger" onClick={() => handleUpdateReport(r._id, 'reviewed', true)}>
-                                        🚫 Review & Ban User
+                                        Review & Ban
                                     </button>
                                 </div>
                             )}
@@ -761,25 +768,25 @@ const AdminDashboard = () => {
                                     {app.user?.name?.charAt(0) || '?'}
                                 </div>
                                 <div>
-                                    <div style={{ fontWeight: 600, color: '#f1f5f9' }}>{app.user?.name || 'Unknown'}</div>
-                                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>@{app.user?.username} · {app.user?.email}</div>
+                                    <div style={{ fontWeight: 700, color: '#1a1a2e' }}>{app.user?.name || 'Unknown'}</div>
+                                    <div className="admin-user-email">@{app.user?.username} · {app.user?.email}</div>
                                 </div>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <span className="admin-recruitment-type admin-badge info">{app.type?.replace('_', ' ')}</span>
+                                <span className="admin-badge info">{app.type?.replace('_', ' ')}</span>
                                 <span className={`admin-badge ${app.status === 'pending' ? 'warning' :
                                     app.status === 'accepted' ? 'success' :
                                         app.status === 'rejected' ? 'danger' : 'neutral'
                                     }`}>{app.status}</span>
                             </div>
                         </div>
-                        <div style={{ fontSize: '0.78rem', color: '#64748b', marginBottom: 12 }}>
+                        <div className="admin-report-date" style={{ marginBottom: 12 }}>
                             Applied: {formatDate(app.createdAt)}
                         </div>
                         {app.status === 'pending' && (
                             <div className="admin-actions">
-                                <button className="admin-btn success" onClick={() => handleUpdateRecruitment(app._id, 'accepted')}>✓ Accept</button>
-                                <button className="admin-btn danger" onClick={() => handleUpdateRecruitment(app._id, 'rejected')}>✕ Reject</button>
+                                <button className="admin-btn success" onClick={() => handleUpdateRecruitment(app._id, 'accepted')}>Accept</button>
+                                <button className="admin-btn danger" onClick={() => handleUpdateRecruitment(app._id, 'rejected')}>Reject</button>
                                 <button className="admin-btn" onClick={() => handleUpdateRecruitment(app._id, 'reviewed')}>Mark Reviewed</button>
                             </div>
                         )}
@@ -797,7 +804,7 @@ const AdminDashboard = () => {
             {/* Header */}
             <div className="admin-header">
                 <h1>Admin Dashboard</h1>
-                <span className="admin-header-badge">v1.0</span>
+                <p className="admin-header-sub">Platform overview and management controls</p>
             </div>
 
             {/* Tabs */}
@@ -808,7 +815,6 @@ const AdminDashboard = () => {
                         className={`admin-tab ${activeTab === tab.key ? 'active' : ''}`}
                         onClick={() => setActiveTab(tab.key)}
                     >
-                        <span>{tab.icon}</span>
                         <span>{tab.label}</span>
                         {tab.key === 'reports' && pendingReportsCount > 0 && (
                             <span className="admin-tab-badge">{pendingReportsCount}</span>
@@ -833,8 +839,8 @@ const AdminDashboard = () => {
                 <div className="admin-modal-overlay" onClick={() => setStarsModal(null)}>
                     <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
                         <h3>Adjust Stars for @{starsModal.username}</h3>
-                        <p style={{ fontSize: '0.85rem', color: '#94a3b8', marginBottom: 16 }}>
-                            Current balance: <strong style={{ color: '#fbbf24' }}>⭐ {starsModal.currentStars}</strong>
+                        <p style={{ fontSize: '0.85rem', color: 'rgba(0,0,0,0.45)', marginBottom: 16 }}>
+                            Current balance: <strong style={{ color: '#001E80' }}>{starsModal.currentStars} stars</strong>
                         </p>
                         <input
                             type="number"
@@ -873,14 +879,14 @@ const AdminDashboard = () => {
             {resetModal && (
                 <div className="admin-modal-overlay" onClick={() => setResetModal(false)}>
                     <div className="admin-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 520 }}>
-                        <h3 style={{ color: '#f87171' }}>🔴 Reset Entire Database</h3>
+                        <h3 style={{ color: '#dc2626' }}>Reset Entire Database</h3>
 
                         {resetResult ? (
                             <>
-                                <p style={{ fontSize: '0.85rem', color: '#4ade80', marginBottom: 16, fontWeight: 600 }}>
-                                    ✅ Database has been reset successfully!
+                                <p style={{ fontSize: '0.85rem', color: '#16a34a', marginBottom: 16, fontWeight: 600 }}>
+                                    Database has been reset successfully.
                                 </p>
-                                <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 12, padding: 16, marginBottom: 16 }}>
+                                <div style={{ background: 'rgba(0,0,0,0.02)', borderRadius: 12, padding: 16, marginBottom: 16 }}>
                                     <table className="admin-table" style={{ minWidth: 'unset' }}>
                                         <thead>
                                             <tr>
@@ -892,7 +898,7 @@ const AdminDashboard = () => {
                                             {resetResult.map((item, i) => (
                                                 <tr key={i}>
                                                     <td style={{ padding: '6px 12px' }}>{item.collection}</td>
-                                                    <td style={{ padding: '6px 12px', fontWeight: 700, color: item.deleted > 0 ? '#f87171' : '#64748b' }}>
+                                                    <td style={{ padding: '6px 12px', fontWeight: 700, color: item.deleted > 0 ? '#dc2626' : 'rgba(0,0,0,0.3)' }}>
                                                         {item.deleted}
                                                     </td>
                                                 </tr>
@@ -910,8 +916,8 @@ const AdminDashboard = () => {
                                     This will <strong>permanently delete</strong> all data from every collection in the database.
                                     Only admin accounts will be preserved. This action <strong>cannot be undone</strong>.
                                 </div>
-                                <p style={{ fontSize: '0.82rem', color: '#94a3b8', marginBottom: 8 }}>
-                                    Type <strong style={{ color: '#f87171', letterSpacing: 2 }}>RESET</strong> to confirm:
+                                <p style={{ fontSize: '0.82rem', color: 'rgba(0,0,0,0.4)', marginBottom: 8 }}>
+                                    Type <strong style={{ color: '#dc2626', letterSpacing: 2 }}>RESET</strong> to confirm:
                                 </p>
                                 <input
                                     type="text"
@@ -919,7 +925,7 @@ const AdminDashboard = () => {
                                     placeholder="Type RESET here..."
                                     value={resetConfirmText}
                                     onChange={(e) => setResetConfirmText(e.target.value.toUpperCase())}
-                                    style={{ borderColor: resetConfirmText === 'RESET' ? 'rgba(239, 68, 68, 0.5)' : undefined }}
+                                    style={{ borderColor: resetConfirmText === 'RESET' ? 'rgba(220, 38, 38, 0.4)' : undefined }}
                                 />
                                 <div className="admin-modal-actions">
                                     <button className="admin-btn" onClick={() => setResetModal(false)}>Cancel</button>
@@ -927,9 +933,8 @@ const AdminDashboard = () => {
                                         className="admin-btn danger"
                                         disabled={resetConfirmText !== 'RESET' || resetLoading}
                                         onClick={handleResetDatabase}
-                                        style={{ opacity: resetConfirmText !== 'RESET' ? 0.4 : 1 }}
                                     >
-                                        {resetLoading ? 'Resetting...' : '🔴 Confirm Reset'}
+                                        {resetLoading ? 'Resetting...' : 'Confirm Reset'}
                                     </button>
                                 </div>
                             </>
