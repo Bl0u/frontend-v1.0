@@ -142,38 +142,48 @@ const PlanManager = () => {
     }
 
     return (
-        <div className="max-w-5xl mx-auto my-10 px-4">
-            <button onClick={() => navigate('/dashboard')} className="mb-6 flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-bold">
+        <div className="max-w-5xl mx-auto my-10 px-4 space-y-8">
+            <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 text-[#001E80]/60 hover:text-[#001E80] font-bold transition-colors">
                 <FaArrowLeft /> Back to Dashboard
             </button>
 
-            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8 mb-8">
-                <h1 className="text-3xl font-black text-gray-900 mb-2">Mentorship Plan</h1>
-                <p className="text-gray-600 font-medium">
-                    <span className="font-bold">Mentee:</span> {plan.mentee.name} (@{plan.mentee.username})
-                </p>
+            {/* Premium Header */}
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#EAEEFE] to-white p-10 border border-[#001E80]/5">
+                <div className="relative z-10">
+                    <p className="text-[#001E80]/50 text-xs font-black uppercase tracking-widest mb-2">Collaboration Space</p>
+                    <h1
+                        className="text-4xl font-black bg-gradient-to-b from-black to-[#001E80] bg-clip-text text-transparent pb-1"
+                        style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
+                    >
+                        Success Roadmap
+                    </h1>
+                    <div className="mt-4 flex items-center gap-4">
+                        <div className="flex -space-x-3">
+                            <div className="w-10 h-10 rounded-full bg-[#001E80] border-2 border-white flex items-center justify-center text-white font-bold text-xs">
+                                {(plan.partner1?.name || plan.mentor?.name || 'P')?.charAt(0)}
+                            </div>
+                            <div className="w-10 h-10 rounded-full bg-indigo-400 border-2 border-white flex items-center justify-center text-white font-bold text-xs">
+                                {(plan.partner2?.name || plan.student?.name || 'P')?.charAt(0)}
+                            </div>
+                        </div>
+                        <p className="text-[#010D3E]/60 font-medium text-sm">
+                            {plan.partner1?.name || plan.mentor?.name} & {plan.partner2?.name || plan.student?.name}
+                        </p>
+                    </div>
+                </div>
+                {/* Background Decor */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-[#001E80]/5 rounded-full translate-x-1/3 -translate-y-1/3 blur-3xl"></div>
             </div>
 
             {/* New Version Button */}
             {(() => {
-                // Defensive check: ensure plan.mentor exists
-                if (!plan.mentor || !plan.mentor._id) {
-                    console.warn('Plan mentor not populated:', plan.mentor);
-                    return null;
-                }
+                // Both partners can now add versions
+                const isPartner = (plan.partner1?._id || plan.mentor?._id)?.toString() === user._id || (plan.partner2?._id || plan.student?._id)?.toString() === user._id;
 
-                const isMentor = plan.mentor._id.toString() === user._id;
-                console.log('Add Version Button Debug:', {
-                    showNewVersionForm,
-                    planMentorId: plan.mentor._id.toString(),
-                    userId: user._id,
-                    isMentor,
-                    willShow: !showNewVersionForm && isMentor
-                });
-                return !showNewVersionForm && isMentor && (
+                return !showNewVersionForm && isPartner && (
                     <button
                         onClick={() => setShowNewVersionForm(true)}
-                        className="mb-8 w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-indigo-100 transition-all flex items-center justify-center gap-3"
+                        className="mb-8 w-full bg-[#001E80] hover:bg-[#010D3E] text-white py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-indigo-100 transition-all flex items-center justify-center gap-3"
                     >
                         <FaPlus /> Create New Version
                     </button>
@@ -187,14 +197,14 @@ const PlanManager = () => {
 
                     <div className="space-y-6">
                         <div>
-                            <label className="block text-[10px] font-black uppercase tracking-widest text-indigo-600 mb-2">Version Type</label>
+                            <label className="block text-[10px] font-black uppercase tracking-widest text-[#001E80] mb-2">Version Type</label>
                             <div className="flex gap-4">
                                 <label className="flex items-center gap-2 cursor-pointer">
                                     <input
                                         type="radio"
                                         checked={!newVersion.isMajor}
                                         onChange={() => setNewVersion({ ...newVersion, isMajor: false })}
-                                        className="w-4 h-4 accent-indigo-600"
+                                        className="w-4 h-4 accent-[#001E80]"
                                     />
                                     <span className="text-sm font-medium">Minor Update (0.x)</span>
                                 </label>
@@ -203,7 +213,7 @@ const PlanManager = () => {
                                         type="radio"
                                         checked={newVersion.isMajor}
                                         onChange={() => setNewVersion({ ...newVersion, isMajor: true })}
-                                        className="w-4 h-4 accent-indigo-600"
+                                        className="w-4 h-4 accent-[#001E80]"
                                     />
                                     <span className="text-sm font-medium">Major Update (x.0)</span>
                                 </label>
@@ -211,30 +221,30 @@ const PlanManager = () => {
                         </div>
 
                         <div>
-                            <label className="block text-[10px] font-black uppercase tracking-widest text-indigo-600 mb-2">Title</label>
+                            <label className="block text-[10px] font-black uppercase tracking-widest text-[#001E80] mb-2">Title</label>
                             <input
                                 type="text"
                                 value={newVersion.title}
                                 onChange={(e) => setNewVersion({ ...newVersion, title: e.target.value })}
                                 placeholder="e.g., Week 1 Goals & Milestones"
-                                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-medium"
+                                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-[#001E80] outline-none text-sm font-medium"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-[10px] font-black uppercase tracking-widest text-indigo-600 mb-2">Content (Markdown Supported)</label>
+                            <label className="block text-[10px] font-black uppercase tracking-widest text-[#001E80] mb-2">Content (Markdown Supported)</label>
                             <textarea
                                 value={newVersion.content}
                                 onChange={(e) => setNewVersion({ ...newVersion, content: e.target.value })}
                                 placeholder="Use markdown: **bold**, *italic*, # Heading, - List item"
-                                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-medium min-h-[200px]"
+                                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-[#001E80] outline-none text-sm font-medium min-h-[200px]"
                             />
                         </div>
 
                         <div className="flex gap-3">
                             <button
                                 onClick={handleAddVersion}
-                                className="flex-grow bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-2xl font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2"
+                                className="flex-grow bg-[#001E80] hover:bg-[#010D3E] text-white py-3 rounded-2xl font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2"
                             >
                                 <FaSave /> Publish Version
                             </button>
@@ -260,8 +270,8 @@ const PlanManager = () => {
                                 className="p-6 cursor-pointer hover:bg-gray-50 transition-all flex justify-between items-center"
                             >
                                 <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center">
-                                        <span className="text-indigo-600 font-black text-sm">{getVersionLabel(version)}</span>
+                                    <div className="w-12 h-12 bg-[#EAEEFE] rounded-2xl flex items-center justify-center">
+                                        <span className="text-[#001E80] font-black text-sm">{getVersionLabel(version)}</span>
                                     </div>
                                     <div>
                                         <h3 className="font-black text-gray-900">{version.title}</h3>
@@ -271,7 +281,7 @@ const PlanManager = () => {
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-4">
-                                    {editingVersion !== actualIdx && plan.mentor._id === user.id && (
+                                    {editingVersion !== actualIdx && ((plan.partner1?._id || plan.mentor?._id)?.toString() === user._id || (plan.partner2?._id || plan.student?._id)?.toString() === user._id) && (
                                         <>
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); handleEditVersion(actualIdx, version); }}
@@ -299,20 +309,20 @@ const PlanManager = () => {
                                     {editingVersion === actualIdx ? (
                                         <div className="space-y-4 mb-6">
                                             <div>
-                                                <label className="block text-[10px] font-black uppercase tracking-widest text-indigo-600 mb-2">Title</label>
+                                                <label className="block text-[10px] font-black uppercase tracking-widest text-[#001E80] mb-2">Title</label>
                                                 <input
                                                     type="text"
                                                     value={editContent.title}
                                                     onChange={(e) => setEditContent({ ...editContent, title: e.target.value })}
-                                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-medium"
+                                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-[#001E80] outline-none text-sm font-medium"
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-[10px] font-black uppercase tracking-widest text-indigo-600 mb-2">Content (Markdown)</label>
+                                                <label className="block text-[10px] font-black uppercase tracking-widest text-[#001E80] mb-2">Content (Markdown)</label>
                                                 <textarea
                                                     value={editContent.content}
                                                     onChange={(e) => setEditContent({ ...editContent, content: e.target.value })}
-                                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-medium min-h-[200px]"
+                                                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-[#001E80] outline-none text-sm font-medium min-h-[200px]"
                                                 />
                                             </div>
                                             <div className="flex gap-3">
@@ -362,7 +372,7 @@ const PlanManager = () => {
                                             />
                                             <button
                                                 onClick={() => handleAddComment(actualIdx)}
-                                                className="px-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold text-xs uppercase tracking-wider transition-all"
+                                                className="px-6 bg-[#001E80] hover:bg-[#010D3E] text-white rounded-2xl font-bold text-xs uppercase tracking-wider transition-all"
                                             >
                                                 Post
                                             </button>

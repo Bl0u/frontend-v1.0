@@ -8,20 +8,71 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [sessions, setSessions] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        }
-        setLoading(false);
+        const initAuth = () => {
+            try {
+                const storedSessions = localStorage.getItem('sessions');
+                const activeIndex = localStorage.getItem('activeSessionIndex');
+                const legacyUser = localStorage.getItem('user');
 
-        // Listen for storage events (triggered by other components)
+                if (storedSessions) {
+                    const parsedSessions = JSON.parse(storedSessions);
+                    if (Array.isArray(parsedSessions)) {
+                        setSessions(parsedSessions);
+                        const index = parseInt(activeIndex) || 0;
+                        if (parsedSessions[index]) {
+                            setUser(parsedSessions[index]);
+                        }
+                    } else {
+                        // If it's not an array, it's corrupted or legacy
+                        localStorage.removeItem('sessions');
+                    }
+                } else if (legacyUser) {
+                    // Migrate legacy single-user session
+                    try {
+                        const parsedUser = JSON.parse(legacyUser);
+                        if (parsedUser && parsedUser.token) {
+                            const initialSessions = [parsedUser];
+                            setSessions(initialSessions);
+                            setUser(parsedUser);
+                            localStorage.setItem('sessions', JSON.stringify(initialSessions));
+                            localStorage.setItem('activeSessionIndex', '0');
+                            localStorage.removeItem('user');
+                        }
+                    } catch (e) {
+                        localStorage.removeItem('user');
+                    }
+                }
+            } catch (error) {
+                console.error('Error initializing auth:', error);
+                localStorage.removeItem('sessions');
+                localStorage.removeItem('activeSessionIndex');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        initAuth();
+
         const handleStorageChange = () => {
-            const updatedUser = localStorage.getItem('user');
-            if (updatedUser) {
-                setUser(JSON.parse(updatedUser));
+            try {
+                const updatedSessions = localStorage.getItem('sessions');
+                const updatedActiveIndex = localStorage.getItem('activeSessionIndex');
+                if (updatedSessions) {
+                    const parsed = JSON.parse(updatedSessions);
+                    if (Array.isArray(parsed)) {
+                        setSessions(parsed);
+                        const index = parseInt(updatedActiveIndex) || 0;
+                        if (parsed[index]) {
+                            setUser(parsed[index]);
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error('Storage sync error:', e);
             }
         };
 
@@ -29,13 +80,21 @@ export const AuthProvider = ({ children }) => {
         return () => window.removeEventListener('storage', handleStorageChange);
     }, []);
 
+    // Helper to update sessions and active user
+    const updateSessions = (newSessions, activeIndex) => {
+        localStorage.setItem('sessions', JSON.stringify(newSessions));
+        localStorage.setItem('activeSessionIndex', activeIndex.toString());
+        setSessions(newSessions);
+        setUser(newSessions[activeIndex] || null);
+    };
+
     // Register
     const register = async (formData) => {
         try {
             const res = await axios.post(`${API_BASE_URL}/api/auth/register`, formData);
             if (res.data) {
-                localStorage.setItem('user', JSON.stringify(res.data));
-                setUser(res.data);
+                const newSessions = [...sessions, res.data];
+                updateSessions(newSessions, newSessions.length - 1);
                 toast.success('Registered successfully');
                 return true;
             }
@@ -52,8 +111,21 @@ export const AuthProvider = ({ children }) => {
         try {
             const res = await axios.post(`${API_BASE_URL}/api/auth/login`, formData);
             if (res.data) {
-                localStorage.setItem('user', JSON.stringify(res.data));
-                setUser(res.data);
+                // Check if user already has a session
+                const existingIndex = sessions.findIndex(s => s._id === res.data._id);
+                let newSessions;
+                let newIndex;
+
+                if (existingIndex !== -1) {
+                    newSessions = [...sessions];
+                    newSessions[existingIndex] = res.data; // Update data
+                    newIndex = existingIndex;
+                } else {
+                    newSessions = [...sessions, res.data];
+                    newIndex = newSessions.length - 1;
+                }
+
+                updateSessions(newSessions, newIndex);
                 toast.success('Logged in successfully');
                 return true;
             }
@@ -65,18 +137,78 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // Logout
-    const logout = () => {
-        localStorage.removeItem('user');
-        setUser(null);
+    // Switch Session
+    const switchSession = (index) => {
+        if (sessions[index]) {
+            localStorage.setItem('activeSessionIndex', index.toString());
+            setUser(sessions[index]);
+            toast.info(`Switched to ${sessions[index].username}`);
+        }
+    };
+
+    // Logout specific session
+    const logout = (index) => {
+        const targetIndex = typeof index === 'number' ? index : sessions.findIndex(s => s._id === user?._id);
+        if (targetIndex === -1) return;
+
+        const newSessions = sessions.filter((_, i) => i !== targetIndex);
+
+        if (newSessions.length === 0) {
+            localStorage.removeItem('sessions');
+            localStorage.removeItem('activeSessionIndex');
+            setSessions([]);
+            setUser(null);
+        } else {
+            // If we've logged out the active session, switch to the first one
+            const activeIndex = localStorage.getItem('activeSessionIndex');
+            let nextIndex = parseInt(activeIndex);
+
+            if (nextIndex === targetIndex) {
+                nextIndex = 0;
+            } else if (nextIndex > targetIndex) {
+                nextIndex--;
+            }
+
+            updateSessions(newSessions, nextIndex);
+        }
         toast.info('Logged out');
     };
 
+    // Update active user data (e.g., stars, profile info)
+    const updateUser = (data) => {
+        if (!user) return;
+
+        const activeIndex = localStorage.getItem('activeSessionIndex');
+        const index = parseInt(activeIndex) || 0;
+
+        const newSessions = [...sessions];
+        if (newSessions[index]) {
+            newSessions[index] = { ...newSessions[index], ...data };
+            updateSessions(newSessions, index);
+        }
+    };
+
+    // Fetch latest user data from backend and update session
+    const refreshUser = async () => {
+        if (!user) return;
+        try {
+            const config = { headers: { Authorization: `Bearer ${user.token}` } };
+            const res = await axios.get(`${API_BASE_URL}/api/users/${user._id}`, config);
+            if (res.data) {
+                // Keep the current token as the GET user endpoint might not return it
+                updateUser({ ...res.data, token: user.token });
+            }
+        } catch (error) {
+            console.error('Error refreshing user:', error);
+        }
+    };
+
     return (
-        <AuthContext.Provider value={{ user, register, login, logout, loading }}>
+        <AuthContext.Provider value={{ user, sessions, register, login, logout, switchSession, updateUser, refreshUser, loading }}>
             {children}
         </AuthContext.Provider>
     );
 };
 
 export default AuthContext;
+

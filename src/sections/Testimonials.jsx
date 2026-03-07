@@ -1,43 +1,18 @@
+import { Fragment, useRef, useState, useEffect, useContext } from 'react';
 import { motion } from 'framer-motion';
-import { Fragment, useRef } from 'react';
+import AuthContext from '../context/AuthContext';
+import ReviewModal from '../components/ReviewModal';
+import testimonialService from '../features/testimonials/testimonialService';
+import { toast } from 'react-toastify';
 
-const testimonials = [
+const defaultTestimonials = [
     {
         text: 'This app has completely transformed how I manage my projects and deadlines.',
         imageSrc: '/assets/avatar-1.png',
         name: 'Jamie Rivera',
         username: '@jamietechguru00',
     },
-    {
-        text: 'I was amazed at how quickly we were able to integrate this app into our workflow.',
-        imageSrc: '/assets/avatar-2.png',
-        name: 'Josh Smith',
-        username: '@jjsmith',
-    },
-    {
-        text: 'Planning and executing events has never been easier. This app helps me keep track of all the moving parts, ensuring nothing slips through the cracks.',
-        imageSrc: '/assets/avatar-3.png',
-        name: 'Morgan Lee',
-        username: '@morganleewhiz',
-    },
-    {
-        text: 'The variability and flexibility are remarkable. It fits perfectly into our diverse needs.',
-        imageSrc: '/assets/avatar-4.png',
-        name: 'Casey Jordan',
-        username: '@caseyj',
-    },
-    {
-        text: 'Adopting this app for our team has streamlined our project management and improved communication across the board.',
-        imageSrc: '/assets/avatar-5.png',
-        name: 'Taylor Kim',
-        username: '@taylorkimm',
-    },
-    {
-        text: 'With this app, we can easily assign tasks, track progress, and manage documents all in one place.',
-        imageSrc: '/assets/avatar-6.png',
-        name: 'Riley Smith',
-        username: '@rileysmith1',
-    },
+    // ... other static ones can stay as fallback or just empty
 ];
 
 const TestimonialsColumn = ({ className, testimonials, duration }) => (
@@ -55,13 +30,13 @@ const TestimonialsColumn = ({ className, testimonials, duration }) => (
             className="flex flex-col gap-6 pb-6"
         >
             {[...testimonials, ...testimonials].map(({ text, imageSrc, name, username }, index) => (
-                <div key={index} className="card p-10 border border-[#F1F1F1] rounded-3xl shadow-[0_7px_14px_#EAEAEA] max-w-xs w-full bg-white">
-                    <div>{text}</div>
-                    <div className="flex items-center gap-2 mt-5">
-                        <img src={imageSrc} alt={name} className="h-10 w-10 rounded-full" />
+                <div key={index} className="card p-4 border border-[#F1F1F1] rounded-2xl shadow-[0_4px_10px_#EAEAEA] max-w-xs w-full bg-white">
+                    <div className="text-sm leading-relaxed">{text}</div>
+                    <div className="flex items-center gap-2 mt-4">
+                        <img src={imageSrc} alt={name} className="h-8 w-8 rounded-full" />
                         <div className="flex flex-col">
-                            <div className="font-medium tracking-tight leading-5">{name}</div>
-                            <div className="leading-5 tracking-tight text-[#010D3E]">{username}</div>
+                            <div className="font-bold tracking-tight text-xs leading-4">{name}</div>
+                            <div className="leading-4 tracking-tight text-[10px] text-[#010D3E]/60">{username}</div>
                         </div>
                     </div>
                 </div>
@@ -71,19 +46,56 @@ const TestimonialsColumn = ({ className, testimonials, duration }) => (
 );
 
 export const Testimonials = () => {
+    const { user } = useContext(AuthContext);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [testimonials, setTestimonials] = useState([]);
     const testimonialsRef = useRef(null);
+
+    useEffect(() => {
+        const fetchTestimonials = async () => {
+            try {
+                const data = await testimonialService.getTestimonials();
+                if (data && data.length > 0) {
+                    // Map backend data to match UI structure
+                    const formatted = data.map(t => ({
+                        text: t.comment,
+                        imageSrc: t.user?.profilePicture || `https://ui-avatars.com/api/?name=${t.user?.name}&background=001E80&color=fff`,
+                        name: t.user?.name,
+                        username: `@${t.user?.username}`
+                    }));
+                    setTestimonials(formatted);
+                } else {
+                    setTestimonials(defaultTestimonials);
+                }
+            } catch (err) {
+                console.error(err);
+                setTestimonials(defaultTestimonials);
+            }
+        };
+        fetchTestimonials();
+    }, []);
+
     // Columns distribution for responsive layout
-    const firstColumn = testimonials.slice(0, 3);
-    const secondColumn = testimonials.slice(3, 6);
-    const thirdColumn = testimonials.slice(0, 3); // Reusing for 3rd col demo
+    // Ensure we have enough items for columns
+    const list = testimonials.length > 0 ? testimonials : defaultTestimonials;
+    const firstColumn = list.slice(0, Math.ceil(list.length / 2));
+    const secondColumn = list.slice(Math.ceil(list.length / 2));
+
+    const handleLeaveReview = () => {
+        if (!user) {
+            toast.error('Please login to leave a review');
+            return;
+        }
+        setIsModalOpen(true);
+    };
 
     return (
-        <section ref={testimonialsRef} className="relative bg-gradient-to-b from-white via-blue-50 to-white py-0 md:py-10 overflow-hidden">
+        <section ref={testimonialsRef} className="relative bg-gradient-to-b from-white via-[#F3F3F5] to-white py-0 md:py-10 overflow-hidden -mt-20">
             {/* Subtle animated gradient blobs */}
             <motion.div
                 className="absolute -top-20 left-1/3 w-[400px] h-[400px] opacity-25 pointer-events-none"
                 style={{
-                    background: 'linear-gradient(135deg, rgba(0, 173, 254, 0.25) 0%, rgba(148, 3, 253, 0.15) 100%)',
+                    background: 'linear-gradient(135deg, rgba(190, 190, 200, 0.25) 0%, rgba(180, 180, 195, 0.15) 100%)',
                     filter: 'blur(60px)',
                     borderRadius: '40% 60% 70% 30% / 60% 30% 70% 40%',
                 }}
@@ -101,7 +113,7 @@ export const Testimonials = () => {
             <motion.div
                 className="absolute bottom-0 -right-32 w-[500px] h-[500px] opacity-20 pointer-events-none"
                 style={{
-                    background: 'linear-gradient(225deg, rgba(255, 18, 220, 0.2) 0%, rgba(255, 185, 18, 0.15) 100%)',
+                    background: 'linear-gradient(225deg, rgba(200, 200, 210, 0.2) 0%, rgba(210, 210, 215, 0.15) 100%)',
                     filter: 'blur(65px)',
                     borderRadius: '30% 70% 70% 30% / 30% 30% 70% 70%',
                 }}
@@ -117,9 +129,24 @@ export const Testimonials = () => {
                 }}
             />
             <div className="container mx-auto px-4 md:px-6 relative z-10">
-                <div className="flex justify-center">
-                    <div className="inline-flex border border-[#222]/10 px-3 py-1 rounded-lg tracking-tight shadow-sm bg-white/30 backdrop-blur gap-1 mb-5">
-                        <span className="font-bold text-sm">Testimonials</span>
+                <div className="flex justify-center mb-5">
+                    <div className="relative group p-[1.5px] rounded-xl overflow-hidden">
+                        {/* Animated Border Background */}
+                        <motion.div
+                            className="absolute inset-[-150%] opacity-60"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                            style={{
+                                background: 'conic-gradient(from 0deg, transparent 20%, #001E80 50%, transparent 80%)'
+                            }}
+                        />
+
+                        <div className="relative inline-flex items-center gap-2 border border-[#222]/10 px-4 py-1.5 rounded-[11px] tracking-tight shadow-sm bg-white/80 backdrop-blur-xl group-hover:bg-white transition-colors duration-300">
+                            <svg className="w-3.5 h-3.5 text-[#001E80]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                            <span className="font-bold text-sm text-[#010D3E]">Testimonials</span>
+                        </div>
                     </div>
                 </div>
                 <h2 style={{
@@ -128,15 +155,43 @@ export const Testimonials = () => {
                 }} className="text-center text-5xl md:text-6xl lg:text-7xl font-black tracking-tight bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text mt-5 fjalla-one-regular">
                     What our users say
                 </h2>
-                <p className="text-center text-lg md:text-xl text-[#010D3E] mt-5 max-w-lg mx-auto">
+                <p className="text-center text-[16px] text-[#010D3E] mt-5 max-w-lg mx-auto">
                     From intuitive design to powerful features, our app has become an essential tool for users around the world.
                 </p>
 
-                <div className="flex justify-center gap-6 mt-10 [mask-image:linear-gradient(to_bottom,transparent,black_25%,black_75%,transparent)] max-h-[738px] overflow-hidden">
+                <div className="flex justify-center gap-6 mt-10 [mask-image:linear-gradient(to_bottom,transparent,black_15%,black_85%,transparent)] max-h-[380px] overflow-hidden">
                     <TestimonialsColumn testimonials={firstColumn} duration={15} />
                     <TestimonialsColumn testimonials={secondColumn} className="hidden md:block" duration={19} />
-                    <TestimonialsColumn testimonials={thirdColumn} className="hidden lg:block" duration={17} />
                 </div>
+
+                <div className="flex justify-center mt-12 relative z-20">
+                    <button
+                        onClick={handleLeaveReview}
+                        className="group relative px-8 py-3 bg-white border border-[#222]/10 rounded-2xl font-bold text-sm text-[#010D3E] shadow-sm hover:shadow-md transition-all active:scale-95 overflow-hidden"
+                    >
+                        <motion.div
+                            className="absolute inset-[-150%] opacity-0 group-hover:opacity-20 transition-opacity"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                            style={{
+                                background: 'conic-gradient(from 0deg, transparent 20%, #001E80 50%, transparent 80%)'
+                            }}
+                        />
+                        <span className="relative flex items-center gap-2">
+                            Leave a Review
+                            <svg className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </span>
+                    </button>
+                </div>
+
+                {/* Review Modal */}
+                <ReviewModal
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    user={user}
+                />
             </div>
         </section>
     );

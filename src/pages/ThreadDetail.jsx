@@ -1,5 +1,6 @@
 import { useState, useEffect, useContext, useRef, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import resourceService from '../features/resources/resourceService';
@@ -7,16 +8,17 @@ import AuthContext from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import { API_BASE_URL } from '../config';
 
-import { FaArrowUp, FaComment, FaClock, FaPaperclip, FaChevronLeft, FaPaperPlane, FaInfoCircle, FaTags, FaUser, FaCheckCircle } from 'react-icons/fa';
+import { FaArrowUp, FaComment, FaClock, FaPaperclip, FaChevronLeft, FaPaperPlane, FaInfoCircle, FaTags, FaUser, FaCheckCircle, FaBookmark, FaRegBookmark } from 'react-icons/fa';
 
 const ThreadDetail = () => {
     const { id } = useParams();
-    const { user } = useContext(AuthContext);
+    const { user, updateUser } = useContext(AuthContext);
     const [thread, setThread] = useState(null);
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [reply, setReply] = useState('');
     const [file, setFile] = useState(null);
+    const [isPinned, setIsPinned] = useState(false);
     const fileInputRef = useRef(null);
 
     const handleAcknowledge = async () => {
@@ -58,6 +60,7 @@ const ThreadDetail = () => {
             setThread(data.thread);
             setPosts(data.posts);
             setHasAccess(data.hasAccess !== false); // V2.0: Backend returns hasAccess flag
+            setIsPinned(data.isPinned || false);
             setEditData({ title: data.thread.title, tags: data.thread.tags?.join(', ') || '' });
             setLoading(false);
         } catch (error) {
@@ -80,13 +83,8 @@ const ThreadDetail = () => {
                 const response = await resourceService.purchaseThread(id, user.token);
                 toast.success('🎉 Thread unlocked!');
 
-                // Update user stars in localStorage and context
-                const updatedUser = { ...user, stars: response.stars };
-                localStorage.setItem('user', JSON.stringify(updatedUser));
-
-                // Trigger re-render by updating context (if setUser exists)
-                // Force context refresh by reloading user from localStorage
-                window.dispatchEvent(new Event('storage'));
+                // Update user in context and sessions
+                updateUser({ stars: response.stars });
 
                 // Refresh thread detail to update access
                 await fetchDetail();
@@ -179,6 +177,18 @@ const ThreadDetail = () => {
             fetchDetail();
         } catch (error) {
             toast.error(error.response?.data?.message || 'Failed to sync validation');
+        }
+    };
+
+    const handleTogglePin = async () => {
+        if (!user) return toast.info('Log in to pin this mission');
+        try {
+            const config = { headers: { Authorization: `Bearer ${user.token}` } };
+            const res = await axios.put(`${API_BASE_URL}/api/resources/thread/${id}/pin`, {}, config);
+            setIsPinned(res.data.isPinned);
+            toast.success(res.data.isPinned ? 'Mission pinned to your dashboard' : 'Mission removed from pins');
+        } catch (error) {
+            toast.error('Failed to toggle pin');
         }
     };
 
@@ -508,8 +518,15 @@ const ThreadDetail = () => {
                 <div className="lg:w-80 shrink-0">
                     <div className="sticky top-10 space-y-6">
                         <div className="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm">
-                            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-6 flex items-center gap-2">
-                                <FaInfoCircle /> About Mission
+                            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-6 flex items-center justify-between">
+                                <span className="flex items-center gap-2"><FaInfoCircle /> About Mission</span>
+                                <button
+                                    onClick={handleTogglePin}
+                                    className={`p-2 rounded-lg transition-all ${isPinned ? 'text-[#001E80] bg-[#EAEEFE]' : 'text-gray-300 hover:text-indigo-400 hover:bg-gray-50'}`}
+                                    title={isPinned ? "Unpin Mission" : "Pin Mission"}
+                                >
+                                    {isPinned ? <FaBookmark size={14} /> : <FaRegBookmark size={14} />}
+                                </button>
                             </h4>
                             <div className="space-y-6">
                                 <div>
@@ -527,7 +544,7 @@ const ThreadDetail = () => {
                                     <div className="flex flex-wrap gap-2">
                                         {thread.tags?.map((tag, idx) => (
                                             <span key={idx} className="bg-gray-50 text-gray-500 text-[10px] font-bold px-3 py-1 rounded-lg border border-gray-100">
-                                                {tag}
+                                                {tag.replace(/^#(Subj|Comp|Prof)/, '#')}
                                             </span>
                                         ))}
                                     </div>
@@ -678,10 +695,10 @@ const ThreadDetail = () => {
                 </div>
             </div>
 
-            {/* Floating Reply Box */}
-            <div className="fixed bottom-0 left-0 right-0 p-6 z-40 bg-gradient-to-t from-gray-50 via-gray-50/90 to-transparent pointer-events-none">
-                <div className="max-w-6xl mx-auto flex">
-                    <div className="flex-1 max-w-[calc(100%-20rem-2.5rem)] pointer-events-auto">
+            {/* Fixed Reply Box at the Bottom */}
+            <div className="fixed bottom-0 left-0 lg:left-[250px] right-0 z-50 p-4 bg-white/90 backdrop-blur-md border-t border-gray-200">
+                <div className="max-w-6xl mx-auto px-4 flex flex-col lg:flex-row gap-10">
+                    <div className="flex-1 relative">
                         <form onSubmit={handleAddPost} className="bg-gray-900 rounded-[2rem] p-4 pr-6 pl-8 shadow-2xl flex items-center gap-4 border border-white/5 relative">
                             {replyTo && (
                                 <div className="absolute -top-12 left-8 right-8 bg-indigo-600 text-white text-[9px] font-black uppercase tracking-widest px-4 py-2 rounded-t-xl flex justify-between items-center shadow-lg animate-in slide-in-from-bottom-4">
@@ -738,8 +755,8 @@ const ThreadDetail = () => {
                             </div>
                         )}
                     </div>
-                    {/* Placeholder for sidebar-aligned-area - keep floating box in left column */}
-                    <div className="w-80 shrink-0 ml-10"></div>
+                    {/* Spacer block to match right panel width for alignment */}
+                    <div className="hidden lg:block lg:w-80 shrink-0"></div>
                 </div>
             </div>
 

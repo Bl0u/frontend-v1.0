@@ -39,11 +39,29 @@ const getPublicPitches = async () => {
 };
 
 // Claim a Public Pitch
-const claimPublicPitch = async (pitchId, token) => {
+const claimPublicPitch = async (pitchId, token, role = 'teammate') => {
     const config = {
         headers: { Authorization: `Bearer ${token}` },
     };
-    const response = await axios.put(API_URL + `${pitchId}/claim`, {}, config);
+    const response = await axios.put(API_URL + `${pitchId}/claim`, { role }, config);
+    return response.data;
+};
+
+// Approve Pitch Claim
+const approvePitchClaim = async (requestId, token) => {
+    const config = {
+        headers: { Authorization: `Bearer ${token}` },
+    };
+    const response = await axios.put(API_URL + `${requestId}/approve-claim`, {}, config);
+    return response.data;
+};
+
+// Reject Pitch Claim
+const rejectPitchClaim = async (requestId, token) => {
+    const config = {
+        headers: { Authorization: `Bearer ${token}` },
+    };
+    const response = await axios.put(API_URL + `${requestId}/reject-claim`, {}, config);
     return response.data;
 };
 
@@ -65,7 +83,7 @@ const cancelRequest = async (requestId, token) => {
     return response.data;
 };
 
-// End Relationship (Mentorship or Partner)
+// End Relationship (Partner or Collaborator)
 const endRelationship = async (targetUserId, type, token) => {
     const config = {
         headers: { Authorization: `Bearer ${token}` },
@@ -98,6 +116,8 @@ const requestService = {
     getSentRequests,
     getPublicPitches,
     claimPublicPitch,
+    approvePitchClaim,
+    rejectPitchClaim,
     respondToRequest,
     cancelRequest,
     markAsRead,

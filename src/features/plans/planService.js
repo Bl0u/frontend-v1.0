@@ -6,11 +6,11 @@ const API_URL = `${API_BASE_URL}/api/plans`;
 
 
 // Create a new plan
-const createPlan = async (menteeId, data, token) => {
+const createPlan = async (partnerId, data, token) => {
     const config = {
         headers: { Authorization: `Bearer ${token}` }
     };
-    const response = await axios.post(API_URL, { menteeId, ...data }, config);
+    const response = await axios.post(API_URL, { partnerId, ...data }, config);
     return response.data;
 };
 
@@ -32,12 +32,12 @@ const getPlan = async (planId, token) => {
     return response.data;
 };
 
-// Get plan by mentor-mentee pair
-const getPlanByPair = async (menteeId, token) => {
+// Get plan by partner pair
+const getPlanByPair = async (partnerId, token) => {
     const config = {
         headers: { Authorization: `Bearer ${token}` }
     };
-    const response = await axios.get(`${API_URL}/pair/${menteeId}`, config);
+    const response = await axios.get(`${API_URL}/pair/${partnerId}`, config);
     return response.data;
 };
 

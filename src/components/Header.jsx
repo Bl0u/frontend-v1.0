@@ -6,9 +6,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import chatService from '../features/chat/chatService';
 import { API_BASE_URL } from '../config';
+import { LiquidButton } from './LiquidButton';
 
 const Header = () => {
-    const { user, logout } = useContext(AuthContext);
+    const { user, sessions, logout, switchSession } = useContext(AuthContext);
     const navigate = useNavigate();
     const location = useLocation();
     const [unreadCount, setUnreadCount] = useState(0);
@@ -26,7 +27,7 @@ const Header = () => {
 
     useEffect(() => {
         const handleScroll = () => {
-            const isLandingRoute = location.pathname === '/' || location.pathname === '/home' || location.pathname === '/landing-page';
+            const isLandingRoute = ['/', '/home', '/new-lp', '/old-lp'].includes(location.pathname);
 
             // Re-sync skipped state on change
             const skipButton = document.querySelector('button[class*="fixed bottom-8"]');
@@ -98,10 +99,9 @@ const Header = () => {
         { name: 'Home', path: '/' },
         { name: 'Resources', path: '/resources' },
         { name: 'Partners', path: '/partners' },
-        { name: 'Mentors', path: '/mentors' },
     ];
 
-    const isLandingRoute = location.pathname === '/' || location.pathname === '/home' || location.pathname === '/landing-page';
+    const isLandingRoute = ['/', '/home', '/new-lp', '/old-lp'].includes(location.pathname);
     const isSticky = isLandingRoute && isSkipped;
 
     return (
@@ -117,7 +117,7 @@ const Header = () => {
                 initial={{ y: -100, opacity: 0 }}
                 animate={{ y: isVisible ? 0 : -100, opacity: isVisible ? 1 : 0 }}
                 transition={{ duration: 0.6, ease: "easeOut" }}
-                className="w-full max-w-6xl rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] overflow-hidden"
+                className="w-full max-w-6xl rounded-[24px] border border-[#001E80]/10 bg-white/40 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,30,128,0.1)] transition-all duration-300"
             >
                 <div className="flex items-center justify-between px-6 py-4 md:px-12 md:py-4">
                     {/* Logo - Styled like Hero Hook */}
@@ -136,14 +136,14 @@ const Header = () => {
                                 className="text-sm font-medium text-slate-700 hover:text-black transition-colors relative group"
                             >
                                 {link.name}
-                                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#ff4d6d] transition-all group-hover:w-full"></span>
+                                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#6c757d] transition-all group-hover:w-full"></span>
                             </Link>
                         ))}
                         <Link
-                            to="/mentorship-request"
+                            to="/pitch-hub"
                             className="flex items-center gap-2 text-sm font-medium text-slate-700 hover:text-black transition-colors relative group"
                         >
-                            <span className="bg-[#ff4d6d] text-white px-2 py-0.5 rounded-md text-[10px] font-bold uppercase">New</span>
+                            <span className="bg-[#001E80] text-white px-2 py-0.5 rounded-md text-[10px] font-bold uppercase">New</span>
                             Pitch Hub
                         </Link>
                     </div>
@@ -156,7 +156,7 @@ const Header = () => {
                                 <Link to="/requests" className="flex items-center text-slate-700 hover:text-black relative transition-colors duration-300">
                                     <FaInbox className="text-lg" />
                                     {unreadCount > 0 && (
-                                        <span className="absolute -top-2 -right-2 bg-[#ff4d6d] text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full animate-pulse">
+                                        <span className="absolute -top-2 -right-2 bg-[#001E80] text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full animate-pulse shadow-sm">
                                             {unreadCount > 9 ? '9+' : unreadCount}
                                         </span>
                                     )}
@@ -166,7 +166,7 @@ const Header = () => {
                                 <Link to="/chat" className="flex items-center text-slate-700 hover:text-black relative transition-colors duration-300">
                                     <FaCommentDots className="text-lg" />
                                     {chatUnreadCount > 0 && (
-                                        <span className="absolute -top-2 -right-2 bg-[#ff4d6d] text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full animate-pulse">
+                                        <span className="absolute -top-2 -right-2 bg-[#001E80] text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full animate-pulse shadow-sm">
                                             {chatUnreadCount > 9 ? '9+' : chatUnreadCount}
                                         </span>
                                     )}
@@ -181,7 +181,7 @@ const Header = () => {
                                 {/* Top Up */}
                                 <Link
                                     to="/top-up"
-                                    className="hidden md:block px-4 py-2 bg-[#ff4d6d] text-white text-sm font-bold rounded-lg hover:bg-[#c9184a] transition-all duration-300 shadow-sm"
+                                    className="hidden md:block px-6 py-2.5 bg-[#001E80] text-white text-sm font-bold rounded-xl hover:bg-[#010D3E] transition-all duration-300 shadow-lg shadow-[#001E80]/20 hover:scale-[1.02] active:scale-[0.98]"
                                 >
                                     Top Up
                                 </Link>
@@ -194,14 +194,70 @@ const Header = () => {
                                     Dashboard
                                 </Link>
 
-                                {/* Logout */}
-                                <button
-                                    onClick={onLogout}
-                                    className="flex items-center gap-2 text-slate-700 hover:text-[#ff4d6d] transition-colors duration-300"
-                                >
-                                    <FaSignOutAlt />
-                                    <span className="hidden sm:inline font-medium text-sm">Logout</span>
-                                </button>
+                                {/* Account Switcher */}
+                                <div className="relative group">
+                                    <button className="flex items-center gap-2 px-3 py-1.5 bg-black/5 rounded-full border border-black/5 hover:bg-black/10 transition-all duration-300">
+                                        <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-[#001E80] to-[#60a5fa] flex items-center justify-center text-[10px] text-white font-bold shadow-sm">
+                                            {user.username.charAt(0).toUpperCase()}
+                                        </div>
+                                        <span className="hidden lg:inline text-sm font-medium text-slate-700">{user.username}</span>
+                                    </button>
+
+                                    {/* Dropdown */}
+                                    <div className="absolute right-0 mt-2 w-64 bg-white/95 backdrop-blur-xl border border-black/5 rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right group-hover:scale-100 scale-95 z-[60] py-3">
+                                        <div className="px-4 py-2 border-b border-black/5 mb-2">
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Active Account</p>
+                                            <div className="flex items-center gap-3 mt-1">
+                                                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#001E80] to-[#60a5fa] flex items-center justify-center text-xs text-white font-bold shadow-md">
+                                                    {user.username.charAt(0).toUpperCase()}
+                                                </div>
+                                                <div className="overflow-hidden">
+                                                    <p className="text-sm font-bold text-slate-800 truncate">{user.name}</p>
+                                                    <p className="text-[11px] text-slate-500 truncate">{user.email}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="px-2">
+                                            <p className="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Other Sessions</p>
+                                            {sessions.filter(s => s._id !== user._id).map((session, idx) => (
+                                                <button
+                                                    key={session._id}
+                                                    onClick={() => switchSession(sessions.findIndex(s => s._id === session._id))}
+                                                    className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-black/5 transition-colors text-left"
+                                                >
+                                                    <div className="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center text-[10px] text-slate-600 font-bold">
+                                                        {session.username.charAt(0).toUpperCase()}
+                                                    </div>
+                                                    <div className="overflow-hidden flex-1">
+                                                        <p className="text-[13px] font-semibold text-slate-700 truncate">{session.username}</p>
+                                                    </div>
+                                                    <div className="w-2 h-2 rounded-full bg-slate-300"></div>
+                                                </button>
+                                            ))}
+
+                                            <Link
+                                                to="/login?add=true"
+                                                className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-black/5 transition-colors text-slate-600 mt-1"
+                                            >
+                                                <div className="w-7 h-7 rounded-full border-2 border-dashed border-slate-300 flex items-center justify-center text-slate-400">
+                                                    +
+                                                </div>
+                                                <span className="text-[13px] font-semibold">Add another account</span>
+                                            </Link>
+                                        </div>
+
+                                        <div className="mt-3 pt-2 border-t border-black/5 px-2">
+                                            <button
+                                                onClick={() => logout()}
+                                                className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-red-50 text-red-500 transition-colors text-left"
+                                            >
+                                                <FaSignOutAlt className="text-sm" />
+                                                <span className="text-[13px] font-bold">Log out</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         ) : (
                             <div className="flex items-center gap-4">
@@ -211,15 +267,11 @@ const Header = () => {
                                 >
                                     Login
                                 </Link>
-                                <div className="mask-container-nature">
-                                    <span className="mas">REGISTER</span>
-                                    <Link
-                                        to="/register"
-                                        className="mask-btn-nature"
-                                    >
-                                        REGISTER
-                                    </Link>
-                                </div>
+                                <LiquidButton
+                                    to="/register"
+                                    text="REGISTER"
+                                    className="scale-90"
+                                />
                             </div>
                         )}
 
@@ -254,11 +306,11 @@ const Header = () => {
                                     </Link>
                                 ))}
                                 <Link
-                                    to="/mentorship-request"
+                                    to="/pitch-hub"
                                     onClick={() => setIsMenuOpen(false)}
                                     className="text-slate-800 font-medium text-sm flex items-center gap-2 hover:translate-x-1 transition-transform"
                                 >
-                                    Pitch Hub <span className="bg-[#ff4d6d] text-white px-2 py-0.5 rounded text-[10px]">NEW</span>
+                                    Pitch Hub <span className="bg-[#001E80] text-white px-2 py-0.5 rounded text-[10px]">NEW</span>
                                 </Link>
 
                                 {user && (
@@ -272,7 +324,7 @@ const Header = () => {
                                             <Link
                                                 to="/top-up"
                                                 onClick={() => setIsMenuOpen(false)}
-                                                className="px-4 py-2 bg-[#ff4d6d] text-white text-xs font-bold rounded-lg"
+                                                className="px-6 py-2 bg-[#001E80] text-white text-xs font-bold rounded-lg shadow-md transition-all active:scale-95"
                                             >
                                                 Top Up
                                             </Link>
@@ -286,7 +338,7 @@ const Header = () => {
                                         </Link>
                                         <button
                                             onClick={() => { onLogout(); setIsMenuOpen(false); }}
-                                            className="text-left text-[#ff4d6d] font-medium text-sm"
+                                            className="text-left text-[#001E80] font-bold text-sm hover:translate-x-1 transition-transform"
                                         >
                                             Logout
                                         </button>

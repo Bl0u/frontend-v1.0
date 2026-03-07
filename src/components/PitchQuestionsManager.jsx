@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FaPlus, FaTrash, FaSave, FaExclamationCircle, FaListUl, FaCheckSquare, FaAlignLeft } from 'react-icons/fa';
+import { FaPlus, FaTrash, FaSave, FaExclamationCircle, FaListUl, FaCheckSquare } from 'react-icons/fa';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { API_BASE_URL } from '../config';
@@ -70,14 +70,14 @@ const PitchQuestionsManager = ({ user, initialQuestions, onUpdate }) => {
 
     return (
         <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-            <div className="p-8 border-b border-gray-50 bg-gray-50/30 flex justify-between items-center">
+            <div className="p-8 border-b border-gray-50 bg-[#EAEEFE]/30 flex justify-between items-center">
                 <div>
                     <h3 className="text-xl font-extrabold text-gray-800">Custom Pitch Questions</h3>
-                    <p className="text-sm text-gray-500 font-medium">Define what students must answer when booking a mentorship with you.</p>
+                    <p className="text-sm text-[#010D3E]/50 font-medium">Define what partners must answer when pitching a collaboration to you.</p>
                 </div>
                 <button
                     onClick={addQuestion}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-widest transition-all flex items-center gap-2 shadow-lg shadow-indigo-100"
+                    className="bg-[#001E80] hover:bg-[#001E80]/85 text-white px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-widest transition-all flex items-center gap-2 shadow-lg shadow-[#001E80]/10"
                 >
                     <FaPlus /> Add Question
                 </button>
@@ -87,7 +87,7 @@ const PitchQuestionsManager = ({ user, initialQuestions, onUpdate }) => {
                 {questions.length === 0 ? (
                     <div className="text-center py-12 border-2 border-dashed border-gray-100 rounded-3xl">
                         <FaExclamationCircle className="mx-auto text-gray-300 mb-4" size={32} />
-                        <p className="text-gray-400 font-mediumitalic">No custom questions set. Default pitch hub questions will be used.</p>
+                        <p className="text-gray-400 font-medium italic">No custom questions set. Default pitch hub questions will be used.</p>
                     </div>
                 ) : (
                     <div className="space-y-6">
@@ -102,21 +102,21 @@ const PitchQuestionsManager = ({ user, initialQuestions, onUpdate }) => {
 
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <div className="md:col-span-2">
-                                        <label className="block text-[10px] font-black uppercase tracking-widest text-indigo-600 mb-2">Question Text</label>
+                                        <label className="block text-[10px] font-black uppercase tracking-widest text-[#001E80] mb-2">Question Text</label>
                                         <input
                                             type="text"
                                             value={q.questionText}
                                             onChange={(e) => updateQuestion(qIdx, 'questionText', e.target.value)}
                                             placeholder="e.g. Describe your current project goal..."
-                                            className="w-full px-4 py-3 bg-white border border-gray-100 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-medium"
+                                            className="w-full px-4 py-3 bg-white border border-gray-100 rounded-2xl focus:ring-2 focus:ring-[#001E80]/30 focus:border-[#001E80]/30 outline-none text-sm font-medium"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-[10px] font-black uppercase tracking-widest text-indigo-600 mb-2">Response Type</label>
+                                        <label className="block text-[10px] font-black uppercase tracking-widest text-[#001E80] mb-2">Response Type</label>
                                         <select
                                             value={q.questionType}
                                             onChange={(e) => updateQuestion(qIdx, 'questionType', e.target.value)}
-                                            className="w-full px-4 py-3 bg-white border border-gray-100 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-bold text-gray-700"
+                                            className="w-full px-4 py-3 bg-white border border-gray-100 rounded-2xl focus:ring-2 focus:ring-[#001E80]/30 focus:border-[#001E80]/30 outline-none text-sm font-bold text-gray-700"
                                         >
                                             <option value="text">Text Response</option>
                                             <option value="mcq">Multiple Choice (Single Answer)</option>
@@ -126,7 +126,7 @@ const PitchQuestionsManager = ({ user, initialQuestions, onUpdate }) => {
                                 </div>
 
                                 {['mcq', 'checkbox'].includes(q.questionType) && (
-                                    <div className="mt-6 pl-4 border-l-2 border-indigo-100 space-y-3">
+                                    <div className="mt-6 pl-4 border-l-2 border-[#001E80]/15 space-y-3">
                                         <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 flex items-center gap-2">
                                             {q.questionType === 'mcq' ? <FaListUl /> : <FaCheckSquare />} Options
                                         </label>
@@ -137,7 +137,7 @@ const PitchQuestionsManager = ({ user, initialQuestions, onUpdate }) => {
                                                     value={opt}
                                                     onChange={(e) => updateOption(qIdx, oIdx, e.target.value)}
                                                     placeholder={`Option ${oIdx + 1}`}
-                                                    className="flex-grow px-3 py-2 bg-white border border-gray-100 rounded-xl text-xs font-medium outline-none focus:ring-2 focus:ring-indigo-100"
+                                                    className="flex-grow px-3 py-2 bg-white border border-gray-100 rounded-xl text-xs font-medium outline-none focus:ring-2 focus:ring-[#001E80]/20"
                                                 />
                                                 <button onClick={() => removeOption(qIdx, oIdx)} className="text-gray-300 hover:text-red-500">
                                                     <FaTrash size={12} />
@@ -146,7 +146,7 @@ const PitchQuestionsManager = ({ user, initialQuestions, onUpdate }) => {
                                         ))}
                                         <button
                                             onClick={() => addOption(qIdx)}
-                                            className="text-[10px] font-bold text-indigo-500 hover:text-indigo-700 uppercase tracking-wider flex items-center gap-1"
+                                            className="text-[10px] font-bold text-[#001E80] hover:text-[#001E80]/70 uppercase tracking-wider flex items-center gap-1 transition-colors"
                                         >
                                             <FaPlus size={8} /> Add Option
                                         </button>
@@ -161,7 +161,7 @@ const PitchQuestionsManager = ({ user, initialQuestions, onUpdate }) => {
                     <button
                         onClick={handleSave}
                         disabled={loading}
-                        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-indigo-100 transition-all active:scale-[0.98] flex items-center justify-center gap-3 disabled:opacity-50"
+                        className="w-full bg-[#001E80] hover:bg-[#001E80]/85 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-[#001E80]/10 transition-all active:scale-[0.98] flex items-center justify-center gap-3 disabled:opacity-50"
                     >
                         {loading ? 'Saving Changes...' : <><FaSave /> Deploy Questions</>}
                     </button>

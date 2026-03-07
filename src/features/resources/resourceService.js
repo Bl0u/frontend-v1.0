@@ -11,6 +11,12 @@ const getThreads = async (params = {}) => {
     return response.data;
 };
 
+// Get unique tags
+const getUniqueTags = async () => {
+    const response = await axios.get(API_URL + 'tags');
+    return response.data;
+};
+
 // Create a thread
 const createThread = async (threadData, token) => {
     const config = {
@@ -153,6 +159,7 @@ const updateThreadPrice = async (id, priceData, token) => {
 
 const resourceService = {
     getThreads,
+    getUniqueTags,
     createThread,
     getThreadDetail,
     updateThread,

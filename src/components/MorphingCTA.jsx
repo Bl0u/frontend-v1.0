@@ -280,7 +280,7 @@ const MorphingCTA = ({ skipAnimation = false }) => {
         <div className="morph-feature">
           <div className="morph-feature-bg"></div>
           <div className="morph-feature-content">
-            <p>MENTOR</p>
+            <p>COLLABORATOR</p>
           </div>
         </div>
 
@@ -301,14 +301,14 @@ const MorphingCTA = ({ skipAnimation = false }) => {
         <div className="morph-feature">
           <div className="morph-feature-bg"></div>
           <div className="morph-feature-content">
-            <p>PRO-BONO MENTORSHIPS</p>
+            <p>PITCH HUB</p>
           </div>
         </div>
 
         <div className="morph-feature">
           <div className="morph-feature-bg"></div>
           <div className="morph-feature-content">
-            <p>AI ASSISTANT</p>
+            <p>AI DISCOVERY</p>
           </div>
         </div>
 

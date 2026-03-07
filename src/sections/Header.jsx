@@ -1,8 +1,8 @@
-
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { FaBars, FaTimes, FaSun } from 'react-icons/fa';
+import { LiquidButton } from '../components/LiquidButton';
 
 export const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -49,15 +49,11 @@ export const Header = () => {
 
                     {/* CTA Button & Mobile Toggle */}
                     <div className="flex items-center gap-4">
-                        <div className="mask-container-nature">
-                            <span className="mas">Join</span>
-                            <Link
-                                to="/register"
-                                className="mask-btn-nature"
-                            >
-                                Join
-                            </Link>
-                        </div>
+                        <LiquidButton
+                            to="/register"
+                            text="Join"
+                            className="hidden md:block"
+                        />
 
                         {/* Mobile Menu Toggle */}
                         <button
