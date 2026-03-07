@@ -17,6 +17,7 @@ const Sidebar = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [isOpen, setIsOpen] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(false);
     const [unreadCount, setUnreadCount] = useState(0);
     const [chatUnreadCount, setChatUnreadCount] = useState(0);
     const [resourcesExpanded, setResourcesExpanded] = useState(false);
@@ -101,10 +102,30 @@ const Sidebar = () => {
             />
 
             {/* Sidebar */}
-            <aside className={`sidebar ${isOpen ? 'open' : ''} overflow-y-auto h-screen pb-20 scrollbar-hide`}>
+            <aside className={`sidebar ${isOpen ? 'open' : ''} ${isCollapsed ? 'collapsed' : ''} overflow-y-auto h-screen pb-20 scrollbar-hide`}>
                 {/* Brand */}
-                <div className="sidebar-brand">
-                    <Link to="/home">LearnCrew</Link>
+                <div className="sidebar-brand flex items-center justify-between gap-2">
+                    <Link to="/home" className={`${isCollapsed ? 'hidden' : 'block'} transition-all duration-300 flex-1`}>LearnCrew</Link>
+                    <button
+                        onClick={() => setIsCollapsed(!isCollapsed)}
+                        className={`text-white/60 hover:text-white transition-all duration-300 p-2 rounded-xl hover:bg-white/10 ${isCollapsed ? 'mx-auto' : ''}`}
+                        title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+                    >
+                        <svg
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className={`transition-transform duration-500 ${isCollapsed ? 'rotate-180' : ''}`}
+                        >
+                            <polyline points="11 17 6 12 11 7" />
+                            <polyline points="18 17 13 12 18 7" />
+                        </svg>
+                    </button>
                 </div>
 
                 {/* ── NAVIGATE ── */}

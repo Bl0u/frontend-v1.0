@@ -1,40 +1,33 @@
 import { useState, useEffect, useContext, useRef, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import resourceService from '../features/resources/resourceService';
 import AuthContext from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import {
     FaSearch, FaChevronLeft, FaFilter, FaArrowUp, FaArrowDown,
-    FaRegComment, FaRegEye, FaPlus, FaBell, FaChevronRight, FaCheckCircle, FaBookmark
+    FaRegComment, FaRegEye, FaPlus, FaBell, FaChevronRight, FaCheckCircle,
+    FaBookmark, FaHome, FaFire, FaChartLine, FaHashtag
 } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import SearchableDropdown from '../components/SearchableDropdown';
-import { LiquidButton } from '../components/LiquidButton';
-import { API_BASE_URL } from '../config';
+import HubHeader from '../components/HubHeader';
 import AIChatBot from '../components/AIChatBot';
 
-const SUGGESTION_LISTS = {
-    University: [
-        'Cairo University', 'Alexandria University', 'Ain Shams University', 'Assiut University', 'Mansoura University',
-        'Zagazig University', 'German University in Cairo (GUC)', 'American University in Cairo (AUC)', 'BUE'
-    ],
-    Subject: ['DSA', 'Algorithms', 'OS', 'Networking', 'Databases', 'AI', 'Web Dev'],
-    Company: ['Google', 'Microsoft', 'Amazon', 'Meta', 'Valeo', 'Vodafone'],
-    Position: ['Frontend Engineer', 'Backend Engineer', 'Fullstack Engineer', 'Data Scientist']
-};
-
-const FILTER_TYPES = [
-    { id: 'University', placeholder: 'Select University...' },
-    { id: 'Subject', placeholder: 'Select Subject...' },
-    { id: 'Company', placeholder: 'Select Company...' },
-    { id: 'Position', placeholder: 'Select Role...' }
+const CATEGORIES = [
+    { name: 'Tutorials', color: '#6366F1' },
+    { name: 'Discussion', color: '#10B981' },
+    { name: 'Database', color: '#F59E0B' },
+    { name: 'Security', color: '#EF4444' },
+    { name: 'News', color: '#3B82F6' },
+    { name: 'Architecture', color: '#8B5CF6' }
 ];
 
 const ResourceHub = () => {
     const { user } = useContext(AuthContext);
     const [searchParams, setSearchParams] = useSearchParams();
+    const navigate = useNavigate();
 
     // Core State
     const [threads, setThreads] = useState([]);
@@ -45,23 +38,20 @@ const ResourceHub = () => {
     const [threadPosts, setThreadPosts] = useState([]);
     const [isFilterExpanded, setIsFilterExpanded] = useState(false);
 
-    // Filtering Logic
-    const activeMetric = searchParams.get('metric') || 'Community'; // 'Community' | 'Guide'
-    const [activeFilters, setActiveFilters] = useState({});
+    const activeNav = searchParams.get('tab') || 'Home Feed';
 
     // Create Modal State
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [createData, setCreateData] = useState({
-        title: '', content: '', category: 'college', tags: '', isPaid: false, price: 0
+        title: '', content: '', category: 'college', tags: ''
     });
 
     const fetchThreads = useCallback(async () => {
         setLoading(true);
         try {
             const data = await resourceService.getThreads({
-                curated: activeMetric === 'Guide',
                 search: searchTerm,
-                // Add tag filtering here if needed
+                tab: activeNav
             });
             setThreads(data);
         } catch (error) {
@@ -69,7 +59,7 @@ const ResourceHub = () => {
         } finally {
             setLoading(false);
         }
-    }, [activeMetric, searchTerm]);
+    }, [searchTerm, activeNav]);
 
     useEffect(() => {
         const timer = setTimeout(fetchThreads, 300);
@@ -82,7 +72,6 @@ const ResourceHub = () => {
             setActiveThread(data.thread);
             setThreadPosts(data.posts);
             setActiveThreadId(threadId);
-            // Increment views
             resourceService.incrementViews(threadId);
         } catch (error) {
             toast.error('Failed to load thread details');
@@ -93,13 +82,8 @@ const ResourceHub = () => {
         e.stopPropagation();
         if (!user) return toast.info('Log in to vote');
         try {
-            const res = await resourceService.voteThread(threadId, direction, user.token);
-            setThreads(prev => prev.map(t => t._id === threadId ? {
-                ...t,
-                upvoteCount: res.upvotes,
-                downvoteCount: res.downvotes,
-                userVote: res.userVote
-            } : t));
+            await resourceService.voteThread(threadId, direction, user.token);
+            fetchThreads(); // Refresh list to get accurate counts
         } catch (error) {
             toast.error('Action failed');
         }
@@ -115,62 +99,75 @@ const ResourceHub = () => {
                 layout
                 key={thread._id}
                 onClick={() => handleThreadClick(thread._id)}
-                className="bg-white rounded-3xl p-6 flex gap-6 hover:shadow-[0_20px_50px_rgba(0,30,128,0.08)] border border-gray-50 transition-all cursor-pointer group"
+                className="bg-white rounded-2xl p-6 flex gap-6 hover:shadow-[0_20px_50px_rgba(0,0,0,0.04)] border border-gray-100/50 transition-all cursor-pointer group items-start"
             >
-                {/* Voter Panel */}
-                <div className="flex flex-col items-center gap-2 bg-gray-50/50 rounded-2xl p-2 h-fit">
+                {/* Column 1: Voter Panel */}
+                <div className="flex flex-col items-center gap-2 h-fit">
                     <button
                         onClick={(e) => handleVote(e, thread._id, 'up')}
-                        className={`p-2 rounded-xl transition-all ${hasUpvoted ? 'text-blue-600 bg-blue-100' : 'text-gray-400 hover:text-blue-600 hover:bg-white'}`}
+                        className={`p-1.5 rounded-lg transition-all ${hasUpvoted ? 'text-[#F59E0B]' : 'text-gray-300 hover:text-[#F59E0B]'}`}
                     >
-                        <FaArrowUp size={14} />
+                        <FaArrowUp size={16} />
                     </button>
-                    <span className="text-sm font-black text-gray-900">{score}</span>
+                    <span className={`text-lg font-black ${score > 0 ? 'text-[#F59E0B]' : 'text-gray-400'}`}>{score}</span>
                     <button
                         onClick={(e) => handleVote(e, thread._id, 'down')}
-                        className={`p-2 rounded-xl transition-all ${hasDownvoted ? 'text-red-600 bg-red-100' : 'text-gray-400 hover:text-red-600 hover:bg-white'}`}
+                        className={`p-1.5 rounded-lg transition-all ${hasDownvoted ? 'text-[#F59E0B]' : 'text-gray-300 hover:text-[#F59E0B]'}`}
                     >
-                        <FaArrowDown size={14} />
+                        <FaArrowDown size={16} />
                     </button>
                 </div>
 
-                {/* Content Panel */}
-                <div className="flex-1 space-y-3">
-                    <div className="flex items-center gap-3">
-                        {thread.isPinned && <FaBookmark className="text-[#001E80] rotate-45" size={12} />}
-                        <h3 className="text-lg font-black text-gray-900 line-clamp-1 group-hover:text-[#001E80] transition-colors">
-                            {thread.title}
-                        </h3>
-                    </div>
+                {/* Column 2: Publisher */}
+                <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex-shrink-0 border-2 border-white shadow-sm ring-1 ring-gray-100">
+                    {thread.author?.avatar ? (
+                        <img src={thread.author.avatar} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center text-xs bg-[#001E80] text-white font-black uppercase">
+                            {thread.author?.name?.charAt(0)}
+                        </div>
+                    )}
+                </div>
 
-                    <div className="flex items-center gap-2 text-[11px] font-bold text-gray-400 uppercase tracking-widest">
+                {/* Column 3: Intelligence */}
+                <div className="flex-1 min-w-0 space-y-3">
+                    {/* Row 1: Title & Badge */}
+                    <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <div className="w-5 h-5 rounded-full overflow-hidden bg-gray-100">
-                                {thread.author?.avatar ? <img src={thread.author.avatar} alt="" /> : <div className="w-full h-full flex items-center justify-center text-[8px] bg-[#001E80] text-white">{thread.author?.name?.charAt(0)}</div>}
-                            </div>
-                            <span className="text-gray-900">{thread.author?.name}</span>
+                            {thread.isPinned && <FaBookmark className="text-[#001E80] rotate-45" size={12} />}
+                            <h3 className="text-[1.1rem] font-black text-gray-900 line-clamp-1 group-hover:text-[#001E80] transition-colors leading-tight tracking-tight">
+                                {thread.title}
+                            </h3>
                         </div>
-                        {thread.author?.role === 'mentor' && <FaCheckCircle className="text-blue-500" size={10} />}
-                        <span>•</span>
-                        <span>{new Date(thread.createdAt).toLocaleDateString()}</span>
-                        <span>•</span>
-                        <span className="text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">{thread.type}</span>
+                        <span className="bg-gray-50 text-gray-500 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border border-gray-100">
+                            {thread.type || 'Discussion'}
+                        </span>
                     </div>
 
+                    {/* Row 2: Metadata */}
+                    <div className="flex items-center gap-3 text-xs font-bold text-gray-400">
+                        <span className="text-gray-900 group-hover:text-[#001E80] transition-colors">{thread.author?.name}</span>
+                        <span className="bg-[#F0EBFF] text-[#6366F1] px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest">Elite</span>
+                        <span>•</span>
+                        <span>4 days ago</span>
+                    </div>
+
+                    {/* Row 3: Engagement Stats */}
                     <div className="flex items-center gap-6">
-                        <div className="flex items-center gap-1.5 text-gray-400">
+                        <div className="flex items-center gap-2 text-gray-400">
                             <FaRegComment size={14} />
-                            <span className="text-xs font-black">{thread.postCount || 0} comments</span>
+                            <span className="text-xs font-black tracking-tight">{thread.postCount || 0} comments</span>
                         </div>
-                        <div className="flex items-center gap-1.5 text-gray-400">
+                        <div className="flex items-center gap-2 text-gray-400">
                             <FaRegEye size={14} />
-                            <span className="text-xs font-black">{thread.views?.toLocaleString() || 0} views</span>
+                            <span className="text-xs font-black tracking-tight">{thread.views?.toLocaleString() || 0} views</span>
                         </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-2 pt-2">
+                    {/* Row 4: Tech Tags */}
+                    <div className="flex flex-wrap gap-2 pt-1">
                         {thread.tags?.map((tag, idx) => (
-                            <span key={idx} className="bg-gray-100/50 text-gray-500 text-[9px] font-black uppercase px-2.5 py-1 rounded-lg border border-gray-100/50">
+                            <span key={idx} className="bg-white text-gray-600 text-[10px] font-bold px-3 py-1 rounded-xl border border-gray-100 shadow-sm hover:border-blue-200 transition-colors">
                                 {tag}
                             </span>
                         ))}
@@ -181,252 +178,204 @@ const ResourceHub = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#F8FAFF]">
-            {/* Premium Sticky Header */}
-            <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-100/50 px-8 py-4">
-                <div className="max-w-7xl mx-auto flex items-center justify-between gap-8">
-                    {/* Search & Brand */}
-                    <div className="flex items-center flex-1 gap-12">
-                        <div className="relative group flex-1 max-w-2xl">
-                            <FaSearch className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#001E80] transition-colors" />
-                            <input
-                                type="text"
-                                placeholder="Search intel, guides, or discussions..."
-                                className="w-full bg-gray-50 border-none rounded-2xl py-3.5 pl-14 pr-6 text-sm font-bold placeholder:text-gray-300 outline-none focus:ring-2 focus:ring-[#001E80]/10 transition-all"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </div>
-                    </div>
+        <div className="min-h-screen bg-[#F8FAFC]">
+            <HubHeader
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                onCreateClick={() => setShowCreateModal(true)}
+                user={user}
+            />
 
-                    {/* Actions */}
-                    <div className="flex items-center gap-6">
-                        <LiquidButton
-                            text="CREATE THREAD"
-                            onClick={() => setShowCreateModal(true)}
-                            className="scale-90"
-                        />
-                        <button className="relative p-3 rounded-2xl bg-gray-50 text-gray-400 hover:text-gray-900 transition-all">
-                            <FaBell />
-                            <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-                        </button>
-                        <div className="w-10 h-10 rounded-2xl overflow-hidden ring-2 ring-gray-100 cursor-pointer">
-                            {user?.avatar ? <img src={user.avatar} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-[#001E80] text-white flex items-center justify-center font-black">?</div>}
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            <main className="max-w-7xl mx-auto px-8 py-10">
-                <AnimatePresence mode="wait">
-                    {!activeThreadId ? (
-                        <motion.div
-                            key="list"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                            className="space-y-8"
-                        >
-                            {/* Filter Bar Controls */}
-                            <div className="flex items-center justify-between">
-                                <div className="flex bg-gray-100 p-1.5 rounded-2xl">
-                                    {['Community', 'Guide'].map(m => (
-                                        <button
-                                            key={m}
-                                            onClick={() => setSearchParams({ metric: m })}
-                                            className={`px-8 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeMetric === m ? 'bg-white text-[#001E80] shadow-xl shadow-[#001E80]/5' : 'text-gray-400 hover:text-gray-600'}`}
-                                        >
-                                            {m}
-                                        </button>
-                                    ))}
-                                </div>
-
-                                <button
-                                    onClick={() => setIsFilterExpanded(!isFilterExpanded)}
-                                    className={`flex items-center gap-3 px-6 py-2.5 rounded-2xl border transition-all ${isFilterExpanded ? 'bg-[#001E80] text-white border-[#001E80]' : 'bg-white text-gray-400 border-gray-100 hover:border-[#001E80]'}`}
-                                >
-                                    <FaFilter size={12} className={isFilterExpanded ? 'scale-110' : ''} />
-                                    <span className="text-xs font-black uppercase tracking-widest">Filters</span>
-                                    <FaChevronRight size={10} className={`transition-transform duration-300 ${isFilterExpanded ? 'rotate-90' : ''}`} />
-                                </button>
-                            </div>
-
-                            {/* Dynamic Filters Area */}
-                            <AnimatePresence>
-                                {isFilterExpanded && (
-                                    <motion.div
-                                        initial={{ height: 0, opacity: 0 }}
-                                        animate={{ height: 'auto', opacity: 1 }}
-                                        exit={{ height: 0, opacity: 0 }}
-                                        className="overflow-hidden"
-                                    >
-                                        <div className="grid grid-cols-4 gap-4 p-2">
-                                            {FILTER_TYPES.map(ft => (
-                                                <div key={ft.id} className="space-y-2">
-                                                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">{ft.id}</label>
-                                                    <SearchableDropdown
-                                                        options={SUGGESTION_LISTS[ft.id] || []}
-                                                        placeholder={ft.placeholder}
-                                                        onChange={(val) => setActiveFilters(prev => ({ ...prev, [ft.id]: val }))}
-                                                    />
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-
-                            {/* Thread Feed */}
-                            <div className="grid grid-cols-1 gap-6 pb-20">
-                                {loading ? (
-                                    Array(5).fill(0).map((_, i) => <div key={i} className="h-40 bg-white rounded-3xl animate-pulse" />)
-                                ) : threads.length > 0 ? (
-                                    threads.map(renderCard)
-                                ) : (
-                                    <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-200">
-                                        <FaSearch className="mx-auto text-gray-200 mb-4" size={40} />
-                                        <h3 className="text-lg font-black text-gray-900">No Intel Found</h3>
-                                        <p className="text-sm text-gray-400 font-bold">Try adjusting your logic parameters.</p>
-                                    </div>
-                                )}
-                            </div>
-                        </motion.div>
-                    ) : (
-                        <motion.div
-                            key="detail"
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -20 }}
-                            className="space-y-8"
-                        >
-                            {/* In-place Header */}
+            <main className="max-w-[1440px] mx-auto px-6 py-8 flex gap-8">
+                {/* Column 1: Left Sidebar - Navigation & Categories */}
+                <aside className="w-[240px] flex-shrink-0 space-y-8">
+                    <nav className="space-y-1">
+                        {[
+                            { name: 'Home Feed', icon: FaHome },
+                            { name: 'Hot Threads', icon: FaFire },
+                            { name: 'Trending', icon: FaChartLine }
+                        ].map(item => (
                             <button
-                                onClick={() => setActiveThreadId(null)}
-                                className="flex items-center gap-3 text-xs font-black uppercase tracking-[0.2em] text-[#001E80] hover:gap-5 transition-all group"
+                                key={item.name}
+                                onClick={() => setSearchParams({ tab: item.name })}
+                                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-sm ${activeNav === item.name ? 'bg-white text-[#001E80] shadow-sm shadow-[#001E80]/5' : 'text-gray-500 hover:bg-white hover:text-gray-900'}`}
                             >
-                                <FaChevronLeft /> Back to Feed
+                                <item.icon size={18} className={activeNav === item.name ? 'text-[#001E80]' : 'text-gray-400'} />
+                                {item.name}
                             </button>
+                        ))}
+                    </nav>
 
-                            <div className="bg-white rounded-[3rem] p-12 border border-gray-50 shadow-sm">
-                                <div className="flex justify-between items-start mb-10">
+                    <div className="space-y-4">
+                        <h4 className="px-4 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Categories</h4>
+                        <div className="space-y-1">
+                            {CATEGORIES.map(cat => (
+                                <button
+                                    key={cat.name}
+                                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-gray-600 hover:bg-white hover:text-gray-900 transition-all border border-transparent hover:border-gray-50"
+                                >
+                                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: cat.color }} />
+                                    {cat.name}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </aside>
+
+                {/* Column 2: Central Feed */}
+                <div className="flex-1 min-w-0">
+                    <AnimatePresence mode="wait">
+                        {!activeThreadId ? (
+                            <motion.div
+                                key="list"
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                className="space-y-6"
+                            >
+                                <div className="space-y-6">
+                                    {loading ? (
+                                        Array(3).fill(0).map((_, i) => <div key={i} className="h-44 bg-white rounded-3xl animate-pulse" />)
+                                    ) : (
+                                        threads.map(renderCard)
+                                    )}
+
+                                    <button className="w-full py-4 bg-white border border-gray-100 rounded-2xl text-sm font-bold text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-all">
+                                        Load More Threads
+                                    </button>
+                                </div>
+                            </motion.div>
+                        ) : (
+                            <motion.div
+                                key="detail"
+                                initial={{ opacity: 0, scale: 0.98 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="bg-white rounded-[2rem] border border-gray-100 shadow-xl p-8 space-y-8"
+                            >
+                                <button
+                                    onClick={() => setActiveThreadId(null)}
+                                    className="flex items-center gap-2 text-xs font-black uppercase text-[#001E80] hover:gap-4 transition-all"
+                                >
+                                    <FaChevronLeft /> Back to Dashboard
+                                </button>
+
+                                {/* High Fidelity Detail Content */}
+                                <div className="space-y-6">
                                     <div className="space-y-4">
-                                        <div className="flex items-center gap-3">
-                                            {activeThread.isCurated && <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">Guide</span>}
-                                            <span className="text-blue-600 font-bold text-xs">#{activeThread.type}</span>
-                                        </div>
-                                        <h1 className="text-4xl font-black text-gray-900 leading-tight">
+                                        <h1 className="text-3xl font-black text-gray-900 leading-tight">
                                             {activeThread.title}
                                         </h1>
-                                    </div>
-                                    <div className="flex flex-col items-center gap-2 bg-gray-50 rounded-2xl p-3">
-                                        <span className="text-[10px] font-black text-gray-400 uppercase">Intel Score</span>
-                                        <span className="text-2xl font-black text-gray-900">{(activeThread.upvotes?.length || 0) - (activeThread.downvotes?.length || 0)}</span>
-                                    </div>
-                                </div>
-
-                                <div className="prose prose-lg max-w-none text-gray-700 font-medium">
-                                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                        {activeThread.content}
-                                    </ReactMarkdown>
-                                </div>
-
-                                <div className="mt-16 pt-10 border-t border-gray-50">
-                                    <h3 className="text-xl font-black text-gray-900 mb-8 flex items-center gap-3">
-                                        <FaRegComment className="text-[#001E80]" /> Intelligence Logs ({threadPosts.length})
-                                    </h3>
-
-                                    <div className="space-y-6">
-                                        {threadPosts.length > 0 ? (
-                                            threadPosts.map(post => (
-                                                <div key={post._id} className="bg-gray-50/50 rounded-3xl p-6 border border-gray-100/50">
-                                                    <div className="flex items-center gap-3 mb-4">
-                                                        <div className="w-8 h-8 rounded-full bg-[#001E80] text-white flex items-center justify-center text-[10px] font-black">
-                                                            {post.author?.name?.charAt(0)}
-                                                        </div>
-                                                        <div>
-                                                            <p className="text-xs font-black text-gray-900">{post.author?.name}</p>
-                                                            <p className="text-[10px] text-gray-400 font-bold uppercase">{new Date(post.createdAt).toLocaleDateString()}</p>
-                                                        </div>
-                                                    </div>
-                                                    <div className="prose prose-sm font-medium text-gray-600">
-                                                        <ReactMarkdown>{post.content}</ReactMarkdown>
-                                                    </div>
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-8 h-8 rounded-full bg-gray-100">
+                                                    {activeThread.author?.avatar && <img src={activeThread.author.avatar} className="w-full h-full rounded-full" />}
                                                 </div>
-                                            ))
-                                        ) : (
-                                            <p className="text-center py-10 text-gray-400 font-bold italic">No log entries synchronized yet...</p>
-                                        )}
+                                                <span className="text-sm font-bold">{activeThread.author?.name}</span>
+                                            </div>
+                                            <span className="text-xs text-gray-400">• {new Date(activeThread.createdAt).toLocaleDateString()}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="prose prose-blue max-w-none font-medium text-gray-700">
+                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{activeThread.content}</ReactMarkdown>
                                     </div>
                                 </div>
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+
+                {/* Column 3: Right Sidebar - Stats & Social */}
+                <aside className="w-[300px] flex-shrink-0 space-y-6">
+                    {/* Forum Stats */}
+                    <div className="bg-white rounded-2xl p-6 border border-gray-100 space-y-6">
+                        <h4 className="text-sm font-black text-gray-900 border-b border-gray-50 pb-4">Forum Stats</h4>
+                        <div className="space-y-4">
+                            {[
+                                { label: 'Total Threads', value: '24,532', color: 'text-gray-500' },
+                                { label: 'Total Members', value: '145,892', color: 'text-gray-500' },
+                                { label: 'Active Today', value: '12,453', color: 'text-green-500' }
+                            ].map(stat => (
+                                <div key={stat.label} className="flex items-center justify-between text-xs font-bold">
+                                    <span className="text-gray-400">{stat.label}</span>
+                                    <span className={stat.color}>{stat.value}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Top Contributors */}
+                    <div className="bg-white rounded-2xl p-6 border border-gray-100 space-y-6">
+                        <h4 className="text-sm font-black text-gray-900 border-b border-gray-50 pb-4">Top Contributors</h4>
+                        <div className="space-y-5">
+                            {[
+                                { name: 'TechGuru', rep: '24,500' },
+                                { name: 'CyberNinja', rep: '15,240' },
+                                { name: 'CodeWizard', rep: '12,100' }
+                            ].map(user => (
+                                <div key={user.name} className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-full bg-gray-100 ring-2 ring-gray-50 flex-shrink-0" />
+                                    <div className="min-w-0">
+                                        <div className="text-sm font-bold text-gray-900 truncate">{user.name}</div>
+                                        <div className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">{user.rep} rep</div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </aside>
             </main>
 
-            {/* AI Chatbot - Always handy */}
-            <AIChatBot applyFilters={(f) => setActiveFilters(prev => ({ ...prev, ...f }))} />
+            <AIChatBot applyFilters={(f) => { }} />
 
-            {/* Create Thread Modal Overlay */}
-            {showCreateModal && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center p-6">
-                    <motion.div
-                        initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-                        onClick={() => setShowCreateModal(false)}
-                    />
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl overflow-hidden"
-                    >
-                        <div className="bg-gradient-to-r from-[#001E80] to-[#010D3E] px-10 py-8 flex items-center justify-between">
-                            <h2 className="text-white text-xl font-black uppercase tracking-widest">Initialize Briefing</h2>
-                            <button onClick={() => setShowCreateModal(false)} className="text-white/40 hover:text-white transition-colors">✕</button>
-                        </div>
-                        <div className="p-10 space-y-6 max-h-[70vh] overflow-y-auto">
-                            <div className="space-y-4">
-                                <label className="text-[11px] font-black uppercase text-blue-600 tracking-widest ml-2">Title</label>
+            {/* Create Modal - Kept for functionality */}
+            <AnimatePresence>
+                {showCreateModal && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-gray-900/40 backdrop-blur-sm">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="w-full max-w-xl bg-white rounded-[2rem] overflow-hidden shadow-2xl"
+                        >
+                            <div className="p-8 space-y-6">
+                                <div className="flex items-center justify-between">
+                                    <h2 className="text-2xl font-black text-gray-900">Create Thread</h2>
+                                    <button onClick={() => setShowCreateModal(false)} className="text-gray-400 hover:text-gray-600">✕</button>
+                                </div>
                                 <input
-                                    className="w-full bg-gray-50 border-none rounded-2xl py-4 px-6 font-bold text-gray-900 outline-none focus:ring-2 focus:ring-blue-100"
-                                    placeholder="Briefing Title..."
+                                    className="w-full bg-gray-50 border-none rounded-xl py-4 px-6 font-bold text-gray-900 outline-none focus:ring-2 focus:ring-[#001E80]/10"
+                                    placeholder="Discussion Title..."
                                     value={createData.title}
                                     onChange={e => setCreateData({ ...createData, title: e.target.value })}
                                 />
-                            </div>
-                            <div className="space-y-4">
-                                <label className="text-[11px] font-black uppercase text-blue-600 tracking-widest ml-2">Intelligence Content</label>
                                 <textarea
-                                    className="w-full bg-gray-50 border-none rounded-2xl py-4 px-6 font-bold text-gray-900 outline-none focus:ring-2 focus:ring-blue-100 min-h-[150px]"
-                                    placeholder="Briefing details (Markdown supported)..."
+                                    className="w-full bg-gray-50 border-none rounded-xl py-4 px-6 font-bold text-gray-900 outline-none focus:ring-2 focus:ring-[#001E80]/10 min-h-[150px]"
+                                    placeholder="Write your intelligence briefing..."
                                     value={createData.content}
                                     onChange={e => setCreateData({ ...createData, content: e.target.value })}
                                 />
-                            </div>
-                            <div className="pt-6">
-                                <LiquidButton
-                                    text="SYNC INTELLIGENCE"
-                                    className="w-full"
+                                <button
                                     onClick={async () => {
                                         try {
-                                            const formData = new FormData();
-                                            formData.append('title', createData.title);
-                                            formData.append('content', createData.content);
-                                            formData.append('type', 'discussion');
-                                            await resourceService.createThread(formData, user.token);
-                                            toast.success('Briefing Published');
+                                            const fd = new FormData();
+                                            fd.append('title', createData.title);
+                                            fd.append('content', createData.content);
+                                            await resourceService.createThread(fd, user.token);
+                                            toast.success('Thread Broadcasted');
                                             setShowCreateModal(false);
                                             fetchThreads();
-                                        } catch (error) {
-                                            toast.error('Mission failed');
-                                        }
+                                        } catch (e) { toast.error('Broadcast failed'); }
                                     }}
-                                />
+                                    className="w-full bg-[#001E80] text-white py-4 rounded-xl font-black uppercase tracking-widest hover:bg-[#001660] transition-all shadow-lg shadow-blue-900/20"
+                                >
+                                    Publish Thread
+                                </button>
                             </div>
-                        </div>
-                    </motion.div>
-                </div>
-            )}
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
