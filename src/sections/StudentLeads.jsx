@@ -5,7 +5,7 @@ import {
     FaBullhorn, FaStar, FaShieldAlt, FaUserFriends,
     FaArrowRight, FaRegHandPaper
 } from 'react-icons/fa';
-import { useState } from 'react';
+import { LiquidButton } from '../components/LiquidButton';
 
 const fadeInUp = {
     hidden: { opacity: 0, y: 24 },
@@ -22,21 +22,23 @@ const ResponsibilityCard = ({ icon, title, points, idx }) => (
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
-        className="group relative p-8 rounded-[2rem] bg-white/[0.04] border border-white/[0.06] backdrop-blur-sm hover:bg-white/[0.08] transition-all duration-500 hover:-translate-y-1"
+        className="group relative p-8 rounded-[2rem] bg-white border border-gray-100 shadow-[0_4px_30px_-8px_rgba(0,30,128,0.06)] hover:shadow-[0_8px_40px_-8px_rgba(0,30,128,0.12)] transition-all duration-500 hover:-translate-y-1"
     >
-        {/* Hover glow */}
-        <div className="absolute -inset-px rounded-[2rem] bg-gradient-to-b from-blue-500/0 to-blue-500/0 group-hover:from-blue-500/5 group-hover:to-transparent transition-all duration-500 pointer-events-none" />
-
         <div className="relative z-10">
-            <div className="w-12 h-12 rounded-2xl bg-blue-500/15 text-blue-400 flex items-center justify-center text-xl mb-5 group-hover:scale-110 group-hover:bg-blue-500/25 transition-all duration-300">
+            <div className="w-12 h-12 rounded-2xl bg-[#001E80]/5 text-[#001E80] flex items-center justify-center text-xl mb-5 group-hover:scale-110 group-hover:bg-[#001E80]/10 transition-all duration-300">
                 {icon}
             </div>
-            <h3 className="text-xl font-bold text-white mb-4 tracking-tight">{title}</h3>
+            <h3
+                className="text-xl font-bold text-[#010D3E] mb-4 tracking-tight"
+                style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
+            >
+                {title}
+            </h3>
             <ul className="space-y-3">
                 {points.map((point, i) => (
-                    <li key={i} className="flex items-start gap-3 text-sm text-white/50 leading-relaxed">
-                        <span className="mt-1 shrink-0 w-4 h-4 rounded-full bg-blue-500/10 flex items-center justify-center">
-                            <svg width="8" height="8" viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                    <li key={i} className="flex items-start gap-3 text-sm text-[#010D3E]/60 leading-relaxed">
+                        <span className="mt-1 shrink-0 w-4 h-4 rounded-full bg-[#001E80]/8 flex items-center justify-center">
+                            <svg width="8" height="8" viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke="#001E80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
                         </span>
                         <span>{point}</span>
                     </li>
@@ -55,25 +57,28 @@ const BenefitItem = ({ icon, title, desc, idx }) => (
         viewport={{ once: true }}
         className="flex items-start gap-5 group"
     >
-        <div className="shrink-0 w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500/20 to-indigo-500/10 text-blue-400 flex items-center justify-center text-lg border border-blue-500/10 group-hover:scale-110 group-hover:border-blue-400/30 transition-all duration-300">
+        <div className="shrink-0 w-11 h-11 rounded-xl bg-gradient-to-br from-[#001E80]/10 to-[#001E80]/5 text-[#001E80] flex items-center justify-center text-lg border border-[#001E80]/5 group-hover:scale-110 group-hover:border-[#001E80]/20 transition-all duration-300">
             {icon}
         </div>
         <div>
-            <h4 className="text-[15px] font-bold text-white mb-1 tracking-tight">{title}</h4>
-            <p className="text-sm text-white/40 leading-relaxed">{desc}</p>
+            <h4
+                className="text-[15px] font-bold text-[#010D3E] mb-1 tracking-tight"
+                style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
+            >
+                {title}
+            </h4>
+            <p className="text-sm text-[#010D3E]/40 leading-relaxed">{desc}</p>
         </div>
     </motion.div>
 );
 
 const StudentLeads = () => {
-    const [showDetails, setShowDetails] = useState(false);
-
     const responsibilities = [
         {
             icon: <FaClipboardList />,
             title: "Resource Coordination",
             points: [
-                "Curate and maintain your level's resource threads — past exams, lecture notes, and study materials stay organized and up-to-date.",
+                "Help coordinate your level's resource threads — past exams, lecture notes, and study materials stay organized and up-to-date.",
                 "Reach out to seniors and high-achieving peers to fill gaps in material (when possible).",
             ]
         },
@@ -118,23 +123,22 @@ const StudentLeads = () => {
     ];
 
     return (
-        <section className="relative py-24 md:py-32 bg-[#010D3E] overflow-hidden">
-            {/* Background effects */}
+        <section className="relative py-24 md:py-32 bg-white overflow-hidden">
+            {/* Background effects — matching Mentor theme */}
             <div className="absolute inset-0 pointer-events-none overflow-hidden">
                 <motion.div
                     initial={{ opacity: 0 }}
-                    animate={{ opacity: [0.08, 0.15, 0.08] }}
+                    animate={{ opacity: [0.03, 0.06, 0.03] }}
                     transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
                     className="absolute inset-0"
                     style={{
-                        backgroundImage: 'radial-gradient(rgba(255,255,255,0.4) 1px, transparent 1px)',
+                        backgroundImage: 'radial-gradient(#010D3E 1px, transparent 1px)',
                         backgroundSize: '40px 40px'
                     }}
                 />
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_0%,#010D3E_80%)]" />
-                {/* Ambient glow blobs */}
-                <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-blue-600/5 rounded-full blur-[120px]" />
-                <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/5 rounded-full blur-[100px]" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_0%,white_80%)]" />
+                <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-[#001E80]/[0.02] rounded-full blur-[120px]" />
+                <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-500/[0.02] rounded-full blur-[100px]" />
             </div>
 
             <div className="container mx-auto px-6 lg:px-12 relative z-10">
@@ -142,13 +146,22 @@ const StudentLeads = () => {
                 {/* === HEADER === */}
                 <div className="max-w-4xl mx-auto text-center space-y-5 mb-20">
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
+                        initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                        whileInView={{ opacity: 1, scale: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-white/60 text-xs font-black uppercase tracking-[0.2em]"
+                        transition={{ duration: 0.6 }}
+                        className="relative group p-[1.5px] rounded-xl overflow-hidden inline-flex"
                     >
-                        <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                        Hub Ambassador Network
+                        <motion.div
+                            className="absolute inset-[-150%] opacity-60"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                            style={{ background: 'conic-gradient(from 0deg, transparent 20%, #001E80 50%, transparent 80%)' }}
+                        />
+                        <div className="relative inline-flex items-center gap-2 border border-[#222]/10 px-4 py-1.5 rounded-[11px] tracking-tight shadow-sm bg-white/80 backdrop-blur-xl group-hover:bg-white transition-colors duration-300">
+                            <span className="text-[#001E80]"><FaGraduationCap size={14} /></span>
+                            <span className="font-bold text-sm text-[#010D3E]">Hub Ambassador Network</span>
+                        </div>
                     </motion.div>
 
                     <motion.h2
@@ -156,10 +169,10 @@ const StudentLeads = () => {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.1 }}
-                        className="text-5xl md:text-7xl font-black text-white leading-tight"
+                        className="text-5xl md:text-7xl font-black text-[#010D3E] leading-tight"
                         style={{ fontFamily: 'Zuume-Bold', letterSpacing: '1px' }}
                     >
-                        UP TO 3 LEADS <br />PER <span className="text-blue-500">LEVEL.</span>
+                        UP TO 3 LEADS <br />PER <span className="text-[#001E80]">LEVEL.</span>
                     </motion.h2>
 
                     <motion.p
@@ -167,9 +180,9 @@ const StudentLeads = () => {
                         whileInView={{ opacity: 1 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.2 }}
-                        className="text-white/40 text-lg md:text-xl font-medium max-w-2xl mx-auto"
+                        className="text-[#010D3E]/50 text-lg md:text-xl font-medium max-w-2xl mx-auto"
                     >
-                        Inspired by GDSC, we're building an elite network of student leaders to represent the Hub at every academic level across the globe.
+                        We're building an elite network of student leaders to represent the Hub at every academic level across Egypt.
                     </motion.p>
                 </div>
 
@@ -182,25 +195,25 @@ const StudentLeads = () => {
                 >
                     <div className="relative p-[1px] rounded-[2rem] overflow-hidden">
                         <motion.div
-                            className="absolute inset-[-200%] opacity-30"
+                            className="absolute inset-[-200%] opacity-20"
                             animate={{ rotate: 360 }}
                             transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                            style={{ background: 'conic-gradient(from 0deg, transparent 30%, #3B82F6 50%, transparent 70%)' }}
+                            style={{ background: 'conic-gradient(from 0deg, transparent 30%, #001E80 50%, transparent 70%)' }}
                         />
-                        <div className="relative bg-[#010821] rounded-[2rem] p-10 md:p-14">
+                        <div className="relative bg-gradient-to-br from-[#F8FAFF] to-[#EAEEFE] rounded-[2rem] p-10 md:p-14">
                             <h3
-                                className="text-2xl md:text-3xl font-black text-white mb-4 uppercase"
+                                className="text-2xl md:text-3xl font-black text-[#010D3E] mb-4 uppercase"
                                 style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
                             >
                                 What Is a Student Lead?
                             </h3>
-                            <p className="text-white/50 text-base md:text-lg leading-relaxed max-w-xl mx-auto">
-                                A Student Lead is the official <span className="text-blue-400 font-semibold">Hub Ambassador</span> for their specific academic level. You are the bridge between The Hub and your peers — you curate resources, manage your level's group chat, and keep the community alive at the ground level.
+                            <p className="text-[#010D3E]/50 text-base md:text-lg leading-relaxed max-w-xl mx-auto">
+                                A Student Lead is the official <span className="text-[#001E80] font-semibold">Hub Ambassador</span> for their specific academic level. You are the bridge between The Hub and your peers — you help coordinate resources alongside other contributors, manage your level's group chat, and keep the community alive at the ground level.
                             </p>
-                            <div className="mt-6 flex flex-wrap items-center justify-center gap-3 text-xs font-bold text-white/30 uppercase tracking-widest">
-                                <span className="px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.03]">Selective</span>
-                                <span className="px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.03]">Prestigious</span>
-                                <span className="px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.03]">Impactful</span>
+                            <div className="mt-6 flex flex-wrap items-center justify-center gap-3 text-xs font-bold text-[#010D3E]/25 uppercase tracking-widest">
+                                <span className="px-3 py-1.5 rounded-full border border-[#001E80]/8 bg-white/60">Selective</span>
+                                <span className="px-3 py-1.5 rounded-full border border-[#001E80]/8 bg-white/60">Prestigious</span>
+                                <span className="px-3 py-1.5 rounded-full border border-[#001E80]/8 bg-white/60">Impactful</span>
                             </div>
                         </div>
                     </div>
@@ -212,7 +225,7 @@ const StudentLeads = () => {
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="text-3xl md:text-4xl font-black text-white text-center mb-4 uppercase"
+                        className="text-3xl md:text-4xl font-black text-[#010D3E] text-center mb-4 uppercase"
                         style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
                     >
                         Your Responsibilities
@@ -221,7 +234,7 @@ const StudentLeads = () => {
                         initial={{ opacity: 0 }}
                         whileInView={{ opacity: 1 }}
                         viewport={{ once: true }}
-                        className="text-white/30 text-center mb-12 max-w-lg mx-auto"
+                        className="text-[#010D3E]/30 text-center mb-12 max-w-lg mx-auto"
                     >
                         What you'll own as a Student Lead — manageable alongside your coursework.
                     </motion.p>
@@ -239,7 +252,7 @@ const StudentLeads = () => {
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="text-3xl md:text-4xl font-black text-white text-center mb-4 uppercase"
+                        className="text-3xl md:text-4xl font-black text-[#010D3E] text-center mb-4 uppercase"
                         style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
                     >
                         What You Get
@@ -248,7 +261,7 @@ const StudentLeads = () => {
                         initial={{ opacity: 0 }}
                         whileInView={{ opacity: 1 }}
                         viewport={{ once: true }}
-                        className="text-white/30 text-center mb-12 max-w-lg mx-auto"
+                        className="text-[#010D3E]/30 text-center mb-12 max-w-lg mx-auto"
                     >
                         Leading your level comes with real, tangible perks.
                     </motion.p>
@@ -267,9 +280,9 @@ const StudentLeads = () => {
                     viewport={{ once: true }}
                     className="max-w-3xl mx-auto mb-16"
                 >
-                    <div className="p-8 md:p-12 rounded-[2rem] bg-gradient-to-br from-white/[0.04] to-white/[0.01] border border-white/[0.06] backdrop-blur-sm">
+                    <div className="p-8 md:p-12 rounded-[2rem] bg-gradient-to-br from-[#F8FAFF] to-[#EAEEFE] border border-[#001E80]/5">
                         <h3
-                            className="text-2xl md:text-3xl font-black text-white mb-6 uppercase text-center"
+                            className="text-2xl md:text-3xl font-black text-[#010D3E] mb-6 uppercase text-center"
                             style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
                         >
                             Who Should Apply?
@@ -282,14 +295,14 @@ const StudentLeads = () => {
                                 "You're reliable and consistent — this is an ongoing commitment.",
                                 "You genuinely want to help your peers succeed academically.",
                             ].map((text, i) => (
-                                <li key={i} className="flex items-start gap-3 text-sm text-white/50 leading-relaxed">
-                                    <span className="mt-1 shrink-0 w-5 h-5 rounded-full bg-blue-500/15 flex items-center justify-center text-blue-400 text-[10px] font-black">{i + 1}</span>
+                                <li key={i} className="flex items-start gap-3 text-sm text-[#010D3E]/50 leading-relaxed">
+                                    <span className="mt-1 shrink-0 w-5 h-5 rounded-full bg-[#001E80]/8 flex items-center justify-center text-[#001E80] text-[10px] font-black">{i + 1}</span>
                                     <span>{text}</span>
                                 </li>
                             ))}
                         </ul>
                         <div className="mt-8 text-center">
-                            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white/30 text-xs font-bold uppercase tracking-widest">
+                            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/70 border border-[#001E80]/5 text-[#010D3E]/30 text-xs font-bold uppercase tracking-widest">
                                 ⏱ ~3–5 hours per week • Mostly async
                             </span>
                         </div>
@@ -301,15 +314,10 @@ const StudentLeads = () => {
                     initial={{ opacity: 0, scale: 0.9 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
-                    className="text-center"
+                    className="flex flex-col items-center"
                 >
-                    <button className="group relative px-12 py-5 bg-blue-600 hover:bg-blue-500 text-white rounded-[2rem] font-black text-sm uppercase tracking-widest shadow-2xl shadow-blue-500/20 transition-all active:scale-95 overflow-hidden">
-                        <div className="absolute inset-0 bg-white/20 translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500" />
-                        <span className="relative flex items-center gap-3">
-                            Join the Elite Network <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
-                        </span>
-                    </button>
-                    <p className="mt-6 text-white/20 text-[10px] font-black uppercase tracking-[0.3em]">Applications Open for 2026</p>
+                    <LiquidButton to="/work-with-us" text="Join the Elite Network" />
+                    <p className="mt-6 text-[#010D3E]/20 text-[10px] font-black uppercase tracking-[0.3em]">Applications Open for 2026</p>
                 </motion.div>
             </div>
         </section>

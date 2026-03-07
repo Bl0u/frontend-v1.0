@@ -4,6 +4,7 @@ import {
     FaShieldAlt, FaTrophy, FaGlobeAmericas, FaHandsHelping,
     FaUserTie, FaArrowRight, FaRegCompass
 } from 'react-icons/fa';
+import { LiquidButton } from '../components/LiquidButton';
 
 const fadeInUp = {
     hidden: { opacity: 0, y: 24 },
@@ -26,7 +27,12 @@ const ResponsibilityCard = ({ icon, title, points, idx }) => (
             <div className="w-12 h-12 rounded-2xl bg-[#001E80]/5 text-[#001E80] flex items-center justify-center text-xl mb-5 group-hover:scale-110 group-hover:bg-[#001E80]/10 transition-all duration-300">
                 {icon}
             </div>
-            <h3 className="text-xl font-bold text-[#010D3E] mb-4 tracking-tight">{title}</h3>
+            <h3
+                className="text-xl font-bold text-[#010D3E] mb-4 tracking-tight"
+                style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
+            >
+                {title}
+            </h3>
             <ul className="space-y-3">
                 {points.map((point, i) => (
                     <li key={i} className="flex items-start gap-3 text-sm text-[#010D3E]/60 leading-relaxed">
@@ -54,7 +60,12 @@ const BenefitItem = ({ icon, title, desc, idx }) => (
             {icon}
         </div>
         <div>
-            <h4 className="text-[15px] font-bold text-[#010D3E] mb-1 tracking-tight">{title}</h4>
+            <h4
+                className="text-[15px] font-bold text-[#010D3E] mb-1 tracking-tight"
+                style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
+            >
+                {title}
+            </h4>
             <p className="text-sm text-[#010D3E]/40 leading-relaxed">{desc}</p>
         </div>
     </motion.div>
@@ -134,12 +145,22 @@ const MentorRecruitment = () => {
                 {/* === HEADER === */}
                 <div className="max-w-4xl mx-auto text-center space-y-5 mb-20">
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
+                        initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                        whileInView={{ opacity: 1, scale: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-[#001E80]/5 border border-[#001E80]/10 text-[#001E80] text-xs font-black uppercase tracking-widest"
+                        transition={{ duration: 0.6 }}
+                        className="relative group p-[1.5px] rounded-xl overflow-hidden inline-flex"
                     >
-                        <FaHandHoldingHeart /> Expert Mentors Wanted
+                        <motion.div
+                            className="absolute inset-[-150%] opacity-60"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                            style={{ background: 'conic-gradient(from 0deg, transparent 20%, #001E80 50%, transparent 80%)' }}
+                        />
+                        <div className="relative inline-flex items-center gap-2 border border-[#222]/10 px-4 py-1.5 rounded-[11px] tracking-tight shadow-sm bg-white/80 backdrop-blur-xl group-hover:bg-white transition-colors duration-300">
+                            <span className="text-[#001E80]"><FaChalkboardTeacher size={14} /></span>
+                            <span className="font-bold text-sm text-[#010D3E]">Expert Mentors Wanted</span>
+                        </div>
                     </motion.div>
 
                     <motion.h2
@@ -150,8 +171,8 @@ const MentorRecruitment = () => {
                         className="text-5xl md:text-7xl font-black text-[#010D3E] leading-tight"
                         style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
                     >
-                        EMPOWER <span className="text-[#001E80]">PRO-BONO</span> <br />
-                        LEARNER MISSIONS.
+                        GUIDE <span className="text-[#001E80]">LEARNERS.</span> <br />
+                        MAKE AN IMPACT.
                     </motion.h2>
 
                     <motion.p
@@ -161,7 +182,7 @@ const MentorRecruitment = () => {
                         transition={{ delay: 0.2 }}
                         className="text-[#010D3E]/50 text-lg md:text-xl font-medium max-w-2xl mx-auto"
                     >
-                        Help bridge the gap between academic theory and real-world impact. Join our elite mentor network and guide learners worldwide on high-impact projects.
+                        Bridge the gap between academic theory and real-world impact. Join our mentor network and guide learners worldwide on high-impact projects.
                     </motion.p>
                 </div>
 
@@ -187,10 +208,10 @@ const MentorRecruitment = () => {
                                 What Is a Hub Mentor?
                             </h3>
                             <p className="text-[#010D3E]/50 text-base md:text-lg leading-relaxed max-w-xl mx-auto">
-                                A Hub Mentor is an <span className="text-[#001E80] font-semibold">industry professional</span> who volunteers their expertise to guide learners worldwide on high-impact projects — graduation projects, hackathons, capstone work, and real-world applications. This is a <span className="text-[#001E80] font-semibold">pro-bono</span> role. You're here because you believe in giving back and bridging the gap between theory and impact.
+                                A Hub Mentor is an <span className="text-[#001E80] font-semibold">industry professional</span> who volunteers their expertise to guide learners worldwide on high-impact projects — graduation projects, hackathons, capstone work, and real-world applications. This is a <span className="text-[#001E80] font-semibold">voluntary</span> role. You're here because you believe in giving back and bridging the gap between theory and impact.
                             </p>
                             <div className="mt-6 flex flex-wrap items-center justify-center gap-3 text-xs font-bold text-[#010D3E]/25 uppercase tracking-widest">
-                                <span className="px-3 py-1.5 rounded-full border border-[#001E80]/8 bg-white/60">Pro-Bono</span>
+                                <span className="px-3 py-1.5 rounded-full border border-[#001E80]/8 bg-white/60">Voluntary</span>
                                 <span className="px-3 py-1.5 rounded-full border border-[#001E80]/8 bg-white/60">Industry Expert</span>
                                 <span className="px-3 py-1.5 rounded-full border border-[#001E80]/8 bg-white/60">Global Impact</span>
                             </div>
@@ -293,14 +314,9 @@ const MentorRecruitment = () => {
                     initial={{ opacity: 0, scale: 0.9 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
-                    className="text-center"
+                    className="flex flex-col items-center"
                 >
-                    <button className="group relative px-12 py-5 bg-[#001E80] hover:bg-blue-900 text-white rounded-[2rem] font-black text-sm uppercase tracking-widest shadow-2xl shadow-[#001E80]/20 transition-all active:scale-95 overflow-hidden">
-                        <div className="absolute inset-0 bg-white/10 translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500" />
-                        <span className="relative flex items-center gap-3">
-                            Become a Mentor <FaRocket className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                        </span>
-                    </button>
+                    <LiquidButton to="/work-with-us" text="Become a Mentor" />
                 </motion.div>
             </div>
         </section>
