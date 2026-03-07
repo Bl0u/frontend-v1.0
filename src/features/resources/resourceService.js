@@ -50,12 +50,27 @@ const addPost = async (threadId, postData, token) => {
     return response.data;
 };
 
-// Toggle upvote
+// Toggle upvote (Legacy for posts, keeping for compat)
 const toggleUpvote = async (postId, token) => {
     const config = {
         headers: { Authorization: `Bearer ${token}` },
     };
     const response = await axios.put(API_URL + `post/${postId}/upvote`, {}, config);
+    return response.data;
+};
+
+// V1.0: Vote on a thread
+const voteThread = async (id, direction, token) => {
+    const config = {
+        headers: { Authorization: `Bearer ${token}` },
+    };
+    const response = await axios.patch(API_URL + `thread/${id}/vote`, { direction }, config);
+    return response.data;
+};
+
+// V1.0: Increment views
+const incrementViews = async (id) => {
+    const response = await axios.patch(API_URL + `thread/${id}/view`);
     return response.data;
 };
 
@@ -173,8 +188,9 @@ const resourceService = {
     requestReview,
     acknowledgeInstructions,
     updateInstructions,
-    purchaseThread, // V2.0
     updateThreadPrice, // V2.0
+    voteThread, // V1.0
+    incrementViews, // V1.0
 };
 
 export default resourceService;
