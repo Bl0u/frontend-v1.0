@@ -3,23 +3,40 @@ import axios from 'axios';
 import { API_BASE_URL } from '../config';
 
 import UserCard from '../components/UserCard';
-import { FaSearch } from 'react-icons/fa';
+import { FaSearch, FaGraduationCap, FaBookOpen, FaBuilding, FaGlobe } from 'react-icons/fa';
+import { FilterBar } from '../components/FilterBar';
+import userService from '../features/users/userService';
+
+const PARTNER_FILTER_TYPES = [
+    { id: 'University', icon: FaGraduationCap, placeholder: 'Search University...' },
+    { id: 'Major', icon: FaBookOpen, placeholder: 'Search Major...' },
+    { id: 'City', icon: FaBuilding, placeholder: 'Search City...' },
+    { id: 'Country', icon: FaGlobe, placeholder: 'Search Country...' }
+];
 
 const Partners = () => {
     const [partners, setPartners] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [filters, setFilters] = useState({}); // Unified with FilterBar: { University: '...', Major: '...' }
+    const [suggestionLists, setSuggestionLists] = useState({});
 
-    const fetchPartners = async (search = '') => {
+    const fetchPartners = async (search = '', currentFilters = filters) => {
         setLoading(true);
         try {
-            let url = `${API_BASE_URL}/api/users?role=student`;
+            let queryParams = new URLSearchParams({ role: 'student', lookingForPartner: 'true' });
+
             if (search) {
-                url += `&search=${encodeURIComponent(search)}`;
-            } else {
-                url += '&lookingForPartner=true';
+                queryParams.append('search', search);
             }
-            const res = await axios.get(url);
+
+            // Append filters (Map UI keys to Backend keys)
+            if (currentFilters.University) queryParams.append('university', currentFilters.University);
+            if (currentFilters.Major) queryParams.append('major', currentFilters.Major);
+            if (currentFilters.City) queryParams.append('city', currentFilters.City);
+            if (currentFilters.Country) queryParams.append('country', currentFilters.Country);
+
+            const res = await axios.get(`${API_BASE_URL}/api/users?${queryParams.toString()}`);
             setPartners(res.data);
         } catch (error) {
             console.error('Error fetching partners', error);
@@ -29,12 +46,26 @@ const Partners = () => {
     };
 
     useEffect(() => {
-        fetchPartners();
-    }, []);
+        const fetchFilters = async () => {
+            try {
+                const data = await userService.getUniquePartnerFilters();
+                setSuggestionLists(data);
+            } catch (error) {
+                console.error('Error fetching filter suggestions', error);
+            }
+        };
+        fetchFilters();
+        fetchPartners(searchTerm, filters);
+    }, [filters]);
 
     const handleSearch = (e) => {
         e.preventDefault();
-        fetchPartners(searchTerm);
+        fetchPartners(searchTerm, filters);
+    };
+
+    const clearFilters = () => {
+        setFilters({});
+        setSearchTerm('');
     };
 
     return (
@@ -59,22 +90,42 @@ const Partners = () => {
                 </button>
             </div>
 
-            {/* Search Bar */}
-            <form onSubmit={handleSearch} className="flex gap-3 max-w-lg">
-                <div className="relative flex-grow">
-                    <FaSearch className="absolute left-4 top-3.5 text-gray-300" size={14} />
-                    <input
-                        type="text"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        placeholder="Search by name, university, skills, major..."
-                        className="w-full pl-11 pr-4 py-3 bg-white border border-gray-100 rounded-2xl shadow-sm focus:ring-2 focus:ring-[#001E80]/15 focus:border-[#001E80]/20 outline-none transition-all font-medium text-sm"
-                    />
-                </div>
-                <button type="submit" className="bg-[#001E80] hover:bg-[#001E80]/85 text-white px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-[#001E80]/10 transition-all active:scale-[0.97]">
-                    Search
-                </button>
-            </form>
+            {/* Search + Quick Clear */}
+            <div className="flex flex-col md:flex-row gap-4 items-end">
+                <form onSubmit={handleSearch} className="flex gap-3 flex-grow max-w-2xl">
+                    <div className="relative flex-grow">
+                        <FaSearch className="absolute left-4 top-3.5 text-gray-300" size={14} />
+                        <input
+                            type="text"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Search by name, skills..."
+                            className="w-full pl-11 pr-4 py-3 bg-white border border-gray-100 rounded-2xl shadow-sm focus:ring-2 focus:ring-[#001E80]/15 focus:border-[#001E80]/20 outline-none transition-all font-medium text-sm"
+                        />
+                    </div>
+                    <button type="submit" className="bg-[#001E80] hover:bg-[#001E80]/85 text-white px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-[#001E80]/10 transition-all active:scale-[0.97]">
+                        Search
+                    </button>
+                </form>
+
+                {(searchTerm || Object.values(filters).some(v => v)) && (
+                    <button
+                        onClick={clearFilters}
+                        className="text-[#001E80]/60 hover:text-[#001E80] text-xs font-black uppercase tracking-widest pb-3 px-2 transition-colors"
+                    >
+                        Clear All
+                    </button>
+                )}
+            </div>
+
+            <FilterBar
+                activeFilters={filters}
+                onFilterChange={setFilters}
+                suggestionLists={suggestionLists}
+                filterTypes={PARTNER_FILTER_TYPES}
+            />
+
+
 
             {loading ? (
                 <div className="flex items-center justify-center py-16">

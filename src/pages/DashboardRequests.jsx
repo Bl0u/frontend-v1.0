@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import requestService from '../features/requests/requestService';
 import AuthContext from '../context/AuthContext';
 import { toast } from 'react-toastify';
-import { FaBell, FaCheck, FaTimes, FaGraduationCap, FaUserFriends, FaFileAlt, FaUser, FaEye, FaChalkboardTeacher, FaArrowLeft } from 'react-icons/fa';
+import { FaBell, FaCheck, FaTimes, FaGraduationCap, FaUserFriends, FaFileAlt, FaUser, FaEye, FaChalkboardTeacher, FaArrowLeft, FaRocket } from 'react-icons/fa';
+import { motion } from 'framer-motion';
 
 const DashboardRequests = () => {
     const { user } = useContext(AuthContext);
@@ -40,6 +41,8 @@ const DashboardRequests = () => {
             case 'partner':
             case 'partnership':
                 return <FaUserFriends className="text-green-600" />;
+            case 'pitch_claim':
+                return <FaRocket className="text-orange-600" />;
             case 'notification':
                 return <FaBell className="text-[#001E80]" />;
             default:
@@ -52,6 +55,8 @@ const DashboardRequests = () => {
             case 'partner':
             case 'partnership':
                 return '🤝 Partnership Request';
+            case 'pitch_claim':
+                return '🚀 Join Request';
             case 'notification':
                 return '📬 Notification';
             default:
@@ -60,17 +65,28 @@ const DashboardRequests = () => {
     };
 
     const isActionable = (item) => {
-        return ['partner', 'partnership'].includes(item.type) && item.status === 'pending';
+        return ['partner', 'partnership', 'pitch_claim'].includes(item.type) && item.status === 'pending';
     };
 
     const handleAction = async (id, status) => {
         try {
-            await requestService.respondToRequest(id, status, user.token);
+            const item = inboxItems.find(i => i._id === id);
+
+            if (item?.type === 'pitch_claim') {
+                if (status === 'accepted') {
+                    await requestService.approvePitchClaim(id, user.token);
+                } else {
+                    await requestService.rejectPitchClaim(id, user.token);
+                }
+            } else {
+                await requestService.respondToRequest(id, status, user.token);
+            }
+
             setInboxItems(inboxItems.filter(item => item._id !== id));
             toast.success(`Request ${status} successfully`);
         } catch (error) {
             console.error(error);
-            toast.error('Action failed');
+            toast.error(error.response?.data?.message || 'Action failed');
         }
     };
 
@@ -180,10 +196,10 @@ const DashboardRequests = () => {
                                             <FaUser /> View Profile
                                         </button>
                                     )}
-                                    {isActionable(item) && item.pitch && (
+                                    {(isActionable(item) && (item.pitch || (item.type === 'pitch_claim' && item.pitchRef?.pitch))) && (
                                         <button
                                             onClick={() => {
-                                                setSelectedPitch(item.pitch);
+                                                setSelectedPitch(item.pitch || (item.type === 'pitch_claim' ? item.pitchRef?.pitch : null));
                                                 setShowPitchModal(true);
                                             }}
                                             className="flex items-center gap-2 bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1.5 rounded-xl transition-all font-medium text-xs"

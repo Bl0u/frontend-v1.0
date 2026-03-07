@@ -50,10 +50,10 @@ const UNIVERSITIES_DATA = [
 ];
 
 const FILTER_TYPES = [
-    { id: 'University', icon: FaGraduationCap },
-    { id: 'Professor', icon: FaChalkboardTeacher },
-    { id: 'Subject', icon: FaBookOpen },
-    { id: 'Company', icon: FaBuilding }
+    { id: 'University', icon: FaGraduationCap, placeholder: 'Search University...' },
+    { id: 'Professor', icon: FaChalkboardTeacher, placeholder: 'Search Professor...' },
+    { id: 'Subject', icon: FaBookOpen, placeholder: 'Search Subject...' },
+    { id: 'Company', icon: FaBuilding, placeholder: 'Search Company...' }
 ];
 
 const ResourceHub = () => {
@@ -474,6 +474,7 @@ const ResourceHub = () => {
                 activeFilters={activeFilters}
                 onFilterChange={setActiveFilters}
                 suggestionLists={dynamicSuggestions}
+                filterTypes={FILTER_TYPES}
             />
 
 
