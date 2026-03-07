@@ -8,7 +8,8 @@ import {
     FiHome, FiBookOpen, FiUsers, FiZap,
     FiUser, FiMessageCircle, FiInbox,
     FiCreditCard, FiLogOut, FiMenu, FiX,
-    FiClipboard, FiUserCheck, FiActivity, FiChevronDown, FiHash
+    FiClipboard, FiUserCheck, FiActivity, FiChevronDown, FiHash,
+    FiShield
 } from 'react-icons/fi';
 import '../styles/Sidebar.css';
 
@@ -190,6 +191,19 @@ const Sidebar = () => {
                         </div>
                     </div>
                 </nav>
+
+                {/* ── ADMIN (only for admins) ── */}
+                {user.role === 'admin' && (
+                    <>
+                        <div className="sidebar-section-label">Admin</div>
+                        <nav className="sidebar-nav">
+                            <Link to="/admin" className={`sidebar-link ${isActive('/admin') ? 'active' : ''}`}>
+                                <span className="sidebar-link-icon"><FiShield /></span>
+                                <span className="sidebar-link-text">Dashboard</span>
+                            </Link>
+                        </nav>
+                    </>
+                )}
 
                 {/* ── ACCOUNT ── */}
                 <div className="sidebar-section-label">Account</div>
