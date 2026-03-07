@@ -37,6 +37,8 @@ const ResourceHub = () => {
     const [activeThread, setActiveThread] = useState(null);
     const [threadPosts, setThreadPosts] = useState([]);
     const [isFilterExpanded, setIsFilterExpanded] = useState(false);
+    const [activeMetricSearch, setActiveMetricSearch] = useState(null);
+    const [metricInput, setMetricInput] = useState('');
 
     const activeNav = searchParams.get('tab') || 'Home Feed';
 
@@ -98,8 +100,7 @@ const ResourceHub = () => {
             <motion.div
                 layout
                 key={thread._id}
-                onClick={() => handleThreadClick(thread._id)}
-                className="bg-white rounded-2xl p-6 flex gap-6 hover:shadow-[0_20px_50px_rgba(0,0,0,0.06)] border-2 border-black transition-all cursor-pointer group items-start"
+                className="bg-white rounded-2xl p-6 flex gap-6 hover:shadow-[0_20px_50px_rgba(0,0,0,0.04)] border-[1.5px] border-gray-400 transition-all group items-start relative overflow-hidden"
             >
                 {/* Column 1: Voter Panel */}
                 <div className="flex flex-col items-center gap-2 h-fit">
@@ -135,7 +136,10 @@ const ResourceHub = () => {
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             {thread.isPinned && <FaBookmark className="text-[#001E80] rotate-45" size={12} />}
-                            <h3 className="text-[1.1rem] font-black text-gray-900 line-clamp-1 group-hover:text-[#001E80] transition-colors leading-tight tracking-tight">
+                            <h3
+                                className="text-lg font-black text-black leading-tight cursor-pointer hover:text-[#001E80] transition-colors mb-2 inline-block"
+                                onClick={() => handleThreadClick(thread._id)}
+                            >
                                 {thread.title}
                             </h3>
                         </div>
@@ -186,7 +190,7 @@ const ResourceHub = () => {
                 user={user}
             />
 
-            <main className="max-w-[1440px] mx-auto px-6 py-8 flex gap-8">
+            <main className="max-w-[1440px] mx-auto px-6 pt-[106px] pb-8 flex gap-8">
                 {/* Column 1: Central Feed - Expanded */}
                 <div className="flex-1 min-w-0">
                     <AnimatePresence mode="wait">
@@ -251,19 +255,20 @@ const ResourceHub = () => {
                 </div>
 
                 {/* Column 2: Right Sidebar - Fixed/Sticky with Filter */}
-                <aside className="w-[320px] flex-shrink-0">
-                    <div className="sticky top-[88px] h-[calc(100vh-120px)] overflow-y-auto no-scrollbar space-y-6 pb-8">
+                {/* Column 2: Right Sidebar - Fixed/Sticky with Filter */}
+                <aside className="w-[340px] flex-shrink-0 relative">
+                    <div className="sticky top-[106px] h-[calc(100vh-106px)] overflow-y-auto no-scrollbar space-y-6 pb-20 pr-1">
                         {/* Filter Toggle Section */}
-                        <div className="bg-white rounded-2xl border-2 border-black overflow-hidden shadow-sm">
+                        <div className="bg-white rounded-2xl border-[1.5px] border-gray-400 overflow-hidden shadow-sm">
                             <button
                                 onClick={() => setIsFilterExpanded(!isFilterExpanded)}
-                                className="w-full flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition-all text-sm font-black text-gray-900"
+                                className="w-full flex items-center justify-between px-6 py-5 hover:bg-gray-50 transition-all text-[11px] font-black tracking-widest text-gray-400"
                             >
                                 <div className="flex items-center gap-3">
-                                    <FaFilter className={isFilterExpanded ? 'text-[#001E80]' : 'text-gray-400'} />
-                                    <span>FILTER METRICS</span>
+                                    <FaFilter className={isFilterExpanded ? 'text-[#001E80]' : 'text-gray-300'} />
+                                    <span>FILTER INTEL</span>
                                 </div>
-                                <FaChevronRight className={`transition-transform duration-200 ${isFilterExpanded ? 'rotate-90 text-[#001E80]' : 'text-gray-300'}`} />
+                                <FaChevronRight className={`transition-transform duration-200 ${isFilterExpanded ? 'rotate-90 text-[#001E80]' : 'text-gray-200'}`} />
                             </button>
 
                             <AnimatePresence initial={false}>
@@ -273,45 +278,70 @@ const ResourceHub = () => {
                                         animate={{ height: 'auto', opacity: 1 }}
                                         exit={{ height: 0, opacity: 0 }}
                                         transition={{ duration: 0.2, ease: "easeOut" }}
-                                        className="px-6 pb-6 space-y-4 border-t-2 border-black pt-4"
+                                        className="px-6 pb-6 space-y-4 border-t border-gray-50 pt-6"
                                     >
-                                        <div className="space-y-3">
-                                            <SearchableDropdown
-                                                label="University"
-                                                options={[]}
-                                                value={searchParams.get('university') || ''}
-                                                onChange={(v) => setSearchParams(prev => { prev.set('university', v); return prev; })}
-                                            />
-                                            <SearchableDropdown
-                                                label="Professor"
-                                                options={[]}
-                                                value={searchParams.get('professor') || ''}
-                                                onChange={(v) => setSearchParams(prev => { prev.set('professor', v); return prev; })}
-                                            />
-                                            <SearchableDropdown
-                                                label="Subject"
-                                                options={[]}
-                                                value={searchParams.get('subject') || ''}
-                                                onChange={(v) => setSearchParams(prev => { prev.set('subject', v); return prev; })}
-                                            />
-                                            <SearchableDropdown
-                                                label="Company"
-                                                options={[]}
-                                                value={searchParams.get('company') || ''}
-                                                onChange={(v) => setSearchParams(prev => { prev.set('company', v); return prev; })}
-                                            />
-                                            <SearchableDropdown
-                                                label="Position"
-                                                options={[]}
-                                                value={searchParams.get('position') || ''}
-                                                onChange={(v) => setSearchParams(prev => { prev.set('position', v); return prev; })}
-                                            />
+                                        <div className="grid grid-cols-1 gap-2">
+                                            {['University', 'Professor', 'Subject', 'Company', 'Position'].map(metric => (
+                                                <div key={metric} className="space-y-2">
+                                                    <button
+                                                        onClick={() => {
+                                                            setActiveMetricSearch(activeMetricSearch === metric ? null : metric);
+                                                            setMetricInput('');
+                                                        }}
+                                                        className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border-[1.5px] transition-all text-xs font-bold ${activeMetricSearch === metric ? 'bg-[#001E80] text-white border-transparent' : 'bg-gray-50 text-gray-600 border-gray-100 hover:border-gray-200'}`}
+                                                    >
+                                                        <span>{metric}</span>
+                                                        {activeMetricSearch === metric ? <FaChevronRight className="rotate-90" size={10} /> : <span className="text-gray-300 text-[10px]">+</span>}
+                                                    </button>
+
+                                                    {activeMetricSearch === metric && (
+                                                        <motion.div
+                                                            initial={{ opacity: 0, y: -5 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="relative"
+                                                        >
+                                                            <input
+                                                                autoFocus
+                                                                type="text"
+                                                                value={metricInput}
+                                                                onChange={(e) => setMetricInput(e.target.value)}
+                                                                placeholder={`Find ${metric.toLowerCase()}...`}
+                                                                className="w-full bg-white border-2 border-[#001E80]/20 rounded-xl py-3 px-4 text-xs font-bold focus:ring-0 outline-none"
+                                                            />
+                                                            {metricInput.length > 0 && (
+                                                                <div className="absolute top-full left-0 right-0 z-10 bg-white border border-gray-100 rounded-xl mt-2 shadow-xl overflow-hidden">
+                                                                    {['Cairo University', 'Sinai University', 'Assuit University', 'Dr. Ahmed', 'Dr. Sarah'].filter(s => s.toLowerCase().includes(metricInput.toLowerCase())).map((suggestion, i) => (
+                                                                        <button
+                                                                            key={i}
+                                                                            onClick={() => {
+                                                                                setSearchParams(prev => {
+                                                                                    prev.set(metric.toLowerCase(), suggestion);
+                                                                                    return prev;
+                                                                                });
+                                                                                setActiveMetricSearch(null);
+                                                                                setMetricInput('');
+                                                                            }}
+                                                                            className="w-full text-left px-4 py-2 text-xs font-bold hover:bg-gray-50 text-gray-700"
+                                                                        >
+                                                                            {suggestion}
+                                                                        </button>
+                                                                    ))}
+                                                                </div>
+                                                            )}
+                                                        </motion.div>
+                                                    )}
+                                                </div>
+                                            ))}
                                         </div>
+
                                         <button
-                                            onClick={() => setSearchParams({})}
-                                            className="w-full py-3 rounded-xl border-2 border-dashed border-gray-200 text-xs font-black text-gray-400 hover:border-[#001E80]/20 hover:text-[#001E80] transition-all"
+                                            onClick={() => {
+                                                setSearchParams({});
+                                                setActiveMetricSearch(null);
+                                            }}
+                                            className="w-full py-4 rounded-xl bg-gray-50 text-[10px] font-black text-gray-400 hover:text-gray-600 transition-all mt-4 uppercase tracking-[0.2em]"
                                         >
-                                            RESET ALL FILTERS
+                                            Reset Filters
                                         </button>
                                     </motion.div>
                                 )}
@@ -319,8 +349,8 @@ const ResourceHub = () => {
                         </div>
 
                         {/* Forum Stats */}
-                        <div className="bg-white rounded-2xl p-6 border-2 border-black space-y-6 shadow-sm">
-                            <h4 className="text-sm font-black text-gray-900 border-b-2 border-gray-50 pb-4">Forum Stats</h4>
+                        <div className="bg-white rounded-2xl p-6 border-[1.5px] border-gray-400 space-y-6 shadow-sm">
+                            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 border-b border-gray-100 pb-4">Forum Stats</h4>
                             <div className="space-y-4">
                                 {[
                                     { label: 'Total Threads', value: '24,532', color: 'text-gray-500' },
@@ -336,8 +366,8 @@ const ResourceHub = () => {
                         </div>
 
                         {/* Top Contributors */}
-                        <div className="bg-white rounded-2xl p-6 border-2 border-black space-y-6 shadow-sm">
-                            <h4 className="text-sm font-black text-gray-900 border-b-2 border-gray-50 pb-4">Top Contributors</h4>
+                        <div className="bg-white rounded-2xl p-6 border-[1.5px] border-gray-400 space-y-6 shadow-sm">
+                            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 border-b border-gray-100 pb-4">Top Contributors</h4>
                             <div className="space-y-5">
                                 {[
                                     { name: 'TechGuru', rep: '24,500' },
@@ -345,7 +375,7 @@ const ResourceHub = () => {
                                     { name: 'CodeWizard', rep: '12,100' }
                                 ].map(user => (
                                     <div key={user.name} className="flex items-center gap-3 group cursor-pointer">
-                                        <div className="w-10 h-10 rounded-full bg-gray-100 ring-2 ring-gray-900/5 flex-shrink-0 group-hover:ring-[#001E80]/20 transition-all border border-transparent group-hover:border-[#001E80]/10" />
+                                        <div className="w-10 h-10 rounded-full bg-gray-100 flex-shrink-0 group-hover:ring-2 group-hover:ring-[#001E80]/10 transition-all border border-transparent" />
                                         <div className="min-w-0">
                                             <div className="text-sm font-bold text-gray-900 truncate group-hover:text-[#001E80] transition-colors">{user.name}</div>
                                             <div className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">{user.rep} rep</div>
