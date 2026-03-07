@@ -110,6 +110,15 @@ const checkConnection = async (userId, token) => {
     return response.data;
 };
 
+// Get My Projects (Pitches where involved)
+const getMyProjects = async (token) => {
+    const config = {
+        headers: { Authorization: `Bearer ${token}` },
+    };
+    const response = await axios.get(API_URL + 'my-projects', config);
+    return response.data;
+};
+
 const requestService = {
     sendRequest,
     getReceivedRequests,
@@ -122,7 +131,8 @@ const requestService = {
     cancelRequest,
     markAsRead,
     endRelationship,
-    checkConnection
+    checkConnection,
+    getMyProjects
 };
 
 export default requestService;

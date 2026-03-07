@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import { API_BASE_URL } from '../config';
 
 import StudentProfileForm from '../components/StudentProfileForm';
+import RoleBadge from '../components/RoleBadge';
 
 const Profile = () => {
     const { user, refreshUser } = useContext(AuthContext);
@@ -40,14 +41,19 @@ const Profile = () => {
     return (
         <div className="max-w-5xl mx-auto space-y-8">
             {/* LP-themed Header */}
-            <div>
-                <h1
-                    className="text-3xl font-black bg-gradient-to-b from-black to-[#001E80] bg-clip-text text-transparent pb-1"
-                    style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
-                >
-                    Profile
-                </h1>
-                <p className="text-[#010D3E]/50 text-sm font-medium mt-1">Manage your identity and academic details</p>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div className="flex items-center gap-3">
+                        <h1
+                            className="text-3xl font-black bg-gradient-to-b from-black to-[#001E80] bg-clip-text text-transparent pb-1"
+                            style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
+                        >
+                            Profile
+                        </h1>
+                        <RoleBadge role={user.role} university={profileData?.university} />
+                    </div>
+                    <p className="text-[#010D3E]/50 text-sm font-medium mt-1">Manage your identity and academic details</p>
+                </div>
             </div>
 
             {/* Form Card */}

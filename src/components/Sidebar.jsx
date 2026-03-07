@@ -161,6 +161,10 @@ const Sidebar = () => {
                         <span className="sidebar-link-icon"><FiUserCheck /></span>
                         <span className="sidebar-link-text">Partnerships</span>
                     </Link>
+                    <Link to="/home?tab=projects" className={`sidebar-link ${isActiveDashboardTab('projects') ? 'active' : ''}`}>
+                        <span className="sidebar-link-icon"><FiZap /></span>
+                        <span className="sidebar-link-text">Projects</span>
+                    </Link>
                     <Link to="/home?tab=contributions" className={`sidebar-link ${isActiveDashboardTab('contributions') ? 'active' : ''}`}>
                         <span className="sidebar-link-icon"><FiActivity /></span>
                         <span className="sidebar-link-text">Contributions</span>
