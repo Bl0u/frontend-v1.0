@@ -119,3 +119,5 @@ export const LiquidButton = ({
         </motion.div>
     );
 };
+
+export default LiquidButton;
