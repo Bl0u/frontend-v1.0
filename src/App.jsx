@@ -30,6 +30,7 @@ import PlanManager from './pages/PlanManager';
 import AIChatBot from './components/AIChatBot';
 import TopUp from './pages/TopUp';
 import WorkWithUs from './pages/WorkWithUs';
+import AdminDashboard from './pages/AdminDashboard';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -88,6 +89,7 @@ const AppContent = () => {
           <Route path="/chat" element={<Chat />} />
           <Route path="/top-up" element={<TopUp />} />
           <Route path="/plan/:id" element={<PlanManager />} />
+          <Route path="/admin" element={<AdminDashboard />} />
         </Route>
       </Routes>
       <ToastContainer position="bottom-right" />
