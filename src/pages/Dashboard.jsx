@@ -164,7 +164,7 @@ const Dashboard = () => {
 
     // Fetch Projects
     useEffect(() => {
-        if (activeTab === 'projects' && currentUser) {
+        if ((activeTab === 'home' || activeTab === 'projects') && currentUser) {
             const fetchProjects = async () => {
                 setLoadingProjects(true);
                 try {
@@ -354,6 +354,57 @@ const Dashboard = () => {
                         )}
                     </div>
                 </section>
+
+                {/* Active Projects (Home Tab) */}
+                <section className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden mt-8">
+                    <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between">
+                        <h3 className="text-lg font-bold text-gray-800 flex items-center gap-3">
+                            <FiZap className="text-[#001E80]" /> Active Missions
+                        </h3>
+                        <span className="bg-[#EAEEFE] px-3 py-1 rounded-full text-xs font-bold text-[#001E80]">
+                            {projects.filter(p => p.status !== 'completed').length}
+                        </span>
+                    </div>
+                    <div className="p-6">
+                        {loadingProjects ? (
+                            <div className="flex items-center justify-center py-10">
+                                <div className="w-5 h-5 border-2 border-[#001E80]/20 border-t-[#001E80] rounded-full animate-spin"></div>
+                            </div>
+                        ) : projects.filter(p => p.status !== 'completed').length > 0 ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {projects.filter(p => p.status !== 'completed').map((project, idx) => (
+                                    <div key={idx} className="flex items-center gap-4 p-4 rounded-2xl border border-gray-100 hover:border-[#001E80]/10 hover:bg-[#EAEEFE]/30 transition-all">
+                                        <div className="w-12 h-12 bg-[#EAEEFE] rounded-xl flex items-center justify-center overflow-hidden">
+                                            <FiZap size={20} className="text-[#001E80]/40" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <h4 className="font-bold text-gray-900 leading-tight truncate">
+                                                {project.pitch?.Hook || project.pitch?.['The Hook (Short summary)'] || "Untitled Mission"}
+                                            </h4>
+                                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">
+                                                {project.sender?._id === currentUser._id ? 'Mission Lead' : 'Collaborator'}
+                                            </p>
+                                        </div>
+                                        <button
+                                            onClick={() => handleOpenPlan(project.sender?._id === currentUser._id && project.contributors?.[0] ? project.contributors[0]._id : project.sender._id)}
+                                            className="p-2 text-[#001E80]/40 hover:text-[#001E80] transition-colors"
+                                            title="View Roadmap"
+                                        >
+                                            <FaBook size={14} />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-12">
+                                <p className="text-gray-400 text-sm">No active missions running.</p>
+                                <Link to="/pitch-hub" className="inline-block mt-4 text-sm font-bold text-[#001E80] hover:underline">
+                                    Browse Hub →
+                                </Link>
+                            </div>
+                        )}
+                    </div>
+                </section>
             </div>
         );
     }
@@ -425,6 +476,39 @@ const Dashboard = () => {
                                 <Link to="/partners" className="inline-block mt-4 text-sm font-bold text-[#001E80] hover:underline">
                                     Find Partners →
                                 </Link>
+                            </div>
+                        )}
+                    </div>
+                </section>
+
+                {/* Completed Partnerships */}
+                <section className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+                    <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between bg-gray-50/30">
+                        <h3 className="text-lg font-bold text-gray-400 flex items-center gap-3">
+                            <FaUserFriends /> Completed
+                        </h3>
+                        <span className="bg-gray-100 px-3 py-1 rounded-full text-xs font-bold text-gray-400">
+                            {profile.partnerHistory?.length || 0}
+                        </span>
+                    </div>
+                    <div className="p-6">
+                        {profile.partnerHistory?.length > 0 ? (
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                {profile.partnerHistory.map((history, idx) => (
+                                    <div key={idx} className="flex items-center gap-3 p-3 rounded-xl border border-dashed border-gray-200 opacity-60 hover:opacity-100 transition-opacity">
+                                        <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center text-xs font-bold text-gray-400">
+                                            {history.user?.name?.charAt(0)}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="font-bold text-gray-600 text-xs truncate">{history.user?.name}</p>
+                                            <p className="text-[10px] text-gray-400">{new Date(history.endedAt).toLocaleDateString()}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-10">
+                                <p className="text-gray-300 text-xs italic">No partnership history yet.</p>
                             </div>
                         )}
                     </div>
@@ -618,104 +702,142 @@ const Dashboard = () => {
                     <div className="flex items-center justify-center py-20">
                         <div className="w-8 h-8 border-2 border-[#001E80]/20 border-t-[#001E80] rounded-full animate-spin"></div>
                     </div>
-                ) : projects.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {projects.map((project) => (
-                            <div key={project._id} className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-all flex flex-col">
-                                <div className="p-6 flex-1">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div className="flex items-center gap-2">
-                                            <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider border ${project.status === 'completed' ? 'bg-green-50 text-green-600 border-green-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
-                                                {project.status === 'completed' ? 'Fully Staffed' : 'In Recruitment'}
-                                            </span>
-                                            {project.isProBono && (
-                                                <span className="px-2 py-0.5 rounded-md bg-pink-50 text-pink-500 text-[8px] font-black uppercase tracking-wider border border-pink-100">Pro-Bono</span>
-                                            )}
-                                        </div>
-                                        <div className="text-[10px] font-black text-[#001E80]/40 uppercase tracking-widest">
-                                            Role: {project.sender?._id === currentUser._id ? 'Mission Lead' : (project.mentor?._id === currentUser._id ? 'Mentor' : 'Teammate')}
-                                        </div>
-                                    </div>
+                ) : (
+                    <div className="space-y-12">
+                        {/* Current Missions */}
+                        <section>
+                            <div className="flex items-center justify-between mb-6">
+                                <h2 className="text-xl font-bold text-gray-900">Current Missions</h2>
+                                <span className="bg-[#EAEEFE] px-3 py-1 rounded-full text-[10px] font-black text-[#001E80] uppercase tracking-widest">
+                                    Active: {projects.filter(p => p.status !== 'completed').length}
+                                </span>
+                            </div>
 
-                                    <h3 className="text-xl font-bold text-gray-900 mb-2 leading-tight">
-                                        {project.pitch?.Hook || project.pitch?.['The Hook (Short summary)'] || "Untitled Mission"}
-                                    </h3>
-
-                                    <div className="space-y-4">
-                                        {/* Progress Bar */}
-                                        <div>
-                                            <div className="flex items-center justify-between mb-1.5">
-                                                <span className="text-[9px] font-black text-[#001E80]/40 uppercase tracking-widest">Staffing Progress</span>
-                                                <span className="text-[10px] font-black text-[#001E80]">{project.progress || 0}%</span>
-                                            </div>
-                                            <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                                                <div
-                                                    className="h-full bg-gradient-to-r from-[#001E80] to-indigo-400 transition-all duration-1000"
-                                                    style={{ width: `${project.progress || 0}%` }}
-                                                />
-                                            </div>
-                                        </div>
-
-                                        {/* Team */}
-                                        <div className="flex items-center gap-3">
-                                            <div className="flex -space-x-2">
-                                                {[project.sender, ...(project.contributors || [])].slice(0, 5).map((member, idx) => (
-                                                    <div
-                                                        key={idx}
-                                                        className="w-7 h-7 rounded-full border-2 border-white bg-gray-200 shadow-sm overflow-hidden"
-                                                        title={member?.name}
-                                                    >
-                                                        {member?.avatar ? (
-                                                            <img src={member.avatar} alt="" className="w-full h-full object-cover" />
-                                                        ) : (
-                                                            <div className="w-full h-full flex items-center justify-center text-[10px] font-black text-white bg-[#001E80]">
-                                                                {member?.name?.charAt(0)}
-                                                            </div>
+                            {projects.filter(p => p.status !== 'completed').length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {projects.filter(p => p.status !== 'completed').map((project) => (
+                                        <div key={project._id} className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-all flex flex-col">
+                                            <div className="p-6 flex-1">
+                                                <div className="flex items-center justify-between mb-4">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider bg-blue-50 text-blue-600 border border-blue-100">
+                                                            In Recruitment
+                                                        </span>
+                                                        {project.isProBono && (
+                                                            <span className="px-2 py-0.5 rounded-md bg-pink-50 text-pink-500 text-[8px] font-black uppercase tracking-wider border border-pink-100">Pro-Bono</span>
                                                         )}
                                                     </div>
-                                                ))}
-                                                {project.mentor && (
-                                                    <div className="w-7 h-7 rounded-full border-2 border-[#001E80] bg-white shadow-md flex items-center justify-center text-xs overflow-hidden" title="Mentor Joined">
-                                                        🎓
+                                                    <div className="text-[10px] font-black text-[#001E80]/40 uppercase tracking-widest">
+                                                        Role: {project.sender?._id === currentUser._id ? 'Mission Lead' : (project.mentor?._id === currentUser._id ? 'Mentor' : 'Teammate')}
                                                     </div>
-                                                )}
-                                            </div>
-                                            <span className="text-[10px] font-bold text-gray-400">
-                                                {1 + (project.contributors?.length || 0) + (project.mentor ? 1 : 0)} Members
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
+                                                </div>
 
-                                <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
-                                    <button
-                                        onClick={() => handleOpenPlan(project.sender?._id === currentUser._id && project.contributors?.[0] ? project.contributors[0]._id : project.sender._id)}
-                                        className="text-[10px] font-black text-[#001E80] uppercase tracking-widest flex items-center gap-1.5 hover:gap-2 transition-all"
-                                    >
-                                        <FaBook size={12} /> Access Roadmap →
-                                    </button>
-                                    <Link
-                                        to="/chat"
-                                        className="text-[10px] font-black text-gray-500 uppercase tracking-widest hover:text-[#001E80] transition-colors"
-                                    >
-                                        Team Chat
-                                    </Link>
+                                                <h3 className="text-xl font-bold text-gray-900 mb-2 leading-tight">
+                                                    {project.pitch?.Hook || project.pitch?.['The Hook (Short summary)'] || "Untitled Mission"}
+                                                </h3>
+
+                                                <div className="space-y-4">
+                                                    <div>
+                                                        <div className="flex items-center justify-between mb-1.5">
+                                                            <span className="text-[9px] font-black text-[#001E80]/40 uppercase tracking-widest">Staffing Progress</span>
+                                                            <span className="text-[10px] font-black text-[#001E80]">{project.progress || 0}%</span>
+                                                        </div>
+                                                        <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                                                            <div
+                                                                className="h-full bg-gradient-to-r from-[#001E80] to-indigo-400 transition-all duration-1000"
+                                                                style={{ width: `${project.progress || 0}%` }}
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="flex -space-x-2">
+                                                            {[project.sender, ...(project.contributors || [])].slice(0, 5).map((member, idx) => (
+                                                                <div
+                                                                    key={idx}
+                                                                    className="w-7 h-7 rounded-full border-2 border-white bg-gray-200 shadow-sm overflow-hidden"
+                                                                    title={member?.name}
+                                                                >
+                                                                    {member?.avatar ? (
+                                                                        <img src={member.avatar} alt="" className="w-full h-full object-cover" />
+                                                                    ) : (
+                                                                        <div className="w-full h-full flex items-center justify-center text-[10px] font-black text-white bg-[#001E80]">
+                                                                            {member?.name?.charAt(0)}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                        <span className="text-[10px] font-bold text-gray-400">
+                                                            {1 + (project.contributors?.length || 0)} Members
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
+                                                <button
+                                                    onClick={() => handleOpenPlan(project.sender?._id === currentUser._id && project.contributors?.[0] ? project.contributors[0]._id : project.sender._id)}
+                                                    className="text-[10px] font-black text-[#001E80] uppercase tracking-widest flex items-center gap-1.5 hover:gap-2 transition-all"
+                                                >
+                                                    <FaBook size={12} /> Access Roadmap →
+                                                </button>
+                                                <Link
+                                                    to="/chat"
+                                                    className="text-[10px] font-black text-gray-500 uppercase tracking-widest hover:text-[#001E80] transition-colors"
+                                                >
+                                                    Team Chat
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <div className="text-center py-20 bg-white rounded-3xl border border-gray-100">
-                        <div className="inline-flex items-center justify-center w-20 h-20 bg-[#EAEEFE] rounded-full mb-6">
-                            <FiZap size={32} className="text-[#001E80]/40" />
-                        </div>
-                        <h3 className="text-xl font-bold text-gray-600 mb-2">No active missions found.</h3>
-                        <p className="text-gray-400 max-w-sm mx-auto mb-6">Browse the Pitch Hub to find your next monthly mission or pitch your own idea.</p>
-                        <div className="flex items-center justify-center gap-4">
-                            <Link to="/pitch-hub" className="bg-[#001E80] text-white px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-blue-100 hover:bg-blue-900 transition-all">
-                                Pitch Hub
-                            </Link>
-                        </div>
+                            ) : (
+                                <div className="text-center py-12 bg-white rounded-3xl border border-gray-100">
+                                    <p className="text-gray-400 text-sm font-medium">No active missions found.</p>
+                                </div>
+                            )}
+                        </section>
+
+                        {/* Completed Missions */}
+                        {projects.filter(p => p.status === 'completed').length > 0 && (
+                            <section>
+                                <div className="flex items-center justify-between mb-6">
+                                    <h2 className="text-xl font-bold text-gray-400">Completed Missions</h2>
+                                    <span className="bg-gray-100 px-3 py-1 rounded-full text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                        Finished: {projects.filter(p => p.status === 'completed').length}
+                                    </span>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {projects.filter(p => p.status === 'completed').map((project) => (
+                                        <div key={project._id} className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden opacity-70 hover:opacity-100 transition-opacity flex flex-col">
+                                            <div className="p-6 flex-1">
+                                                <div className="flex items-center justify-between mb-4">
+                                                    <span className="px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider bg-green-50 text-green-600 border border-green-100">
+                                                        Completed
+                                                    </span>
+                                                    <span className="text-[9px] font-bold text-gray-400">
+                                                        {new Date(project.updatedAt).toLocaleDateString()}
+                                                    </span>
+                                                </div>
+                                                <h3 className="text-lg font-bold text-gray-700 mb-2 leading-tight">
+                                                    {project.pitch?.Hook || project.pitch?.['The Hook (Short summary)'] || "Untitled Mission"}
+                                                </h3>
+                                                <p className="text-xs text-gray-500 font-medium">Fully staffed and transitioned to active project.</p>
+                                            </div>
+                                            <div className="px-6 py-3 bg-gray-50/30 border-t border-gray-100">
+                                                <Link
+                                                    to={`/plan/${project._id}`}
+                                                    className="text-[9px] font-black text-[#001E80]/60 uppercase tracking-widest hover:text-[#001E80]"
+                                                >
+                                                    View Final Roadmap
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </section>
+                        )}
                     </div>
                 )}
             </div>
