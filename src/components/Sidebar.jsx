@@ -196,6 +196,19 @@ const Sidebar = () => {
                     </div>
                 </nav>
 
+                {/* ── LEAD CONSOLE (Student Leads & Mentors) ── */}
+                {['studentLead', 'mentor'].includes(user.role) && (
+                    <>
+                        <div className="sidebar-section-label">Lead Actions</div>
+                        <nav className="sidebar-nav">
+                            <Link to="/lead-console" className={`sidebar-link ${isActive('/lead-console') ? 'active' : ''}`}>
+                                <span className="sidebar-link-icon"><FiShield className="text-orange-500" /></span>
+                                <span className="sidebar-link-text">Lead Console</span>
+                            </Link>
+                        </nav>
+                    </>
+                )}
+
                 {/* ── ADMIN (only for admins) ── */}
                 {user.role === 'admin' && (
                     <>
