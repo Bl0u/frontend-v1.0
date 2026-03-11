@@ -5,6 +5,7 @@ import adminService from '../features/admin/adminService';
 import { toast } from 'react-toastify';
 import '../styles/AdminDashboard.css';
 import SearchableDropdown from '../components/SearchableDropdown';
+import PitchConfigManager from '../components/PitchConfigManager';
 
 // ───────────────────────────────────────
 // TAB CONSTANTS
@@ -16,6 +17,7 @@ const TABS = [
     { key: 'reports', label: 'Reports' },
     { key: 'payments', label: 'Payments' },
     { key: 'recruitment', label: 'Recruitment' },
+    { key: 'hub_setup', label: 'Hub Setup' },
 ];
 
 const AdminDashboard = () => {
@@ -176,6 +178,7 @@ const AdminDashboard = () => {
             case 'reports': fetchReports(); break;
             case 'payments': fetchPayments(); break;
             case 'recruitment': fetchRecruitment(); break;
+            case 'hub_setup': /* No specific fetch needed as component handles it */ break;
         }
     }, [activeTab, user?.token]);
 
@@ -804,6 +807,7 @@ const AdminDashboard = () => {
             {activeTab === 'reports' && renderReports()}
             {activeTab === 'payments' && renderPayments()}
             {activeTab === 'recruitment' && renderRecruitment()}
+            {activeTab === 'hub_setup' && <PitchConfigManager user={user} />}
 
             {/* Stars Modal */}
             {starsModal && (

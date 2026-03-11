@@ -3,13 +3,15 @@ import { Link } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 import requestService from '../features/requests/requestService';
 import { toast } from 'react-toastify';
-import { FaRocket, FaHandHoldingHeart, FaUserGraduate, FaChevronDown, FaCheckCircle, FaPlus, FaUserFriends } from 'react-icons/fa';
+import { FaRocket, FaUserGraduate, FaChevronDown, FaCheckCircle, FaPlus, FaUserFriends, FaClipboardList } from 'react-icons/fa';
+import ProjectRoles from '../components/ProjectRoles';
 
 const PitchHub = () => {
     const [pitches, setPitches] = useState([]);
     const [loading, setLoading] = useState(true);
     const { user: currentUser } = useContext(AuthContext);
     const [expandedPitch, setExpandedPitch] = useState(null);
+    const [applyingFor, setApplyingFor] = useState(null); // ID of pitch being applied to
 
     const fetchPitches = async () => {
         setLoading(true);
@@ -28,22 +30,25 @@ const PitchHub = () => {
         fetchPitches();
     }, []);
 
-    const handleClaim = async (pitchId, role = 'teammate') => {
+    const handleApplyForRole = async (pitchId, role) => {
         if (!currentUser) {
-            toast.error('Please login to claim a project pitch.');
+            toast.error('Please login to apply for a role.');
             return;
         }
 
         try {
-            const data = await requestService.claimPublicPitch(pitchId, currentUser.token, role);
+            const roleType = role.roleType === 'mentor' ? 'mentor' : 'teammate';
+            const data = await requestService.claimPublicPitch(pitchId, currentUser.token, roleType);
+
             if (data.isPendingApproval) {
-                toast.info('Join request sent to project owner for approval');
+                toast.info(`Application for ${role.name} sent to project owner!`);
             } else {
-                toast.success(`Successfully joined as ${role}! The sender has been notified.`);
+                toast.success(`Successfully joined as ${role.name}!`);
             }
             fetchPitches();
+            setApplyingFor(null);
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Failed to join mission');
+            toast.error(error.response?.data?.message || 'Failed to apply for role');
         }
     };
 
@@ -105,9 +110,6 @@ const PitchHub = () => {
                                             {pitch.isProBono && (
                                                 <span className="px-2 py-0.5 rounded-md bg-pink-50 text-pink-500 text-[9px] font-black uppercase tracking-wider border border-pink-100">Pro-Bono</span>
                                             )}
-                                            {pitch.mentorNeeded && (
-                                                <span className="px-2 py-0.5 rounded-md bg-[#EAEEFE] text-[#001E80] text-[9px] font-black uppercase tracking-wider border border-[#001E80]/10">Mentor Needed</span>
-                                            )}
                                         </div>
                                         <div className="flex items-center gap-3">
                                             <p className="text-sm text-gray-500 flex items-center gap-1">
@@ -117,52 +119,24 @@ const PitchHub = () => {
                                             <div className="w-1 h-1 rounded-full bg-gray-300" />
                                             <div className="flex items-center gap-1.5 text-[11px] font-bold text-[#001E80]">
                                                 <FaUserFriends size={10} className="opacity-50" />
-                                                {pitch.contributors?.length || 0} / {pitch.teamSize} Teammates
-                                                {pitch.mentorNeeded && (
-                                                    <span className="opacity-50 ml-1">· {pitch.mentor ? '1/1 Mentor' : '0/1 Mentor'}</span>
-                                                )}
+                                                {pitch.contributors?.length || 0} / {pitch.teamSize || 1} Contributors
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-3">
-                                    <button
-                                        onClick={() => setExpandedPitch(expandedPitch === pitch._id ? null : pitch._id)}
-                                        className="px-4 py-2 text-sm font-bold text-gray-500 hover:text-[#001E80] flex items-center gap-1 transition-colors"
-                                    >
-                                        View Detail <FaChevronDown className={`transition-transform duration-300 ${expandedPitch === pitch._id ? 'rotate-180' : ''}`} />
-                                    </button>
-
-                                    {currentUser && currentUser._id !== pitch.sender?._id && (
-                                        <div className="flex gap-2">
-                                            {/* Teammate Button */}
-                                            {pitch.contributors?.length < pitch.teamSize && (
-                                                <button
-                                                    onClick={() => handleClaim(pitch._id, 'teammate')}
-                                                    disabled={pitch.contributors?.some(c => c._id === currentUser._id)}
-                                                    className={`px-4 py-2 rounded-xl font-bold flex items-center gap-2 shadow-lg transition-all active:scale-95 text-[11px] uppercase tracking-wider ${pitch.contributors?.some(c => c._id === currentUser._id)
-                                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none'
-                                                        : 'bg-green-500 hover:bg-green-600 text-white shadow-green-100'
-                                                        }`}
-                                                >
-                                                    <FaHandHoldingHeart /> {pitch.contributors?.some(c => c._id === currentUser._id)
-                                                        ? 'Joined'
-                                                        : 'Request to Join'}
-                                                </button>
-                                            )}
-
-                                            {/* Mentor Button */}
-                                            {pitch.mentorNeeded && !pitch.mentor && (
-                                                <button
-                                                    onClick={() => handleClaim(pitch._id, 'mentor')}
-                                                    className="bg-[#001E80] hover:bg-blue-900 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-blue-100 transition-all active:scale-95 text-[11px] uppercase tracking-wider"
-                                                >
-                                                    🎓 Mentor Mission
-                                                </button>
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
+                                <button
+                                    onClick={() => {
+                                        if (expandedPitch === pitch._id) {
+                                            setExpandedPitch(null);
+                                            setApplyingFor(null);
+                                        } else {
+                                            setExpandedPitch(pitch._id);
+                                        }
+                                    }}
+                                    className="px-4 py-2 text-sm font-bold text-gray-500 hover:text-[#001E80] flex items-center gap-1 transition-colors"
+                                >
+                                    View Detail <FaChevronDown className={`transition-transform duration-300 ${expandedPitch === pitch._id ? 'rotate-180' : ''}`} />
+                                </button>
                             </div>
 
                             {/* Project Staffing Progress Bar */}
@@ -174,7 +148,7 @@ const PitchHub = () => {
                                                 <div
                                                     key={idx}
                                                     className="w-7 h-7 rounded-full border-2 border-white bg-gray-200 shadow-sm overflow-hidden"
-                                                    title={`Teammate: ${contributor.name}`}
+                                                    title={`Contributor: ${contributor.name}`}
                                                 >
                                                     {contributor.avatar ? (
                                                         <img src={contributor.avatar} alt="" className="w-full h-full object-cover" />
@@ -198,17 +172,6 @@ const PitchHub = () => {
                                             Staffing: {pitch.progress || 0}%
                                         </span>
                                     </div>
-
-                                    <div className="flex items-center gap-1.5">
-                                        {pitch.mentorNeeded && (
-                                            <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-tight border ${pitch.mentor ? 'bg-green-50 text-green-600 border-green-100' : 'bg-gray-50 text-gray-400 border-gray-100'}`}>
-                                                {pitch.mentor ? 'Mentor Found' : 'Needs Mentor'}
-                                            </span>
-                                        )}
-                                        <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-tight border ${pitch.contributors?.length >= pitch.teamSize ? 'bg-green-50 text-green-600 border-green-100' : 'bg-gray-50 text-gray-400 border-gray-100'}`}>
-                                            {pitch.contributors?.length >= pitch.teamSize ? 'Team Full' : `${pitch.teamSize - pitch.contributors.length} Teammates Needed`}
-                                        </span>
-                                    </div>
                                 </div>
                                 <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
                                     <div
@@ -229,17 +192,39 @@ const PitchHub = () => {
                                                         <FaCheckCircle size={10} /> {key}
                                                     </p>
                                                     <p className="text-base text-gray-700 leading-relaxed font-medium">
-                                                        {value}
+                                                        {Array.isArray(value) ? value.join(', ') : value}
                                                     </p>
                                                 </div>
                                             )
                                         ))}
                                     </div>
-                                    <div className="mt-8 pt-4 border-t border-gray-200/50 flex items-center justify-between">
-                                        <p className="text-sm text-gray-400 font-medium">Posted {new Date(pitch.createdAt).toLocaleDateString()}</p>
-                                        <Link to={`/u/${pitch.sender?.username}`} className="text-sm font-bold text-[#001E80] hover:underline">
-                                            View Profile →
-                                        </Link>
+
+                                    <div className="mt-8 pt-6 border-t border-gray-200/50 flex flex-col gap-6">
+                                        <div className="flex items-center justify-between">
+                                            <p className="text-sm text-gray-400 font-medium">Posted {new Date(pitch.createdAt).toLocaleDateString()}</p>
+                                            <div className="flex items-center gap-4">
+                                                <Link to={`/u/${pitch.sender?.username}`} className="text-sm font-bold text-[#001E80] hover:underline">
+                                                    View Profile →
+                                                </Link>
+                                                {currentUser && currentUser._id !== pitch.sender?._id && (
+                                                    <button
+                                                        onClick={() => setApplyingFor(applyingFor === pitch._id ? null : pitch._id)}
+                                                        className="bg-[#001E80] hover:bg-blue-900 text-white px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-blue-100 flex items-center gap-2"
+                                                    >
+                                                        <FaClipboardList /> {applyingFor === pitch._id ? 'Cancel Application' : 'Apply Now'}
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {applyingFor === pitch._id && (
+                                            <ProjectRoles
+                                                roles={pitch.roles || []}
+                                                onApply={(role) => handleApplyForRole(pitch._id, role)}
+                                                isApplied={pitch.contributors?.some(c => c._id === currentUser?._id) || (pitch.mentor?._id === currentUser?._id)}
+                                                currentUserRole={currentUser?.role}
+                                            />
+                                        )}
                                     </div>
                                 </div>
                             )}

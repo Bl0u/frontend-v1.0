@@ -94,6 +94,17 @@ const promoteUser = async (token, userId, data) => {
     return res.data;
 };
 
+// Pitch Hub Config
+const getPitchConfig = async (token) => {
+    const res = await axios.get(`${API_BASE_URL}/api/admin/pitch-config`, getConfig(token));
+    return res.data;
+};
+
+const updatePitchConfig = async (token, configData) => {
+    const res = await axios.put(`${API_BASE_URL}/api/admin/pitch-config`, configData, getConfig(token));
+    return res.data;
+};
+
 const adminService = {
     getStats,
     getUsers,
@@ -109,7 +120,9 @@ const adminService = {
     getRecruitment,
     updateRecruitment,
     resetDatabase,
-    promoteUser
+    promoteUser,
+    getPitchConfig,
+    updatePitchConfig
 };
 
 export default adminService;
