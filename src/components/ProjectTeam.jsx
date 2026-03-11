@@ -52,34 +52,60 @@ const ProjectTeam = ({ team, onClose }) => {
 
                     {/* Team Members Section */}
                     <div className="space-y-4">
-                        <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400">Collaborators</h4>
+                        <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400">Mission Roster</h4>
 
-                        <div className="grid grid-cols-1 gap-3">
+                        <div className="grid grid-cols-1 gap-4">
                             {/* Project Owner (implicit member) */}
-                            <div className="flex items-center gap-4 p-4 bg-gray-50/50 rounded-2xl border border-gray-100">
-                                <div className="w-10 h-10 rounded-xl bg-[#001E80] text-white flex items-center justify-center font-black text-sm shrink-0 shadow-sm">
+                            <div className="flex items-center gap-4 p-4 bg-[#001E80]/5 rounded-2xl border border-[#001E80]/10 shadow-sm">
+                                <div className="w-11 h-11 rounded-xl bg-[#001E80] text-white flex items-center justify-center font-black text-sm shrink-0 shadow-lg shadow-[#001E80]/10 border-2 border-white">
                                     {owner?.name?.charAt(0)}
                                 </div>
                                 <div>
                                     <p className="text-sm font-bold text-gray-900">{owner?.name}</p>
-                                    <span className="text-[9px] font-black uppercase tracking-widest text-[#001E80]/40">Project Owner</span>
+                                    <div className="flex items-center gap-1.5">
+                                        <span className="text-[9px] font-black uppercase tracking-widest text-[#001E80]">Mission Lead</span>
+                                        <div className="w-1 h-1 rounded-full bg-[#001E80]/20" />
+                                        <span className="text-[9px] font-bold text-gray-400">@{owner?.username}</span>
+                                    </div>
                                 </div>
                             </div>
 
-                            {/* Accepted Contributors */}
-                            {contributors && contributors.length > 0 ? (
-                                contributors.map((member) => (
-                                    <div key={member._id} className="flex items-center gap-4 p-4 bg-white rounded-2xl border border-gray-100 hover:border-[#001E80]/10 transition-all group">
-                                        <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center font-bold text-gray-600 shrink-0 overflow-hidden border-2 border-white shadow-sm group-hover:scale-105 transition-transform">
-                                            {member.avatar ? <img src={member.avatar} alt={member.name} className="w-full h-full object-cover" /> : member.name?.charAt(0)}
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-bold text-gray-900 group-hover:text-[#001E80] transition-colors">{member.name}</p>
-                                            <p className="text-[10px] text-gray-400 font-medium">@{member.username}</p>
-                                        </div>
-                                    </div>
-                                ))
-                            ) : null}
+                            {/* Dynamically Defined Roles */}
+                            {team.roles && team.roles.map((role, idx) => (
+                                <div
+                                    key={idx}
+                                    className={`flex items-center gap-4 p-4 rounded-2xl border transition-all ${role.isFilled ? 'bg-white border-gray-100' : 'bg-gray-50/30 border-dashed border-gray-200 opacity-60'}`}
+                                >
+                                    {role.isFilled && role.filledBy ? (
+                                        <>
+                                            <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center font-bold text-gray-600 shrink-0 overflow-hidden border-2 border-white shadow-sm ring-2 ring-gray-50">
+                                                {role.filledBy.avatar ? <img src={role.filledBy.avatar} alt={role.filledBy.name} className="w-full h-full object-cover" /> : role.filledBy.name?.charAt(0)}
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold text-gray-900 leading-tight">{role.filledBy.name}</p>
+                                                <div className="flex items-center gap-1.5 mt-0.5">
+                                                    <span className="text-[9px] font-black uppercase tracking-widest text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">
+                                                        {role.name}
+                                                    </span>
+                                                    <span className="text-[9px] font-medium text-gray-400">@{role.filledBy.username}</span>
+                                                </div>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className="w-10 h-10 rounded-xl bg-gray-100/50 border-2 border-dashed border-gray-200 flex items-center justify-center text-gray-300 font-bold text-xs shrink-0">
+                                                ?
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-bold text-gray-400 italic">Open Position</p>
+                                                <span className="text-[9px] font-black uppercase tracking-widest text-gray-400">
+                                                    Req: {role.name}
+                                                </span>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>

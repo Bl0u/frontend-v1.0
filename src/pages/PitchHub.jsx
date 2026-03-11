@@ -294,13 +294,13 @@ const PitchHub = () => {
                 )}
             </div>
 
-            {/* Team Roster Modal */}
             {viewingTeamFor && (
                 <ProjectTeam
                     team={{
                         mentor: viewingTeamFor.mentor,
                         contributors: viewingTeamFor.contributors,
-                        owner: viewingTeamFor.sender
+                        owner: viewingTeamFor.sender,
+                        roles: viewingTeamFor.roles
                     }}
                     onClose={() => setViewingTeamFor(null)}
                 />
