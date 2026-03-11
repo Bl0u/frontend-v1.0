@@ -177,6 +177,13 @@ const DashboardRequests = () => {
                                         ? item.message.split('|||')[0]
                                         : item.message}
                                 </p>
+                                {item.status === 'ongoing' && item.type === 'pitch_claim' && (
+                                    <div className="mt-3 flex items-center gap-2">
+                                        <span className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-[10px] font-black uppercase tracking-widest border border-indigo-100">
+                                            Mission Active
+                                        </span>
+                                    </div>
+                                )}
                                 {item.createdAt && (
                                     <p className="text-gray-400 text-xs mt-2">
                                         {new Date(item.createdAt).toLocaleString()}
@@ -227,6 +234,17 @@ const DashboardRequests = () => {
                                             className="flex items-center gap-2 bg-[#EAEEFE] hover:bg-[#EAEEFE]/80 text-[#001E80] px-3 py-1.5 rounded-xl transition-all font-medium text-xs"
                                         >
                                             <FaChalkboardTeacher /> View Thread
+                                        </button>
+                                    )}
+                                    {item.message?.includes('MISSION START!') && item.message?.includes('|||PLAN:') && (
+                                        <button
+                                            onClick={() => {
+                                                const planId = item.message.split('|||PLAN:')[1].trim();
+                                                navigate(`/plan/${planId}`);
+                                            }}
+                                            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-1.5 rounded-xl transition-all font-bold text-xs shadow-md shadow-indigo-100"
+                                        >
+                                            <FaRocket /> Go to Mission Control
                                         </button>
                                     )}
 
