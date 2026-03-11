@@ -119,6 +119,15 @@ const getMyProjects = async (token) => {
     return response.data;
 };
 
+// Mark project as completed
+const completeProject = async (projectId, token) => {
+    const config = {
+        headers: { Authorization: `Bearer ${token}` },
+    };
+    const response = await axios.put(API_URL + `${projectId}/complete`, {}, config);
+    return response.data;
+};
+
 const requestService = {
     sendRequest,
     getReceivedRequests,
@@ -132,7 +141,8 @@ const requestService = {
     markAsRead,
     endRelationship,
     checkConnection,
-    getMyProjects
+    getMyProjects,
+    completeProject
 };
 
 export default requestService;

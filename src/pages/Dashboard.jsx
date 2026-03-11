@@ -98,6 +98,19 @@ const Dashboard = () => {
         }
     };
 
+    const handleCompleteProject = async (projectId) => {
+        if (!window.confirm('Mark this project as completed? This will move it to history for all members.')) return;
+        try {
+            await requestService.completeProject(projectId, currentUser.token);
+            toast.success('Mission accomplished! Project marked as completed.');
+            // Refresh projects
+            const data = await requestService.getMyProjects(currentUser.token);
+            setProjects(data);
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Failed to complete project');
+        }
+    };
+
     useEffect(() => {
         if (currentUser) fetchProfile();
     }, [currentUser]);
@@ -382,16 +395,27 @@ const Dashboard = () => {
                                                 {project.pitch?.Hook || project.pitch?.['The Hook (Short summary)'] || "Untitled Mission"}
                                             </h4>
                                             <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">
-                                                {project.sender?._id === currentUser._id ? 'Mission Lead' : 'Collaborator'}
+                                                {project.sender?._id === currentUser._id ? 'Mission Lead' : 'Teammate'}
                                             </p>
                                         </div>
-                                        <button
-                                            onClick={() => handleOpenPlan(project.sender?._id === currentUser._id && project.contributors?.[0] ? project.contributors[0]._id : project.sender._id)}
-                                            className="p-2 text-[#001E80]/40 hover:text-[#001E80] transition-colors"
-                                            title="View Roadmap"
-                                        >
-                                            <FaBook size={14} />
-                                        </button>
+                                        <div className="flex items-center gap-2">
+                                            <button
+                                                onClick={() => navigate(`/project-plan/${project._id}`)}
+                                                className="p-2 text-[#001E80]/40 hover:text-[#001E80] transition-colors"
+                                                title="View Roadmap"
+                                            >
+                                                <FaBook size={14} />
+                                            </button>
+                                            {project.sender?._id === currentUser._id && (
+                                                <button
+                                                    onClick={() => handleCompleteProject(project._id)}
+                                                    className="p-2 text-green-400 hover:text-green-600 transition-colors"
+                                                    title="Mark Completed"
+                                                >
+                                                    <FiZap size={14} />
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -776,12 +800,22 @@ const Dashboard = () => {
                                             </div>
 
                                             <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
-                                                <button
-                                                    onClick={() => handleOpenPlan(project.sender?._id === currentUser._id && project.contributors?.[0] ? project.contributors[0]._id : project.sender._id)}
-                                                    className="text-[10px] font-black text-[#001E80] uppercase tracking-widest flex items-center gap-1.5 hover:gap-2 transition-all"
-                                                >
-                                                    <FaBook size={12} /> Access Roadmap →
-                                                </button>
+                                                <div className="flex items-center gap-4">
+                                                    <button
+                                                        onClick={() => navigate(`/project-plan/${project._id}`)}
+                                                        className="text-[10px] font-black text-[#001E80] uppercase tracking-widest flex items-center gap-1.5 hover:gap-2 transition-all"
+                                                    >
+                                                        <FaBook size={12} /> Access Roadmap →
+                                                    </button>
+                                                    {project.sender?._id === currentUser._id && (
+                                                        <button
+                                                            onClick={() => handleCompleteProject(project._id)}
+                                                            className="text-[10px] font-black text-green-600 uppercase tracking-widest flex items-center gap-1.5 hover:text-green-700 transition-all"
+                                                        >
+                                                            <FiZap size={12} /> Mark Completed
+                                                        </button>
+                                                    )}
+                                                </div>
                                                 <Link
                                                     to="/chat"
                                                     className="text-[10px] font-black text-gray-500 uppercase tracking-widest hover:text-[#001E80] transition-colors"
@@ -826,12 +860,12 @@ const Dashboard = () => {
                                                 <p className="text-xs text-gray-500 font-medium">Fully staffed and transitioned to active project.</p>
                                             </div>
                                             <div className="px-6 py-3 bg-gray-50/30 border-t border-gray-100">
-                                                <Link
-                                                    to={`/plan/${project._id}`}
+                                                <button
+                                                    onClick={() => navigate(`/project-plan/${project._id}`)}
                                                     className="text-[9px] font-black text-[#001E80]/60 uppercase tracking-widest hover:text-[#001E80]"
                                                 >
                                                     View Final Roadmap
-                                                </Link>
+                                                </button>
                                             </div>
                                         </div>
                                     ))}

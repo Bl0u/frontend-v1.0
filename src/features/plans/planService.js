@@ -41,6 +41,15 @@ const getPlanByPair = async (partnerId, token) => {
     return response.data;
 };
 
+// Get plan by projectId
+const getProjectPlan = async (projectId, token) => {
+    const config = {
+        headers: { Authorization: `Bearer ${token}` }
+    };
+    const response = await axios.get(`${API_URL}/project/${projectId}`, config);
+    return response.data;
+};
+
 // Add comment to a version
 const addComment = async (planId, versionIdx, data, token) => {
     const config = {
@@ -72,6 +81,7 @@ const planService = {
     createPlan,
     addVersion,
     getPlan,
+    getProjectPlan,
     getPlanByPair,
     addComment,
     editVersion,
