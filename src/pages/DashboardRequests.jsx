@@ -56,7 +56,7 @@ const DashboardRequests = () => {
             case 'partnership':
                 return '🤝 Partnership Request';
             case 'pitch_claim':
-                return '🚀 Join Request';
+                return `🚀 Join Request - ${item.roleName || item.claimRole || 'Teammate'}`;
             case 'notification':
                 return '📬 Notification';
             default:
@@ -196,7 +196,7 @@ const DashboardRequests = () => {
                                             <FaUser /> View Profile
                                         </button>
                                     )}
-                                    {(isActionable(item) && (item.pitch || (item.type === 'pitch_claim' && item.pitchRef?.pitch))) && (
+                                    {(isActionable(item) && item.type !== 'pitch_claim' && (item.pitch || (item.type === 'pitch_claim' && item.pitchRef?.pitch))) && (
                                         <button
                                             onClick={() => {
                                                 setSelectedPitch(item.pitch || (item.type === 'pitch_claim' ? item.pitchRef?.pitch : null));

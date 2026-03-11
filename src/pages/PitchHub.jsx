@@ -3,17 +3,19 @@ import { Link } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 import requestService from '../features/requests/requestService';
 import { toast } from 'react-toastify';
-import { FaRocket, FaUserGraduate, FaChevronDown, FaCheckCircle, FaPlus, FaUserFriends, FaClipboardList, FaTrash } from 'react-icons/fa';
+import { FaRocket, FaUserGraduate, FaChevronDown, FaCheckCircle, FaPlus, FaUserFriends, FaClipboardList, FaTrash, FaUsers } from 'react-icons/fa';
 import ProjectRoles from '../components/ProjectRoles';
+import ProjectTeam from '../components/ProjectTeam';
 
 import adminService from '../features/admin/adminService';
 
 const PitchHub = () => {
     const [pitches, setPitches] = useState([]);
     const [loading, setLoading] = useState(true);
-    const { user: currentUser } = useContext(AuthContext);
+    const { user: currentUser, refreshUser } = useContext(AuthContext);
     const [expandedPitch, setExpandedPitch] = useState(null);
     const [applyingFor, setApplyingFor] = useState(null); // ID of pitch being applied to
+    const [viewingTeamFor, setViewingTeamFor] = useState(null); // pitch object being viewed
 
     const fetchPitches = async () => {
         setLoading(true);
@@ -30,6 +32,9 @@ const PitchHub = () => {
 
     useEffect(() => {
         fetchPitches();
+        if (currentUser) {
+            refreshUser();
+        }
     }, []);
 
     const handleAdminDelete = async (pitchId) => {
@@ -51,7 +56,7 @@ const PitchHub = () => {
 
         try {
             const roleType = role.roleType === 'mentor' ? 'mentor' : 'teammate';
-            const data = await requestService.claimPublicPitch(pitchId, currentUser.token, roleType);
+            const data = await requestService.claimPublicPitch(pitchId, currentUser.token, roleType, role.name);
 
             if (data.isPendingApproval) {
                 toast.info(`Application for ${role.name} sent to project owner!`);
@@ -152,6 +157,16 @@ const PitchHub = () => {
                                         View Detail <FaChevronDown className={`transition-transform duration-300 ${expandedPitch === pitch._id ? 'rotate-180' : ''}`} />
                                     </button>
 
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setViewingTeamFor(pitch);
+                                        }}
+                                        className="px-4 py-2 text-sm font-bold text-gray-500 hover:text-[#001E80] flex items-center gap-1 transition-colors"
+                                    >
+                                        <FaUsers size={14} /> Team
+                                    </button>
+
                                     {currentUser?.role === 'admin' && (
                                         <button
                                             onClick={(e) => {
@@ -189,10 +204,12 @@ const PitchHub = () => {
                                             ))}
                                             {pitch.mentor && (
                                                 <div
-                                                    className="w-7 h-7 rounded-full border-2 border-[#001E80] bg-white shadow-md flex items-center justify-center text-xl overflow-hidden"
-                                                    title="Mentor Joined"
+                                                    className="w-7 h-7 rounded-full border-2 border-white bg-white shadow-sm flex items-center justify-center text-sm overflow-hidden border-[#001E80]"
+                                                    title={`Mentor: ${pitch.mentor.name}`}
                                                 >
-                                                    🎓
+                                                    {pitch.mentor.avatar ? (
+                                                        <img src={pitch.mentor.avatar} alt="" className="w-full h-full object-cover" />
+                                                    ) : "🎓"}
                                                 </div>
                                             )}
                                         </div>
@@ -276,6 +293,18 @@ const PitchHub = () => {
                     </div>
                 )}
             </div>
+
+            {/* Team Roster Modal */}
+            {viewingTeamFor && (
+                <ProjectTeam
+                    team={{
+                        mentor: viewingTeamFor.mentor,
+                        contributors: viewingTeamFor.contributors,
+                        owner: viewingTeamFor.sender
+                    }}
+                    onClose={() => setViewingTeamFor(null)}
+                />
+            )}
         </div>
     );
 };
