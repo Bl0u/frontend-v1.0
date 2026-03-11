@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 import requestService from '../features/requests/requestService';
 import { toast } from 'react-toastify';
-import { FaRocket, FaUserGraduate, FaChevronDown, FaCheckCircle, FaPlus, FaUserFriends, FaClipboardList } from 'react-icons/fa';
+import { FaRocket, FaUserGraduate, FaChevronDown, FaCheckCircle, FaPlus, FaUserFriends, FaClipboardList, FaTrash } from 'react-icons/fa';
 import ProjectRoles from '../components/ProjectRoles';
+
+import adminService from '../features/admin/adminService';
 
 const PitchHub = () => {
     const [pitches, setPitches] = useState([]);
@@ -29,6 +31,17 @@ const PitchHub = () => {
     useEffect(() => {
         fetchPitches();
     }, []);
+
+    const handleAdminDelete = async (pitchId) => {
+        if (!window.confirm('ADMIN: Are you sure you want to delete this pitch?')) return;
+        try {
+            await adminService.deletePitch(currentUser.token, pitchId);
+            toast.success('Pitch removed by admin');
+            fetchPitches();
+        } catch (error) {
+            toast.error('Failed to delete pitch');
+        }
+    };
 
     const handleApplyForRole = async (pitchId, role) => {
         if (!currentUser) {
@@ -124,19 +137,34 @@ const PitchHub = () => {
                                         </div>
                                     </div>
                                 </div>
-                                <button
-                                    onClick={() => {
-                                        if (expandedPitch === pitch._id) {
-                                            setExpandedPitch(null);
-                                            setApplyingFor(null);
-                                        } else {
-                                            setExpandedPitch(pitch._id);
-                                        }
-                                    }}
-                                    className="px-4 py-2 text-sm font-bold text-gray-500 hover:text-[#001E80] flex items-center gap-1 transition-colors"
-                                >
-                                    View Detail <FaChevronDown className={`transition-transform duration-300 ${expandedPitch === pitch._id ? 'rotate-180' : ''}`} />
-                                </button>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={() => {
+                                            if (expandedPitch === pitch._id) {
+                                                setExpandedPitch(null);
+                                                setApplyingFor(null);
+                                            } else {
+                                                setExpandedPitch(pitch._id);
+                                            }
+                                        }}
+                                        className="px-4 py-2 text-sm font-bold text-gray-500 hover:text-[#001E80] flex items-center gap-1 transition-colors"
+                                    >
+                                        View Detail <FaChevronDown className={`transition-transform duration-300 ${expandedPitch === pitch._id ? 'rotate-180' : ''}`} />
+                                    </button>
+
+                                    {currentUser?.role === 'admin' && (
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleAdminDelete(pitch._id);
+                                            }}
+                                            className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                            title="Admin: Delete Pitch"
+                                        >
+                                            <FaTrash size={14} />
+                                        </button>
+                                    )}
+                                </div>
                             </div>
 
                             {/* Project Staffing Progress Bar */}

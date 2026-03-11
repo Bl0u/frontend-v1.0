@@ -105,6 +105,17 @@ const updatePitchConfig = async (token, configData) => {
     return res.data;
 };
 
+// Pitch Management
+const getPitches = async (token) => {
+    const res = await axios.get(`${API_BASE_URL}/api/admin/pitches`, getConfig(token));
+    return res.data;
+};
+
+const deletePitch = async (token, pitchId) => {
+    const res = await axios.delete(`${API_BASE_URL}/api/admin/pitches/${pitchId}`, getConfig(token));
+    return res.data;
+};
+
 const adminService = {
     getStats,
     getUsers,
@@ -122,7 +133,9 @@ const adminService = {
     resetDatabase,
     promoteUser,
     getPitchConfig,
-    updatePitchConfig
+    updatePitchConfig,
+    getPitches,
+    deletePitch
 };
 
 export default adminService;

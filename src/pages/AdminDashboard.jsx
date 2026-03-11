@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import '../styles/AdminDashboard.css';
 import SearchableDropdown from '../components/SearchableDropdown';
 import PitchConfigManager from '../components/PitchConfigManager';
+import PitchModuleManager from '../components/PitchModuleManager';
 
 // ───────────────────────────────────────
 // TAB CONSTANTS
@@ -17,6 +18,7 @@ const TABS = [
     { key: 'reports', label: 'Reports' },
     { key: 'payments', label: 'Payments' },
     { key: 'recruitment', label: 'Recruitment' },
+    { key: 'pitches', label: 'Manage Pitches' },
     { key: 'hub_setup', label: 'Hub Setup' },
 ];
 
@@ -807,6 +809,7 @@ const AdminDashboard = () => {
             {activeTab === 'reports' && renderReports()}
             {activeTab === 'payments' && renderPayments()}
             {activeTab === 'recruitment' && renderRecruitment()}
+            {activeTab === 'pitches' && <PitchModuleManager token={user.token} />}
             {activeTab === 'hub_setup' && <PitchConfigManager user={user} />}
 
             {/* Stars Modal */}
