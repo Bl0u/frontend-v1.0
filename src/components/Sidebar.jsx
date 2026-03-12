@@ -144,6 +144,10 @@ const Sidebar = () => {
                         <span className="sidebar-link-icon"><FiUsers /></span>
                         <span className="sidebar-link-text">Partners</span>
                     </Link>
+                    <Link to="/communities" className={`sidebar-link ${isActive('/communities') ? 'active' : ''}`}>
+                        <span className="sidebar-link-icon"><FiHash /></span>
+                        <span className="sidebar-link-text">Communities</span>
+                    </Link>
                     <Link to="/pitch-hub" className={`sidebar-link ${isActive('/pitch-hub') ? 'active' : ''}`}>
                         <span className="sidebar-link-icon"><FiZap /></span>
                         <span className="sidebar-link-text">Pitch Hub</span>

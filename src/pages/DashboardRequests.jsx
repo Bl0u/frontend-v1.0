@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import requestService from '../features/requests/requestService';
 import AuthContext from '../context/AuthContext';
 import { toast } from 'react-toastify';
-import { FaBell, FaCheck, FaTimes, FaUserFriends, FaFileAlt, FaUser, FaEye, FaChalkboardTeacher, FaArrowLeft, FaRocket } from 'react-icons/fa';
+import { FaInbox, FaHistory, FaCheck, FaTimes, FaTrash, FaHashtag, FaClock, FaCalendarAlt, FaStar, FaGlobe, FaUserCheck, FaChevronDown, FaChevronUp, FaInfoCircle, FaFileAlt, FaUserFriends, FaUser, FaEye, FaChalkboardTeacher, FaArrowLeft, FaRocket, FaBell } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 
 const DashboardRequests = () => {
@@ -37,6 +37,8 @@ const DashboardRequests = () => {
                 return <FaUserFriends className="text-green-600" />;
             case 'pitch_claim':
                 return <FaRocket className="text-orange-600" />;
+            case 'community_join':
+                return <FaHash className="text-indigo-600" />;
             case 'notification':
                 return <FaBell className="text-[#001E80]" />;
             default:
@@ -50,7 +52,9 @@ const DashboardRequests = () => {
             case 'partnership':
                 return '🤝 Partnership Request';
             case 'pitch_claim':
-                return `🚀 Join Request - ${item.roleName || item.claimRole || 'Teammate'}`;
+                return `🚀 Join Request - ${item.roleName || item.claimRole || 'Teammate'} `;
+            case 'community_join':
+                return `🏘️ Community Join Application - ${item.groupChat?.name || 'Group'} `;
             case 'notification':
                 return '📬 Notification';
             default:
@@ -59,7 +63,7 @@ const DashboardRequests = () => {
     };
 
     const isActionable = (item) => {
-        return ['partner', 'partnership', 'pitch_claim'].includes(item.type) && item.status === 'pending';
+        return ['partner', 'partnership', 'pitch_claim', 'community_join'].includes(item.type) && item.status === 'pending';
     };
 
     const handleAction = async (id, status) => {
@@ -162,6 +166,17 @@ const DashboardRequests = () => {
                                             </span>
                                         </div>
                                     )}
+                                    {item.type === 'community_join' && item.answers && (
+                                        <div className="mt-4 p-4 bg-gray-50 rounded-2xl border border-gray-100 space-y-3">
+                                            <div className="text-[10px] font-black uppercase tracking-widest text-[#001E80] mb-2">Application Answers</div>
+                                            {Object.entries(item.answers).map(([q, a]) => (
+                                                <div key={q}>
+                                                    <div className="text-[9px] font-bold text-gray-400 uppercase">{q}</div>
+                                                    <div className="text-sm text-gray-700 font-medium">{a || <span className="italic text-gray-300">No answer provided</span>}</div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                     {item.createdAt && (
                                         <p className="text-gray-400 text-xs mt-2">
                                             {new Date(item.createdAt).toLocaleString()}
@@ -175,7 +190,7 @@ const DashboardRequests = () => {
                                     <div className="flex gap-2">
                                         {isActionable(item) && item.sender && (
                                             <button
-                                                onClick={() => navigate(`/u/${item.sender.username}`)}
+                                                onClick={() => navigate(`/ u / ${item.sender.username} `)}
                                                 className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-xl transition-all font-medium text-xs"
                                             >
                                                 <FaUser /> View Profile
@@ -196,7 +211,7 @@ const DashboardRequests = () => {
                                             <button
                                                 onClick={() => {
                                                     const planId = item.message.split('|||PLAN:')[1].trim();
-                                                    navigate(`/plan/${planId}`);
+                                                    navigate(`/ plan / ${planId} `);
                                                 }}
                                                 className="flex items-center gap-2 bg-purple-100 hover:bg-purple-200 text-purple-700 px-3 py-1.5 rounded-xl transition-all font-medium text-xs"
                                             >
@@ -207,7 +222,7 @@ const DashboardRequests = () => {
                                             <button
                                                 onClick={() => {
                                                     const threadId = item.message.split('|||THREAD:')[1];
-                                                    navigate(`/resources/thread/${threadId}`);
+                                                    navigate(`/ resources / thread / ${threadId} `);
                                                 }}
                                                 className="flex items-center gap-2 bg-[#EAEEFE] hover:bg-[#EAEEFE]/80 text-[#001E80] px-3 py-1.5 rounded-xl transition-all font-medium text-xs"
                                             >
@@ -218,7 +233,7 @@ const DashboardRequests = () => {
                                             <button
                                                 onClick={() => {
                                                     const planId = item.message.split('|||PLAN:')[1].trim();
-                                                    navigate(`/plan/${planId}`);
+                                                    navigate(`/ plan / ${planId} `);
                                                 }}
                                                 className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-1.5 rounded-xl transition-all font-bold text-xs shadow-md shadow-indigo-100"
                                             >

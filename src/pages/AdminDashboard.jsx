@@ -7,6 +7,8 @@ import '../styles/AdminDashboard.css';
 import SearchableDropdown from '../components/SearchableDropdown';
 import PitchConfigManager from '../components/PitchConfigManager';
 import PitchModuleManager from '../components/PitchModuleManager';
+import AdminCommunities from '../components/AdminCommunities';
+import PromoteLeadGroupsModal from '../components/PromoteLeadGroupsModal';
 
 // ───────────────────────────────────────
 // TAB CONSTANTS
@@ -19,6 +21,7 @@ const TABS = [
     { key: 'payments', label: 'Payments' },
     { key: 'recruitment', label: 'Recruitment' },
     { key: 'pitches', label: 'Manage Pitches' },
+    { key: 'communities', label: 'Communities' },
     { key: 'hub_setup', label: 'Hub Setup' },
 ];
 
@@ -27,6 +30,9 @@ const AdminDashboard = () => {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('overview');
     const [loading, setLoading] = useState(false);
+
+    // Group Assignment state for new leads
+    const [justPromotedLead, setJustPromotedLead] = useState(null); // { userId, username }
 
     // — Data state —
     const [stats, setStats] = useState(null);
@@ -258,6 +264,9 @@ const AdminDashboard = () => {
                 academicLevel: promoLevel
             });
             toast.success(data.message);
+            if (promoRole === 'studentLead') {
+                setJustPromotedLead({ userId: promoteModal.userId, username: promoteModal.username });
+            }
             setPromoteModal(null);
             setPromoRole('');
             setPromoUni('');
@@ -810,6 +819,7 @@ const AdminDashboard = () => {
             {activeTab === 'payments' && renderPayments()}
             {activeTab === 'recruitment' && renderRecruitment()}
             {activeTab === 'pitches' && <PitchModuleManager token={user.token} />}
+            {activeTab === 'communities' && <AdminCommunities user={user} />}
             {activeTab === 'hub_setup' && <PitchConfigManager user={user} />}
 
             {/* Stars Modal */}
@@ -1104,146 +1114,6 @@ const AdminDashboard = () => {
                                                 </div>
                                             </div>
                                             <a
-                                                href={`/threads/${t._id}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="admin-btn primary"
-                                                style={{ padding: '4px 12px', fontSize: '10px' }}
-                                            >
-                                                View Live ↗
-                                            </a>
-                                        </div>
-                                    )) : <div className="admin-empty-text">User has not created any threads yet.</div>}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="admin-modal-actions border-t border-gray-50 pt-6 mt-6">
-                            <button className="admin-btn danger" onClick={() => { setUserDetailsModal(null); setConfirmDelete({ type: 'user', id: userDetailsModal.user?._id, name: userDetailsModal.user?.username }); }}>
-                                Delete User
-                            </button>
-                            <div className="flex gap-3">
-                                <button className={`admin-btn ${userDetailsModal.user?.isBanned ? 'success' : 'warning'}`} onClick={() => { handleToggleBan(userDetailsModal.user?._id); setUserDetailsModal(null); }}>
-                                    {userDetailsModal.user?.isBanned ? 'Unban User' : 'Ban User'}
-                                </button>
-                                <button className="admin-btn primary" onClick={() => setUserDetailsModal(null)}>Done</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* User Details Modal */}
-            {userDetailsModal && (
-                <div className="admin-modal-overlay" onClick={() => setUserDetailsModal(null)}>
-                    <div className="admin-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 800, width: '90%' }}>
-                        <div className="flex justify-between items-start mb-6">
-                            <div>
-                                <h3 className="admin-modal-title" style={{ marginBottom: 4 }}>User Information</h3>
-                                <p className="admin-modal-subtitle">Full profile details for <strong>@{userDetailsModal.user?.username}</strong></p>
-                            </div>
-                            <button className="admin-btn neutral" onClick={() => setUserDetailsModal(null)}>Close</button>
-                        </div>
-
-                        <div className="admin-detail-grid" style={{ maxHeight: '70vh', overflowY: 'auto', paddingRight: 10 }}>
-                            {/* Account Security */}
-                            <div className="admin-detail-section">
-                                <h4>Account & Security</h4>
-                                <div className="admin-detail-item">
-                                    <span className="admin-detail-label">Full Name</span>
-                                    <span className="admin-detail-value">{userDetailsModal.user?.name}</span>
-                                </div>
-                                <div className="admin-detail-item">
-                                    <span className="admin-detail-label">Email</span>
-                                    <span className="admin-detail-value">{userDetailsModal.user?.email}</span>
-                                </div>
-                                <div className="admin-detail-item">
-                                    <span className="admin-detail-label">User ID</span>
-                                    <span className="admin-detail-value" style={{ fontSize: '10px' }}>{userDetailsModal.user?._id}</span>
-                                </div>
-                                <div className="admin-detail-item">
-                                    <span className="admin-detail-label">Role</span>
-                                    <span className="admin-badge neutral uppercase" style={{ fontSize: '9px' }}>{userDetailsModal.user?.role}</span>
-                                </div>
-                                <div className="admin-detail-item">
-                                    <span className="admin-detail-label">Joined</span>
-                                    <span className="admin-detail-value">{formatDate(userDetailsModal.user?.createdAt)}</span>
-                                </div>
-                                <div className="admin-detail-item">
-                                    <span className="admin-detail-label">Status</span>
-                                    {userDetailsModal.user?.isBanned
-                                        ? <span className="admin-badge danger">Banned</span>
-                                        : <span className="admin-badge success">Active</span>
-                                    }
-                                </div>
-                            </div>
-
-                            {/* Academic Profile */}
-                            <div className="admin-detail-section">
-                                <h4>Academic Details</h4>
-                                <div className="admin-detail-item">
-                                    <span className="admin-detail-label">University</span>
-                                    <span className="admin-detail-value text-navy font-bold">{userDetailsModal.user?.university || '—'}</span>
-                                </div>
-                                <div className="admin-detail-item">
-                                    <span className="admin-detail-label">College</span>
-                                    <span className="admin-detail-value">{userDetailsModal.user?.college || '—'}</span>
-                                </div>
-                                <div className="admin-detail-item">
-                                    <span className="admin-detail-label">Major</span>
-                                    <span className="admin-detail-value">{userDetailsModal.user?.major || '—'}</span>
-                                </div>
-                                <div className="admin-detail-item">
-                                    <span className="admin-detail-label">Level</span>
-                                    <span className="admin-detail-value">{userDetailsModal.user?.academicLevel || '—'}</span>
-                                </div>
-                                <div className="admin-detail-item">
-                                    <span className="admin-detail-label">City</span>
-                                    <span className="admin-detail-value">{userDetailsModal.user?.city || '—'}</span>
-                                </div>
-                                <div className="admin-detail-item">
-                                    <span className="admin-detail-label">Stars Balance</span>
-                                    <span className="admin-detail-value" style={{ color: '#001E80', fontWeight: 900 }}>⭐ {userDetailsModal.user?.stars || 0}</span>
-                                </div>
-                            </div>
-
-                            {/* Activity Metrics */}
-                            <div className="admin-detail-section">
-                                <h4>Engagement</h4>
-                                <div className="admin-detail-item">
-                                    <span className="admin-detail-label">Total Threads</span>
-                                    <span className="admin-detail-value">{userDetailsModal.threads?.length || 0}</span>
-                                </div>
-                                <div className="admin-detail-item">
-                                    <span className="admin-detail-label">Total Posts</span>
-                                    <span className="admin-detail-value">{userDetailsModal.postsCount || 0}</span>
-                                </div>
-                                <div className="admin-detail-item">
-                                    <span className="admin-detail-label">Reports Made</span>
-                                    <span className="admin-detail-value">{userDetailsModal.reportsMade || 0}</span>
-                                </div>
-                                <div className="admin-detail-item">
-                                    <span className="admin-detail-label">Reports Received</span>
-                                    <span className="admin-detail-value" style={{ color: userDetailsModal.reportsAgainst?.length > 0 ? '#dc2626' : 'inherit' }}>
-                                        {userDetailsModal.reportsAgainst?.length || 0}
-                                    </span>
-                                </div>
-                            </div>
-
-                            {/* Threads authored */}
-                            <div className="admin-detail-section col-span-1 md:col-span-2">
-                                <h4>Authored Threads</h4>
-                                <div className="space-y-2 mt-3">
-                                    {userDetailsModal.threads?.length > 0 ? userDetailsModal.threads.map(t => (
-                                        <div key={t._id} className="admin-thread-mini flex justify-between items-center group p-3 rounded-xl border border-gray-50 hover:border-[#001E80]/20 transition-all">
-                                            <div className="flex flex-col">
-                                                <span className="admin-thread-title font-bold text-navy truncate max-w-md">{t.title}</span>
-                                                <div className="flex gap-2 items-center mt-1">
-                                                    <span className="admin-badge neutral" style={{ fontSize: '8px' }}>{t.type}</span>
-                                                    <span className="text-[9px] text-gray-400">{formatDate(t.createdAt)}</span>
-                                                </div>
-                                            </div>
-                                            <a
                                                 href={`/resources/thread/${t._id}`}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
@@ -1271,6 +1141,15 @@ const AdminDashboard = () => {
                         </div>
                     </div>
                 </div>
+            )}
+            {justPromotedLead && (
+                <PromoteLeadGroupsModal
+                    isOpen={!!justPromotedLead}
+                    onClose={() => setJustPromotedLead(null)}
+                    userId={justPromotedLead.userId}
+                    username={justPromotedLead.username}
+                    userToken={user.token}
+                />
             )}
         </div>
     );
