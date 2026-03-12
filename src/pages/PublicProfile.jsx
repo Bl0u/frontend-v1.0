@@ -7,6 +7,7 @@ import { API_BASE_URL } from '../config';
 import AuthContext from '../context/AuthContext';
 import userService from '../features/users/userService';
 import reportService from '../features/reports/reportService';
+import RoleBadge from '../components/RoleBadge';
 
 const PublicProfile = () => {
     const { username } = useParams();

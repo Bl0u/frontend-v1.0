@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 import chatService from '../features/chat/chatService';
 import userService from '../features/users/userService';
-import { FaSearch, FaPaperPlane, FaUserCircle, FaArrowLeft } from 'react-icons/fa';
+import { FaSearch, FaPaperPlane, FaUserCircle, FaArrowLeft, FaUsers, FaPlus, FaBullhorn } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 
 const Chat = () => {
@@ -44,10 +44,13 @@ const Chat = () => {
 
                 if (initialTargetId) {
                     if (initialType === 'group') {
-                        // For groups, we might need a small getGroupById service, 
-                        // but for now we can find it in recents or handle locally
-                        const foundGroup = recents.find(c => c._id === initialTargetId && c.chatType === 'group');
-                        if (foundGroup) setSelectedChat(foundGroup);
+                        let foundGroup = recents.find(c => c._id === initialTargetId && c.chatType === 'group');
+                        if (foundGroup) {
+                            setSelectedChat(foundGroup);
+                        } else {
+                            // Minimal placeholder for the selected chat until messages load or it appears
+                            setSelectedChat({ _id: initialTargetId, chatType: 'group', name: 'Loading Unit...' });
+                        }
                     } else {
                         const target = await userService.getUserById(initialTargetId);
                         setSelectedChat({ ...target, chatType: 'individual' });

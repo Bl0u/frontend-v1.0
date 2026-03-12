@@ -68,7 +68,7 @@ const LeadConsole = () => {
                 {/* Main Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-                    {/* Elite Networks */}
+                    {/* Official Channels */}
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -77,8 +77,10 @@ const LeadConsole = () => {
                     >
                         <div className="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-xl shadow-blue-900/5">
                             <h3 className="text-2xl font-black text-[#010D3E] uppercase mb-8 flex items-center gap-3" style={{ fontFamily: 'Zuume-Bold' }}>
-                                <FaRocket className="text-[#001E80]" /> Elite Networks
+                                <FaRocket className="text-[#001E80]" /> Team Channels
                             </h3>
+
+                            <p className="text-sm font-bold text-gray-400 mb-6 uppercase tracking-wider">Tactical units for secure coordination</p>
 
                             <div className="space-y-4">
                                 {loading ? (
@@ -102,7 +104,7 @@ const LeadConsole = () => {
                                                 </div>
                                                 <div>
                                                     <div className="text-lg font-black text-[#010D3E] uppercase tracking-tight">{group.name}</div>
-                                                    <div className="text-xs font-bold text-[#001E80] uppercase tracking-widest mt-1">Encrypted Channel</div>
+                                                    <div className="text-xs font-bold text-[#001E80] uppercase tracking-widest mt-1">Personnel Only</div>
                                                 </div>
                                             </div>
                                             <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-[#001E80] shadow-sm border border-gray-100 group-hover:translate-x-2 transition-transform">
@@ -112,29 +114,14 @@ const LeadConsole = () => {
                                     ))
                                 ) : (
                                     <div className="text-center py-10 text-gray-400 font-bold uppercase tracking-widest text-xs border-2 border-dashed border-gray-100 rounded-3xl">
-                                        No Elite Networks Synced
+                                        Initializing Core Networks...
                                     </div>
                                 )}
                             </div>
                         </div>
-
-                        {/* Recent Level Stats */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div className="bg-[#001E80] rounded-[2.5rem] p-10 text-white overflow-hidden relative group">
-                                <div className="absolute top-[-20%] right-[-10%] w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
-                                <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-300 mb-6">Mission Impact</h4>
-                                <div className="text-6xl font-black mb-2 leading-none" style={{ fontFamily: 'Zuume-Bold' }}>94%</div>
-                                <p className="text-sm font-bold text-blue-200">Level Resource Health</p>
-                            </div>
-                            <div className="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-xl shadow-blue-900/5">
-                                <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 mb-6">Next Resource Drop</h4>
-                                <div className="text-4xl font-black text-[#010D3E] uppercase leading-none mb-2" style={{ fontFamily: 'Zuume-Bold' }}>MAR 15</div>
-                                <p className="text-sm font-bold text-[#001E80]">Past Exams Sync</p>
-                            </div>
-                        </div>
                     </motion.div>
 
-                    {/* Sidebar: Control Panel */}
+                    {/* Sidebar: Lead Info */}
                     <motion.div
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -142,18 +129,17 @@ const LeadConsole = () => {
                         className="space-y-8"
                     >
                         <div className="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-xl shadow-blue-900/5">
-                            <h3 className="text-xl font-black text-[#010D3E] uppercase mb-8 flex items-center gap-3" style={{ fontFamily: 'Zuume-Bold' }}>
-                                <FaBullhorn className="text-orange-500" /> Quick Broadcast
+                            <h3 className="text-xl font-black text-[#010D3E] uppercase mb-6 flex items-center gap-3" style={{ fontFamily: 'Zuume-Bold' }}>
+                                <FaBullhorn className="text-orange-500" /> Lead Actions
                             </h3>
-                            <textarea
-                                className="w-full h-32 bg-gray-50 border border-gray-100 rounded-2xl p-4 text-xs font-bold outline-none focus:ring-2 focus:ring-orange-100 transition-all mb-4"
-                                placeholder="Type mission critical update..."
-                            ></textarea>
+                            <p className="text-xs font-bold text-gray-500 uppercase leading-relaxed mb-8">
+                                Use the Chat interface to send group broadcasts. Announcements made there are highlighted to all level personnel.
+                            </p>
                             <Link
                                 to="/chat"
-                                className="w-full py-4 rounded-xl bg-orange-500 text-white text-xs font-black uppercase shadow-lg shadow-orange-100 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
+                                className="w-full py-4 rounded-xl bg-[#001E80] text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-100 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
                             >
-                                <FaBullhorn /> Open Chat Interface
+                                <FaComments /> Open Comms Dashboard
                             </Link>
                         </div>
 
@@ -161,11 +147,14 @@ const LeadConsole = () => {
                             <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-white text-xl mb-6">
                                 <FaGraduationCap />
                             </div>
-                            <h3 className="text-xl font-black uppercase mb-4" style={{ fontFamily: 'Zuume-Bold' }}>Lead Protocol</h3>
+                            <h3 className="text-xl font-black uppercase mb-4" style={{ fontFamily: 'Zuume-Bold' }}>Protocol Guides</h3>
                             <p className="text-xs text-blue-200 font-medium leading-relaxed mb-6">
-                                As a Student Lead, you have the authority to manage level resources and coordinate peers. All broadcasts are logged for mission integrity.
+                                View official documentation on lead management and coordination.
                             </p>
-                            <button className="text-[10px] font-black uppercase tracking-widest text-white border-b border-white/30 pb-1 hover:text-blue-300 transition-colors">
+                            <button
+                                onClick={() => toast.info('Lead Protocols coming soon.')}
+                                className="text-[10px] font-black uppercase tracking-widest text-white border-b border-white/30 pb-1 hover:text-blue-300 transition-colors"
+                            >
                                 View Lead Guidelines
                             </button>
                         </div>
