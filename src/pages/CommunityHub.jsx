@@ -104,23 +104,18 @@ const CommunityHub = () => {
         }
     };
 
-    const handleJoinRequest = async (communityId, circleId = null) => {
+    const handleJoinRequest = async (circleId) => {
         if (!user) {
             toast.warning('Please login to join');
             return;
         }
         try {
-            const data = await communityService.requestJoin(communityId, circleId, user.token);
+            // New logic only applies to circles
+            const data = await communityService.requestJoin(selectedCommunity.community._id, circleId, user.token);
 
             if (data.status === 'joined') {
                 toast.success('Joined instantly! 🚀');
-                // Refresh to show "Enter Chat"
-                if (selectedCommunity) {
-                    handleSelectCommunity(selectedCommunity.community);
-                } else {
-                    const updated = await communityService.getCommunities();
-                    setCommunities(updated);
-                }
+                handleSelectCommunity(selectedCommunity.community);
             } else {
                 toast.success('Join request sent! ⏳');
             }
@@ -132,47 +127,33 @@ const CommunityHub = () => {
     const renderCommunityList = () => (
         <div className="community-grid">
             {communities.map((c) => {
-                const isMember = c.members?.includes(user?._id);
                 const hasModAccess = isModerator(c);
 
                 return (
                     <div key={c._id} className="community-card" onClick={() => handleSelectCommunity(c)}>
-                        <div className="community-banner">
-                            <img src={c.avatar || 'https://via.placeholder.com/400x120'} alt={c.name} />
-                            {c.privacyType === 'private' && (
-                                <div className="privacy-badge private">Private</div>
-                            )}
-                            {hasModAccess && (
-                                <div className="mod-badge">
-                                    <FaShieldAlt /> Moderator
-                                </div>
-                            )}
-                        </div>
                         <div className="community-content">
-                            <h3>{c.name}</h3>
+                            <div className="community-card-header">
+                                <h3>{c.name}</h3>
+                                {hasModAccess && (
+                                    <div className="mod-badge">
+                                        <FaShieldAlt /> Mod
+                                    </div>
+                                )}
+                            </div>
                             <p>{c.description || 'No description provided.'}</p>
                             <div className="community-footer">
                                 <span className="members-count">{c.members?.length || 0} Members</span>
-                                <div className="flex gap-2">
+                                <div className="flex gap-2 items-center">
                                     {hasModAccess && (
                                         <button 
                                             className="manage-btn-icon" 
                                             onClick={(e) => { e.stopPropagation(); handleOpenManageMembers(c._id, 'community', c.name); }}
-                                            title="Manage Community Members"
+                                            title="Manage Moderators"
                                         >
                                             <FaUsers />
                                         </button>
                                     )}
-                                    {isMember ? (
-                                        <button className="view-btn">Explore Circles</button>
-                                    ) : (
-                                        <button 
-                                            className={c.privacyType === 'public' ? "join-hub-btn" : "request-hub-btn"}
-                                            onClick={(e) => { e.stopPropagation(); handleJoinRequest(c._id); }}
-                                        >
-                                            {c.privacyType === 'public' ? 'Join Hub' : 'Request Access'}
-                                        </button>
-                                    )}
+                                    <button className="view-btn">Explore Hub <FaChevronRight size={10} /></button>
                                 </div>
                             </div>
                         </div>
@@ -193,75 +174,75 @@ const CommunityHub = () => {
 
         return (
             <div className="circle-explorer animate-in">
-                <div className="explorer-header">
-                    <button className="back-btn" onClick={() => setSelectedCommunity(null)}>← Back to Hub</button>
-                    <div className="community-header-main">
-                        <div className="community-profile">
-                            <img src={selectedCommunity.community.avatar || 'https://via.placeholder.com/80'} alt="" />
-                            <div>
-                                <h2>{selectedCommunity.community.name}</h2>
-                                <p>{selectedCommunity.community.description}</p>
-                            </div>
+                <div className="explorer-header-minimal">
+                    <button className="back-btn-minimal" onClick={() => setSelectedCommunity(null)}>← Back to Hubs</button>
+                    <div className="community-header-main-minimal">
+                        <div className="community-profile-minimal">
+                            <h2>{selectedCommunity.community.name}</h2>
+                            <p>{selectedCommunity.community.description}</p>
                         </div>
                         {hasCommModAccess && (
-                            <div className="header-actions">
-                                <button className="create-group-btn" onClick={() => setShowCreateModal(true)}>
-                                    <FaPlus /> Create Circle
+                            <div className="header-actions-minimal">
+                                <button className="create-group-btn-minimal" onClick={() => setShowCreateModal(true)}>
+                                    <FaPlus /> New Circle
                                 </button>
-                                <button className="manage-header-btn" onClick={() => handleOpenManageMembers(selectedCommunity.community._id, 'community', selectedCommunity.community.name)}>
-                                    <FaUserShield /> Community Mods
+                                <button className="manage-header-btn-minimal" onClick={() => handleOpenManageMembers(selectedCommunity.community._id, 'community', selectedCommunity.community.name)}>
+                                    <FaUserShield /> Mods
                                 </button>
                             </div>
                         )}
                     </div>
                 </div>
 
-                <div className="circles-section">
-                    <div className="section-title">
+                <div className="circles-section-minimal">
+                    <div className="section-title-minimal">
                         <h3>Available Circles</h3>
-                        <p>Each circle is a dedicated space for specific discussions, projects, or interests.</p>
+                        <p>Join focused discussion spaces within this hub.</p>
                     </div>
 
-                    <div className="circle-grid">
+                    <div className="circle-grid-minimal">
                         {selectedCommunity.circles.map((circle) => {
                             const isMember = circle.members?.includes(user?._id);
                             const isPrivate = circle.privacyType === 'private';
                             const hasCircleModAccess = isModerator(circle);
 
                             return (
-                                <div key={circle._id} className="circle-card">
-                                    <div className="circle-info">
-                                        <div className="circle-avatar">{circle.name?.charAt(0)}</div>
-                                        <div>
+                                <div key={circle._id} className="circle-card-minimal">
+                                    <div className="circle-info-minimal">
+                                        <div className="circle-text-minimal">
                                             <h4>{circle.name}</h4>
-                                            <p>{circle.description || 'Explore this circle'}</p>
+                                            <p>{circle.description || 'No description available.'}</p>
                                         </div>
                                     </div>
-                                    <div className="circle-meta">
-                                        <span className="circle-member-count">{circle.members?.length || 0} members</span>
-                                        {isPrivate && <span className="circle-privacy-tag">🔒 Private</span>}
-                                    </div>
-                                    <div className="circle-actions">
-                                        {hasCircleModAccess && (
-                                            <div className="circle-mod-actions">
-                                                <button className="mod-action-btn" onClick={() => handleOpenManageMembers(circle._id, 'group', circle.name)} title="Manage Members">
-                                                    <FaUsers />
+                                    
+                                    <div className="circle-footer-minimal">
+                                        <div className="circle-meta-minimal">
+                                            <span className="circle-member-count-minimal">{circle.members?.length || 0} members</span>
+                                            {isPrivate && <span className="circle-privacy-tag-minimal">Private</span>}
+                                        </div>
+                                        
+                                        <div className="circle-actions-minimal">
+                                            {hasCircleModAccess && (
+                                                <div className="circle-mod-actions-minimal">
+                                                    <button className="mod-action-btn-minimal" onClick={() => handleOpenManageMembers(circle._id, 'group', circle.name)} title="Manage Mod">
+                                                        <FaUsers />
+                                                    </button>
+                                                    <button className="mod-action-btn-minimal delete" onClick={() => handleDeleteCircle(circle._id)} title="Delete Circle">
+                                                        <FaTrash />
+                                                    </button>
+                                                </div>
+                                            )}
+                                            {isMember ? (
+                                                <button className="joined-btn-minimal" onClick={() => navigate(`/chat?u=${circle._id}&type=group`)}>Enter Chat</button>
+                                            ) : (
+                                                <button 
+                                                    className={isPrivate ? "join-btn-minimal private" : "join-btn-minimal public"} 
+                                                    onClick={() => handleJoinRequest(circle._id)}
+                                                >
+                                                    {isPrivate ? 'Request Access' : 'Join Instantly'}
                                                 </button>
-                                                <button className="mod-action-btn delete" onClick={() => handleDeleteCircle(circle._id)} title="Delete Circle">
-                                                    <FaTrash />
-                                                </button>
-                                            </div>
-                                        )}
-                                        {isMember ? (
-                                            <button className="joined-btn" onClick={() => navigate(`/chat?u=${circle._id}&type=group`)}>Enter Chat</button>
-                                        ) : (
-                                            <button 
-                                                className={isPrivate ? "request-btn" : "join-btn"} 
-                                                onClick={() => handleJoinRequest(null, circle._id)}
-                                            >
-                                                {isPrivate ? 'Request Access' : 'Join Instantly'}
-                                            </button>
-                                        )}
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             );
@@ -283,11 +264,10 @@ const CommunityHub = () => {
     };
 
     return (
-        <div className="community-hub-page">
-            <div className="hub-content">
-                <div className="hub-hero">
-                    <h1>Academic Communities</h1>
-                    <p>Join your institution and connect with peers in specialized circles.</p>
+        <div className="community-hub-page-minimal">
+            <div className="hub-content-minimal">
+                <div className="hub-hero-minimal">
+                    <h1>Hub Explorer</h1>
                 </div>
 
                 {loading ? (
@@ -358,29 +338,26 @@ const CommunityHub = () => {
                             <button className="close-modal" onClick={() => setShowManageModal(false)}>✕</button>
                         </div>
                         <div className="member-list-manage">
-                            {members.length > 0 ? members.map((m) => {
-                                const isBanned = false; // Need to check against bannedUsers if populated
-                                return (
-                                    <div key={m._id} className="member-manage-card">
-                                        <div className="member-info-hub">
-                                            <img src={m.avatar || 'https://via.placeholder.com/40'} alt="" />
-                                            <div>
-                                                <p className="name">{m.name}</p>
-                                                <p className="username">@{m.username}</p>
-                                            </div>
+                            {members.length === 0 ? (
+                                <div className="empty-msg-minimal">No users found.</div>
+                            ) : (
+                                members.map(m => (
+                                    <div key={m._id} className="member-manage-card-minimal">
+                                        <div className="member-info-minimal">
+                                            <div className="name">{m.name}</div>
+                                            <div className="username">@{m.username}</div>
                                         </div>
-                                        <div className="member-actions-hub">
+                                        {m._id !== user._id && !m.roles?.includes('admin') && (
                                             <button 
-                                                className={`ban-btn-hub ${isBanned ? 'banned' : ''}`}
+                                                className={`ban-btn-minimal ${manageTarget.type === 'community' ? m.bannedUsers?.includes(manageTarget.id) : false ? 'banned' : ''}`}
                                                 onClick={() => handleToggleBan(m._id)}
                                             >
-                                                <FaBan /> {isBanned ? 'Unban' : 'Ban'}
+                                                <FaBan />
+                                                Toggle Ban
                                             </button>
-                                        </div>
+                                        )}
                                     </div>
-                                );
-                            }) : (
-                                <p className="empty-msg">No members found.</p>
+                                ))
                             )}
                         </div>
                     </div>
