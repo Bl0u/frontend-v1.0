@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { FaPlus, FaTrash, FaEdit, FaSave, FaUsers, FaLayerGroup, FaHashtag, FaGlobe, FaCogs } from 'react-icons/fa';
@@ -20,6 +21,9 @@ const AdminCommunities = ({ user }) => {
 
     const [editingConfig, setEditingConfig] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null); // { type: 'community'|'group', id, groupId?, name }
+    const [requestModal, setRequestModal] = useState(null); // { type: 'community'|'group', id, name }
+    const [pendingRequests, setPendingRequests] = useState([]);
+    const [requestLoading, setRequestLoading] = useState(false);
 
     useEffect(() => {
         if (user?.token) {
@@ -84,6 +88,19 @@ const AdminCommunities = ({ user }) => {
         }
     };
 
+    const handleDeleteConfig = async (configId) => {
+        if (!window.confirm('Are you sure you want to delete this group type?')) return;
+        try {
+            await axios.delete(`${API_BASE_URL}/api/admin/group-configs/${configId}`, {
+                headers: { Authorization: `Bearer ${user.token}` }
+            });
+            toast.success('Group type deleted');
+            fetchData();
+        } catch (error) {
+            toast.error('Failed to delete group type');
+        }
+    };
+
     const handleDeleteCommunity = async (commId) => {
         try {
             await axios.delete(`${API_BASE_URL}/api/admin/communities/${commId}`, {
@@ -107,6 +124,39 @@ const AdminCommunities = ({ user }) => {
             fetchData();
         } catch (error) {
             toast.error('Failed to remove group');
+        }
+    };
+
+    const openRequestModal = async (type, id, name) => {
+        setRequestModal({ type, id, name });
+        setRequestLoading(true);
+        try {
+            const { data } = await axios.get(`${API_BASE_URL}/api/requests/received`, {
+                headers: { Authorization: `Bearer ${user.token}` }
+            });
+            // Filter requests for this specific community or group
+            const filtered = data.filter(req => 
+                req.status === 'pending' && 
+                (type === 'community' ? req.community === id : req.groupChat?._id === id)
+            );
+            setPendingRequests(filtered);
+        } catch (error) {
+            toast.error('Failed to fetch requests');
+        } finally {
+            setRequestLoading(false);
+        }
+    };
+
+    const handleRespond = async (requestId, status) => {
+        try {
+            await axios.put(`${API_BASE_URL}/api/requests/${requestId}/respond`, { status }, {
+                headers: { Authorization: `Bearer ${user.token}` }
+            });
+            toast.success(`Request ${status}`);
+            // Update local state
+            setPendingRequests(prev => prev.filter(r => r._id !== requestId));
+        } catch (error) {
+            toast.error('Action failed');
         }
     };
 
@@ -156,19 +206,27 @@ const AdminCommunities = ({ user }) => {
                                             <p className="text-sm text-gray-400 font-medium">{comm.description}</p>
                                         </div>
                                     </div>
-                                    <button
-                                        onClick={() => { setSelectedCommId(comm._id); setIsCreateGroupOpen(true); }}
-                                        className="bg-indigo-50 text-indigo-600 p-3 rounded-xl hover:bg-indigo-600 hover:text-white transition-all shadow-sm"
-                                    >
-                                        <FaPlus />
-                                    </button>
-                                    <button
-                                        onClick={() => setDeleteConfirm({ type: 'community', id: comm._id, name: comm.name })}
-                                        className="bg-red-50 text-red-400 p-3 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm"
-                                        title="Delete Community"
-                                    >
-                                        <FaTrash />
-                                    </button>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => openRequestModal('community', comm._id, comm.name)}
+                                            className="bg-orange-50 text-orange-600 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-orange-600 hover:text-white transition-all shadow-sm flex items-center gap-2"
+                                        >
+                                            <FaUsers /> Requests
+                                        </button>
+                                        <button
+                                            onClick={() => { setSelectedCommId(comm._id); setIsCreateGroupOpen(true); }}
+                                            className="bg-indigo-50 text-indigo-600 p-3 rounded-xl hover:bg-indigo-600 hover:text-white transition-all shadow-sm"
+                                        >
+                                            <FaPlus />
+                                        </button>
+                                        <button
+                                            onClick={() => setDeleteConfirm({ type: 'community', id: comm._id, name: comm.name })}
+                                            className="bg-red-50 text-red-400 p-3 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm"
+                                            title="Delete Community"
+                                        >
+                                            <FaTrash />
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div className="space-y-4">
@@ -184,7 +242,13 @@ const AdminCommunities = ({ user }) => {
                                                     <div className="text-[9px] font-black uppercase tracking-widest text-indigo-400">{g.groupType}</div>
                                                 </div>
                                             </div>
-                                            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <div className="flex items-center gap-2 transition-opacity">
+                                                <button
+                                                    onClick={() => openRequestModal('group', g._id, g.name)}
+                                                    className="bg-orange-50 text-orange-600 px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest hover:bg-orange-600 hover:text-white transition-all shadow-sm"
+                                                >
+                                                    Requests
+                                                </button>
                                                 <button
                                                     onClick={() => setDeleteConfirm({ type: 'group', id: comm._id, groupId: g._id, name: g.name })}
                                                     className="p-2 text-gray-400 hover:text-red-500"
@@ -225,7 +289,10 @@ const AdminCommunities = ({ user }) => {
                                         </div>
                                         <div className="text-lg font-black text-gray-800">{config.groupType}</div>
                                     </div>
-                                    <button onClick={() => setEditingConfig(config)} className="text-gray-300 hover:text-indigo-600"><FaEdit /></button>
+                                    <div className="flex items-center gap-2">
+                                        <button onClick={() => setEditingConfig(config)} className="text-gray-300 hover:text-indigo-600"><FaEdit /></button>
+                                        <button onClick={() => handleDeleteConfig(config._id)} className="text-gray-300 hover:text-red-500"><FaTrash size={12} /></button>
+                                    </div>
                                 </div>
                                 <div className="space-y-4">
                                     <div className="flex flex-wrap gap-2">
@@ -455,6 +522,67 @@ const AdminCommunities = ({ user }) => {
                             >
                                 Delete Permanently
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Join Request Manager Modal */}
+            {requestModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+                    <div className="bg-white w-full max-w-2xl rounded-[2.5rem] p-8 space-y-6 animate-in slide-in-from-bottom-5">
+                        <div className="flex justify-between items-center">
+                            <div>
+                                <h3 className="text-xl font-black text-gray-800 uppercase tracking-tight">Join Requests</h3>
+                                <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">{requestModal.name}</p>
+                            </div>
+                            <button onClick={() => setRequestModal(null)} className="p-2 hover:bg-gray-100 rounded-full transition-colors"><FaTimes /></button>
+                        </div>
+
+                        <div className="max-h-[60vh] overflow-y-auto space-y-4 pr-2 custom-scrollbar">
+                            {requestLoading ? (
+                                <div className="py-12 text-center text-gray-400 text-xs font-black uppercase animate-pulse">Scanning Applications...</div>
+                            ) : pendingRequests.length === 0 ? (
+                                <div className="py-12 text-center">
+                                    <div className="text-indigo-100 mb-4"><FaUsers size={48} className="mx-auto" /></div>
+                                    <p className="text-gray-400 text-xs font-bold uppercase">No pending requests for this {requestModal.type}</p>
+                                </div>
+                            ) : (
+                                pendingRequests.map(req => (
+                                    <div key={req._id} className="p-4 bg-gray-50 rounded-2xl border border-gray-100 flex items-center justify-between group hover:border-indigo-200 transition-all">
+                                        <div className="flex items-center gap-4">
+                                            <img src={req.sender?.profilePicture || 'https://via.placeholder.com/40'} alt="" className="w-10 h-10 rounded-full bg-indigo-100" />
+                                            <div>
+                                                <div className="text-sm font-black text-gray-800">{req.sender?.name}</div>
+                                                <div className="text-[9px] font-bold text-gray-400">@{req.sender?.username}</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="flex items-center gap-2">
+                                            <Link 
+                                                to={`/profile/${req.sender?._id}`} 
+                                                className="px-4 py-2 bg-white text-indigo-600 text-[10px] font-black uppercase rounded-xl border border-gray-100 hover:border-indigo-600 transition-all"
+                                                target="_blank"
+                                            >
+                                                Profile
+                                            </Link>
+                                            <button 
+                                                onClick={() => handleRespond(req._id, 'rejected')}
+                                                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                                                title="Reject"
+                                            >
+                                                <FaTimes />
+                                            </button>
+                                            <button 
+                                                onClick={() => handleRespond(req._id, 'accepted')}
+                                                className="bg-indigo-600 text-white px-6 py-2 rounded-xl text-[10px] font-black uppercase shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all"
+                                            >
+                                                Accept
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
                         </div>
                     </div>
                 </div>
