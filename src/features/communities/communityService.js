@@ -31,10 +31,70 @@ const requestJoin = async (communityId, circleId, token) => {
     return response.data;
 };
 
+// Create a group (Decentralized)
+const createCircle = async (communityId, groupData, token) => {
+    const config = {
+        headers: { Authorization: `Bearer ${token}` }
+    };
+    const response = await axios.post(`${API_BASE_URL}/api/communities/${communityId}/groups`, groupData, config);
+    return response.data;
+};
+
+// Delete a group (Decentralized)
+const deleteCircle = async (groupId, token) => {
+    const config = {
+        headers: { Authorization: `Bearer ${token}` }
+    };
+    const response = await axios.delete(`${API_BASE_URL}/api/communities/groups/${groupId}`, config);
+    return response.data;
+};
+
+// Get members for management
+const getMembers = async (id, type, token) => {
+    const config = {
+        headers: { Authorization: `Bearer ${token}` }
+    };
+    const response = await axios.get(`${API_BASE_URL}/api/communities/${id}/members?type=${type}`, config);
+    return response.data;
+};
+
+// Toggle ban
+const toggleBan = async (id, type, userId, token) => {
+    const config = {
+        headers: { Authorization: `Bearer ${token}` }
+    };
+    const response = await axios.put(`${API_BASE_URL}/api/communities/${id}/ban`, { type, userId }, config);
+    return response.data;
+};
+
+// Get joined communities/groups
+const getJoinedContent = async (token) => {
+    const config = {
+        headers: { Authorization: `Bearer ${token}` }
+    };
+    const response = await axios.get(`${API_BASE_URL}/api/communities/joined`, config);
+    return response.data;
+};
+
+// Get moderated communities/groups
+const getModeratedContent = async (token) => {
+    const config = {
+        headers: { Authorization: `Bearer ${token}` }
+    };
+    const response = await axios.get(`${API_BASE_URL}/api/communities/moderated`, config);
+    return response.data;
+};
+
 const communityService = {
     getCommunities,
     getCommunity,
-    requestJoin
+    requestJoin,
+    createCircle,
+    deleteCircle,
+    getMembers,
+    toggleBan,
+    getModeratedContent,
+    getJoinedContent
 };
 
 export default communityService;

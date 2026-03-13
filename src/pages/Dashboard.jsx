@@ -10,6 +10,7 @@ import { FiZap } from 'react-icons/fi';
 import requestService from '../features/requests/requestService';
 import planService from '../features/plans/planService';
 import resourceService from '../features/resources/resourceService';
+import communityService from '../features/communities/communityService';
 import { FilterBar } from '../components/FilterBar';
 
 const SUGGESTION_LISTS = {
@@ -41,6 +42,11 @@ const Dashboard = () => {
     const [projects, setProjects] = useState([]);
     const [loadingThreads, setLoadingThreads] = useState(false);
     const [loadingProjects, setLoadingProjects] = useState(false);
+
+    // Communities State
+    const [myCommunities, setMyCommunities] = useState({ communities: [], groups: [] });
+    const [moderatedContent, setModeratedContent] = useState({ communities: [], groups: [] });
+    const [loadingCommunities, setLoadingCommunities] = useState(false);
 
     // Contributions Filters
     const [activeFilters, setActiveFilters] = useState({});
@@ -175,21 +181,25 @@ const Dashboard = () => {
         }
     }, [activeTab, currentUser]);
 
-    // Fetch Projects
+    // Fetch Communities
     useEffect(() => {
-        if ((activeTab === 'home' || activeTab === 'projects') && currentUser) {
-            const fetchProjects = async () => {
-                setLoadingProjects(true);
+        if (activeTab === 'communities' && currentUser) {
+            const fetchCommunitiesData = async () => {
+                setLoadingCommunities(true);
                 try {
-                    const data = await requestService.getMyProjects(currentUser.token);
-                    setProjects(data);
+                    const [joined, moderated] = await Promise.all([
+                        communityService.getJoinedContent(currentUser.token),
+                        communityService.getModeratedContent(currentUser.token)
+                    ]);
+                    setMyCommunities(joined);
+                    setModeratedContent(moderated);
                 } catch (error) {
-                    toast.error('Failed to load projects');
+                    toast.error('Failed to load communities');
                 } finally {
-                    setLoadingProjects(false);
+                    setLoadingCommunities(false);
                 }
             };
-            fetchProjects();
+            fetchCommunitiesData();
         }
     }, [activeTab, currentUser]);
 

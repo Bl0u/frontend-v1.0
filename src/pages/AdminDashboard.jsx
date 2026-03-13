@@ -7,7 +7,6 @@ import '../styles/AdminDashboard.css';
 import SearchableDropdown from '../components/SearchableDropdown';
 import PitchConfigManager from '../components/PitchConfigManager';
 import PitchModuleManager from '../components/PitchModuleManager';
-import AdminCommunities from '../components/AdminCommunities';
 import PromoteLeadGroupsModal from '../components/PromoteLeadGroupsModal';
 
 // ───────────────────────────────────────
@@ -41,6 +40,7 @@ const AdminDashboard = () => {
     const [reports, setReports] = useState([]);
     const [payments, setPayments] = useState({ payments: [], total: 0, page: 1, totalPages: 1 });
     const [recruitment, setRecruitment] = useState([]);
+    const [communities, setCommunities] = useState([]);
 
     // — UI state —
     const [userSearch, setUserSearch] = useState('');
@@ -176,6 +176,18 @@ const AdminDashboard = () => {
         }
     }, [user?.token, recruitmentFilter]);
 
+    const fetchCommunities = useCallback(async () => {
+        setLoading(true);
+        try {
+            const data = await adminService.getCommunities(user.token);
+            setCommunities(data);
+        } catch (err) {
+            toast.error('Failed to load communities');
+        } finally {
+            setLoading(false);
+        }
+    }, [user?.token]);
+
     // Fetch data when tab changes
     useEffect(() => {
         if (!user?.token || !user.roles?.includes('admin')) return;
@@ -186,7 +198,7 @@ const AdminDashboard = () => {
             case 'reports': fetchReports(); break;
             case 'payments': fetchPayments(); break;
             case 'recruitment': fetchRecruitment(); break;
-            case 'hub_setup': /* No specific fetch needed as component handles it */ break;
+            case 'communities': fetchCommunities(); break;
         }
     }, [activeTab, user?.token]);
 
@@ -292,6 +304,30 @@ const AdminDashboard = () => {
             toast.error(err.response?.data?.message || 'Reset failed');
         } finally {
             setResetLoading(false);
+        }
+    };
+
+    const handleDeleteCommunity = async (commId) => {
+        if (!window.confirm('Are you sure you want to delete this community? This will delete all groups and messages inside it.')) return;
+        try {
+            const data = await adminService.deleteCommunity(user.token, commId);
+            toast.success(data.message);
+            fetchCommunities();
+        } catch (err) {
+            toast.error('Failed to delete community');
+        }
+    };
+
+    const handleRunGenerator = async () => {
+        setLoading(true);
+        try {
+            const data = await adminService.runHubGenerator(user.token);
+            toast.success(data.message);
+            toast.info(data.summary);
+        } catch (err) {
+            toast.error('Generator failed');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -795,6 +831,115 @@ const AdminDashboard = () => {
         </>
     );
 
+    const renderCommunities = () => (
+        <>
+            <div className="admin-search-bar">
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#001E80', margin: 0 }}>Global Communities</h2>
+                <div style={{ flex: 1 }} />
+                <button 
+                    className="admin-btn primary" 
+                    onClick={() => toast.info('Use Hub Setup to generate base hubs or contact devs for manual entry')}
+                >
+                    Manual Creation Disabled
+                </button>
+            </div>
+
+            {loading ? (
+                <div className="admin-loading"><div className="admin-spinner" /> Loading communities...</div>
+            ) : communities.length === 0 ? (
+                <div className="admin-empty">
+                    <div className="admin-empty-icon">🌐</div>
+                    <div className="admin-empty-text">No communities found. Use Hub Setup to initialize.</div>
+                </div>
+            ) : (
+                <div className="admin-table-wrapper">
+                    <table className="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Community Name</th>
+                                <th>Creator</th>
+                                <th>Moderators</th>
+                                <th>Groups</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {communities.map((comm) => (
+                                <tr key={comm._id}>
+                                    <td>
+                                        <div style={{ fontWeight: 800, color: '#010D3E' }}>{comm.name}</div>
+                                        <div style={{ fontSize: '10px', color: 'rgba(0,0,0,0.4)', fontWeight: 600 }}>{comm.privacyType || 'public'}</div>
+                                    </td>
+                                    <td>
+                                        <span style={{ fontSize: '12px', fontWeight: 600 }}>@{comm.creator?.username || 'System'}</span>
+                                    </td>
+                                    <td>
+                                        <span className="admin-badge info" style={{ fontSize: '10px' }}>
+                                            {comm.moderators?.length || 0} Mods
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span className="admin-badge neutral" style={{ fontSize: '10px' }}>
+                                            {comm.groups?.length || 0} Circles
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div className="admin-actions">
+                                            <button 
+                                                className="admin-btn primary" 
+                                                onClick={() => navigate(`/communities/${comm._id}`)}
+                                            >
+                                                View
+                                            </button>
+                                            <button 
+                                                className="admin-btn danger" 
+                                                onClick={() => handleDeleteCommunity(comm._id)}
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+        </>
+    );
+
+    const renderHubSetup = () => (
+        <div className="admin-danger-zone" style={{ background: '#EAEEFE', borderColor: '#001E80' }}>
+            <h3 style={{ color: '#001E80' }}>Platform Hub Setup</h3>
+            <p style={{ color: '#010D3E', fontWeight: 500 }}>
+                This tool initializes the core institutional hubs (Cairo Uni, Ain Shams, etc.) and their base academic circles. 
+                Running this will skip any existing hubs and only create missing ones.
+            </p>
+            
+            <div style={{ marginTop: 24, display: 'flex', gap: 16, alignItems: 'center' }}>
+                <button
+                    className="admin-btn primary"
+                    style={{ padding: '12px 32px', background: '#001E80', boxShadow: '0 10px 20px rgba(0,30,128,0.2)' }}
+                    onClick={handleRunGenerator}
+                    disabled={loading}
+                >
+                    {loading ? 'Generating...' : 'Run Base Hub Generator'}
+                </button>
+                {loading && <div className="admin-spinner" style={{ width: 20, height: 20, borderWidth: 2 }} />}
+            </div>
+
+            <div style={{ marginTop: 32, padding: 20, background: 'white', borderRadius: 20, border: '1px solid rgba(0,30,128,0.1)' }}>
+                <h4 style={{ margin: '0 0 12px 0', fontSize: '12px', fontWeight: 900, textTransform: 'uppercase', color: 'rgba(0,30,128,0.5)', letterSpacing: 1 }}>Static Configurations</h4>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                    <span className="admin-badge neutral">6 Universities</span>
+                    <span className="admin-badge neutral">5 Circles / Uni</span>
+                    <span className="admin-badge neutral">Public Privacy</span>
+                    <span className="admin-badge neutral">Official Status</span>
+                </div>
+            </div>
+        </div>
+    );
+
     // ───────────────────────────────────────
     // MAIN RENDER
     // ───────────────────────────────────────
@@ -833,8 +978,8 @@ const AdminDashboard = () => {
             {activeTab === 'payments' && renderPayments()}
             {activeTab === 'recruitment' && renderRecruitment()}
             {activeTab === 'pitches' && <PitchModuleManager token={user.token} />}
-            {activeTab === 'communities' && <AdminCommunities user={user} />}
-            {activeTab === 'hub_setup' && <PitchConfigManager user={user} />}
+            {activeTab === 'communities' && renderCommunities()}
+            {activeTab === 'hub_setup' && renderHubSetup()}
 
             {/* Stars Modal */}
             {starsModal && (

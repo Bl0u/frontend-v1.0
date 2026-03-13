@@ -173,6 +173,10 @@ const Sidebar = () => {
                         <span className="sidebar-link-icon"><FiActivity /></span>
                         <span className="sidebar-link-text">Contributions</span>
                     </Link>
+                    <Link to="/home?tab=communities" className={`sidebar-link ${isActiveDashboardTab('communities') ? 'active' : ''}`}>
+                        <span className="sidebar-link-icon"><FiHash className="text-indigo-500" /></span>
+                        <span className="sidebar-link-text">My Communities</span>
+                    </Link>
 
                     {/* My Activity Accordion */}
                     <div className="sidebar-accordion">

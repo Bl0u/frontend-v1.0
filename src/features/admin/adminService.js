@@ -116,6 +116,27 @@ const deletePitch = async (token, pitchId) => {
     return res.data;
 };
 
+// Communities
+const getCommunities = async (token) => {
+    const res = await axios.get(`${API_BASE_URL}/api/admin/communities`, getConfig(token));
+    return res.data;
+};
+
+const createCommunity = async (token, data) => {
+    const res = await axios.post(`${API_BASE_URL}/api/admin/communities`, data, getConfig(token));
+    return res.data;
+};
+
+const deleteCommunity = async (token, commId) => {
+    const res = await axios.delete(`${API_BASE_URL}/api/admin/communities/${commId}`, getConfig(token));
+    return res.data;
+};
+
+const runHubGenerator = async (token) => {
+    const res = await axios.post(`${API_BASE_URL}/api/admin/communities/generator`, {}, getConfig(token));
+    return res.data;
+};
+
 const adminService = {
     getStats,
     getUsers,
@@ -135,7 +156,11 @@ const adminService = {
     getPitchConfig,
     updatePitchConfig,
     getPitches,
-    deletePitch
+    deletePitch,
+    getCommunities,
+    createCommunity,
+    deleteCommunity,
+    runHubGenerator
 };
 
 export default adminService;
