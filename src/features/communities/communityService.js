@@ -24,8 +24,7 @@ const requestJoin = async (communityId, circleId, token) => {
     const payload = {
         type: 'community_join',
         community: communityId,
-        groupChat: circleId,
-        message: circleId ? 'Requested to join Circle' : 'Requested to join Community'
+        groupChat: circleId
     };
 
     const response = await axios.post(`${API_BASE_URL}/api/requests`, payload, config);

@@ -44,8 +44,20 @@ const CommunityHub = () => {
             return;
         }
         try {
-            await communityService.requestJoin(communityId, circleId, user.token);
-            toast.success('Join request sent!');
+            const data = await communityService.requestJoin(communityId, circleId, user.token);
+
+            if (data.status === 'joined') {
+                toast.success('Joined instantly! 🚀');
+                // Refresh to show "Enter Chat"
+                if (selectedCommunity) {
+                    handleSelectCommunity(selectedCommunity.community);
+                } else {
+                    const updated = await communityService.getCommunities();
+                    setCommunities(updated);
+                }
+            } else {
+                toast.success('Join request sent! ⏳');
+            }
         } catch (error) {
             toast.error(error.response?.data?.message || 'Failed to send request');
         }
@@ -53,24 +65,35 @@ const CommunityHub = () => {
 
     const renderCommunityList = () => (
         <div className="community-grid">
-            {communities.map((c) => (
-                <div key={c._id} className="community-card" onClick={() => handleSelectCommunity(c)}>
-                    <div className="community-banner">
-                        <img src={c.avatar || 'https://via.placeholder.com/400x120'} alt={c.name} />
-                        {c.privacyType === 'private' && (
-                            <div className="privacy-badge private">Private</div>
-                        )}
-                    </div>
-                    <div className="community-content">
-                        <h3>{c.name}</h3>
-                        <p>{c.description || 'No description provided.'}</p>
-                        <div className="community-footer">
-                            <span className="members-count">{c.members?.length || 0} Members</span>
-                            <button className="view-btn">Explore Circles</button>
+            {communities.map((c) => {
+                const isMember = c.members?.includes(user?._id);
+                return (
+                    <div key={c._id} className="community-card" onClick={() => handleSelectCommunity(c)}>
+                        <div className="community-banner">
+                            <img src={c.avatar || 'https://via.placeholder.com/400x120'} alt={c.name} />
+                            {c.privacyType === 'private' && (
+                                <div className="privacy-badge private">Private</div>
+                            )}
+                        </div>
+                        <div className="community-content">
+                            <h3>{c.name}</h3>
+                            <p>{c.description || 'No description provided.'}</p>
+                            <div className="community-footer">
+                                <span className="members-count">{c.members?.length || 0} Members</span>
+                                <div className="flex gap-2">
+                                    {isMember ? (
+                                        <button className="view-btn">Explore Circles</button>
+                                    ) : c.privacyType === 'public' ? (
+                                        <button className="join-hub-btn" onClick={(e) => { e.stopPropagation(); handleJoinRequest(c._id); }}>Join Hub</button>
+                                    ) : (
+                                        <button className="request-hub-btn" onClick={(e) => { e.stopPropagation(); handleJoinRequest(c._id); }}>Request Access</button>
+                                    )}
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            ))}
+                );
+            })}
             {communities.length === 0 && (
                 <div className="empty-communities">
                     <h3>No Communities Yet</h3>

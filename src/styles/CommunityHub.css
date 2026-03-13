@@ -306,6 +306,40 @@
     white-space: nowrap;
 }
 
+.join-hub-btn, .request-hub-btn {
+    padding: 0.8rem 1.5rem;
+    border-radius: 1rem;
+    font-family: 'Zuume-Bold';
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.join-hub-btn {
+    background: #001E80;
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 30, 128, 0.2);
+}
+
+.join-hub-btn:hover {
+    transform: translateY(-2px);
+    background: #00124d;
+    box-shadow: 0 6px 20px rgba(0, 30, 128, 0.3);
+}
+
+.request-hub-btn {
+    background: #f0f4ff;
+    color: #001E80;
+    border: 1px solid #e0e7ff;
+}
+
+.request-hub-btn:hover {
+    background: #e0e7ff;
+}
+
 .join-btn {
     background: #001E80;
     color: white;
