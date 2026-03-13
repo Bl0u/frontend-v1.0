@@ -97,13 +97,20 @@ const AdminDashboard = () => {
 
     const LEVELS = ['Level 1', 'Level 2', 'Level 3', 'Level 4', 'Graduated'];
 
-    // Guard: redirect if not admin
+    // Guard: redirect if not admin or moderator
     useEffect(() => {
-        if (user && !user.roles?.includes('admin')) {
+        if (user && !user.roles?.includes('admin') && !user.roles?.includes('moderator')) {
             navigate('/home');
             toast.error('Access denied');
         }
     }, [user, navigate]);
+
+    // Force moderator to stay on communities tab
+    useEffect(() => {
+        if (user && !user.roles?.includes('admin') && user.roles?.includes('moderator')) {
+            if (activeTab !== 'communities') setActiveTab('communities');
+        }
+    }, [user, activeTab]);
 
     // ───────────────────────────────────────
     // DATA FETCHING
@@ -218,7 +225,11 @@ const AdminDashboard = () => {
 
     // Fetch data when tab changes
     useEffect(() => {
-        if (!user?.token || !user.roles?.includes('admin')) return;
+        if (!user?.token || (!user.roles?.includes('admin') && !user.roles?.includes('moderator'))) return;
+        
+        // Moderators only fetch communities
+        if (!user.roles?.includes('admin') && activeTab !== 'communities') return;
+
         switch (activeTab) {
             case 'overview': fetchStats(); break;
             case 'users': fetchUsers(); break;
@@ -442,6 +453,42 @@ const AdminDashboard = () => {
         }
     };
 
+    const handleToggleCommunityPrivacy = async (comm) => {
+        const canToggle = user.roles?.includes('admin') || user.roles?.includes('moderator');
+        if (!canToggle) return toast.error('Only platform admins/moderators can change privacy');
+        
+        const newPrivacy = comm.privacyType === 'public' ? 'private' : 'public';
+        try {
+            const data = await adminService.updateCommunity(user.token, comm._id, { privacyType: newPrivacy });
+            toast.success(`Community is now ${newPrivacy}`);
+            fetchCommunities();
+            setManageCommModal(data.community);
+        } catch (error) {
+            toast.error('Failed to update privacy');
+        }
+    };
+
+    const handleToggleGroupPrivacy = async (group) => {
+        const canToggle = user.roles?.includes('admin') || user.roles?.includes('moderator');
+        if (!canToggle) return toast.error('Only platform admins/moderators can change privacy');
+        
+        const newPrivacy = group.privacyType === 'public' ? 'private' : 'public';
+        try {
+            await adminService.updateGroup(user.token, group._id, { privacyType: newPrivacy });
+            toast.success(`Group is now ${newPrivacy}`);
+            fetchCommunities();
+            // Update the local modal state to reflect the change
+            setViewGroupsModal(prev => {
+                const updatedGroups = prev.groups.map(g => 
+                    g._id === group._id ? { ...g, privacyType: newPrivacy } : g
+                );
+                return { ...prev, groups: updatedGroups };
+            });
+        } catch (error) {
+            toast.error('Failed to update privacy');
+        }
+    };
+
     // ───────────────────────────────────────
     // HELPERS
     // ───────────────────────────────────────
@@ -452,12 +499,14 @@ const AdminDashboard = () => {
     const pendingReportsCount = stats?.pendingReports || 0;
     const pendingRecruitmentCount = stats?.pendingRecruitment || 0;
 
-    if (!user || !user.roles?.includes('admin')) return null;
+    if (!user || (!user.roles?.includes('admin') && !user.roles?.includes('moderator'))) return null;
 
     // ───────────────────────────────────────
     // RENDER: OVERVIEW
     // ───────────────────────────────────────
     const renderOverview = () => {
+        if (!user.roles?.includes('admin')) return null;
+
         if (!stats) return <div className="admin-loading"><div className="admin-spinner" /> Loading stats...</div>;
 
         const heroCards = [
@@ -1064,7 +1113,18 @@ const AdminDashboard = () => {
                                                 </div>
                                             </td>
                                             <td><span className="admin-badge info" style={{ fontSize: '9px' }}>{g.groupType}</span></td>
-                                            <td><span className="admin-badge neutral" style={{ fontSize: '9px' }}>{g.privacyType || 'public'}</span></td>
+                                            <td>
+                                                <div className="flex items-center gap-2">
+                                                    <div 
+                                                        className={`w-8 h-4 rounded-full relative cursor-pointer transition-all ${g.privacyType === 'private' ? 'bg-[#F59E0B]' : 'bg-[#10B981]'}`}
+                                                        onClick={() => handleToggleGroupPrivacy(g)}
+                                                        title="Toggle Privacy"
+                                                    >
+                                                        <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${g.privacyType === 'private' ? 'left-4.5' : 'left-0.5'}`} />
+                                                    </div>
+                                                    <span className="admin-badge neutral" style={{ fontSize: '9px' }}>{g.privacyType || 'public'}</span>
+                                                </div>
+                                            </td>
                                             <td>
                                                 <button 
                                                     className="admin-btn primary"
@@ -1102,7 +1162,22 @@ const AdminDashboard = () => {
                                     <span className="text-[9px] font-black uppercase text-indigo-400">{manageCommModal.privacyType} Hub</span>
                                 </div>
                                 
-                                <button className="admin-btn primary !text-[9px] !py-3 w-full" onClick={() => navigate(`/communities/${manageCommModal._id}`)}>Public View</button>
+                                <div className="space-y-4">
+                                    <div className="p-4 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                                        <div className="flex justify-between items-center mb-1">
+                                            <span className="text-[10px] font-black uppercase text-gray-400">Privacy Mode</span>
+                                            <div 
+                                                className={`w-10 h-5 rounded-full relative cursor-pointer transition-all ${manageCommModal.privacyType === 'private' ? 'bg-[#F59E0B]' : 'bg-[#10B981]'}`}
+                                                onClick={() => handleToggleCommunityPrivacy(manageCommModal)}
+                                            >
+                                                <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${manageCommModal.privacyType === 'private' ? 'left-6' : 'left-1'}`} />
+                                            </div>
+                                        </div>
+                                        <div className="text-[9px] font-bold text-gray-500 capitalize">{manageCommModal.privacyType}</div>
+                                    </div>
+                                    
+                                    <button className="admin-btn primary !text-[9px] !py-3 w-full" onClick={() => navigate(`/communities/${manageCommModal._id}`)}>Public View</button>
+                                </div>
                             </div>
 
                             {/* Main Content */}

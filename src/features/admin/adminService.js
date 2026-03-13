@@ -132,6 +132,16 @@ const deleteCommunity = async (token, commId) => {
     return res.data;
 };
 
+const updateCommunity = async (token, commId, data) => {
+    const res = await axios.put(`${API_BASE_URL}/api/admin/communities/${commId}`, data, getConfig(token));
+    return res.data;
+};
+
+const updateGroup = async (token, groupId, data) => {
+    const res = await axios.put(`${API_BASE_URL}/api/admin/communities/groups/${groupId}`, data, getConfig(token));
+    return res.data;
+};
+
 const runHubGenerator = async (token) => {
     const res = await axios.post(`${API_BASE_URL}/api/admin/communities/generator`, {}, getConfig(token));
     return res.data;
@@ -160,6 +170,8 @@ const adminService = {
     getCommunities,
     createCommunity,
     deleteCommunity,
+    updateCommunity,
+    updateGroup,
     runHubGenerator
 };
 
