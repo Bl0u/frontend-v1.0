@@ -1,0 +1,431 @@
+/* ─── CommunityHub.css ─── */
+
+.community-hub-page {
+    background: #f8f9fa;
+    min-height: 100vh;
+    padding-top: 80px;
+    padding-left: 250px;
+}
+
+.hub-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+/* ─── Hero ─── */
+.hub-hero {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.hub-hero h1 {
+    font-size: 2.8rem;
+    font-weight: 900;
+    color: #1a1a2e;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+}
+
+.hub-hero p {
+    color: #666;
+    font-size: 1.1rem;
+}
+
+/* ─── Community Grid ─── */
+.community-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 30px;
+}
+
+.community-card {
+    background: white;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.community-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(0, 30, 128, 0.1);
+    border-color: rgba(0, 30, 128, 0.15);
+}
+
+.community-banner {
+    position: relative;
+    height: 140px;
+    overflow: hidden;
+}
+
+.community-banner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.community-card:hover .community-banner img {
+    transform: scale(1.05);
+}
+
+.privacy-badge {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    padding: 5px 12px;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.privacy-badge.private {
+    background: rgba(220, 38, 38, 0.9);
+    color: white;
+    backdrop-filter: blur(6px);
+}
+
+.community-content {
+    padding: 25px;
+}
+
+.community-content h3 {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #1a1a2e;
+    margin-bottom: 10px;
+}
+
+.community-content p {
+    color: #666;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.community-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 15px;
+    border-top: 1px solid #f1f1f1;
+}
+
+.members-count {
+    font-size: 0.83rem;
+    color: #999;
+    font-weight: 600;
+}
+
+.view-btn {
+    background: #001E80;
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.83rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.view-btn:hover {
+    background: #001560;
+}
+
+/* ─── Circle Explorer ─── */
+.back-btn {
+    background: none;
+    border: none;
+    color: #001E80;
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-bottom: 25px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: opacity 0.2s;
+}
+
+.back-btn:hover {
+    opacity: 0.7;
+}
+
+.explorer-header {
+    background: white;
+    padding: 35px 40px;
+    border-radius: 28px;
+    margin-bottom: 40px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
+}
+
+.community-profile {
+    display: flex;
+    gap: 25px;
+    align-items: center;
+}
+
+.community-profile img {
+    width: 75px;
+    height: 75px;
+    border-radius: 20px;
+    object-fit: cover;
+    border: 2px solid #f0f4ff;
+}
+
+.community-profile h2 {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #1a1a2e;
+    margin-bottom: 4px;
+}
+
+.community-profile p {
+    color: #888;
+    font-size: 0.95rem;
+}
+
+/* ─── Circles Section ─── */
+.circles-section {
+    padding: 0 10px;
+}
+
+.section-title {
+    margin-bottom: 30px;
+}
+
+.section-title h3 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #1a1a2e;
+    margin-bottom: 6px;
+}
+
+.section-title p {
+    color: #888;
+    font-size: 0.92rem;
+}
+
+.circle-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 18px;
+}
+
+.circle-card {
+    background: white;
+    padding: 22px 26px;
+    border-radius: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    transition: all 0.25s ease;
+}
+
+.circle-card:hover {
+    border-color: rgba(0, 30, 128, 0.12);
+    box-shadow: 0 4px 16px rgba(0, 30, 128, 0.06);
+}
+
+.circle-info {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex: 1;
+}
+
+.circle-avatar {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #e8edff, #f0f4ff);
+    color: #001E80;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    font-weight: 900;
+    border-radius: 14px;
+    flex-shrink: 0;
+}
+
+.circle-info h4 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 3px;
+}
+
+.circle-info p {
+    font-size: 0.82rem;
+    color: #888;
+    margin: 0;
+}
+
+.circle-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    margin-right: 16px;
+}
+
+.circle-member-count {
+    font-size: 0.78rem;
+    color: #aaa;
+    font-weight: 600;
+}
+
+.circle-privacy-tag {
+    font-size: 0.72rem;
+    color: #dc2626;
+    font-weight: 700;
+}
+
+.circle-actions button {
+    padding: 9px 18px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.82rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.join-btn {
+    background: #001E80;
+    color: white;
+}
+
+.join-btn:hover {
+    background: #001560;
+}
+
+.request-btn {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid rgba(220, 38, 38, 0.15) !important;
+}
+
+.request-btn:hover {
+    background: #fde8e8;
+}
+
+.joined-btn {
+    background: #f0fdf4;
+    color: #16a34a;
+    border: 1px solid rgba(22, 163, 74, 0.15) !important;
+}
+
+.joined-btn:hover {
+    background: #dcfce7;
+}
+
+/* ─── Empty States ─── */
+.empty-communities,
+.empty-circles {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 80px 20px;
+    color: #aaa;
+}
+
+.empty-communities h3 {
+    font-size: 1.4rem;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+/* ─── Loading ─── */
+.hub-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 100px 0;
+    color: #999;
+}
+
+.spinner {
+    width: 38px;
+    height: 38px;
+    border: 3px solid rgba(0, 30, 128, 0.1);
+    border-top-color: #001E80;
+    border-radius: 50%;
+    animation: hub-spin 0.8s linear infinite;
+    margin-bottom: 16px;
+}
+
+@keyframes hub-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ─── Animations ─── */
+.animate-in {
+    animation: hubFadeIn 0.35s ease-out forwards;
+}
+
+@keyframes hubFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 768px) {
+    .community-hub-page {
+        padding-left: 0;
+        padding-top: 70px;
+    }
+
+    .hub-hero h1 {
+        font-size: 2rem;
+    }
+
+    .community-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .circle-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .circle-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px;
+    }
+
+    .circle-meta {
+        flex-direction: row;
+        margin-right: 0;
+    }
+
+    .circle-actions {
+        width: 100%;
+    }
+
+    .circle-actions button {
+        width: 100%;
+    }
+}

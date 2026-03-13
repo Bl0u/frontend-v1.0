@@ -30,6 +30,7 @@ import LeadConsole from './pages/LeadConsole';
 import PlanManager from './pages/PlanManager';
 import ProjectPlan from './pages/ProjectPlan';
 import Communities from './pages/Communities';
+import CommunityHub from './pages/CommunityHub';
 import AIChatBot from './components/AIChatBot';
 import TopUp from './pages/TopUp';
 import WorkWithUs from './pages/WorkWithUs';
@@ -90,6 +91,7 @@ const AppContent = () => {
           <Route path="/u/:username" element={<PublicProfile />} />
           <Route path="/requests" element={<DashboardRequests />} />
           <Route path="/communities" element={<Communities />} />
+          <Route path="/community-hub" element={<CommunityHub />} />
           <Route path="/chat" element={<Chat />} />
           <Route path="/lead-console" element={<LeadConsole />} />
           <Route path="/top-up" element={<TopUp />} />

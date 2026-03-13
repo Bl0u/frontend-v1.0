@@ -82,7 +82,7 @@ const AdminDashboard = () => {
 
     // Guard: redirect if not admin
     useEffect(() => {
-        if (user && user.role !== 'admin') {
+        if (user && !user.roles?.includes('admin')) {
             navigate('/home');
             toast.error('Access denied');
         }
@@ -178,7 +178,7 @@ const AdminDashboard = () => {
 
     // Fetch data when tab changes
     useEffect(() => {
-        if (!user?.token || user.role !== 'admin') return;
+        if (!user?.token || !user.roles?.includes('admin')) return;
         switch (activeTab) {
             case 'overview': fetchStats(); break;
             case 'users': fetchUsers(); break;
@@ -258,7 +258,7 @@ const AdminDashboard = () => {
         if (!promoteModal) return;
         try {
             const data = await adminService.promoteUser(user.token, promoteModal.userId, {
-                role: promoRole,
+                roles: Array.isArray(promoRole) ? promoRole : [promoRole],
                 university: promoUni,
                 college: promoCollege,
                 academicLevel: promoLevel
@@ -305,7 +305,7 @@ const AdminDashboard = () => {
     const pendingReportsCount = stats?.pendingReports || 0;
     const pendingRecruitmentCount = stats?.pendingRecruitment || 0;
 
-    if (!user || user.role !== 'admin') return null;
+    if (!user || !user.roles?.includes('admin')) return null;
 
     // ───────────────────────────────────────
     // RENDER: OVERVIEW
@@ -418,9 +418,17 @@ const AdminDashboard = () => {
                                             </div>
                                         </td>
                                         <td>
-                                            <span className={`admin-badge neutral uppercase`} style={{ fontSize: '10px', fontWeight: 900 }}>
-                                                {u.role}
-                                            </span>
+                                            <div className="admin-roles-container" style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                                                {u.roles && u.roles.length > 0 ? u.roles.map(r => (
+                                                    <span key={r} className={`admin-badge neutral uppercase`} style={{ fontSize: '9px', fontWeight: 900 }}>
+                                                        {r}
+                                                    </span>
+                                                )) : (
+                                                    <span className={`admin-badge neutral uppercase`} style={{ fontSize: '9px', fontWeight: 900 }}>
+                                                        {u.role || 'student'}
+                                                    </span>
+                                                )}
+                                            </div>
                                         </td>
                                         <td>
                                             {u.isBanned
@@ -448,9 +456,15 @@ const AdminDashboard = () => {
                                                 <button
                                                     className="admin-btn primary"
                                                     style={{ background: '#001E80', color: 'white' }}
-                                                    onClick={() => setPromoteModal({ userId: u._id, username: u.username, currentRole: u.role })}
+                                                    onClick={() => {
+                                                        setPromoteModal({ userId: u._id, username: u.username, currentRole: u.role, roles: u.roles });
+                                                        setPromoRole(u.roles || [u.role]);
+                                                        setPromoUni(u.university || '');
+                                                        setPromoCollege(u.college || '');
+                                                        setPromoLevel(u.academicLevel || '');
+                                                    }}
                                                 >
-                                                    Promote
+                                                    Manage Roles
                                                 </button>
                                                 <button
                                                     className="admin-btn danger"
@@ -939,22 +953,34 @@ const AdminDashboard = () => {
                         <p className="admin-modal-subtitle">Current role: <strong className="text-navy">{promoteModal.currentRole}</strong></p>
 
                         <div className="space-y-4 my-6">
-                            <div className="space-y-1">
-                                <label className="admin-label">Select New Role</label>
-                                <select
-                                    className="admin-modal-input"
-                                    value={promoRole}
-                                    onChange={(e) => setPromoRole(e.target.value)}
-                                >
-                                    <option value="">Select a role...</option>
-                                    <option value="student">Student (Standard)</option>
-                                    <option value="mentor">Mentor</option>
-                                    <option value="studentLead">Student Lead</option>
-                                    <option value="admin">Administrator</option>
-                                </select>
+                            <div className="space-y-2">
+                                <label className="admin-label">Assign Roles (Stackable)</label>
+                                <div className="admin-role-checkboxes grid grid-cols-2 gap-3 p-4 bg-gray-50 rounded-xl">
+                                    {['student', 'mentor', 'studentLead', 'moderator', 'admin'].map(r => (
+                                        <label key={r} className="flex items-center gap-2 cursor-pointer group">
+                                            <input
+                                                type="checkbox"
+                                                className="w-4 h-4 rounded border-gray-300 text-[#001E80] focus:ring-[#001E80]"
+                                                checked={promoRole === r || (Array.isArray(promoRole) && promoRole.includes(r))}
+                                                onChange={(e) => {
+                                                    let currentRoles = Array.isArray(promoRole) ? promoRole : [promoRole].filter(Boolean);
+                                                    if (e.target.checked) {
+                                                        currentRoles = [...new Set([...currentRoles, r])];
+                                                    } else {
+                                                        currentRoles = currentRoles.filter(role => role !== r);
+                                                    }
+                                                    setPromoRole(currentRoles);
+                                                }}
+                                            />
+                                            <span className="text-sm font-medium capitalize group-hover:text-[#001E80] transition-colors">
+                                                {r}
+                                            </span>
+                                        </label>
+                                    ))}
+                                </div>
                             </div>
 
-                            {promoRole === 'studentLead' && (
+                            {(promoRole === 'studentLead' || (Array.isArray(promoRole) && promoRole.includes('studentLead'))) && (
                                 <div className="space-y-5 border-t border-gray-50 pt-5 mt-5 animate-in fade-in slide-in-from-top-2 duration-300">
                                     <SearchableDropdown
                                         label="University"

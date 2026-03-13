@@ -19,6 +19,7 @@ const AdminCommunities = ({ user }) => {
     const [groupForm, setGroupForm] = useState({ name: '', description: '', groupType: '', metadata: {}, avatar: '' });
 
     const [editingConfig, setEditingConfig] = useState(null);
+    const [deleteConfirm, setDeleteConfirm] = useState(null); // { type: 'community'|'group', id, groupId?, name }
 
     useEffect(() => {
         if (user?.token) {
@@ -83,6 +84,32 @@ const AdminCommunities = ({ user }) => {
         }
     };
 
+    const handleDeleteCommunity = async (commId) => {
+        try {
+            await axios.delete(`${API_BASE_URL}/api/admin/communities/${commId}`, {
+                headers: { Authorization: `Bearer ${user.token}` }
+            });
+            toast.success('Community deleted successfully');
+            setDeleteConfirm(null);
+            fetchData();
+        } catch (error) {
+            toast.error('Failed to delete community');
+        }
+    };
+
+    const handleDeleteGroup = async (commId, groupId) => {
+        try {
+            await axios.delete(`${API_BASE_URL}/api/admin/communities/${commId}/groups/${groupId}`, {
+                headers: { Authorization: `Bearer ${user.token}` }
+            });
+            toast.success('Group removed successfully');
+            setDeleteConfirm(null);
+            fetchData();
+        } catch (error) {
+            toast.error('Failed to remove group');
+        }
+    };
+
     if (loading) return <div className="p-8 text-center italic text-gray-400 font-bold uppercase tracking-widest animate-pulse">Initializing Hubs...</div>;
 
     return (
@@ -135,6 +162,13 @@ const AdminCommunities = ({ user }) => {
                                     >
                                         <FaPlus />
                                     </button>
+                                    <button
+                                        onClick={() => setDeleteConfirm({ type: 'community', id: comm._id, name: comm.name })}
+                                        className="bg-red-50 text-red-400 p-3 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm"
+                                        title="Delete Community"
+                                    >
+                                        <FaTrash />
+                                    </button>
                                 </div>
 
                                 <div className="space-y-4">
@@ -151,7 +185,12 @@ const AdminCommunities = ({ user }) => {
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button className="p-2 text-gray-400 hover:text-red-500"><FaTrash size={12} /></button>
+                                                <button
+                                                    onClick={() => setDeleteConfirm({ type: 'group', id: comm._id, groupId: g._id, name: g.name })}
+                                                    className="p-2 text-gray-400 hover:text-red-500"
+                                                >
+                                                    <FaTrash size={12} />
+                                                </button>
                                             </div>
                                         </div>
                                     ))}
@@ -386,6 +425,36 @@ const AdminCommunities = ({ user }) => {
                         <div className="flex gap-4 pt-4">
                             <button onClick={() => setIsCreateGroupOpen(false)} className="flex-1 text-gray-400 font-black uppercase text-[10px]">Cancel</button>
                             <button onClick={handleAddGroup} className="flex-[2] bg-[#001E80] text-white py-4 rounded-2xl font-black uppercase text-[10px] shadow-lg">Publish Group</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Confirmation Modal */}
+            {deleteConfirm && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+                    <div className="bg-white w-full max-w-md rounded-[2.5rem] p-8 space-y-6 animate-in zoom-in-95">
+                        <h3 className="text-xl font-black text-red-600 uppercase tracking-tight">Confirm Delete</h3>
+                        <p className="text-gray-600 font-medium">
+                            Are you sure you want to permanently delete {deleteConfirm.type === 'community' ? 'community' : 'group'}{' '}
+                            <strong className="text-gray-900">{deleteConfirm.name}</strong>?
+                            {deleteConfirm.type === 'community' && ' This will also delete all nested groups and their messages.'}
+                            {' '}This action cannot be undone.
+                        </p>
+                        <div className="flex gap-4 pt-4">
+                            <button onClick={() => setDeleteConfirm(null)} className="flex-1 text-gray-400 font-black uppercase text-[10px] py-4 bg-gray-50 rounded-2xl">Cancel</button>
+                            <button
+                                onClick={() => {
+                                    if (deleteConfirm.type === 'community') {
+                                        handleDeleteCommunity(deleteConfirm.id);
+                                    } else {
+                                        handleDeleteGroup(deleteConfirm.id, deleteConfirm.groupId);
+                                    }
+                                }}
+                                className="flex-[2] bg-red-500 text-white py-4 rounded-2xl font-black uppercase text-[10px] shadow-lg hover:bg-red-600 transition-colors"
+                            >
+                                Delete Permanently
+                            </button>
                         </div>
                     </div>
                 </div>

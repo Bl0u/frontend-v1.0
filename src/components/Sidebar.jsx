@@ -144,9 +144,9 @@ const Sidebar = () => {
                         <span className="sidebar-link-icon"><FiUsers /></span>
                         <span className="sidebar-link-text">Partners</span>
                     </Link>
-                    <Link to="/communities" className={`sidebar-link ${isActive('/communities') ? 'active' : ''}`}>
+                    <Link to="/community-hub" className={`sidebar-link ${isActive('/community-hub') ? 'active' : ''}`}>
                         <span className="sidebar-link-icon"><FiHash /></span>
-                        <span className="sidebar-link-text">Communities</span>
+                        <span className="sidebar-link-text">Community Hub</span>
                     </Link>
                     <Link to="/pitch-hub" className={`sidebar-link ${isActive('/pitch-hub') ? 'active' : ''}`}>
                         <span className="sidebar-link-icon"><FiZap /></span>
@@ -201,7 +201,7 @@ const Sidebar = () => {
                 </nav>
 
                 {/* ── LEAD CONSOLE (Student Leads & Mentors) ── */}
-                {['studentLead', 'mentor'].includes(user.role) && (
+                {(user.roles?.includes('studentLead') || user.roles?.includes('mentor') || user.roles?.includes('moderator')) && (
                     <>
                         <div className="sidebar-section-label">Lead Actions</div>
                         <nav className="sidebar-nav">
@@ -214,7 +214,7 @@ const Sidebar = () => {
                 )}
 
                 {/* ── ADMIN (only for admins) ── */}
-                {user.role === 'admin' && (
+                {user.roles?.includes('admin') && (
                     <>
                         <div className="sidebar-section-label">Admin</div>
                         <nav className="sidebar-nav">

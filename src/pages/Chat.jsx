@@ -29,7 +29,7 @@ const Chat = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
 
-    const isLeadOrMentor = user && ['studentLead', 'mentor', 'admin'].includes(user.role);
+    const isLeadOrMentor = user && ['studentLead', 'mentor', 'admin', 'moderator'].some(r => user.roles?.includes(r));
 
     useEffect(() => {
         if (!user) {

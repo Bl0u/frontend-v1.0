@@ -50,7 +50,7 @@ const Profile = () => {
                         >
                             Profile
                         </h1>
-                        <RoleBadge role={user.role} university={profileData?.university} />
+                        <RoleBadge role={user.roles?.[0] || user.role} university={profileData?.university} />
                     </div>
                     <p className="text-[#010D3E]/50 text-sm font-medium mt-1">Manage your identity and academic details</p>
                 </div>

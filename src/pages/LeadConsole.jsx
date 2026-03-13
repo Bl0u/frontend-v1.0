@@ -25,7 +25,7 @@ const LeadConsole = () => {
         fetchConsoleData();
     }, [user]);
 
-    if (!user || !['studentLead', 'mentor', 'admin'].includes(user.role)) {
+    if (!user || !['studentLead', 'mentor', 'admin', 'moderator'].some(r => user.roles?.includes(r))) {
         return <div className="p-20 text-center uppercase font-black text-[#001E80]">Access Denied: Elite Personnel Only</div>;
     }
 
@@ -42,7 +42,7 @@ const LeadConsole = () => {
                         <div>
                             <div className="flex items-center gap-3 mb-4">
                                 <span className="px-4 py-1.5 rounded-full bg-[#001E80] text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-blue-200">
-                                    {user.role === 'studentLead' ? 'Student Lead' : 'Expert Mentor'} Console
+                                    {user.roles?.includes('studentLead') ? 'Student Lead' : 'Expert Mentor'} Console
                                 </span>
                                 <span className="text-gray-400 text-[10px] font-bold uppercase tracking-widest">v1.0 Activated</span>
                             </div>
@@ -50,7 +50,7 @@ const LeadConsole = () => {
                                 Command Centre
                             </h1>
                             <p className="text-gray-400 font-medium mt-4 max-w-lg">
-                                Welcome back, {user.name}. Your tactical overview for {user.role === 'studentLead' ? `Level ${user.academicLevel || 'N/A'}` : 'Global Mentorship'} is ready.
+                                Welcome back, {user.name}. Your tactical overview for {user.roles?.includes('studentLead') ? `Level ${user.academicLevel || 'N/A'}` : 'Global Mentorship'} is ready.
                             </p>
                         </div>
 
