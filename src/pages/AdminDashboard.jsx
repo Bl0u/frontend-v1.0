@@ -7,8 +7,10 @@ import '../styles/AdminDashboard.css';
 import SearchableDropdown from '../components/SearchableDropdown';
 import PitchConfigManager from '../components/PitchConfigManager';
 import PitchModuleManager from '../components/PitchModuleManager';
-import AdminCommunities from '../components/AdminCommunities';
 import PromoteLeadGroupsModal from '../components/PromoteLeadGroupsModal';
+import { FaGlobe, FaCogs, FaUsers, FaPlus, FaTrash, FaTimes, FaLayerGroup, FaEdit, FaLink, FaCheckCircle, FaUserPlus } from 'react-icons/fa';
+import axios from 'axios';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
 // ───────────────────────────────────────
 // TAB CONSTANTS
@@ -41,6 +43,21 @@ const AdminDashboard = () => {
     const [reports, setReports] = useState([]);
     const [payments, setPayments] = useState({ payments: [], total: 0, page: 1, totalPages: 1 });
     const [recruitment, setRecruitment] = useState([]);
+    const [communities, setCommunities] = useState([]);
+
+    // — Community Modals —
+    const [viewGroupsModal, setViewGroupsModal] = useState(null); 
+    const [manageCommModal, setManageCommModal] = useState(null); 
+    const [pendingRequests, setPendingRequests] = useState([]);
+    const [requestLoading, setRequestLoading] = useState(false);
+    const [userSearchText, setUserSearchText] = useState('');
+    const [searchedUsers, setSearchedUsers] = useState([]);
+    const [searchLoading, setSearchLoading] = useState(false);
+    
+    // Group Form State
+    const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
+    const [groupForm, setGroupForm] = useState({ name: '', description: '', groupType: '', metadata: {}, avatar: '', privacyType: 'public' });
+    const [groupConfigs, setGroupConfigs] = useState([]);
 
     // — UI state —
     const [userSearch, setUserSearch] = useState('');
@@ -176,6 +193,29 @@ const AdminDashboard = () => {
         }
     }, [user?.token, recruitmentFilter]);
 
+    const fetchCommunities = useCallback(async () => {
+        setLoading(true);
+        try {
+            const data = await adminService.getCommunities(user.token);
+            setCommunities(data);
+        } catch (err) {
+            toast.error('Failed to load communities');
+        } finally {
+            setLoading(false);
+        }
+    }, [user?.token]);
+
+    const fetchGroupConfigs = useCallback(async () => {
+        try {
+            const { data } = await axios.get(`${API_BASE_URL}/api/admin/group-configs`, { 
+                headers: { Authorization: `Bearer ${user.token}` } 
+            });
+            setGroupConfigs(data);
+        } catch (error) {
+            console.error('Failed to fetch group configs');
+        }
+    }, [user?.token]);
+
     // Fetch data when tab changes
     useEffect(() => {
         if (!user?.token || !user.roles?.includes('admin')) return;
@@ -186,6 +226,7 @@ const AdminDashboard = () => {
             case 'reports': fetchReports(); break;
             case 'payments': fetchPayments(); break;
             case 'recruitment': fetchRecruitment(); break;
+            case 'communities': fetchCommunities(); fetchGroupConfigs(); break;
         }
     }, [activeTab, user?.token]);
 
@@ -304,6 +345,100 @@ const AdminDashboard = () => {
             toast.error('Generator failed');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleDeleteCommunity = async (commId) => {
+        if (!window.confirm('Are you sure you want to delete this community? This will delete all groups and messages inside it.')) return;
+        try {
+            const data = await adminService.deleteCommunity(user.token, commId);
+            toast.success(data.message);
+            fetchCommunities();
+            if (manageCommModal?._id === commId) setManageCommModal(null);
+        } catch (err) {
+            toast.error('Failed to delete community');
+        }
+    };
+
+    const openRequestManager = async (comm) => {
+        setPendingRequests([]);
+        setRequestLoading(true);
+        try {
+            const { data } = await axios.get(`${API_BASE_URL}/api/requests/received`, {
+                headers: { Authorization: `Bearer ${user.token}` }
+            });
+            const filtered = data.filter(req => 
+                req.status === 'pending' && req.community === comm._id
+            );
+            setPendingRequests(filtered);
+        } catch (error) {
+            toast.error('Failed to fetch requests');
+        } finally {
+            setRequestLoading(false);
+        }
+    };
+
+    const handleRespondToRequest = async (requestId, status) => {
+        try {
+            await axios.put(`${API_BASE_URL}/api/requests/${requestId}/respond`, { status }, {
+                headers: { Authorization: `Bearer ${user.token}` }
+            });
+            toast.success(`Request ${status}`);
+            setPendingRequests(prev => prev.filter(r => r._id !== requestId));
+        } catch (error) {
+            toast.error('Action failed');
+        }
+    };
+
+    const handleSearchUsers = async (query) => {
+        setUserSearchText(query);
+        if (query.trim().length < 2) {
+            setSearchedUsers([]);
+            return;
+        }
+        setSearchLoading(true);
+        try {
+            const { data } = await axios.get(`${API_BASE_URL}/api/admin/users?search=${query}`, {
+                headers: { Authorization: `Bearer ${user.token}` }
+            });
+            setSearchedUsers(data.users || []);
+        } catch (error) {
+            console.error('Search error:', error);
+        } finally {
+            setSearchLoading(false);
+        }
+    };
+
+    const handleAssignMod = async (commId, userId) => {
+        try {
+            await axios.put(`${API_BASE_URL}/api/admin/communities/${commId}/moderators`, { userId }, {
+                headers: { Authorization: `Bearer ${user.token}` }
+            });
+            toast.success('Moderator assigned');
+            fetchCommunities();
+            const updatedComm = (await adminService.getCommunities(user.token)).find(c => c._id === commId);
+            setManageCommModal(updatedComm);
+            setUserSearchText('');
+            setSearchedUsers([]);
+        } catch (error) {
+            toast.error('Failed to assign moderator');
+        }
+    };
+
+    const handleAddGroupToCommunity = async () => {
+        if (!groupForm.name || !groupForm.groupType) return toast.error('Name and Type required');
+        try {
+            await axios.post(`${API_BASE_URL}/api/admin/communities/${manageCommModal._id}/groups`, groupForm, {
+                headers: { Authorization: `Bearer ${user.token}` }
+            });
+            toast.success('Group added to community!');
+            setIsCreateGroupOpen(false);
+            setGroupForm({ name: '', description: '', groupType: '', metadata: {}, avatar: '', privacyType: 'public' });
+            fetchCommunities();
+            const updatedComm = (await adminService.getCommunities(user.token)).find(c => c._id === manageCommModal._id);
+            setManageCommModal(updatedComm);
+        } catch (error) {
+            toast.error('Failed to add group');
         }
     };
 
@@ -808,7 +943,293 @@ const AdminDashboard = () => {
     );
 
     const renderCommunities = () => (
-        <AdminCommunities user={user} />
+        <>
+            <div className="admin-search-bar">
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#001E80', margin: 0 }}>Global Communities</h2>
+                <div style={{ flex: 1 }} />
+                <button 
+                    className="admin-btn primary" 
+                    onClick={() => toast.info('Use Hub Setup to generate base hubs or contact devs for manual entry')}
+                >
+                    Manual Creation Disabled
+                </button>
+            </div>
+
+            {loading ? (
+                <div className="admin-loading"><div className="admin-spinner" /> Loading communities...</div>
+            ) : communities.length === 0 ? (
+                <div className="admin-empty">
+                    <div className="admin-empty-icon">🌐</div>
+                    <div className="admin-empty-text">No communities found. Use Hub Setup to initialize.</div>
+                </div>
+            ) : (
+                <div className="admin-table-wrapper">
+                    <table className="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Hub Name</th>
+                                <th>Creator</th>
+                                <th>Moderators</th>
+                                <th>Groups</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {communities.map((comm) => (
+                                <tr key={comm._id}>
+                                    <td>
+                                        <div style={{ fontWeight: 800, color: '#010D3E', display: 'flex', alignItems: 'center', gap: 8 }}>
+                                            <div style={{ width: 8, height: 8, borderRadius: '50%', background: comm.privacyType === 'private' ? '#F59E0B' : '#10B981' }} title={comm.privacyType} />
+                                            {comm.name}
+                                        </div>
+                                        <div style={{ fontSize: '10px', color: 'rgba(0,0,0,0.4)', fontWeight: 600, marginLeft: 16 }}>{comm.privacyType || 'public'}</div>
+                                    </td>
+                                    <td>
+                                        <span style={{ fontSize: '12px', fontWeight: 600 }}>@{comm.creator?.username || 'System'}</span>
+                                    </td>
+                                    <td>
+                                        <span className="admin-badge info" style={{ fontSize: '10px' }}>
+                                            {comm.moderators?.length || 0} Mods
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span className="admin-badge neutral" style={{ fontSize: '10px' }}>
+                                            {comm.groups?.length || 0} Circles
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div className="admin-actions">
+                                            <button 
+                                                className="admin-btn primary" 
+                                                onClick={() => setViewGroupsModal(comm)}
+                                            >
+                                                View Groups
+                                            </button>
+                                            <button 
+                                                className="admin-btn" 
+                                                style={{ borderColor: '#001E80', color: '#001E80' }}
+                                                onClick={() => {
+                                                    setManageCommModal(comm);
+                                                    openRequestManager(comm);
+                                                }}
+                                            >
+                                                Manage Hub
+                                            </button>
+                                            <button 
+                                                className="admin-btn danger" 
+                                                onClick={() => handleDeleteCommunity(comm._id)}
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+
+            {/* View Groups Modal */}
+            {viewGroupsModal && (
+                <div className="admin-modal-overlay" onClick={() => setViewGroupsModal(null)}>
+                    <div className="admin-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 700, borderRadius: 32 }}>
+                        <div className="flex justify-between items-center mb-6">
+                            <div>
+                                <h3 className="text-xl font-black text-gray-800 uppercase tracking-tight">Circles in {viewGroupsModal.name}</h3>
+                                <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">A total of {viewGroupsModal.groups?.length || 0} nested groups</p>
+                            </div>
+                            <button onClick={() => setViewGroupsModal(null)} className="text-gray-400 hover:text-gray-600"><FaTimes /></button>
+                        </div>
+
+                        <div className="admin-table-wrapper" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+                            <table className="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Group Name</th>
+                                        <th>Type</th>
+                                        <th>Privacy</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {viewGroupsModal.groups?.map(g => (
+                                        <tr key={g._id}>
+                                            <td>
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-8 h-8 rounded-lg bg-gray-100 overflow-hidden">
+                                                        <img src={g.avatar || 'https://via.placeholder.com/150'} className="w-full h-full object-cover" />
+                                                    </div>
+                                                    <span style={{ fontWeight: 700 }}>{g.name}</span>
+                                                </div>
+                                            </td>
+                                            <td><span className="admin-badge info" style={{ fontSize: '9px' }}>{g.groupType}</span></td>
+                                            <td><span className="admin-badge neutral" style={{ fontSize: '9px' }}>{g.privacyType || 'public'}</span></td>
+                                            <td>
+                                                <button 
+                                                    className="admin-btn primary"
+                                                    onClick={() => navigate(`/chat?u=${g._id}&type=group`)}
+                                                >
+                                                    Enter Chat
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {(!viewGroupsModal.groups || viewGroupsModal.groups.length === 0) && (
+                                        <tr>
+                                            <td colSpan="4" className="text-center py-8 text-gray-400 italic">No groups found in this hub.</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Manage Hub Modal (Hub Control Center) */}
+            {manageCommModal && (
+                <div className="admin-modal-overlay" onClick={() => setManageCommModal(null)}>
+                    <div className="admin-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 900, width: '95%', borderRadius: 40, padding: 0, overflow: 'hidden' }}>
+                        <div className="flex h-[80vh]">
+                            {/* Sidebar / Nav */}
+                            <div className="w-64 bg-gray-50 border-r border-gray-100 p-8 flex flex-col gap-6">
+                                <div className="mb-4">
+                                    <div className="w-16 h-16 rounded-2xl bg-white shadow-sm mb-4 overflow-hidden border border-gray-100">
+                                        <img src={manageCommModal.avatar || 'https://via.placeholder.com/150'} className="w-full h-full object-cover" />
+                                    </div>
+                                    <h3 className="font-black text-[#010D3E] leading-tight">{manageCommModal.name}</h3>
+                                    <span className="text-[9px] font-black uppercase text-indigo-400">{manageCommModal.privacyType} Hub</span>
+                                </div>
+                                
+                                <button className="admin-btn primary !text-[9px] !py-3 w-full" onClick={() => navigate(`/communities/${manageCommModal._id}`)}>Public View</button>
+                            </div>
+
+                            {/* Main Content */}
+                            <div className="flex-1 overflow-y-auto p-10 space-y-12">
+                                {/* Section: Moderators */}
+                                <div>
+                                    <div className="flex justify-between items-center mb-6">
+                                        <h4 className="text-xs font-black uppercase tracking-widest text-[#001E80]">Moderator Management</h4>
+                                    </div>
+                                    
+                                    <div className="bg-gray-50 rounded-3xl p-6 mb-6">
+                                        <div className="flex gap-2 mb-4">
+                                            <input 
+                                                type="text"
+                                                placeholder="Search user by exact username..."
+                                                value={userSearchText}
+                                                onChange={(e) => handleSearchUsers(e.target.value)}
+                                                className="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm"
+                                            />
+                                            {searchLoading && <div className="admin-spinner" style={{ width: 16, height: 16 }} />}
+                                        </div>
+
+                                        <div className="flex flex-wrap gap-2">
+                                            {manageCommModal.moderators?.map(mod => (
+                                                <div key={mod._id} className="bg-white border border-indigo-100 rounded-full px-4 py-1.5 flex items-center gap-2 shadow-sm">
+                                                    <span className="text-[10px] font-bold text-gray-700">@{mod.username}</span>
+                                                    <button className="text-gray-300 hover:text-red-500"><FaTimes size={10} /></button>
+                                                </div>
+                                            ))}
+                                            {manageCommModal.moderators?.length === 0 && <span className="text-[10px] text-gray-400 italic">No moderators assigned.</span>}
+                                        </div>
+
+                                        {searchedUsers.length > 0 && (
+                                            <div className="mt-4 bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-xl">
+                                                {searchedUsers.map(u => (
+                                                    <div key={u._id} className="p-3 flex justify-between items-center hover:bg-indigo-50 transition-colors">
+                                                        <span className="text-xs font-bold text-gray-600">@{u.username} ({u.name})</span>
+                                                        <button 
+                                                            className="text-[9px] font-black text-indigo-600 uppercase border-b border-indigo-200"
+                                                            onClick={() => handleAssignMod(manageCommModal._id, u._id)}
+                                                        >
+                                                            + Assign
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Section: Join Requests */}
+                                {manageCommModal.privacyType === 'private' && (
+                                    <div>
+                                        <h4 className="text-xs font-black uppercase tracking-widest text-[#001E80] mb-6">Pending Join Requests ({pendingRequests.length})</h4>
+                                        <div className="space-y-3">
+                                            {requestLoading ? <div className="text-center py-4 italic text-gray-400">Loading requests...</div> : 
+                                             pendingRequests.length === 0 ? <div className="text-center py-4 border-2 border-dashed border-gray-100 rounded-2xl text-[10px] text-gray-300 font-black uppercase">No pending applications</div> :
+                                             pendingRequests.map(req => (
+                                                <div key={req._id} className="p-4 bg-gray-50 rounded-2xl flex justify-between items-center border border-gray-100">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-8 h-8 rounded-full bg-indigo-100" />
+                                                        <div>
+                                                            <div className="text-xs font-bold">@{req.sender?.username}</div>
+                                                            <div className="text-[9px] text-gray-400">{formatDate(req.createdAt)}</div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex gap-2">
+                                                        <button className="admin-btn success !py-1.5" onClick={() => handleRespondToRequest(req._id, 'accepted')}>Accept</button>
+                                                        <button className="admin-btn danger !py-1.5" onClick={() => handleRespondToRequest(req._id, 'rejected')}>Reject</button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Section: Publish New Circle */}
+                                <div className="p-8 bg-indigo-50/50 border border-indigo-100 rounded-[2.5rem]">
+                                    <div className="flex justify-between items-center mb-6">
+                                        <h4 className="text-xs font-black uppercase tracking-widest text-[#001E80]">Publish Hub Circle</h4>
+                                        <button className="text-[#001E80] p-2 hover:bg-white rounded-xl transition-all" onClick={() => setIsCreateGroupOpen(!isCreateGroupOpen)}>
+                                            {isCreateGroupOpen ? <FaTimes /> : <FaPlus />}
+                                        </button>
+                                    </div>
+
+                                    {isCreateGroupOpen && (
+                                        <div className="space-y-4 animate-in slide-in-from-top-2">
+                                            <input 
+                                                type="text"
+                                                placeholder="Circle Name (e.g., Computer Science)"
+                                                value={groupForm.name}
+                                                onChange={e => setGroupForm({ ...groupForm, name: e.target.value })}
+                                                className="w-full bg-white border border-gray-100 rounded-xl px-5 py-3 text-sm font-medium"
+                                            />
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <select 
+                                                    value={groupForm.groupType}
+                                                    onChange={e => setGroupForm({ ...groupForm, groupType: e.target.value })}
+                                                    className="bg-white border border-gray-100 rounded-xl px-5 py-3 text-sm font-bold"
+                                                >
+                                                    <option value="">Select Type</option>
+                                                    {groupConfigs.map(c => <option key={c._id} value={c.groupType}>{c.groupType}</option>)}
+                                                </select>
+                                                <select
+                                                    value={groupForm.privacyType}
+                                                    onChange={e => setGroupForm({ ...groupForm, privacyType: e.target.value })}
+                                                    className="bg-white border border-gray-100 rounded-xl px-5 py-3 text-sm font-bold"
+                                                >
+                                                    <option value="public">Public</option>
+                                                    <option value="private">Private</option>
+                                                </select>
+                                            </div>
+                                            <button 
+                                                className="w-full admin-btn primary !py-4 shadow-xl shadow-indigo-100"
+                                                onClick={handleAddGroupToCommunity}
+                                            >
+                                                Publish Circle
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
     );
 
     const renderHubSetup = () => (
