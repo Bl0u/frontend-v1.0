@@ -38,7 +38,7 @@ const DashboardRequests = () => {
             case 'pitch_claim':
                 return <FaRocket className="text-orange-600" />;
             case 'community_join':
-                return <FaHash className="text-indigo-600" />;
+                return <FaHashtag className="text-indigo-600" />;
             case 'notification':
                 return <FaBell className="text-[#001E80]" />;
             default:

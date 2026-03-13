@@ -21,8 +21,8 @@ const Communities = () => {
 
     const fetchCommunities = async () => {
         try {
-            const res = await axios.get(`${API_BASE_URL} /api/admin / communities`, {
-                headers: { Authorization: `Bearer ${user.token} ` }
+            const res = await axios.get(`${API_BASE_URL}/api/admin/communities`, {
+                headers: { Authorization: `Bearer ${user.token}` }
             });
             setCommunities(res.data);
         } catch (error) {
@@ -61,7 +61,7 @@ const Communities = () => {
                 <div>
                     <div className="flex items-center gap-3 mb-2">
                         <div className="bg-indigo-600 p-2 rounded-xl text-white shadow-lg shadow-indigo-100">
-                            <FaHash size={20} />
+                            <FaHashtag size={20} />
                         </div>
                         <h1 className="text-4xl font-extrabold text-[#010D3E] tracking-tight">Communities</h1>
                     </div>
@@ -84,7 +84,7 @@ const Communities = () => {
             <div className="space-y-16">
                 {filteredCommunities.length === 0 ? (
                     <div className="text-center py-24 bg-gray-50 rounded-[3rem] border-2 border-dashed border-gray-100">
-                        <FaHash size={48} className="mx-auto text-gray-200 mb-6" />
+                        <FaHashtag size={48} className="mx-auto text-gray-200 mb-6" />
                         <h3 className="text-xl font-bold text-gray-400">No communities found matching your search.</h3>
                         <p className="text-gray-300 mt-2">Try different keywords or check back later for new hubs.</p>
                     </div>
