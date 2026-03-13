@@ -22,8 +22,12 @@ const AdminCommunities = ({ user }) => {
     const [editingConfig, setEditingConfig] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null); // { type: 'community'|'group', id, groupId?, name }
     const [requestModal, setRequestModal] = useState(null); // { type: 'community'|'group', id, name }
+    const [modModal, setModModal] = useState(null); // { type: 'community'|'group', id, name, moderators: [] }
     const [pendingRequests, setPendingRequests] = useState([]);
     const [requestLoading, setRequestLoading] = useState(false);
+    const [userSearchText, setUserSearchText] = useState('');
+    const [searchedUsers, setSearchedUsers] = useState([]);
+    const [searchLoading, setSearchLoading] = useState(false);
 
     useEffect(() => {
         if (user?.token) {
@@ -160,6 +164,44 @@ const AdminCommunities = ({ user }) => {
         }
     };
 
+    const handleSearchUsers = async (query) => {
+        setUserSearchText(query);
+        if (query.trim().length < 2) {
+            setSearchedUsers([]);
+            return;
+        }
+        setSearchLoading(true);
+        try {
+            const { data } = await axios.get(`${API_BASE_URL}/api/admin/users?search=${query}`, {
+                headers: { Authorization: `Bearer ${user.token}` }
+            });
+            setSearchedUsers(data.users || []);
+        } catch (error) {
+            console.error('Search error:', error);
+        } finally {
+            setSearchLoading(false);
+        }
+    };
+
+    const handleAssignMod = async (userId) => {
+        try {
+            const endpoint = modModal.type === 'community' 
+                ? `/api/admin/communities/${modModal.id}/moderators`
+                : `/api/admin/groups/${modModal.id}/moderators`;
+            
+            await axios.put(`${API_BASE_URL}${endpoint}`, { userId }, {
+                headers: { Authorization: `Bearer ${user.token}` }
+            });
+            
+            toast.success('Moderator assigned');
+            // Optimistic update or refresh
+            fetchData();
+            setModModal(null);
+        } catch (error) {
+            toast.error('Failed to assign moderator');
+        }
+    };
+
     if (loading) return <div className="p-8 text-center italic text-gray-400 font-bold uppercase tracking-widest animate-pulse">Initializing Hubs...</div>;
 
     return (
@@ -208,6 +250,12 @@ const AdminCommunities = ({ user }) => {
                                     </div>
                                     <div className="flex gap-2">
                                         <button
+                                            onClick={() => setModModal({ type: 'community', id: comm._id, name: comm.name, moderators: comm.moderators })}
+                                            className="bg-purple-50 text-purple-600 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-purple-600 hover:text-white transition-all shadow-sm flex items-center gap-2"
+                                        >
+                                            Moderators
+                                        </button>
+                                        <button
                                             onClick={() => openRequestModal('community', comm._id, comm.name)}
                                             className="bg-orange-50 text-orange-600 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-orange-600 hover:text-white transition-all shadow-sm flex items-center gap-2"
                                         >
@@ -243,6 +291,12 @@ const AdminCommunities = ({ user }) => {
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-2 transition-opacity">
+                                                <button
+                                                    onClick={() => setModModal({ type: 'group', id: g._id, name: g.name, moderators: g.moderators })}
+                                                    className="bg-purple-50 text-purple-600 px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest hover:bg-purple-600 hover:text-white transition-all"
+                                                >
+                                                    Mods
+                                                </button>
                                                 <button
                                                     onClick={() => openRequestModal('group', g._id, g.name)}
                                                     className="bg-orange-50 text-orange-600 px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest hover:bg-orange-600 hover:text-white transition-all shadow-sm"
@@ -583,6 +637,77 @@ const AdminCommunities = ({ user }) => {
                                     </div>
                                 ))
                             )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Moderator Manager Modal */}
+            {modModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+                    <div className="bg-white w-full max-w-lg rounded-[2.5rem] p-8 space-y-6 animate-in slide-in-from-top-5">
+                        <div className="flex justify-between items-center">
+                            <div>
+                                <h3 className="text-xl font-black text-purple-600 uppercase tracking-tight">Assign Moderator</h3>
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Adding to {modModal.name}</p>
+                            </div>
+                            <button onClick={() => { setModModal(null); setSearchedUsers([]); setUserSearchText(''); }} className="p-2 hover:bg-gray-100 rounded-full"><FaTimes /></button>
+                        </div>
+
+                        <div className="space-y-4">
+                            {/* Current Moderators List */}
+                            {modModal.moderators?.length > 0 && (
+                                <div className="space-y-2">
+                                    <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">Current Moderators</div>
+                                    <div className="flex flex-wrap gap-2 px-2">
+                                        {modModal.moderators.map(mod => (
+                                            <div key={mod._id} className="bg-purple-50 text-purple-700 px-3 py-1.5 rounded-full text-[10px] font-bold border border-purple-100 flex items-center gap-2">
+                                                <span>{mod.name} (@{mod.username})</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="h-px bg-gray-100 my-4" />
+                                </div>
+                            )}
+
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    placeholder="Search users by name or username..."
+                                    value={userSearchText}
+                                    onChange={(e) => handleSearchUsers(e.target.value)}
+                                    className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:ring-4 focus:ring-purple-50 font-medium text-sm"
+                                />
+                                {searchLoading && <div className="absolute right-4 top-4 animate-spin text-purple-400">◌</div>}
+                            </div>
+
+                            <div className="max-h-[40vh] overflow-y-auto space-y-2 pr-2 custom-scrollbar">
+                                {searchedUsers.length > 0 ? (
+                                    searchedUsers.map(u => (
+                                        <div key={u._id} className="p-3 bg-gray-50 rounded-xl flex items-center justify-between group hover:bg-purple-50 transition-all">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-[10px] font-black text-purple-600">
+                                                    {u.name?.charAt(0)}
+                                                </div>
+                                                <div>
+                                                    <div className="text-xs font-black text-gray-800">{u.name}</div>
+                                                    <div className="text-[9px] font-bold text-gray-400">@{u.username}</div>
+                                                </div>
+                                            </div>
+                                            <button 
+                                                onClick={() => handleAssignMod(u._id)}
+                                                className="bg-white text-purple-600 px-4 py-2 rounded-lg text-[9px] font-black uppercase border border-purple-100 hover:bg-purple-600 hover:text-white transition-all shadow-sm"
+                                            >
+                                                Assign
+                                            </button>
+                                        </div>
+                                    ))
+                                ) : userSearchText.length > 1 ? (
+                                    <div className="text-center py-8 text-gray-400 text-[10px] font-black uppercase">No users found</div>
+                                ) : (
+                                    <div className="text-center py-8 text-gray-400 text-[10px] font-black uppercase italic">Type to search for users</div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
