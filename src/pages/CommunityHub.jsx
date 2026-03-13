@@ -119,7 +119,7 @@ const CommunityHub = () => {
                                 </div>
                                 <div className="circle-actions">
                                     {isMember ? (
-                                        <button className="joined-btn" onClick={() => navigate(`/chat/${circle._id}`)}>Enter Chat</button>
+                                        <button className="joined-btn" onClick={() => navigate(`/chat?u=${circle._id}&type=group`)}>Enter Chat</button>
                                     ) : isPrivate ? (
                                         <button className="request-btn" onClick={() => handleJoinRequest(null, circle._id)}>Request Access</button>
                                     ) : (

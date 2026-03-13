@@ -197,8 +197,33 @@ const AdminCommunities = ({ user }) => {
             // Optimistic update or refresh
             fetchData();
             setModModal(null);
+            setUserSearchText('');
+            setSearchedUsers([]);
         } catch (error) {
             toast.error('Failed to assign moderator');
+        }
+    };
+
+    const handleAssignByUsername = async () => {
+        if (!userSearchText.trim()) return;
+        setSearchLoading(true);
+        try {
+            const { data } = await axios.get(`${API_BASE_URL}/api/admin/users?search=${userSearchText}`, {
+                headers: { Authorization: `Bearer ${user.token}` }
+            });
+            
+            // Try to find exact username match
+            const target = data.users.find(u => u.username.toLowerCase() === userSearchText.toLowerCase()) || data.users[0];
+            
+            if (target) {
+                handleAssignMod(target._id);
+            } else {
+                toast.error('User not found. Try searching first.');
+            }
+        } catch (error) {
+            toast.error('Error finding user');
+        } finally {
+            setSearchLoading(false);
         }
     };
 
@@ -262,6 +287,12 @@ const AdminCommunities = ({ user }) => {
                                             <FaUsers /> Requests
                                         </button>
                                         <button
+                                            onClick={() => navigate(`/chat?u=${comm._id}&type=group`)}
+                                            className="bg-indigo-50 text-indigo-600 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all shadow-sm flex items-center gap-2"
+                                        >
+                                            Enter Chat
+                                        </button>
+                                        <button
                                             onClick={() => { setSelectedCommId(comm._id); setIsCreateGroupOpen(true); }}
                                             className="bg-indigo-50 text-indigo-600 p-3 rounded-xl hover:bg-indigo-600 hover:text-white transition-all shadow-sm"
                                         >
@@ -302,6 +333,12 @@ const AdminCommunities = ({ user }) => {
                                                     className="bg-orange-50 text-orange-600 px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest hover:bg-orange-600 hover:text-white transition-all shadow-sm"
                                                 >
                                                     Requests
+                                                </button>
+                                                <button
+                                                    onClick={() => navigate(`/chat?u=${g._id}&type=group`)}
+                                                    className="bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all shadow-sm"
+                                                >
+                                                    Chat
                                                 </button>
                                                 <button
                                                     onClick={() => setDeleteConfirm({ type: 'group', id: comm._id, groupId: g._id, name: g.name })}
@@ -524,6 +561,15 @@ const AdminCommunities = ({ user }) => {
                                 {groupConfigs.map(c => <option key={c._id} value={c.groupType}>{c.groupType}</option>)}
                             </select>
 
+                            <select
+                                value={groupForm.privacyType || 'public'}
+                                onChange={e => setGroupForm({ ...groupForm, privacyType: e.target.value })}
+                                className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:ring-4 focus:ring-indigo-50 font-bold text-gray-700"
+                            >
+                                <option value="public">Public (Auto-Join)</option>
+                                <option value="private">Private (Request Required)</option>
+                            </select>
+
                             {/* Metadata Inputs based on type */}
                             {groupForm.groupType && (
                                 <div className="space-y-3 p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100">
@@ -670,15 +716,25 @@ const AdminCommunities = ({ user }) => {
                                 </div>
                             )}
 
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    placeholder="Search users by name or username..."
-                                    value={userSearchText}
-                                    onChange={(e) => handleSearchUsers(e.target.value)}
-                                    className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:ring-4 focus:ring-purple-50 font-medium text-sm"
-                                />
-                                {searchLoading && <div className="absolute right-4 top-4 animate-spin text-purple-400">◌</div>}
+                            <div className="flex gap-2">
+                                <div className="relative flex-1">
+                                    <input
+                                        type="text"
+                                        placeholder="Search or type exact username..."
+                                        value={userSearchText}
+                                        onChange={(e) => handleSearchUsers(e.target.value)}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleAssignByUsername()}
+                                        className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:ring-4 focus:ring-purple-50 font-medium text-sm"
+                                    />
+                                    {searchLoading && <div className="absolute right-4 top-4 animate-spin text-purple-400">◌</div>}
+                                </div>
+                                <button
+                                    onClick={handleAssignByUsername}
+                                    className="bg-purple-600 text-white px-6 py-4 rounded-2xl font-black uppercase text-[10px] shadow-lg shadow-purple-200 hover:bg-purple-700 transition-all flex items-center justify-center min-w-[100px]"
+                                    disabled={searchLoading}
+                                >
+                                    {searchLoading ? '...' : 'Assign'}
+                                </button>
                             </div>
 
                             <div className="max-h-[40vh] overflow-y-auto space-y-2 pr-2 custom-scrollbar">
