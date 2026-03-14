@@ -103,7 +103,7 @@ const Sidebar = () => {
             />
 
             {/* Sidebar */}
-            <aside className={`sidebar ${isOpen ? 'open' : ''} overflow-y-auto h-screen pb-20`}>
+            <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
                 {/* Brand */}
                 <div className="sidebar-brand">
                     <Link to="/home">LearnCrew</Link>

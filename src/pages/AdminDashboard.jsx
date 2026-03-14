@@ -400,8 +400,8 @@ const AdminDashboard = () => {
                 headers: { Authorization: `Bearer ${user.token}` }
             });
             const filtered = data.filter(req => {
-                if (group) return req.status === 'pending' && req.groupChat === group._id;
-                return req.status === 'pending' && req.community === comm._id && !req.groupChat;
+                if (group) return req.status === 'pending' && req.groupChat?.toString() === group._id?.toString();
+                return req.status === 'pending' && req.community?.toString() === comm._id?.toString() && !req.groupChat;
             });
             
             if (group) {
@@ -424,6 +424,7 @@ const AdminDashboard = () => {
             });
             toast.success(`Request ${status}`);
             setPendingRequests(prev => prev.filter(r => r._id !== requestId));
+            setGroupRequests(prev => prev.filter(r => r._id !== requestId));
         } catch (error) {
             toast.error('Action failed');
         }
