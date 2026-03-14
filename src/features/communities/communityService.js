@@ -85,6 +85,15 @@ const getModeratedContent = async (token) => {
     return response.data;
 };
 
+// Leave a group
+const leaveGroup = async (groupId, token) => {
+    const config = {
+        headers: { Authorization: `Bearer ${token}` }
+    };
+    const response = await axios.delete(`${API_BASE_URL}/api/communities/groups/${groupId}/leave`, config);
+    return response.data;
+};
+
 const communityService = {
     getCommunities,
     getCommunity,
@@ -94,7 +103,8 @@ const communityService = {
     getMembers,
     toggleBan,
     getModeratedContent,
-    getJoinedContent
+    getJoinedContent,
+    leaveGroup
 };
 
 export default communityService;

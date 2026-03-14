@@ -253,6 +253,19 @@ const Dashboard = () => {
         }
     };
 
+    const handleLeaveGroup = async (groupId) => {
+        if (!window.confirm('Are you sure you want to leave this circle?')) return;
+        try {
+            await communityService.leaveGroup(groupId, currentUser.token);
+            toast.success('You have left the circle');
+            // Refresh joined data
+            const joined = await communityService.getJoinedContent(currentUser.token);
+            setMyCommunities(joined);
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Failed to leave circle');
+        }
+    };
+
     if (loading) return (
         <div className="flex items-center justify-center py-32">
             <div className="w-8 h-8 border-2 border-[#001E80]/20 border-t-[#001E80] rounded-full animate-spin"></div>
@@ -888,107 +901,168 @@ const Dashboard = () => {
         );
     }
 
-    // ─── ACTIVITY TABS (Moderate, Paid, Pinned) ─────────
-    const activityTabs = ['moderate', 'paid', 'pinned'];
-    if (activityTabs.includes(activeTab)) {
-        const titleMap = {
-            moderate: 'Mod Missions',
-            paid: 'Premium Access',
-            pinned: 'Pinned Missions'
-        };
-        const subMap = {
-            moderate: 'Threads where you serve as an active moderator.',
-            paid: 'Exclusive content you have unlocked with stars.',
-            pinned: 'Missions you have marked for quick access.'
-        };
-
+    // ─── COMMUNITIES TAB ──────────────────────────────
+    if (activeTab === 'communities') {
         return (
             <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-500">
                 <div>
-                    <h1
-                        className="text-3xl font-black bg-gradient-to-b from-black to-[#001E80] bg-clip-text text-transparent pb-1"
-                        style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
-                    >
-                        {titleMap[activeTab]}
-                    </h1>
-                    <p className="text-[#010D3E]/50 text-sm font-medium mt-1">{subMap[activeTab]}</p>
+                    <h1 className="text-3xl font-black bg-gradient-to-b from-black to-[#001E80] bg-clip-text text-transparent pb-1" style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}>My Communities</h1>
+                    <p className="text-[#010D3E]/50 text-sm font-medium mt-1">Hubs you have joined across the platform.</p>
+                </div>
+                
+                <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden p-8">
+                    {loadingCommunities ? (
+                        <div className="flex justify-center py-10"><div className="w-6 h-6 border-2 border-[#001E80]/20 border-t-[#001E80] rounded-full animate-spin"></div></div>
+                    ) : myCommunities.communities?.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {myCommunities.communities.map((comm) => (
+                                <Link key={comm._id} to={`/community-hub?comm=${comm._id}`} className="p-5 rounded-2xl border border-gray-50 bg-gray-50/30 hover:bg-[#EAEEFE]/30 hover:border-[#001E80]/10 transition-all flex items-center justify-between group">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-[#001E80]">
+                                            <FaUserFriends size={20} />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-gray-800 group-hover:text-[#001E80] transition-colors">{comm.name}</h4>
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Institutional Hub</p>
+                                        </div>
+                                    </div>
+                                    <FaChevronRight className="text-gray-300 group-hover:text-[#001E80]" />
+                                </Link>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-12">
+                            <p className="text-gray-400 text-sm">You haven't joined any communities yet.</p>
+                            <Link to="/community-hub" className="mt-4 inline-block text-xs font-black uppercase tracking-widest text-[#001E80] hover:underline">Explore Hubs →</Link>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
+    // ─── GROUPS TAB ────────────────────────────────────
+    if (activeTab === 'groups') {
+        return (
+            <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-500">
+                <div>
+                    <h1 className="text-3xl font-black bg-gradient-to-b from-black to-[#001E80] bg-clip-text text-transparent pb-1" style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}>My Circles</h1>
+                    <p className="text-[#010D3E]/50 text-sm font-medium mt-1">Specialized circles and group chats you are enrolled in.</p>
                 </div>
 
                 <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-                    {loadingThreads ? (
-                        <div className="flex items-center justify-center py-20">
-                            <div className="w-8 h-8 border-2 border-[#001E80]/20 border-t-[#001E80] rounded-full animate-spin"></div>
-                        </div>
-                    ) : activityThreads.length > 0 ? (
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left border-collapse">
-                                <thead>
-                                    <tr className="bg-gray-50/50 border-b border-gray-100 text-[9px] font-black uppercase tracking-widest text-[#001E80]/40">
-                                        <th className="py-3 px-6 w-1/2">Mission</th>
-                                        <th className="py-3 px-6">Intelligence (Author)</th>
-                                        <th className="py-3 px-6 text-center">Status</th>
-                                        <th className="py-3 px-6 text-right">Access</th>
+                    {loadingCommunities ? (
+                        <div className="flex justify-center py-20"><div className="w-8 h-8 border-2 border-[#001E80]/20 border-t-[#001E80] rounded-full animate-spin"></div></div>
+                    ) : myCommunities.groups?.length > 0 ? (
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-gray-50 border-b border-gray-100 text-[9px] font-black uppercase tracking-widest text-gray-400">
+                                    <th className="py-4 px-6">Circle Name</th>
+                                    <th className="py-4 px-6">Type</th>
+                                    <th className="py-4 px-6 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {myCommunities.groups.map((group) => (
+                                    <tr key={group._id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                                        <td className="py-5 px-6">
+                                            <div className="font-bold text-gray-800">{group.name}</div>
+                                            <div className="text-[10px] text-gray-400 uppercase tracking-widest font-black">{group.privacyType}</div>
+                                        </td>
+                                        <td className="py-5 px-6">
+                                            <span className="px-2 py-0.5 bg-indigo-50 text-indigo-500 rounded text-[9px] font-black uppercase tracking-widest border border-indigo-100">
+                                                {group.groupType || 'General'}
+                                            </span>
+                                        </td>
+                                        <td className="py-5 px-6">
+                                            <div className="flex justify-end gap-3">
+                                                <button 
+                                                    onClick={() => navigate(`/chat?u=${group._id}&type=group`)}
+                                                    className="bg-[#001E80] text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-[#010D3E] transition-all"
+                                                >
+                                                    Enter Chat
+                                                </button>
+                                                <button 
+                                                    onClick={() => handleLeaveGroup(group._id)}
+                                                    className="bg-red-50 text-red-500 px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all"
+                                                >
+                                                    Leave
+                                                </button>
+                                            </div>
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody className="text-sm">
-                                    {activityThreads.map((thread) => (
-                                        <tr
-                                            key={thread._id}
-                                            onClick={() => navigate(`/resources/thread/${thread._id}`)}
-                                            className="border-b border-gray-50 hover:bg-[#EAEEFE]/20 cursor-pointer transition-colors group"
-                                        >
-                                            <td className="py-6 px-6 relative">
-                                                <div className="flex-1 min-w-0">
-                                                    <h3 className="font-bold text-gray-900 truncate group-hover:text-[#001E80] transition-colors pr-4">{thread.title}</h3>
-                                                    <div className="flex items-center gap-1.5 mt-1.5">
-                                                        {thread.tags?.slice(0, 2).map((tag, idx) => (
-                                                            <span key={idx} className="px-1.5 py-0.5 bg-gray-50 text-gray-400 rounded text-[8px] font-bold uppercase tracking-wider">
-                                                                {tag}
-                                                            </span>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            </td>
+                                ))}
+                            </tbody>
+                        </table>
+                    ) : (
+                        <div className="text-center py-20">
+                            <p className="text-gray-400 text-sm">No circles joined yet.</p>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    }
 
-                                            <td className="py-6 px-6">
-                                                <div className="flex items-center gap-2">
-                                                    <div className="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center text-[#001E80] font-bold text-[10px]">
-                                                        {thread.author?.name?.charAt(0)}
-                                                    </div>
-                                                    <span className="text-xs font-bold text-gray-700">{thread.author?.name}</span>
-                                                </div>
-                                            </td>
+    // ─── MODERATE TAB ──────────────────────────────────
+    if (activeTab === 'comm-moderate') {
+        return (
+            <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-500">
+                <div>
+                    <h1 className="text-3xl font-black bg-gradient-to-b from-black to-[#001E80] bg-clip-text text-transparent pb-1" style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}>Moderate Content</h1>
+                    <p className="text-[#010D3E]/50 text-sm font-medium mt-1">Communities and Circles where you hold moderator privileges.</p>
+                </div>
 
-                                            <td className="py-6 px-6 text-center">
-                                                <div className="flex items-center justify-center gap-3 text-gray-400">
-                                                    <span className="flex items-center gap-1 font-bold text-[10px] uppercase tracking-widest" title="Posts">
-                                                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
-                                                        {thread.postCount || 0}
-                                                    </span>
-                                                </div>
-                                            </td>
-
-                                            <td className="py-6 px-6 text-right">
-                                                <div className="flex items-center justify-end gap-2">
-                                                    <div className="w-8 h-8 rounded-full border border-gray-100 flex items-center justify-center group-hover:border-[#001E80] group-hover:bg-[#001E80] transition-colors">
-                                                        <FaChevronRight size={10} className="text-gray-300 group-hover:text-white transition-colors" />
+                <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden p-8">
+                    {loadingCommunities ? (
+                        <div className="flex justify-center py-10"><div className="w-6 h-6 border-2 border-[#001E80]/20 border-t-[#001E80] rounded-full animate-spin"></div></div>
+                    ) : (moderatedContent.communities?.length > 0 || moderatedContent.groups?.length > 0) ? (
+                        <div className="space-y-8">
+                            {moderatedContent.communities?.length > 0 && (
+                                <div>
+                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-[#001E80] mb-4">Communities</h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {moderatedContent.communities.map(comm => (
+                                            <Link key={comm._id} to={`/admin?tab=communities`} className="p-5 rounded-2xl border border-gray-50 bg-gray-50/30 hover:bg-indigo-50/50 flex items-center justify-between group">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-indigo-400">
+                                                        <FaUserFriends />
                                                     </div>
+                                                    <span className="font-bold text-gray-800">{comm.name}</span>
                                                 </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                                <span className="text-[10px] font-black uppercase text-indigo-500">Manage Hub</span>
+                                            </Link>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                            {moderatedContent.groups?.length > 0 && (
+                                <div>
+                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-[#001E80] mb-4">Circles</h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {moderatedContent.groups.map(group => (
+                                            <div key={group._id} className="p-5 rounded-2xl border border-gray-50 bg-gray-50/30 flex items-center justify-between">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-indigo-400">
+                                                        <FaUserFriends size={16} />
+                                                    </div>
+                                                    <span className="font-bold text-gray-800">{group.name}</span>
+                                                </div>
+                                                <button 
+                                                    onClick={() => navigate(`/admin?tab=communities`)}
+                                                    className="text-[9px] font-black uppercase text-indigo-500 hover:underline"
+                                                >
+                                                    Manage in Dashboard
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     ) : (
-                        <div className="text-center py-20 px-4 bg-gray-50/30">
-                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">No activity found in this section.</p>
-                            <button
-                                onClick={() => navigate('/resources')}
-                                className="bg-[#001E80] text-white px-6 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all shadow-md hover:bg-[#010D3E]"
-                            >
-                                Browse Intelligence
-                            </button>
+                        <div className="text-center py-12">
+                            <p className="text-gray-400 text-sm">You are not a moderator in any community yet.</p>
                         </div>
                     )}
                 </div>

@@ -58,6 +58,8 @@ const AdminDashboard = () => {
     const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
     const [groupForm, setGroupForm] = useState({ name: '', description: '', groupType: '', metadata: {}, avatar: '', privacyType: 'public' });
     const [groupConfigs, setGroupConfigs] = useState([]);
+    const [groupRequests, setGroupRequests] = useState([]);
+    const [groupRequestsLoading, setGroupRequestsLoading] = useState(false);
 
     // Hub creation state
     const [isCreateHubOpen, setIsCreateHubOpen] = useState(false);
@@ -118,6 +120,12 @@ const AdminDashboard = () => {
             if (activeTab !== 'communities') setActiveTab('communities');
         }
     }, [user, activeTab]);
+
+    useEffect(() => {
+        if (manageGroupModal) {
+            openRequestManager(manageCommModal, manageGroupModal);
+        }
+    }, [manageGroupModal]);
 
     // ───────────────────────────────────────
     // DATA FETCHING
@@ -378,21 +386,34 @@ const AdminDashboard = () => {
         }
     };
 
-    const openRequestManager = async (comm) => {
-        setPendingRequests([]);
-        setRequestLoading(true);
+    const openRequestManager = async (comm, group = null) => {
+        if (group) {
+            setGroupRequests([]);
+            setGroupRequestsLoading(true);
+        } else {
+            setPendingRequests([]);
+            setRequestLoading(true);
+        }
+        
         try {
             const { data } = await axios.get(`${API_BASE_URL}/api/requests/received`, {
                 headers: { Authorization: `Bearer ${user.token}` }
             });
-            const filtered = data.filter(req => 
-                req.status === 'pending' && req.community === comm._id
-            );
-            setPendingRequests(filtered);
+            const filtered = data.filter(req => {
+                if (group) return req.status === 'pending' && req.groupChat === group._id;
+                return req.status === 'pending' && req.community === comm._id && !req.groupChat;
+            });
+            
+            if (group) {
+                setGroupRequests(filtered);
+            } else {
+                setPendingRequests(filtered);
+            }
         } catch (error) {
             toast.error('Failed to fetch requests');
         } finally {
-            setRequestLoading(false);
+            if (group) setGroupRequestsLoading(false);
+            else setRequestLoading(false);
         }
     };
 
@@ -427,9 +448,33 @@ const AdminDashboard = () => {
         }
     };
 
-    const handleAssignMod = async (commId, userId) => {
+    const handleAssignMod = async (commId, userId = null, directUsername = null) => {
+        let finalUserId = userId;
+        
+        if (!userId && directUsername) {
+            setSearchLoading(true);
+            try {
+                const { data } = await axios.get(`${API_BASE_URL}/api/admin/users?search=${directUsername}`, {
+                    headers: { Authorization: `Bearer ${user.token}` }
+                });
+                const exactUser = data.users?.find(u => u.username.toLowerCase() === directUsername.toLowerCase().replace('@', ''));
+                if (!exactUser) {
+                    toast.error('User not found');
+                    return;
+                }
+                finalUserId = exactUser._id;
+            } catch (err) {
+                toast.error('Search failed');
+                return;
+            } finally {
+                setSearchLoading(false);
+            }
+        }
+
+        if (!finalUserId) return;
+
         try {
-            await axios.put(`${API_BASE_URL}/api/admin/communities/${commId}/moderators`, { userId }, {
+            await axios.put(`${API_BASE_URL}/api/admin/communities/${commId}/moderators`, { userId: finalUserId }, {
                 headers: { Authorization: `Bearer ${user.token}` }
             });
             toast.success('Moderator assigned');
@@ -473,9 +518,33 @@ const AdminDashboard = () => {
         }
     };
 
-    const handleAssignGroupMod = async (groupId, userId) => {
+    const handleAssignGroupMod = async (groupId, userId = null, directUsername = null) => {
+        let finalUserId = userId;
+
+        if (!userId && directUsername) {
+            setSearchLoading(true);
+            try {
+                const { data } = await axios.get(`${API_BASE_URL}/api/admin/users?search=${directUsername}`, {
+                    headers: { Authorization: `Bearer ${user.token}` }
+                });
+                const exactUser = data.users?.find(u => u.username.toLowerCase() === directUsername.toLowerCase().replace('@', ''));
+                if (!exactUser) {
+                    toast.error('User not found');
+                    return;
+                }
+                finalUserId = exactUser._id;
+            } catch (err) {
+                toast.error('Search failed');
+                return;
+            } finally {
+                setSearchLoading(false);
+            }
+        }
+
+        if (!finalUserId) return;
+
         try {
-            await adminService.assignGroupMod(user.token, groupId, userId);
+            await adminService.assignGroupMod(user.token, groupId, finalUserId);
             toast.success('Group Moderator assigned');
             
             // Refresh states
@@ -484,7 +553,6 @@ const AdminDashboard = () => {
             
             // Refresh sub-modal data if open
             if (manageGroupModal) {
-                // Find updated group in the fresh communities data
                 let updatedGrp = null;
                 data.forEach(c => {
                     const found = c.groups.find(g => g._id === groupId);
@@ -536,16 +604,31 @@ const AdminDashboard = () => {
         
         const newPrivacy = group.privacyType === 'public' ? 'private' : 'public';
         try {
-            await adminService.updateGroup(user.token, group._id, { privacyType: newPrivacy });
+            const data = await adminService.updateGroup(user.token, group._id, { privacyType: newPrivacy });
             toast.success(`Group is now ${newPrivacy}`);
+            if (data.autoAccepted) toast.info('All pending requests auto-accepted!');
+            
             fetchCommunities();
-            // Update the local modal state to reflect the change
-            setViewGroupsModal(prev => {
-                const updatedGroups = prev.groups.map(g => 
-                    g._id === group._id ? { ...g, privacyType: newPrivacy } : g
-                );
-                return { ...prev, groups: updatedGroups };
-            });
+            
+            // Update the local modal states to reflect the change
+            if (viewGroupsModal) {
+                setViewGroupsModal(prev => {
+                    const updatedGroups = prev.groups.map(g => 
+                        g._id === group._id ? { ...g, privacyType: newPrivacy } : g
+                    );
+                    return { ...prev, groups: updatedGroups };
+                });
+            }
+
+            if (manageGroupModal) {
+                setManageGroupModal(prev => ({ ...prev, privacyType: newPrivacy }));
+            }
+            
+            // If switched to public, clear local requests
+            if (newPrivacy === 'public') {
+                setGroupRequests([]);
+            }
+
         } catch (error) {
             toast.error('Failed to update privacy');
         }
@@ -1474,6 +1557,13 @@ const AdminDashboard = () => {
                                             onChange={(e) => handleSearchUsers(e.target.value)}
                                             className="flex-1 bg-white border border-gray-100 rounded-xl px-4 py-2.5 text-sm"
                                         />
+                                        <button 
+                                            className="admin-btn primary !py-2 !px-4"
+                                            onClick={() => handleAssignGroupMod(manageGroupModal._id, null, userSearchText)}
+                                            disabled={!userSearchText || searchLoading}
+                                        >
+                                            Send
+                                        </button>
                                         {searchLoading && <div className="admin-spinner" style={{ width: 16, height: 16 }} />}
                                     </div>
 
@@ -1499,6 +1589,47 @@ const AdminDashboard = () => {
                                             <div className="text-[10px] font-black uppercase text-gray-300 px-2 italic">Zero assigned moderators</div>
                                         )}
                                     </div>
+                                </div>
+                            </div>
+
+                            <div className="mb-10">
+                                <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 px-2">Pending Join Requests</h4>
+                                <div className="bg-gray-50 rounded-[2rem] p-6 border border-gray-100">
+                                    {groupRequestsLoading ? (
+                                        <div className="text-center py-4"><div className="admin-spinner mx-auto" style={{ width: 16, height: 16 }} /></div>
+                                    ) : groupRequests.length === 0 ? (
+                                        <div className="text-[10px] font-black uppercase text-gray-300 px-2 italic">No pending requests</div>
+                                    ) : (
+                                        <div className="space-y-3">
+                                            {groupRequests.map(req => (
+                                                <div key={req._id} className="p-3 bg-white rounded-xl flex justify-between items-center shadow-sm border border-gray-50">
+                                                    <div>
+                                                        <div className="text-xs font-bold text-gray-800">@{req.sender?.username}</div>
+                                                        <button 
+                                                            className="text-[9px] font-black text-indigo-500 uppercase mt-0.5 hover:underline"
+                                                            onClick={() => handleOpenDetails(req.sender._id)}
+                                                        >
+                                                            View Profile
+                                                        </button>
+                                                    </div>
+                                                    <div className="flex gap-2">
+                                                        <button 
+                                                            className="text-[9px] font-black uppercase text-green-600 bg-green-50 px-3 py-1.5 rounded-lg hover:bg-green-600 hover:text-white transition-all"
+                                                            onClick={() => handleRespondToRequest(req._id, 'accepted')}
+                                                        >
+                                                            Accept
+                                                        </button>
+                                                        <button 
+                                                            className="text-[9px] font-black uppercase text-red-600 bg-red-50 px-3 py-1.5 rounded-lg hover:bg-red-600 hover:text-white transition-all"
+                                                            onClick={() => handleRespondToRequest(req._id, 'rejected')}
+                                                        >
+                                                            Reject
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
