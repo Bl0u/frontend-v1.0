@@ -361,6 +361,23 @@ const AdminDashboard = () => {
         }
     };
 
+    const handleSeedTestPersonnel = async () => {
+        if (!window.confirm('This will populate the database with full profiles for test accounts a, b, c, and d. Continue?')) return;
+        setLoading(true);
+        try {
+            const data = await adminService.seedTestPersonnel(user.token);
+            toast.success(data.message);
+            fetchStats();
+            // Also refresh communities to show any new ones created by seed? 
+            // Actually seed only does users, but good to have.
+            fetchCommunities();
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Seeding failed');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleRunGenerator = async () => {
         setLoading(true);
         try {
@@ -696,17 +713,26 @@ const AdminDashboard = () => {
 
                 {/* Danger Zone */}
                 <div className="admin-danger-zone">
-                    <h3>Danger Zone</h3>
+                    <h3>System Administration</h3>
                     <p>
-                        Reset the entire database. This will delete <strong>all users, threads, posts, messages, payments, reports, and everything else</strong> — except admin accounts.
+                        Quickly populate the database with test accounts (a, b, c, d) with full profiles, or reset the entire system.
                     </p>
-                    <button
-                        className="admin-btn danger"
-                        style={{ padding: '10px 24px' }}
-                        onClick={() => { setResetModal(true); setResetResult(null); setResetConfirmText(''); }}
-                    >
-                        Reset Entire Database
-                    </button>
+                    <div className="flex gap-4 flex-wrap">
+                        <button
+                            className="admin-btn primary"
+                            style={{ padding: '10px 24px', background: '#001E80' }}
+                            onClick={handleSeedTestPersonnel}
+                        >
+                            Seed Test Personnel
+                        </button>
+                        <button
+                            className="admin-btn danger"
+                            style={{ padding: '10px 24px' }}
+                            onClick={() => { setResetModal(true); setResetResult(null); setResetConfirmText(''); }}
+                        >
+                            Reset Entire Database
+                        </button>
+                    </div>
                 </div>
             </>
         );

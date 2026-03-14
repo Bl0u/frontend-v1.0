@@ -162,6 +162,11 @@ const deleteGroupAsAdmin = async (token, communityId, groupId) => {
     return res.data;
 };
 
+const seedTestPersonnel = async (token) => {
+    const res = await axios.post(`${API_BASE_URL}/api/admin/seed`, {}, getConfig(token));
+    return res.data;
+};
+
 const adminService = {
     getStats,
     getUsers,
@@ -190,7 +195,8 @@ const adminService = {
     runHubGenerator,
     assignHubMod,
     assignGroupMod,
-    deleteGroupAsAdmin
+    deleteGroupAsAdmin,
+    seedTestPersonnel
 };
 
 export default adminService;
