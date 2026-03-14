@@ -59,6 +59,13 @@ const AdminDashboard = () => {
     const [groupForm, setGroupForm] = useState({ name: '', description: '', groupType: '', metadata: {}, avatar: '', privacyType: 'public' });
     const [groupConfigs, setGroupConfigs] = useState([]);
 
+    // Hub creation state
+    const [isCreateHubOpen, setIsCreateHubOpen] = useState(false);
+    const [hubForm, setHubForm] = useState({ name: '', description: '', privacyType: 'public' });
+
+    // Group Management Sub-Modal
+    const [manageGroupModal, setManageGroupModal] = useState(null);
+
     // — UI state —
     const [userSearch, setUserSearch] = useState('');
     const [threadSearch, setThreadSearch] = useState('');
@@ -450,6 +457,61 @@ const AdminDashboard = () => {
             setManageCommModal(updatedComm);
         } catch (error) {
             toast.error('Failed to add group');
+        }
+    };
+
+    const handleCreateHub = async () => {
+        if (!hubForm.name) return toast.error('Hub Name is required');
+        try {
+            await adminService.createCommunity(user.token, hubForm);
+            toast.success('Community Hub created successfully!');
+            setIsCreateHubOpen(false);
+            setHubForm({ name: '', description: '', privacyType: 'public' });
+            fetchCommunities();
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Failed to create hub');
+        }
+    };
+
+    const handleAssignGroupMod = async (groupId, userId) => {
+        try {
+            await adminService.assignGroupMod(user.token, groupId, userId);
+            toast.success('Group Moderator assigned');
+            
+            // Refresh states
+            const data = await adminService.getCommunities(user.token);
+            setCommunities(data);
+            
+            // Refresh sub-modal data if open
+            if (manageGroupModal) {
+                // Find updated group in the fresh communities data
+                let updatedGrp = null;
+                data.forEach(c => {
+                    const found = c.groups.find(g => g._id === groupId);
+                    if (found) updatedGrp = found;
+                });
+                if (updatedGrp) setManageGroupModal(updatedGrp);
+            }
+            
+            setUserSearchText('');
+            setSearchedUsers([]);
+        } catch (error) {
+            toast.error('Failed to assign group moderator');
+        }
+    };
+
+    const handleDeleteGroup = async (commId, groupId) => {
+        if (!window.confirm('Are you sure you want to PERMANENTLY delete this circle?')) return;
+        try {
+            await adminService.deleteGroupAsAdmin(user.token, commId, groupId);
+            toast.success('Circle deleted successfully');
+            
+            fetchCommunities();
+            const updatedComm = (await adminService.getCommunities(user.token)).find(c => c._id === commId);
+            setManageCommModal(updatedComm);
+            setManageGroupModal(null);
+        } catch (error) {
+            toast.error('Failed to delete circle');
         }
     };
 
@@ -998,9 +1060,9 @@ const AdminDashboard = () => {
                 <div style={{ flex: 1 }} />
                 <button 
                     className="admin-btn primary" 
-                    onClick={() => toast.info('Use Hub Setup to generate base hubs or contact devs for manual entry')}
+                    onClick={() => setIsCreateHubOpen(true)}
                 >
-                    Manual Creation Disabled
+                    <FaPlus style={{ marginRight: 8 }} /> Create New Hub
                 </button>
             </div>
 
@@ -1228,31 +1290,36 @@ const AdminDashboard = () => {
                                     </div>
                                 </div>
 
-                                {/* Section: Join Requests */}
-                                {manageCommModal.privacyType === 'private' && (
-                                    <div>
-                                        <h4 className="text-xs font-black uppercase tracking-widest text-[#001E80] mb-6">Pending Join Requests ({pendingRequests.length})</h4>
-                                        <div className="space-y-3">
-                                            {requestLoading ? <div className="text-center py-4 italic text-gray-400">Loading requests...</div> : 
-                                             pendingRequests.length === 0 ? <div className="text-center py-4 border-2 border-dashed border-gray-100 rounded-2xl text-[10px] text-gray-300 font-black uppercase">No pending applications</div> :
-                                             pendingRequests.map(req => (
-                                                <div key={req._id} className="p-4 bg-gray-50 rounded-2xl flex justify-between items-center border border-gray-100">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-8 h-8 rounded-full bg-indigo-100" />
-                                                        <div>
-                                                            <div className="text-xs font-bold">@{req.sender?.username}</div>
-                                                            <div className="text-[9px] text-gray-400">{formatDate(req.createdAt)}</div>
-                                                        </div>
+                                {/* Section: Hub Circles List */}
+                                <div>
+                                    <h4 className="text-xs font-black uppercase tracking-widest text-[#001E80] mb-6">Hub Circles ({manageCommModal.groups?.length || 0})</h4>
+                                    <div className="space-y-3">
+                                        {manageCommModal.groups?.map(g => (
+                                            <div key={g._id} className="p-4 bg-gray-50 rounded-2xl flex justify-between items-center border border-gray-100 hover:border-indigo-200 transition-all">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-8 h-8 rounded-lg bg-white shadow-sm overflow-hidden flex items-center justify-center">
+                                                        {g.avatar ? <img src={g.avatar} className="w-full h-full object-cover" /> : <FaLayerGroup className="text-indigo-200" size={14} />}
                                                     </div>
-                                                    <div className="flex gap-2">
-                                                        <button className="admin-btn success !py-1.5" onClick={() => handleRespondToRequest(req._id, 'accepted')}>Accept</button>
-                                                        <button className="admin-btn danger !py-1.5" onClick={() => handleRespondToRequest(req._id, 'rejected')}>Reject</button>
+                                                    <div>
+                                                        <div className="text-xs font-bold text-gray-700">{g.name}</div>
+                                                        <div className="text-[9px] font-black uppercase text-gray-400">{g.groupType} · {g.privacyType}</div>
                                                     </div>
                                                 </div>
-                                            ))}
-                                        </div>
+                                                <button 
+                                                    className="text-[9px] font-black uppercase text-indigo-600 border border-indigo-100 bg-white px-3 py-1.5 rounded-lg hover:bg-indigo-600 hover:text-white transition-all shadow-sm"
+                                                    onClick={() => setManageGroupModal(g)}
+                                                >
+                                                    Manage Group
+                                                </button>
+                                            </div>
+                                        ))}
+                                        {(!manageCommModal.groups || manageCommModal.groups.length === 0) && (
+                                            <div className="text-center py-8 border-2 border-dashed border-gray-100 rounded-2xl text-[10px] text-gray-300 font-black uppercase">
+                                                No circles published yet
+                                            </div>
+                                        )}
                                     </div>
-                                )}
+                                </div>
 
                                 {/* Section: Publish New Circle */}
                                 <div className="p-8 bg-indigo-50/50 border border-indigo-100 rounded-[2.5rem]">
@@ -1299,6 +1366,155 @@ const AdminDashboard = () => {
                                         </div>
                                     )}
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* Create New Hub Modal */}
+            {isCreateHubOpen && (
+                <div className="admin-modal-overlay" style={{ zIndex: 1200 }} onClick={() => setIsCreateHubOpen(false)}>
+                    <div className="admin-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 500, borderRadius: 32 }}>
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-xl font-black text-gray-800 uppercase tracking-tight">Create Community Hub</h3>
+                            <button onClick={() => setIsCreateHubOpen(false)} className="text-gray-400 hover:text-gray-600"><FaTimes /></button>
+                        </div>
+                        
+                        <div className="space-y-4">
+                            <div>
+                                <label className="text-[10px] font-black uppercase text-gray-400 mb-1 block">Hub Name</label>
+                                <input 
+                                    type="text"
+                                    placeholder="e.g. Cairo University"
+                                    className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm font-bold"
+                                    value={hubForm.name}
+                                    onChange={e => setHubForm({ ...hubForm, name: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="text-[10px] font-black uppercase text-gray-400 mb-1 block">Description</label>
+                                <textarea 
+                                    placeholder="Brief details about this institution..."
+                                    className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm font-medium min-h-[100px]"
+                                    value={hubForm.description}
+                                    onChange={e => setHubForm({ ...hubForm, description: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="text-[10px] font-black uppercase text-gray-400 mb-1 block">Privacy Type</label>
+                                <select 
+                                    className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm font-bold"
+                                    value={hubForm.privacyType}
+                                    onChange={e => setHubForm({ ...hubForm, privacyType: e.target.value })}
+                                >
+                                    <option value="public">Public (Open for all)</option>
+                                    <option value="private">Private (Invite only)</option>
+                                </select>
+                            </div>
+                            
+                            <button 
+                                className="w-full admin-btn primary !py-4 shadow-xl shadow-indigo-100 mt-4"
+                                onClick={handleCreateHub}
+                            >
+                                <FaCheckCircle style={{ marginRight: 8 }} /> Create Hub
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Manage Group Sub-Modal */}
+            {manageGroupModal && (
+                <div className="admin-modal-overlay" style={{ zIndex: 1400 }} onClick={() => setManageGroupModal(null)}>
+                    <div className="admin-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 650, borderRadius: 40, padding: 0, overflow: 'hidden' }}>
+                        <div className="p-8 bg-white">
+                            <div className="flex justify-between items-center mb-10">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-400">
+                                        <FaLayerGroup size={24} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-black text-[#010D3E]">{manageGroupModal.name}</h3>
+                                        <span className="text-[10px] font-black uppercase text-indigo-400 tracking-widest">Circle Manager</span>
+                                    </div>
+                                </div>
+                                <button onClick={() => setManageGroupModal(null)} className="p-3 bg-gray-50 rounded-2xl text-gray-400 hover:text-gray-600 transition-all">
+                                    <FaTimes />
+                                </button>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-8 mb-10">
+                                <div className="p-6 bg-gray-50 rounded-3xl border border-gray-100">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <span className="text-[10px] font-black uppercase text-gray-400">Privacy Status</span>
+                                        <div 
+                                            className={`w-10 h-5 rounded-full relative cursor-pointer transition-all ${manageGroupModal.privacyType === 'private' ? 'bg-[#F59E0B]' : 'bg-[#10B981]'}`}
+                                            onClick={() => handleToggleGroupPrivacy(manageGroupModal)}
+                                        >
+                                            <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${manageGroupModal.privacyType === 'private' ? 'left-6' : 'left-1'}`} />
+                                        </div>
+                                    </div>
+                                    <div className="text-xs font-black text-[#010D3E] capitalize">{manageGroupModal.privacyType} Circle</div>
+                                </div>
+                                
+                                <div className="p-6 bg-gray-50 rounded-3xl border border-gray-100">
+                                    <span className="text-[10px] font-black uppercase text-gray-400 mb-2 block">Circle Type</span>
+                                    <div className="text-xs font-black text-[#001E80] uppercase tracking-tighter">{manageGroupModal.groupType}</div>
+                                </div>
+                            </div>
+
+                            <div className="mb-10">
+                                <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 px-2">Circle Moderators</h4>
+                                <div className="bg-gray-50 rounded-[2rem] p-6 border border-gray-100">
+                                    <div className="flex gap-2 mb-6">
+                                        <input 
+                                            type="text"
+                                            placeholder="Assign mod by @username..."
+                                            value={userSearchText}
+                                            onChange={(e) => handleSearchUsers(e.target.value)}
+                                            className="flex-1 bg-white border border-gray-100 rounded-xl px-4 py-2.5 text-sm"
+                                        />
+                                        {searchLoading && <div className="admin-spinner" style={{ width: 16, height: 16 }} />}
+                                    </div>
+
+                                    {searchedUsers.length > 0 && (
+                                        <div className="mb-6 bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-lg animate-in fade-in slide-in-from-top-2">
+                                            {searchedUsers.map(u => (
+                                                <div key={u._id} className="p-4 flex justify-between items-center hover:bg-indigo-50 cursor-pointer transition-colors" onClick={() => handleAssignGroupMod(manageGroupModal._id, u._id)}>
+                                                    <span className="text-xs font-bold text-gray-700">@{u.username}</span>
+                                                    <FaUserPlus className="text-indigo-400" />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    <div className="flex flex-wrap gap-2">
+                                        {manageGroupModal.moderators?.map(mod => (
+                                            <div key={mod._id} className="bg-white border border-indigo-100 rounded-full px-4 py-2 flex items-center gap-2 shadow-sm">
+                                                <span className="text-[10px] font-bold text-gray-700">@{mod.username}</span>
+                                                <button className="text-gray-300 hover:text-red-500"><FaTimes size={10} /></button>
+                                            </div>
+                                        ))}
+                                        {(!manageGroupModal.moderators || manageGroupModal.moderators.length === 0) && (
+                                            <div className="text-[10px] font-black uppercase text-gray-300 px-2 italic">Zero assigned moderators</div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-4">
+                                <button 
+                                    className="flex-1 admin-btn primary !py-4 shadow-lg shadow-indigo-100"
+                                    onClick={() => navigate(`/chat?u=${manageGroupModal._id}&type=group`)}
+                                >
+                                    Open Circle Chat
+                                </button>
+                                <button 
+                                    className="admin-btn danger !bg-red-50 !text-red-500 border-none !px-8 hover:!bg-red-500 hover:!text-white transition-all"
+                                    onClick={() => handleDeleteGroup(manageCommModal._id, manageGroupModal._id)}
+                                >
+                                    <FaTrash />
+                                </button>
                             </div>
                         </div>
                     </div>

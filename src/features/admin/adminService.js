@@ -147,6 +147,21 @@ const runHubGenerator = async (token) => {
     return res.data;
 };
 
+const assignHubMod = async (token, hubId, userId) => {
+    const res = await axios.put(`${API_BASE_URL}/api/admin/communities/${hubId}/moderators`, { userId }, getConfig(token));
+    return res.data;
+};
+
+const assignGroupMod = async (token, groupId, userId) => {
+    const res = await axios.put(`${API_BASE_URL}/api/admin/groups/${groupId}/moderators`, { userId }, getConfig(token));
+    return res.data;
+};
+
+const deleteGroupAsAdmin = async (token, communityId, groupId) => {
+    const res = await axios.delete(`${API_BASE_URL}/api/admin/communities/${communityId}/groups/${groupId}`, getConfig(token));
+    return res.data;
+};
+
 const adminService = {
     getStats,
     getUsers,
@@ -172,7 +187,10 @@ const adminService = {
     deleteCommunity,
     updateCommunity,
     updateGroup,
-    runHubGenerator
+    runHubGenerator,
+    assignHubMod,
+    assignGroupMod,
+    deleteGroupAsAdmin
 };
 
 export default adminService;
