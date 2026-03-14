@@ -137,8 +137,8 @@ const PitchHub = () => {
                                             <div className="w-1 h-1 rounded-full bg-gray-300" />
                                             <div className="flex items-center gap-1.5 text-[11px] font-bold text-[#001E80]">
                                                 <FaUserFriends size={10} className="opacity-50" />
-                                                {pitch.contributors?.length || 0} / {
-                                                    pitch.roles?.filter(r => r.roleType === 'teammate' || !r.roleType).length || pitch.teamSize || 1
+                                                {(pitch.contributors?.length || 0) + (pitch.mentor ? 1 : 0)} / {
+                                                    (pitch.roles?.length || (pitch.teamSize + (pitch.mentorNeeded ? 1 : 0))) || 1
                                                 } Contributors
                                             </div>
                                         </div>
@@ -268,7 +268,11 @@ const PitchHub = () => {
                                             <ProjectRoles
                                                 roles={pitch.roles || []}
                                                 onApply={(role) => handleApplyForRole(pitch._id, role)}
-                                                isApplied={pitch.contributors?.some(c => c._id === currentUser?._id) || (pitch.mentor?._id === currentUser?._id)}
+                                                isApplied={
+                                                    pitch.contributors?.some(c => c._id === currentUser?._id || c === currentUser?._id) || 
+                                                    (pitch.mentor?._id === currentUser?._id || pitch.mentor === currentUser?._id) ||
+                                                    (pitch.sender?._id === currentUser?._id || pitch.sender === currentUser?._id)
+                                                }
                                                 currentUserRoles={currentUser?.roles || []}
                                             />
                                         )}

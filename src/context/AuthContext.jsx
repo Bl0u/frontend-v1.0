@@ -141,8 +141,10 @@ export const AuthProvider = ({ children }) => {
     const switchSession = (index) => {
         if (sessions[index]) {
             localStorage.setItem('activeSessionIndex', index.toString());
-            setUser(sessions[index]);
             toast.info(`Switched to ${sessions[index].username}`);
+            setTimeout(() => {
+                window.location.href = '/dashboard';
+            }, 500); // Small delay to let toast show
         }
     };
 
@@ -156,8 +158,9 @@ export const AuthProvider = ({ children }) => {
         if (newSessions.length === 0) {
             localStorage.removeItem('sessions');
             localStorage.removeItem('activeSessionIndex');
-            setSessions([]);
-            setUser(null);
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 500);
         } else {
             // If we've logged out the active session, switch to the first one
             const activeIndex = localStorage.getItem('activeSessionIndex');
@@ -169,9 +172,13 @@ export const AuthProvider = ({ children }) => {
                 nextIndex--;
             }
 
-            updateSessions(newSessions, nextIndex);
+            localStorage.setItem('sessions', JSON.stringify(newSessions));
+            localStorage.setItem('activeSessionIndex', nextIndex.toString());
+            toast.info('Logged out. Switching session...');
+            setTimeout(() => {
+                window.location.reload();
+            }, 500);
         }
-        toast.info('Logged out');
     };
 
     // Update active user data (e.g., stars, profile info)
@@ -203,8 +210,82 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    // Batch login for test accounts
+    const seedSessions = async () => {
+        const testAccounts = ['admin', 'a', 'b', 'c', 'd'];
+        let newSessions = [...sessions];
+        let hasChanges = false;
+        let targetIndexToSwitchTo = -1;
+
+        toast.info('Seeding test accounts...', { autoClose: 2000 });
+
+        for (const account of testAccounts) {
+            try {
+                // Check if already in sessions
+                const existingIndex = newSessions.findIndex(s => s.username === account || s.email === account);
+                if (existingIndex !== -1) {
+                    if (account === 'admin') targetIndexToSwitchTo = existingIndex; // Prefer admin as primary
+                    continue;
+                }
+
+                // Determine correct password
+                const pwd = account === 'admin' ? 'admin123' : account;
+
+                // Make login request using 'account' as email and correct password
+                const res = await axios.post(`${API_BASE_URL}/api/auth/login`, {
+                    email: account,
+                    password: pwd
+                });
+
+                if (res.data) {
+                    newSessions.push(res.data);
+                    if (account === 'admin') targetIndexToSwitchTo = newSessions.length - 1; // Prioritize admin
+                    hasChanges = true;
+                }
+            } catch (error) {
+                console.error(`Failed to seed account ${account}:`, error.response?.data?.message || error.message);
+            }
+        }
+
+        if (hasChanges) {
+            // Update storage without setting user state (reload will handle it)
+            localStorage.setItem('sessions', JSON.stringify(newSessions));
+            if (targetIndexToSwitchTo !== -1) {
+                localStorage.setItem('activeSessionIndex', targetIndexToSwitchTo.toString());
+            }
+            
+            toast.success('Test accounts seeded successfully. Reloading...');
+            setTimeout(() => {
+                window.location.href = '/dashboard';
+            }, 1000);
+        } else {
+            toast.info('Test accounts already seeded');
+            // Check if we need to switch to 'a' anyway
+            const currentIndex = parseInt(localStorage.getItem('activeSessionIndex')) || 0;
+            if (targetIndexToSwitchTo !== -1 && targetIndexToSwitchTo !== currentIndex) {
+                localStorage.setItem('activeSessionIndex', targetIndexToSwitchTo.toString());
+                toast.info('Switching to account A...');
+                setTimeout(() => {
+                    window.location.href = '/dashboard';
+                }, 1000);
+            }
+        }
+    };
+
+    // Trigger seed from URL
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('seed') === 'true') {
+            seedSessions();
+            // Clean up URL
+            const url = new URL(window.location);
+            url.searchParams.delete('seed');
+            window.history.replaceState({}, '', url);
+        }
+    }, [sessions]);
+
     return (
-        <AuthContext.Provider value={{ user, sessions, register, login, logout, switchSession, updateUser, refreshUser, loading }}>
+        <AuthContext.Provider value={{ user, sessions, register, login, logout, switchSession, updateUser, refreshUser, seedSessions, loading }}>
             {children}
         </AuthContext.Provider>
     );
