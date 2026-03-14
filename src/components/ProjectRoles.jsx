@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { FaCheckCircle, FaChevronRight, FaInfoCircle, FaUserPlus } from 'react-icons/fa';
 
-const ProjectRoles = ({ roles, onApply, isApplied, currentUserRole }) => {
+const ProjectRoles = ({ roles, onApply, isApplied, currentUserRoles }) => {
     const [selectedRole, setSelectedRole] = useState(null);
+
+    // Filter out already filled roles unless it's the one currently selected (to keep details visible)
+    const availableRoles = roles?.filter(r => !r.isFilled) || [];
 
     if (!roles || roles.length === 0) return null;
 
@@ -19,19 +22,25 @@ const ProjectRoles = ({ roles, onApply, isApplied, currentUserRole }) => {
             </div>
 
             <div className="flex flex-wrap gap-3">
-                {roles.map((role) => (
-                    <button
-                        key={role.id}
-                        onClick={() => setSelectedRole(role)}
-                        className={`px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 border-2 ${selectedRole?.id === role.id
-                            ? 'bg-[#001E80] border-[#001E80] text-white shadow-lg'
-                            : 'bg-white border-gray-100 text-gray-500 hover:border-[#001E80]/20 hover:text-[#001E80]'
-                            }`}
-                    >
-                        {role.name}
-                        {role.roleType === 'mentor' && <span className="opacity-70">🎓</span>}
-                    </button>
-                ))}
+                {availableRoles.length > 0 ? (
+                    availableRoles.map((role) => (
+                        <button
+                            key={role._id || role.id}
+                            onClick={() => setSelectedRole(role)}
+                            className={`px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 border-2 ${selectedRole?._id === role._id || selectedRole?.id === role.id
+                                ? 'bg-[#001E80] border-[#001E80] text-white shadow-lg'
+                                : 'bg-white border-gray-100 text-gray-500 hover:border-[#001E80]/20 hover:text-[#001E80]'
+                                }`}
+                        >
+                            {role.name}
+                            {role.roleType === 'mentor' && <span className="opacity-70">🎓</span>}
+                        </button>
+                    ))
+                ) : (
+                    <div className="w-full p-6 bg-gray-50 rounded-2xl text-center">
+                        <p className="text-sm font-bold text-gray-400">All specialized roles for this mission have been filled.</p>
+                    </div>
+                )}
             </div>
 
             {selectedRole && (
@@ -56,7 +65,7 @@ const ProjectRoles = ({ roles, onApply, isApplied, currentUserRole }) => {
                     </div>
 
                     <div className="pt-4">
-                        {selectedRole.roleType === 'mentor' && currentUserRole !== 'mentor' ? (
+                        {selectedRole.roleType === 'mentor' && !currentUserRoles?.includes('mentor') ? (
                             <div className="bg-amber-50 border border-amber-100 p-4 rounded-2xl flex items-center gap-3 text-amber-700">
                                 <FaInfoCircle className="shrink-0" />
                                 <p className="text-sm font-bold leading-tight">Only verified Mentors can apply for this position.</p>
