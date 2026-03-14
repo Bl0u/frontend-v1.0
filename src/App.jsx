@@ -35,6 +35,7 @@ import AIChatBot from './components/AIChatBot';
 import TopUp from './pages/TopUp';
 import WorkWithUs from './pages/WorkWithUs';
 import AdminDashboard from './pages/AdminDashboard';
+import AccountSwitcher from './components/AccountSwitcher';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -102,6 +103,7 @@ const AppContent = () => {
       </Routes>
       <ToastContainer position="bottom-right" />
       <AIChatBot userToken={user?.token} />
+      <AccountSwitcher />
     </>
   );
 };

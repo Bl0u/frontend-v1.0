@@ -143,7 +143,7 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem('activeSessionIndex', index.toString());
             toast.info(`Switched to ${sessions[index].username}`);
             setTimeout(() => {
-                window.location.href = '/dashboard';
+                window.location.reload();
             }, 500); // Small delay to let toast show
         }
     };
