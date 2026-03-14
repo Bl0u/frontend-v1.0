@@ -26,11 +26,16 @@ import DashboardRequests from './pages/DashboardRequests';
 import Dashboard from './pages/Dashboard';
 import SocialMediaEditor from './pages/SocialMediaEditor';
 import Chat from './pages/Chat';
+import LeadConsole from './pages/LeadConsole';
 import PlanManager from './pages/PlanManager';
+import ProjectPlan from './pages/ProjectPlan';
+import Communities from './pages/Communities';
+import CommunityHub from './pages/CommunityHub';
 import AIChatBot from './components/AIChatBot';
 import TopUp from './pages/TopUp';
 import WorkWithUs from './pages/WorkWithUs';
 import AdminDashboard from './pages/AdminDashboard';
+import AccountSwitcher from './components/AccountSwitcher';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -86,14 +91,19 @@ const AppContent = () => {
           <Route path="/pitch-form" element={<PitchForm />} />
           <Route path="/u/:username" element={<PublicProfile />} />
           <Route path="/requests" element={<DashboardRequests />} />
+          <Route path="/communities" element={<Communities />} />
+          <Route path="/community-hub" element={<CommunityHub />} />
           <Route path="/chat" element={<Chat />} />
+          <Route path="/lead-console" element={<LeadConsole />} />
           <Route path="/top-up" element={<TopUp />} />
           <Route path="/plan/:id" element={<PlanManager />} />
+          <Route path="/project-plan/:projectId" element={<ProjectPlan />} />
           <Route path="/admin" element={<AdminDashboard />} />
         </Route>
       </Routes>
       <ToastContainer position="bottom-right" />
       <AIChatBot userToken={user?.token} />
+      <AccountSwitcher />
     </>
   );
 };

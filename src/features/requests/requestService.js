@@ -39,11 +39,11 @@ const getPublicPitches = async () => {
 };
 
 // Claim a Public Pitch
-const claimPublicPitch = async (pitchId, token, role = 'teammate') => {
+const claimPublicPitch = async (pitchId, token, role = 'teammate', roleName = '') => {
     const config = {
         headers: { Authorization: `Bearer ${token}` },
     };
-    const response = await axios.put(API_URL + `${pitchId}/claim`, { role }, config);
+    const response = await axios.put(API_URL + `${pitchId}/claim`, { role, roleName }, config);
     return response.data;
 };
 
@@ -110,6 +110,24 @@ const checkConnection = async (userId, token) => {
     return response.data;
 };
 
+// Get My Projects (Pitches where involved)
+const getMyProjects = async (token) => {
+    const config = {
+        headers: { Authorization: `Bearer ${token}` },
+    };
+    const response = await axios.get(API_URL + 'my-projects', config);
+    return response.data;
+};
+
+// Mark project as completed
+const completeProject = async (projectId, token) => {
+    const config = {
+        headers: { Authorization: `Bearer ${token}` },
+    };
+    const response = await axios.put(API_URL + `${projectId}/complete`, {}, config);
+    return response.data;
+};
+
 const requestService = {
     sendRequest,
     getReceivedRequests,
@@ -122,7 +140,9 @@ const requestService = {
     cancelRequest,
     markAsRead,
     endRelationship,
-    checkConnection
+    checkConnection,
+    getMyProjects,
+    completeProject
 };
 
 export default requestService;

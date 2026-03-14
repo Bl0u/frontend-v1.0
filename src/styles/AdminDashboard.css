@@ -648,6 +648,16 @@
     width: 100%;
     max-width: 440px;
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.12);
+    max-height: 90vh;
+    overflow-y: auto;
+}
+/* Custom scrollbar for modals */
+.admin-modal::-webkit-scrollbar {
+    width: 6px;
+}
+.admin-modal::-webkit-scrollbar-thumb {
+    background: rgba(0, 30, 128, 0.1);
+    border-radius: 10px;
 }
 
 .admin-modal h3 {

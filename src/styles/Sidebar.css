@@ -29,8 +29,9 @@
     z-index: 100;
     overflow-y: auto;
     overflow-x: hidden;
+    overscroll-behavior: contain;
     border-right: 1px solid var(--sidebar-divider);
-    padding-bottom: 24px;
+    padding-bottom: 80px; /* Space for the footer/account section if needed, or general padding */
 }
 
 .sidebar::-webkit-scrollbar {

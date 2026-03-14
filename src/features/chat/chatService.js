@@ -15,20 +15,40 @@ const getRecentChats = async (token) => {
 };
 
 // Get messages history
-const getMessages = async (targetUserId, token) => {
+const getMessages = async (targetId, token, chatType = 'individual') => {
     const config = {
         headers: { Authorization: `Bearer ${token}` },
+        params: { type: chatType }
     };
-    const response = await axios.get(API_URL + targetUserId, config);
+    const response = await axios.get(API_URL + targetId, config);
     return response.data;
 };
 
 // Send message
-const sendMessage = async (receiverId, content, token) => {
+const sendMessage = async (payload, token) => {
     const config = {
         headers: { Authorization: `Bearer ${token}` },
     };
-    const response = await axios.post(API_URL, { receiverId, content }, config);
+    // payload: { receiverId, groupId, content, isAnnouncement }
+    const response = await axios.post(API_URL, payload, config);
+    return response.data;
+};
+
+// Create a group
+const createGroup = async (groupData, token) => {
+    const config = {
+        headers: { Authorization: `Bearer ${token}` },
+    };
+    const response = await axios.post(API_URL + 'groups', groupData, config);
+    return response.data;
+};
+
+// Add member to group
+const addMemberToGroup = async (groupId, userId, token) => {
+    const config = {
+        headers: { Authorization: `Bearer ${token}` },
+    };
+    const response = await axios.post(`${API_URL}groups/${groupId}/members`, { userId }, config);
     return response.data;
 };
 
@@ -45,7 +65,9 @@ const chatService = {
     getRecentChats,
     getMessages,
     sendMessage,
-    getUnreadCount
+    getUnreadCount,
+    createGroup,
+    addMemberToGroup
 };
 
 export default chatService;

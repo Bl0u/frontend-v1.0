@@ -22,6 +22,7 @@ const Sidebar = () => {
     const [chatUnreadCount, setChatUnreadCount] = useState(0);
     const [resourcesExpanded, setResourcesExpanded] = useState(false);
     const [activityExpanded, setActivityExpanded] = useState(false);
+    const [communitiesExpanded, setCommunitiesExpanded] = useState(false);
 
     // Fetch badge counts
     useEffect(() => {
@@ -102,7 +103,7 @@ const Sidebar = () => {
             />
 
             {/* Sidebar */}
-            <aside className={`sidebar ${isOpen ? 'open' : ''} overflow-y-auto h-screen pb-20 scrollbar-hide`}>
+            <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
                 {/* Brand */}
                 <div className="sidebar-brand">
                     <Link to="/home">LearnCrew</Link>
@@ -144,6 +145,10 @@ const Sidebar = () => {
                         <span className="sidebar-link-icon"><FiUsers /></span>
                         <span className="sidebar-link-text">Partners</span>
                     </Link>
+                    <Link to="/community-hub" className={`sidebar-link ${isActive('/community-hub') ? 'active' : ''}`}>
+                        <span className="sidebar-link-icon"><FiHash /></span>
+                        <span className="sidebar-link-text">Community Hub</span>
+                    </Link>
                     <Link to="/pitch-hub" className={`sidebar-link ${isActive('/pitch-hub') ? 'active' : ''}`}>
                         <span className="sidebar-link-icon"><FiZap /></span>
                         <span className="sidebar-link-text">Pitch Hub</span>
@@ -161,10 +166,38 @@ const Sidebar = () => {
                         <span className="sidebar-link-icon"><FiUserCheck /></span>
                         <span className="sidebar-link-text">Partnerships</span>
                     </Link>
+                    <Link to="/home?tab=projects" className={`sidebar-link ${isActiveDashboardTab('projects') ? 'active' : ''}`}>
+                        <span className="sidebar-link-icon"><FiZap /></span>
+                        <span className="sidebar-link-text">Projects</span>
+                    </Link>
                     <Link to="/home?tab=contributions" className={`sidebar-link ${isActiveDashboardTab('contributions') ? 'active' : ''}`}>
                         <span className="sidebar-link-icon"><FiActivity /></span>
                         <span className="sidebar-link-text">Contributions</span>
                     </Link>
+                    {/* My Communities Accordion */}
+                    <div className="sidebar-accordion">
+                        <button
+                            onClick={() => setCommunitiesExpanded(!communitiesExpanded)}
+                            className={`sidebar-link w-full justify-between ${(location.pathname === '/home' && ['communities', 'groups', 'comm-moderate'].some(t => location.search.includes(`tab=${t}`)) && !communitiesExpanded) ? 'text-indigo-600' : ''}`}
+                        >
+                            <div className="flex items-center gap-3">
+                                <span className="sidebar-link-icon"><FiHash className="text-indigo-500" /></span>
+                                <span className="sidebar-link-text">My Communities</span>
+                            </div>
+                            <FiChevronDown className={`transition-transform duration-300 ${communitiesExpanded ? 'rotate-180' : ''}`} />
+                        </button>
+                        <div className={`overflow-hidden transition-all duration-300 bg-white/50 rounded-b-xl ${communitiesExpanded || ['communities', 'groups', 'comm-moderate'].some(t => location.search.includes(`tab=${t}`)) ? 'max-h-48 opacity-100 py-2 mb-2' : 'max-h-0 opacity-0'}`}>
+                            <Link to="/home?tab=communities" className={`sidebar-link pl-12 text-sm mx-2 mb-1 rounded-lg ${isActiveDashboardTab('communities') ? 'active bg-white text-[#001E80] shadow-sm font-bold' : 'text-gray-600 hover:bg-white/80 hover:text-[#001E80]'}`}>
+                                <span className="sidebar-link-text text-xs uppercase tracking-widest font-black">Communities</span>
+                            </Link>
+                            <Link to="/home?tab=groups" className={`sidebar-link pl-12 text-sm mx-2 mb-1 rounded-lg ${isActiveDashboardTab('groups') ? 'active bg-white text-[#001E80] shadow-sm font-bold' : 'text-gray-600 hover:bg-white/80 hover:text-[#001E80]'}`}>
+                                <span className="sidebar-link-text text-xs uppercase tracking-widest font-black">Groups</span>
+                            </Link>
+                            <Link to="/home?tab=comm-moderate" className={`sidebar-link pl-12 text-sm mx-2 rounded-lg ${isActiveDashboardTab('comm-moderate') ? 'active bg-white text-[#001E80] shadow-sm font-bold' : 'text-gray-600 hover:bg-white/80 hover:text-[#001E80]'}`}>
+                                <span className="sidebar-link-text text-xs uppercase tracking-widest font-black">Moderate</span>
+                            </Link>
+                        </div>
+                    </div>
 
                     {/* My Activity Accordion */}
                     <div className="sidebar-accordion">
@@ -174,7 +207,7 @@ const Sidebar = () => {
                         >
                             <div className="flex items-center gap-3">
                                 <span className="sidebar-link-icon"><FiActivity /></span>
-                                <span className="sidebar-link-text">My Activity</span>
+                                <span className="sidebar-link-text">My Threads</span>
                             </div>
                             <FiChevronDown className={`transition-transform duration-300 ${activityExpanded ? 'rotate-180' : ''}`} />
                         </button>
@@ -192,8 +225,21 @@ const Sidebar = () => {
                     </div>
                 </nav>
 
+                {/* ── LEAD CONSOLE (Student Leads & Mentors) ── */}
+                {(user.roles?.includes('studentLead') || user.roles?.includes('mentor') || user.roles?.includes('moderator')) && (
+                    <>
+                        <div className="sidebar-section-label">Lead Actions</div>
+                        <nav className="sidebar-nav">
+                            <Link to="/lead-console" className={`sidebar-link ${isActive('/lead-console') ? 'active' : ''}`}>
+                                <span className="sidebar-link-icon"><FiShield className="text-orange-500" /></span>
+                                <span className="sidebar-link-text">Lead Console</span>
+                            </Link>
+                        </nav>
+                    </>
+                )}
+
                 {/* ── ADMIN (only for admins) ── */}
-                {user.role === 'admin' && (
+                {user.roles?.includes('admin') && (
                     <>
                         <div className="sidebar-section-label">Admin</div>
                         <nav className="sidebar-nav">

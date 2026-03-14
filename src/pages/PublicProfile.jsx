@@ -7,6 +7,7 @@ import { API_BASE_URL } from '../config';
 import AuthContext from '../context/AuthContext';
 import userService from '../features/users/userService';
 import reportService from '../features/reports/reportService';
+import RoleBadge from '../components/RoleBadge';
 
 const PublicProfile = () => {
     const { username } = useParams();
@@ -177,9 +178,13 @@ const PublicProfile = () => {
 
                         {/* Badges + Actions */}
                         <div className="flex flex-wrap items-center gap-2 flex-shrink-0">
-                            <span className="px-4 py-1.5 rounded-xl text-xs font-black uppercase tracking-widest bg-[#001E80]/10 text-[#001E80]">
-                                Partner
-                            </span>
+                            {profile.role && profile.role !== 'student' ? (
+                                <RoleBadge role={profile.role} university={profile.university} />
+                            ) : (
+                                <span className="px-4 py-1.5 rounded-xl text-xs font-black uppercase tracking-widest bg-[#001E80]/10 text-[#001E80]">
+                                    Partner
+                                </span>
+                            )}
                             {profile.lookingForPartner && (
                                 <span className="px-4 py-1.5 rounded-xl text-xs font-black uppercase tracking-widest bg-green-50 text-green-600 border border-green-100">
                                     Open for Collaboration

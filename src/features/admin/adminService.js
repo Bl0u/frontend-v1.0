@@ -94,6 +94,79 @@ const promoteUser = async (token, userId, data) => {
     return res.data;
 };
 
+// Pitch Hub Config
+const getPitchConfig = async (token) => {
+    const res = await axios.get(`${API_BASE_URL}/api/admin/pitch-config`, getConfig(token));
+    return res.data;
+};
+
+const updatePitchConfig = async (token, configData) => {
+    const res = await axios.put(`${API_BASE_URL}/api/admin/pitch-config`, configData, getConfig(token));
+    return res.data;
+};
+
+// Pitch Management
+const getPitches = async (token) => {
+    const res = await axios.get(`${API_BASE_URL}/api/admin/pitches`, getConfig(token));
+    return res.data;
+};
+
+const deletePitch = async (token, pitchId) => {
+    const res = await axios.delete(`${API_BASE_URL}/api/admin/pitches/${pitchId}`, getConfig(token));
+    return res.data;
+};
+
+// Communities
+const getCommunities = async (token) => {
+    const res = await axios.get(`${API_BASE_URL}/api/admin/communities`, getConfig(token));
+    return res.data;
+};
+
+const createCommunity = async (token, data) => {
+    const res = await axios.post(`${API_BASE_URL}/api/admin/communities`, data, getConfig(token));
+    return res.data;
+};
+
+const deleteCommunity = async (token, commId) => {
+    const res = await axios.delete(`${API_BASE_URL}/api/admin/communities/${commId}`, getConfig(token));
+    return res.data;
+};
+
+const updateCommunity = async (token, commId, data) => {
+    const res = await axios.put(`${API_BASE_URL}/api/admin/communities/${commId}`, data, getConfig(token));
+    return res.data;
+};
+
+const updateGroup = async (token, groupId, data) => {
+    const res = await axios.put(`${API_BASE_URL}/api/admin/communities/groups/${groupId}`, data, getConfig(token));
+    return res.data;
+};
+
+const runHubGenerator = async (token) => {
+    const res = await axios.post(`${API_BASE_URL}/api/admin/communities/generator`, {}, getConfig(token));
+    return res.data;
+};
+
+const assignHubMod = async (token, hubId, userId) => {
+    const res = await axios.put(`${API_BASE_URL}/api/admin/communities/${hubId}/moderators`, { userId }, getConfig(token));
+    return res.data;
+};
+
+const assignGroupMod = async (token, groupId, userId) => {
+    const res = await axios.put(`${API_BASE_URL}/api/admin/groups/${groupId}/moderators`, { userId }, getConfig(token));
+    return res.data;
+};
+
+const deleteGroupAsAdmin = async (token, communityId, groupId) => {
+    const res = await axios.delete(`${API_BASE_URL}/api/admin/communities/${communityId}/groups/${groupId}`, getConfig(token));
+    return res.data;
+};
+
+const seedTestPersonnel = async (token) => {
+    const res = await axios.post(`${API_BASE_URL}/api/admin/seed`, {}, getConfig(token));
+    return res.data;
+};
+
 const adminService = {
     getStats,
     getUsers,
@@ -109,7 +182,21 @@ const adminService = {
     getRecruitment,
     updateRecruitment,
     resetDatabase,
-    promoteUser
+    promoteUser,
+    getPitchConfig,
+    updatePitchConfig,
+    getPitches,
+    deletePitch,
+    getCommunities,
+    createCommunity,
+    deleteCommunity,
+    updateCommunity,
+    updateGroup,
+    runHubGenerator,
+    assignHubMod,
+    assignGroupMod,
+    deleteGroupAsAdmin,
+    seedTestPersonnel
 };
 
 export default adminService;
