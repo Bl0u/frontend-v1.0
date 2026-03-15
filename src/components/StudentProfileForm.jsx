@@ -56,6 +56,8 @@ const StudentProfileForm = ({ user: authUser, initialData, refreshProfile, refre
         academicLevel: '',
         university: '',
         bio: '',
+        currentCompany: '',
+        currentPosition: '',
         socialLinks: [],
         isPrivate: false,
         // 2️⃣ Partner Needs
@@ -97,6 +99,8 @@ const StudentProfileForm = ({ user: authUser, initialData, refreshProfile, refre
                 academicLevel: initialData.academicLevel || '',
                 university: initialData.university || '',
                 bio: initialData.bio || initialData.studyNote || '',
+                currentCompany: initialData.currentCompany || '',
+                currentPosition: initialData.currentPosition || '',
                 socialLinks: initialData.socialLinks || [],
                 partnerType: initialData.partnerType || '',
                 matchingGoal: initialData.matchingGoal || initialData.primaryStudyGoal || '',
@@ -245,6 +249,24 @@ const StudentProfileForm = ({ user: authUser, initialData, refreshProfile, refre
                         disabled={isStudentLead}
                     />
                     {isStudentLead && <p className="text-[9px] text-red-400 font-bold mt-1 uppercase">Student Lead academic context is managed by administrators.</p>}
+                </div>
+                <div>
+                    <label className={labelClass}>Currently Working For</label>
+                    <input type="text" name="currentCompany" value={formData.currentCompany} onChange={onChange} placeholder="e.g. Google" className={inputClass} />
+                </div>
+                <div>
+                    <SearchableDropdown
+                        label="Current Position"
+                        value={formData.currentPosition}
+                        onChange={onChange}
+                        options={[
+                            'Frontend Engineer', 'Backend Engineer', 'Fullstack Engineer', 'Mobile Developer', 'DevOps Engineer',
+                            'Data Scientist', 'ML Engineer', 'Cybersecurity Analyst', 'UI/UX Designer', 'Product Manager',
+                            'QA Engineer', 'Embedded Systems Engineer', 'Solution Architect'
+                        ]}
+                        placeholder="Select Position"
+                        name="currentPosition"
+                    />
                 </div>
                 <div className="md:col-span-2">
                     <label className={labelClass}>Short Bio (Max 200 chars)</label>

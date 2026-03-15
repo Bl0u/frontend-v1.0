@@ -52,9 +52,15 @@ const UserCard = ({ user }) => {
 
             {/* Identity */}
             <h3 className="text-xl font-black text-gray-900 mb-1 leading-tight tracking-tight">{user.name}</h3>
-            <p className="text-[#010D3E]/40 text-[10px] font-black uppercase tracking-[0.1em] mb-4">
+            <p className="text-[#010D3E]/40 text-[10px] font-black uppercase tracking-[0.1em] mb-1">
                 {user.university || 'University'} <span className="text-[#001E80]/20 mx-1">·</span> {user.major || 'General'}
             </p>
+            {user.currentPosition && (
+                <p className="text-[#001E80] text-[9px] font-black uppercase tracking-wider mb-4 px-3 py-1 bg-[#EAEEFE] rounded-lg">
+                    {user.currentPosition} {user.currentCompany ? `@ ${user.currentCompany}` : ''}
+                </p>
+            )}
+            {!user.currentPosition && <div className="mb-4" />}
 
             {/* The Focus - Needed from Partner */}
             <div className="w-full mb-5">

@@ -3,7 +3,7 @@ import axios from 'axios';
 import { API_BASE_URL } from '../config';
 
 import UserCard from '../components/UserCard';
-import { FaSearch, FaGraduationCap, FaBookOpen, FaBuilding, FaGlobe } from 'react-icons/fa';
+import { FaSearch, FaGraduationCap, FaBookOpen, FaBuilding, FaGlobe, FaUsers } from 'react-icons/fa';
 import { FilterBar } from '../components/FilterBar';
 import userService from '../features/users/userService';
 
@@ -11,7 +11,9 @@ const PARTNER_FILTER_TYPES = [
     { id: 'University', icon: FaGraduationCap, placeholder: 'Search University...' },
     { id: 'Major', icon: FaBookOpen, placeholder: 'Search Major...' },
     { id: 'City', icon: FaBuilding, placeholder: 'Search City...' },
-    { id: 'Country', icon: FaGlobe, placeholder: 'Search Country...' }
+    { id: 'Country', icon: FaGlobe, placeholder: 'Search Country...' },
+    { id: 'Company', icon: FaBuilding, placeholder: 'Search Company...' },
+    { id: 'Position', icon: FaUsers, placeholder: 'Search Position...' }
 ];
 
 const Partners = () => {
@@ -35,6 +37,8 @@ const Partners = () => {
             if (currentFilters.Major) queryParams.append('major', currentFilters.Major);
             if (currentFilters.City) queryParams.append('city', currentFilters.City);
             if (currentFilters.Country) queryParams.append('country', currentFilters.Country);
+            if (currentFilters.Company) queryParams.append('currentCompany', currentFilters.Company);
+            if (currentFilters.Position) queryParams.append('currentPosition', currentFilters.Position);
 
             const res = await axios.get(`${API_BASE_URL}/api/users?${queryParams.toString()}`);
             setPartners(res.data);

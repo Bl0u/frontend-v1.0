@@ -414,6 +414,7 @@ const ResourceHub = () => {
                 </form>
             );
         }
+        return null;
     };
 
     return (
