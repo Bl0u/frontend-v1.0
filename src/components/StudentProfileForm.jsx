@@ -44,7 +44,8 @@ const PREDEFINED_TOOLS = [
 ];
 
 
-const StudentProfileForm = ({ user, initialData, refreshProfile, refreshUser }) => {
+const StudentProfileForm = ({ user: authUser, initialData, refreshProfile, refreshUser }) => {
+    const isStudentLead = authUser?.roles?.includes('studentLead');
     const [activeTopic, setActiveTopic] = useState('core');
     const [formData, setFormData] = useState({
         // 1️⃣ Core Identity
@@ -153,7 +154,7 @@ const StudentProfileForm = ({ user, initialData, refreshProfile, refreshUser }) 
     const onSubmit = async (e) => {
         e.preventDefault();
         try {
-            const config = { headers: { Authorization: `Bearer ${user.token}` } };
+            const config = { headers: { Authorization: `Bearer ${authUser.token}` } };
 
             const payload = {
                 ...formData,
@@ -210,8 +211,15 @@ const StudentProfileForm = ({ user, initialData, refreshProfile, refreshUser }) 
                     </div>
                 </div>
                 <div>
-                    <label className={labelClass}>Academic Level *</label>
-                    <select name="academicLevel" value={formData.academicLevel} onChange={onChange} className={inputClass} required>
+                    <label className={labelClass}>Academic Level * {isStudentLead && <span className="text-red-500">(Locked)</span>}</label>
+                    <select 
+                        name="academicLevel" 
+                        value={formData.academicLevel} 
+                        onChange={onChange} 
+                        className={`${inputClass} ${isStudentLead ? 'bg-gray-100 cursor-not-allowed opacity-75' : ''}`} 
+                        required 
+                        disabled={isStudentLead}
+                    >
                         <option value="">Select Level</option>
                         <option value="Level 1">Level 1</option>
                         <option value="Level 2">Level 2</option>
@@ -225,8 +233,18 @@ const StudentProfileForm = ({ user, initialData, refreshProfile, refreshUser }) 
                     <input type="text" name="major" value={formData.major} onChange={onChange} placeholder="e.g. Computer Science" className={inputClass} required />
                 </div>
                 <div className="md:col-span-2">
-                    <label className={labelClass}>University / Faculty *</label>
-                    <input type="text" name="university" value={formData.university} onChange={onChange} placeholder="e.g. Cairo University - Faculty of Engineering" className={inputClass} required />
+                    <label className={labelClass}>University / Faculty * {isStudentLead && <span className="text-red-500">(Locked by Admin)</span>}</label>
+                    <input 
+                        type="text" 
+                        name="university" 
+                        value={formData.university} 
+                        onChange={onChange} 
+                        placeholder="e.g. Cairo University - Faculty of Engineering" 
+                        className={`${inputClass} ${isStudentLead ? 'bg-gray-100 cursor-not-allowed opacity-75' : ''}`} 
+                        required 
+                        disabled={isStudentLead}
+                    />
+                    {isStudentLead && <p className="text-[9px] text-red-400 font-bold mt-1 uppercase">Student Lead academic context is managed by administrators.</p>}
                 </div>
                 <div className="md:col-span-2">
                     <label className={labelClass}>Short Bio (Max 200 chars)</label>
