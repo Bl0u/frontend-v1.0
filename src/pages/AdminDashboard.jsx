@@ -75,6 +75,7 @@ const AdminDashboard = () => {
     const [paymentFilter, setPaymentFilter] = useState('');
     const [recruitmentFilter, setRecruitmentFilter] = useState('');
     const [userDetailsModal, setUserDetailsModal] = useState(null); // Full user object for details
+    const [viewRecruitmentModal, setViewRecruitmentModal] = useState(null); // Full recruitment app object
     const [starsModal, setStarsModal] = useState(null); // { userId, username, currentStars }
     const [starsAmount, setStarsAmount] = useState('');
     const [confirmDelete, setConfirmDelete] = useState(null); // { type: 'user'|'thread', id, name }
@@ -1150,13 +1151,16 @@ const AdminDashboard = () => {
                         <div className="admin-report-date" style={{ marginBottom: 12 }}>
                             Applied: {formatDate(app.createdAt)}
                         </div>
-                        {app.status === 'pending' && (
-                            <div className="admin-actions">
-                                <button className="admin-btn success" onClick={() => handleUpdateRecruitment(app._id, 'accepted')}>Accept</button>
-                                <button className="admin-btn danger" onClick={() => handleUpdateRecruitment(app._id, 'rejected')}>Reject</button>
-                                <button className="admin-btn" onClick={() => handleUpdateRecruitment(app._id, 'reviewed')}>Mark Reviewed</button>
-                            </div>
-                        )}
+                        <div className="admin-actions">
+                            <button className="admin-btn primary" onClick={() => setViewRecruitmentModal(app)}>View App</button>
+                            {app.status === 'pending' && (
+                                <>
+                                    <button className="admin-btn success" onClick={() => handleUpdateRecruitment(app._id, 'accepted')}>Accept</button>
+                                    <button className="admin-btn danger" onClick={() => handleUpdateRecruitment(app._id, 'rejected')}>Reject</button>
+                                    <button className="admin-btn" onClick={() => handleUpdateRecruitment(app._id, 'reviewed')}>Mark Reviewed</button>
+                                </>
+                            )}
+                        </div>
                     </div>
                 ))
             )}
@@ -2100,6 +2104,33 @@ const AdminDashboard = () => {
                                 </button>
                                 <button className="admin-btn primary" onClick={() => setUserDetailsModal(null)}>Done</button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* View Recruitment Application Modal */}
+            {viewRecruitmentModal && (
+                <div className="admin-modal-overlay" onClick={() => setViewRecruitmentModal(null)}>
+                    <div className="admin-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 600 }}>
+                        <div className="flex justify-between items-center mb-6">
+                            <div>
+                                <h3 className="admin-modal-title">Application Details</h3>
+                                <p className="admin-modal-subtitle">Applying for: <strong style={{ color: '#001E80', textTransform: 'uppercase' }}>{viewRecruitmentModal.type?.replace('_', ' ')}</strong></p>
+                            </div>
+                            <button className="admin-btn neutral" onClick={() => setViewRecruitmentModal(null)}>Close</button>
+                        </div>
+                        <div className="admin-detail-grid" style={{ gridTemplateColumns: '1fr', maxHeight: '60vh', overflowY: 'auto' }}>
+                            {Object.entries(viewRecruitmentModal.data || {}).map(([key, value]) => (
+                                <div key={key} className="admin-detail-item" style={{ flexDirection: 'column', alignItems: 'flex-start', borderBottom: '1px solid #eee', paddingBottom: '12px' }}>
+                                    <span className="admin-detail-label" style={{ marginBottom: '8px', textTransform: 'capitalize' }}>{key}</span>
+                                    <span className="admin-detail-value" style={{ whiteSpace: 'pre-wrap', lineHeight: '1.5' }}>
+                                        {key === 'linkedin' ? (
+                                            <a href={value} target="_blank" rel="noopener noreferrer" style={{ color: '#001E80', textDecoration: 'underline' }}>{value}</a>
+                                        ) : value?.toString() || '—'}
+                                    </span>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>

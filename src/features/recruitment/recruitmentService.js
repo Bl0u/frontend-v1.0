@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { API_BASE_URL } from '../../config';
 
-const API_URL = `${API_BASE_URL}/recruitment`;
+const API_URL = `${API_BASE_URL}/api/recruitment`;
 
 // Submit application
 const submitApplication = async (applicationData, token) => {
