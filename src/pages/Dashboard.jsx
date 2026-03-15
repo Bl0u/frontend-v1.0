@@ -561,11 +561,11 @@ const Dashboard = () => {
                                 {profile.partnerHistory.map((history, idx) => (
                                     <div key={idx} className="flex items-center gap-3 p-3 rounded-xl border border-dashed border-gray-200 opacity-60 hover:opacity-100 transition-opacity">
                                         <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center text-xs font-bold text-gray-400">
-                                            {history.user?.name?.charAt(0)}
+                                            {history.partnerName?.charAt(0) || '?'}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="font-bold text-gray-600 text-xs truncate">{history.user?.name}</p>
-                                            <p className="text-[10px] text-gray-400">{new Date(history.endedAt).toLocaleDateString()}</p>
+                                            <p className="font-bold text-gray-600 text-xs truncate">{history.partnerName || 'Unknown Partner'}</p>
+                                            <p className="text-[10px] text-gray-400">{history.endDate ? new Date(history.endDate).toLocaleDateString() : 'N/A'}</p>
                                         </div>
                                     </div>
                                 ))}
