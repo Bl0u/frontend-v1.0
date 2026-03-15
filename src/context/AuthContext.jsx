@@ -221,13 +221,6 @@ export const AuthProvider = ({ children }) => {
 
         for (const account of testAccounts) {
             try {
-                // Check if already in sessions
-                const existingIndex = newSessions.findIndex(s => s.username === account || s.email === account);
-                if (existingIndex !== -1) {
-                    if (account === 'admin') targetIndexToSwitchTo = existingIndex; // Prefer admin as primary
-                    continue;
-                }
-
                 // Determine correct password
                 const pwd = account === 'admin' ? 'admin123' : account;
 
@@ -238,8 +231,24 @@ export const AuthProvider = ({ children }) => {
                 });
 
                 if (res.data) {
-                    newSessions.push(res.data);
-                    if (account === 'admin') targetIndexToSwitchTo = newSessions.length - 1; // Prioritize admin
+                    const existingIndex = newSessions.findIndex(s => s._id === res.data._id);
+                    if (existingIndex !== -1) {
+                        newSessions[existingIndex] = res.data;
+                    } else {
+                        newSessions.push(res.data);
+                    }
+                    
+                    if (account === 'admin') {
+                        targetIndexToSwitchTo = newSessions.findIndex(s => s.username === 'admin');
+                        // TRIGGER BACKEND SEEDING AFTER ADMIN LOGIN
+                        try {
+                            const config = { headers: { Authorization: `Bearer ${res.data.token}` } };
+                            await axios.post(`${API_BASE_URL}/api/admin/seed`, {}, config);
+                            console.log('Backend database seeded successfully during session initialization.');
+                        } catch (seedErr) {
+                            console.error('Failed to trigger backend seeding:', seedErr.response?.data?.message || seedErr.message);
+                        }
+                    }
                     hasChanges = true;
                 }
             } catch (error) {
