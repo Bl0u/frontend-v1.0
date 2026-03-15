@@ -60,7 +60,8 @@ const FILTER_TYPES = [
     { id: 'University', icon: FaGraduationCap, placeholder: 'Search University...' },
     { id: 'Professor', icon: FaChalkboardTeacher, placeholder: 'Search Professor...' },
     { id: 'Subject', icon: FaBookOpen, placeholder: 'Search Subject...' },
-    { id: 'Company', icon: FaBuilding, placeholder: 'Search Company...' }
+    { id: 'Company', icon: FaBuilding, placeholder: 'Search Company...' },
+    { id: 'Position', icon: FaUsers, placeholder: 'Search Position...' }
 ];
 
 const ResourceHub = () => {
@@ -79,6 +80,7 @@ const ResourceHub = () => {
     const [activeFilterType, setActiveFilterType] = useState(null); // Which pill is open
     const [activeFilters, setActiveFilters] = useState({}); // e.g. { University: 'Cairo University', Subject: 'DSA' }
     const [uniqueTags, setUniqueTags] = useState([]); // Fetched unique tags
+    const [metadata, setMetadata] = useState({ companies: [], positions: [] });
 
     // Modal state for Submitting Contribution
     const [showCreateModal, setShowCreateModal] = useState(false);
@@ -109,7 +111,9 @@ const ResourceHub = () => {
             const data = await resourceService.getThreads({
                 curated: activeTab === 'curated',
                 search: searchTerm,
-                tags: tagFilters || undefined // Multi-tag query from the newly updated backend
+                tags: tagFilters || undefined, // Multi-tag query from the newly updated backend
+                company: activeFilters.Company,
+                position: activeFilters.Position
             });
 
             setThreads(data);
@@ -127,17 +131,21 @@ const ResourceHub = () => {
         return () => clearTimeout(delaySearch);
     }, [activeTab, searchTerm, activeFilters]);
 
-    // Fetch unique tags on mount
+    // Fetch unique metadata on mount
     useEffect(() => {
-        const fetchTags = async () => {
+        const fetchMeta = async () => {
             try {
-                const tags = await resourceService.getUniqueTags();
+                const [tags, meta] = await Promise.all([
+                    resourceService.getUniqueTags(),
+                    resourceService.getResourceMetadata()
+                ]);
                 setUniqueTags(tags);
+                setMetadata(meta);
             } catch (error) {
-                console.error("Failed to load unique tags", error);
+                console.error("Failed to load metadata", error);
             }
         };
-        fetchTags();
+        fetchMeta();
     }, []);
 
     // Close suggestions if clicked outside
@@ -220,8 +228,8 @@ const ResourceHub = () => {
         University: SUGGESTION_LISTS.University.filter(u => uniqueTags.includes(`#${u.replace(/\s+/g, '')}`)),
         Professor: uniqueTags.filter(t => t.startsWith('#Prof')).map(t => t.replace('#Prof', '')),
         Subject: uniqueTags.filter(t => t.startsWith('#Subj')).map(t => t.replace('#Subj', '')),
-        Company: uniqueTags.filter(t => t.startsWith('#Comp')).map(t => t.replace('#Comp', '')),
-        Position: uniqueTags.filter(t => !t.startsWith('#Subj') && !t.startsWith('#Comp') && !t.startsWith('#Prof') && t.startsWith('#') && t !== '#Interview').map(t => t.replace('#', ''))
+        Company: metadata.companies,
+        Position: metadata.positions
     };
 
     // Thread Creation
@@ -254,6 +262,8 @@ const ResourceHub = () => {
             if (createData.university) formData.append('university', createData.university);
             if (createData.college) formData.append('college', createData.college);
             if (createData.academicLevel) formData.append('academicLevel', createData.academicLevel);
+            if (createData.company) formData.append('company', createData.company);
+            if (createData.position) formData.append('position', createData.position);
 
             await resourceService.createThread(formData, user.token);
             toast.success('Mission Briefing Synced');
@@ -354,7 +364,7 @@ const ResourceHub = () => {
                                     <label className="text-[10px] font-black text-[#001E80] uppercase ml-2">Company</label>
                                     <input
                                         className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:ring-2 focus:ring-[#001E80]/20 focus:border-[#001E80] transition-all"
-                                        placeholder="Company Name"
+                                        placeholder="Company Name (e.g. Google, Valu)"
                                         value={createData.company}
                                         onChange={(e) => setCreateData({ ...createData, company: e.target.value })}
                                     />
@@ -363,7 +373,7 @@ const ResourceHub = () => {
                                     label="Position"
                                     value={createData.position}
                                     onChange={(e) => setCreateData({ ...createData, position: e.target.value })}
-                                    options={SUGGESTION_LISTS.Position}
+                                    options={[...new Set([...SUGGESTION_LISTS.Position, ...metadata.positions])]}
                                     placeholder="Software Engineer"
                                     name="position"
                                 />

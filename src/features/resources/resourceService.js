@@ -17,6 +17,12 @@ const getUniqueTags = async () => {
     return response.data;
 };
 
+// Get unique metadata (Companies, Positions)
+const getResourceMetadata = async () => {
+    const response = await axios.get(API_URL + 'metadata');
+    return response.data;
+};
+
 // Create a thread
 const createThread = async (threadData, token) => {
     const config = {
@@ -175,6 +181,7 @@ const resourceService = {
     updateInstructions,
     purchaseThread, // V2.0
     updateThreadPrice, // V2.0
+    getResourceMetadata
 };
 
 export default resourceService;
