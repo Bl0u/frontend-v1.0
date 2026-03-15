@@ -190,7 +190,7 @@ const DashboardRequests = () => {
                                     <div className="flex gap-2">
                                         {isActionable(item) && item.sender && (
                                             <button
-                                                onClick={() => navigate(`/ u / ${item.sender.username} `)}
+                                                onClick={() => navigate(`/u/${item.sender.username}`)}
                                                 className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-xl transition-all font-medium text-xs"
                                             >
                                                 <FaUser /> View Profile
@@ -211,7 +211,7 @@ const DashboardRequests = () => {
                                             <button
                                                 onClick={() => {
                                                     const planId = item.message.split('|||PLAN:')[1].trim();
-                                                    navigate(`/ plan / ${planId} `);
+                                                    navigate(`/plan/${planId}`);
                                                 }}
                                                 className="flex items-center gap-2 bg-purple-100 hover:bg-purple-200 text-purple-700 px-3 py-1.5 rounded-xl transition-all font-medium text-xs"
                                             >
@@ -221,8 +221,8 @@ const DashboardRequests = () => {
                                         {item.message?.includes('|||THREAD:') && (
                                             <button
                                                 onClick={() => {
-                                                    const threadId = item.message.split('|||THREAD:')[1];
-                                                    navigate(`/ resources / thread / ${threadId} `);
+                                                    const threadId = item.message.split('|||THREAD:')[1].trim();
+                                                    navigate(`/resources/thread/${threadId}`);
                                                 }}
                                                 className="flex items-center gap-2 bg-[#EAEEFE] hover:bg-[#EAEEFE]/80 text-[#001E80] px-3 py-1.5 rounded-xl transition-all font-medium text-xs"
                                             >
