@@ -24,7 +24,7 @@ const Partners = () => {
     const fetchPartners = async (search = '', currentFilters = filters) => {
         setLoading(true);
         try {
-            let queryParams = new URLSearchParams({ role: 'student', lookingForPartner: 'true' });
+            let queryParams = new URLSearchParams({ roles: 'student', lookingForPartner: 'true' });
 
             if (search) {
                 queryParams.append('search', search);
