@@ -162,8 +162,9 @@ export const Header = () => {
                                                                                     onClick={() => {
                                                                                         handleMarkRead(n._id);
                                                                                         setIsNotifOpen(false);
-                                                                                        const threadId = n.thread?._id || n.thread;
-                                                                                        if (threadId) navigate(`/resources/thread/${threadId}`);
+                                                                                        // Critical: ensure no spaces or template literal oddities corrupt the URL
+                                                                                        const cleanId = (n.thread?._id || n.thread || '').toString().trim();
+                                                                                        if (cleanId) navigate(`/resources/thread/${cleanId}`);
                                                                                     }}
                                                                                     className="px-2 py-0.5 bg-[#001E80] text-white text-[9px] font-black uppercase tracking-widest rounded hover:bg-[#001E80]/80 transition-colors"
                                                                                 >

@@ -159,7 +159,17 @@ const updateThreadPrice = async (id, priceData, token) => {
     const config = {
         headers: { Authorization: `Bearer ${token}` },
     };
-    const response = await axios.put(API_URL + `thread/${id}/price`, priceData, config);
+    const response = await axios.put(API_URL + `thread/${id}`, priceData, config);
+    return response.data;
+};
+
+// Get user activity (moderate, paid, pinned)
+const getUserActivity = async (type, token) => {
+    const config = {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { type }
+    };
+    const response = await axios.get(API_URL + 'activity', config);
     return response.data;
 };
 
@@ -181,7 +191,8 @@ const resourceService = {
     updateInstructions,
     purchaseThread, // V2.0
     updateThreadPrice, // V2.0
-    getResourceMetadata
+    getResourceMetadata,
+    getUserActivity
 };
 
 export default resourceService;

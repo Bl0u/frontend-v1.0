@@ -168,9 +168,8 @@ const Dashboard = () => {
             const fetchActivity = async () => {
                 setLoadingThreads(true);
                 try {
-                    const config = { headers: { Authorization: `Bearer ${currentUser.token}` } };
-                    const res = await axios.get(`${API_BASE_URL}/api/resources/activity?type=${activeTab}`, config);
-                    setActivityThreads(res.data);
+                    const data = await resourceService.getUserActivity(activeTab, currentUser.token);
+                    setActivityThreads(data);
                 } catch (error) {
                     toast.error(`Failed to load ${activeTab} threads`);
                 } finally {
@@ -1150,7 +1149,7 @@ const Dashboard = () => {
                                                 </tr>
                                             </thead>
                                             <tbody className="text-sm">
-                                                {activityThreads.filter(t => (t.author?._id || t.author) === currentUser._id || (t.author?._id || t.author) === currentUser.id).map((thread) => (
+                                                {activityThreads.filter(t => (t.author?._id || t.author) === (currentUser?._id || currentUser?.id)).map((thread) => (
                                                     <tr key={thread._id} onClick={() => navigate(`/resources/thread/${thread._id}`)} className="border-b border-gray-50 hover:bg-[#EAEEFE]/20 cursor-pointer transition-colors group">
                                                         <td className="py-4 px-6 relative">
                                                             <div className="flex items-center gap-3">
@@ -1197,7 +1196,7 @@ const Dashboard = () => {
                                 <div className="px-8 flex items-center gap-3">
                                     <div className="h-4 w-1 bg-[#001E80] rounded-full"></div>
                                     <h4 className="text-[10px] font-black uppercase tracking-widest text-[#001E80]">
-                                        {activeTab === 'moderate' ? 'Moderator Access' : (activeTab === 'paid' ? 'Paid Content' : 'Pinned for Quick Access')}
+                                        {activeTab === 'moderate' ? 'Moderate' : (activeTab === 'paid' ? 'Paid Content' : 'Pinned for Quick Access')}
                                     </h4>
                                 </div>
                                 <div className="overflow-x-auto">
@@ -1212,7 +1211,7 @@ const Dashboard = () => {
                                         </thead>
                                         <tbody className="text-sm">
                                             {activityThreads
-                                                .filter(t => activeTab !== 'moderate' || (t.author?._id || t.author) !== currentUser._id)
+                                                .filter(t => activeTab !== 'moderate' || (t.author?._id || t.author) !== (currentUser?._id || currentUser?.id))
                                                 .map((thread) => (
                                                 <tr
                                                     key={thread._id}
