@@ -16,21 +16,14 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000
 // TAB CONSTANTS
 // ───────────────────────────────────────
 const TABS = [
-    { key: 'overview', label: 'Overview' },
     { key: 'users', label: 'Users' },
-    { key: 'threads', label: 'Threads' },
-    { key: 'reports', label: 'Reports' },
-    { key: 'payments', label: 'Payments' },
-    { key: 'recruitment', label: 'Recruitment' },
-    { key: 'pitches', label: 'Manage Pitches' },
     { key: 'communities', label: 'Communities' },
-    { key: 'hub_setup', label: 'Hub Setup' },
 ];
 
-const AdminDashboard = () => {
+const ModeratorDashboard = () => {
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState('overview');
+    const [activeTab, setActiveTab] = useState('users');
     const [loading, setLoading] = useState(false);
 
     // Group Assignment state for new leads
@@ -106,20 +99,13 @@ const AdminDashboard = () => {
 
     const LEVELS = ['Level 1', 'Level 2', 'Level 3', 'Level 4', 'Graduated'];
 
-    // Guard: redirect if not admin or moderator
+    // Guard: redirect if not moderator
     useEffect(() => {
-        if (user && !user.roles?.includes('admin') && !user.roles?.includes('moderator')) {
+        if (user && !user.roles?.includes('moderator') && !user.roles?.includes('admin')) {
             navigate('/home');
-            toast.error('Access denied');
+            toast.error('Access denied - Moderators only');
         }
     }, [user, navigate]);
-
-    // Force moderator to stay on communities tab
-    useEffect(() => {
-        if (user && !user.roles?.includes('admin') && user.roles?.includes('moderator')) {
-            if (activeTab !== 'communities') setActiveTab('communities');
-        }
-    }, [user, activeTab]);
 
     useEffect(() => {
         if (manageGroupModal) {
@@ -240,18 +226,10 @@ const AdminDashboard = () => {
 
     // Fetch data when tab changes
     useEffect(() => {
-        if (!user?.token || (!user.roles?.includes('admin') && !user.roles?.includes('moderator'))) return;
+        if (!user?.token || (!user.roles?.includes('moderator') && !user.roles?.includes('admin'))) return;
         
-        // Moderators only fetch communities
-        if (!user.roles?.includes('admin') && activeTab !== 'communities') return;
-
         switch (activeTab) {
-            case 'overview': fetchStats(); break;
             case 'users': fetchUsers(); break;
-            case 'threads': fetchThreads(); break;
-            case 'reports': fetchReports(); break;
-            case 'payments': fetchPayments(); break;
-            case 'recruitment': fetchRecruitment(); break;
             case 'communities': fetchCommunities(); fetchGroupConfigs(); break;
         }
     }, [activeTab, user?.token]);
@@ -814,12 +792,6 @@ const AdminDashboard = () => {
                                                     onClick={() => handleToggleBan(u._id)}
                                                 >
                                                     {u.isBanned ? 'Unban' : 'Ban'}
-                                                </button>
-                                                <button
-                                                    className="admin-btn primary"
-                                                    onClick={() => setStarsModal({ userId: u._id, username: u.username, currentStars: u.stars || 0 })}
-                                                >
-                                                    ⭐ Stars
                                                 </button>
                                                 <button
                                                     className="admin-btn primary"
@@ -1738,8 +1710,8 @@ const AdminDashboard = () => {
         <div className="admin-dashboard">
             {/* Header */}
             <div className="admin-header">
-                <h1>Admin Dashboard</h1>
-                <p className="admin-header-sub">Platform overview and management controls</p>
+                <h1>Moderator Dashboard</h1>
+                <p className="admin-header-sub">Communities and Users management controls</p>
             </div>
 
             {/* Tabs */}
@@ -2033,10 +2005,6 @@ const AdminDashboard = () => {
                                     <span className="admin-detail-label">City</span>
                                     <span className="admin-detail-value">{userDetailsModal.user?.city || '—'}</span>
                                 </div>
-                                <div className="admin-detail-item">
-                                    <span className="admin-detail-label">Stars Balance</span>
-                                    <span className="admin-detail-value" style={{ color: '#001E80', fontWeight: 900 }}>⭐ {userDetailsModal.user?.stars || 0}</span>
-                                </div>
                             </div>
 
                             {/* Activity Metrics */}
@@ -2117,4 +2085,4 @@ const AdminDashboard = () => {
     );
 };
 
-export default AdminDashboard;
+export default ModeratorDashboard;

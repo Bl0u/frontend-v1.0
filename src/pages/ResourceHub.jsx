@@ -19,6 +19,13 @@ const SUGGESTION_LISTS = {
         'Misr University for Science and Technology', 'German University in Cairo (GUC)', 'American University in Cairo (AUC)',
         'Al Alamein International University', 'Delta University for Science and Technology', 'British University in Egypt (BUE)'
     ],
+    College: [
+        'Engineering', 'Medicine', 'Pharmacy', 'Commerce', 'Arts', 'Law', 'Science',
+        'Computer and Information', 'Agriculture', 'Dentistry', 'Nursing', 'Education',
+        'Economics and Political Science', 'Al-Alsun (Languages)', 'Mass Communication',
+        'Fine Arts', 'Applied Arts'
+    ],
+    AcademicLevel: ['Level 1', 'Level 2', 'Level 3', 'Level 4', 'Graduated'],
     Professor: [
         'Dr. John Doe', 'Dr. Ahmed', 'Dr. Hesham', 'Dr. Sarah', 'Dr. Ibrahim'
     ],
@@ -77,7 +84,7 @@ const ResourceHub = () => {
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [createStep, setCreateStep] = useState(1);
     const [createData, setCreateData] = useState({
-        title: '', tags: '', category: 'college', university: '', college: '',
+        title: '', tags: '', category: 'college', university: '', college: '', academicLevel: '',
         professor: '', subject: '', company: '', position: '', isPaid: false, price: 0
     });
 
@@ -244,12 +251,15 @@ const ResourceHub = () => {
             formData.append('type', createData.category);
             formData.append('isPaid', createData.isPaid);
             if (createData.isPaid) formData.append('price', createData.price);
+            if (createData.university) formData.append('university', createData.university);
+            if (createData.college) formData.append('college', createData.college);
+            if (createData.academicLevel) formData.append('academicLevel', createData.academicLevel);
 
             await resourceService.createThread(formData, user.token);
             toast.success('Mission Briefing Synced');
             setShowCreateModal(false);
             setCreateStep(1);
-            setCreateData({ title: '', tags: '', category: 'college', university: '', college: '', professor: '', subject: '', company: '', position: '', isPaid: false, price: 0 })
+            setCreateData({ title: '', tags: '', category: 'college', university: '', college: '', academicLevel: '', professor: '', subject: '', company: '', position: '', isPaid: false, price: 0 })
             fetchThreads();
         } catch (error) {
             toast.error(error.response?.data?.message || 'Failed to create thread');
@@ -299,6 +309,22 @@ const ResourceHub = () => {
                                     options={SUGGESTION_LISTS.University}
                                     placeholder="Select University"
                                     name="university"
+                                />
+                                <SearchableDropdown
+                                    label="College"
+                                    value={createData.college}
+                                    onChange={(e) => setCreateData({ ...createData, college: e.target.value })}
+                                    options={SUGGESTION_LISTS.College}
+                                    placeholder="Select College"
+                                    name="college"
+                                />
+                                <SearchableDropdown
+                                    label="Academic Level"
+                                    value={createData.academicLevel}
+                                    onChange={(e) => setCreateData({ ...createData, academicLevel: e.target.value })}
+                                    options={SUGGESTION_LISTS.AcademicLevel}
+                                    placeholder="Select Level"
+                                    name="academicLevel"
                                 />
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-black text-[#001E80] uppercase ml-2">Professor</label>

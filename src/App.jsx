@@ -35,6 +35,7 @@ import AIChatBot from './components/AIChatBot';
 import TopUp from './pages/TopUp';
 import WorkWithUs from './pages/WorkWithUs';
 import AdminDashboard from './pages/AdminDashboard';
+import ModeratorDashboard from './pages/ModeratorDashboard';
 import AccountSwitcher from './components/AccountSwitcher';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -99,6 +100,7 @@ const AppContent = () => {
           <Route path="/plan/:id" element={<PlanManager />} />
           <Route path="/project-plan/:projectId" element={<ProjectPlan />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/moderator" element={<ModeratorDashboard />} />
         </Route>
       </Routes>
       <ToastContainer position="bottom-right" />

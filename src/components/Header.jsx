@@ -186,6 +186,16 @@ const Header = () => {
                                     Top Up
                                 </Link>
 
+                                {/* Moderator Dashboard */}
+                                {user.roles?.includes('moderator') && (
+                                    <Link
+                                        to="/moderator"
+                                        className="hidden sm:block text-sm font-bold text-[#001E80] hover:text-[#010D3E]"
+                                    >
+                                        Mod Dashboard
+                                    </Link>
+                                )}
+                                
                                 {/* Dashboard */}
                                 <Link
                                     to="/dashboard"
@@ -329,6 +339,15 @@ const Header = () => {
                                                 Top Up
                                             </Link>
                                         </div>
+                                        {user.roles?.includes('moderator') && (
+                                            <Link
+                                                to="/moderator"
+                                                onClick={() => setIsMenuOpen(false)}
+                                                className="text-[#001E80] font-bold text-sm hover:translate-x-1 transition-transform"
+                                            >
+                                                Mod Dashboard
+                                            </Link>
+                                        )}
                                         <Link
                                             to="/dashboard"
                                             onClick={() => setIsMenuOpen(false)}
