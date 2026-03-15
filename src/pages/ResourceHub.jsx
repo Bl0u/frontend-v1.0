@@ -1,13 +1,12 @@
 import { useState, useEffect, useContext, useRef } from 'react';
-import { useNavigate, Link, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import resourceService from '../features/resources/resourceService';
 import AuthContext from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import {
-    FaSearch, FaChevronRight, FaFilter,
-    FaBook, FaUsers, FaGraduationCap, FaBuilding, FaChalkboardTeacher, FaBookOpen, FaPenNib, FaRobot
+    FaSearch, FaChevronRight,
+    FaBook, FaUsers, FaGraduationCap, FaBuilding, FaChalkboardTeacher, FaBookOpen, FaPenNib
 } from 'react-icons/fa';
-import AIChatBot from '../components/AIChatBot';
 import { FilterBar } from '../components/FilterBar';
 import SearchableDropdown from '../components/SearchableDropdown';
 
@@ -42,19 +41,6 @@ const SUGGESTION_LISTS = {
         'QA Engineer', 'Embedded Systems Engineer', 'Solution Architect'
     ]
 };
-
-const UNIVERSITIES_DATA = [
-    { name: 'Cairo University', shortName: 'CU', logo: '/assets/logos/Cairo_university.jpg' },
-    { name: 'Ain Shams University', shortName: 'ASU', logo: null },
-    { name: 'Arab Academy (AASTMT)', shortName: 'AAST', logo: '/assets/logos/Arab_Academy_for_Science_and_Technology_and_Maritime_Transport.jpg' },
-    { name: 'British University in Egypt', shortName: 'BUE', logo: '/assets/logos/British_University_in_Egypt.png' },
-    { name: 'German University in Cairo', shortName: 'GUC', logo: '/assets/logos/German_University_in_Cairo_Logo.jpg' },
-    { name: 'Nile University', shortName: 'NU', logo: '/assets/logos/Nile_University_Logo.png' },
-    { name: 'E-JUST', shortName: 'EJUST', logo: '/assets/logos/E-JUST_logo.png' },
-    { name: 'AIU', shortName: 'AIU', logo: '/assets/logos/AIU_Official_Logo_2.png' },
-    { name: 'Alexandria University', shortName: 'AU', logo: null },
-    { name: 'Mansoura University', shortName: 'MU', logo: null }
-];
 
 const FILTER_TYPES = [
     { id: 'University', icon: FaGraduationCap, placeholder: 'Search University...' },
@@ -168,12 +154,7 @@ const ResourceHub = () => {
         const posParam = searchParams.get('position');
 
         const newFilters = {};
-
-        if (uniParam) {
-            // Check if it's a short name and map to full name
-            const university = UNIVERSITIES_DATA.find(u => u.shortName === uniParam || u.name === uniParam);
-            newFilters.University = university ? university.name : uniParam;
-        }
+        if (uniParam) newFilters.University = uniParam;
         if (subjParam) newFilters.Subject = subjParam;
         if (profParam) newFilters.Professor = profParam;
         if (compParam) newFilters.Company = compParam;
@@ -203,25 +184,8 @@ const ResourceHub = () => {
         });
     };
 
-    const handleUniversityClick = (uniName) => {
-        // Strip (ACRONYM) from display name for the filter pill text
-        const cleanName = uniName.replace(/ \(.*?\)/g, '');
-        handleApplyFilter('University', cleanName);
-    };
-
-    const handleAIApplyFilters = (aiFilters) => {
-        const newFilters = { ...activeFilters };
-        if (aiFilters.university) newFilters.University = aiFilters.university;
-        if (aiFilters.subject) newFilters.Subject = aiFilters.subject;
-        if (aiFilters.professor) newFilters.Professor = aiFilters.professor;
-        if (aiFilters.company) newFilters.Company = aiFilters.company;
-        if (aiFilters.position) newFilters.Position = aiFilters.position;
-        setActiveFilters(newFilters);
-        toast.info('AI Recommendations Applied');
-    };
-
-    // View Mode: Grid for default universities, otherwise Table.
-    const viewMode = (!searchTerm && Object.keys(activeFilters).length === 0) ? 'grid' : 'table';
+    // View Mode: Table is now always preferred for all intel exploration.
+    const viewMode = 'table';
 
     // Get dynamically filtered options based on db tags
     const dynamicSuggestions = {
@@ -519,40 +483,18 @@ const ResourceHub = () => {
                 <div className="flex items-center justify-center py-32">
                     <div className="w-8 h-8 border-2 border-[#001E80]/20 border-t-[#001E80] rounded-full animate-spin"></div>
                 </div>
-            ) : viewMode === 'grid' ? (
-                /* Static Grid - no initial animation so it doesn't drop from bottom repetitively */
-                <div className="space-y-6">
-                    <h2 className="text-xl font-black text-gray-900 tracking-tight">Browse by University</h2>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                        {UNIVERSITIES_DATA.map((uni, idx) => (
-                            <div
-                                key={idx}
-                                onClick={() => handleUniversityClick(uni.name)}
-                                className="bg-white rounded-[1.5rem] border border-gray-100 p-5 flex flex-col items-center justify-center text-center gap-4 cursor-pointer hover:shadow-xl hover:border-[#001E80]/20 hover:-translate-y-1 transition-all duration-300 group h-36"
-                            >
-                                <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-gray-50 group-hover:bg-[#EAEEFE] transition-colors p-2 overflow-hidden shadow-sm">
-                                    {uni.logo ? (
-                                        <img src={uni.logo} alt={uni.shortName} className="max-w-full max-h-full object-contain" />
-                                    ) : (
-                                        <span className="text-sm font-black text-[#001E80]">{uni.shortName}</span>
-                                    )}
-                                </div>
-                                <h3 className="text-xs font-bold text-gray-800 leading-tight group-hover:text-[#001E80] transition-colors line-clamp-2">
-                                    {uni.name}
-                                </h3>
-                            </div>
-                        ))}
-                    </div>
-                </div>
             ) : (
                 /* Compact Table View */
                 <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden animate-in fade-in duration-300">
+                    <h2 className="px-8 py-6 text-xl font-black text-gray-900 tracking-tight border-b border-gray-100">
+                        {activeTab === 'curated' ? 'Verified Intelligence' : 'Community Intelligence'}
+                    </h2>
                     {threads.length > 0 ? (
                         <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="bg-gray-50/50 border-b border-gray-100 text-[9px] font-black uppercase tracking-widest text-gray-400">
-                                        <th className="py-3 px-5 rounded-tl-3xl uppercase">Thread info & Title</th>
+                                        <th className="py-3 px-5 uppercase">Thread info & Title</th>
                                         <th className="py-3 px-5">Creator</th>
                                         <th className="py-3 px-5">Context Tags</th>
                                         <th className="py-3 px-5 text-center">Metrics</th>
