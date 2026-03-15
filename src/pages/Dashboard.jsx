@@ -1131,79 +1131,147 @@ const Dashboard = () => {
                             <div className="w-8 h-8 border-2 border-[#001E80]/20 border-t-[#001E80] rounded-full animate-spin"></div>
                         </div>
                     ) : activityThreads.length > 0 ? (
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left border-collapse">
-                                <thead>
-                                    <tr className="bg-gray-50/50 border-b border-gray-100 text-[9px] font-black uppercase tracking-widest text-[#001E80]/40">
-                                        <th className="py-3 px-6 w-1/3">Thread</th>
-                                        <th className="py-3 px-6">Author & Tags</th>
-                                        <th className="py-3 px-6 text-center w-24">Stats</th>
-                                        <th className="py-3 px-6 text-right w-24">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="text-sm">
-                                    {activityThreads.map((thread) => (
-                                        <tr
-                                            key={thread._id}
-                                            onClick={() => navigate(`/resources/thread/${thread._id}`)}
-                                            className="border-b border-gray-50 hover:bg-[#EAEEFE]/20 cursor-pointer transition-colors group"
-                                        >
-                                            <td className="py-4 px-6 relative">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="flex-1 min-w-0">
-                                                        <h3 className="font-bold text-gray-900 truncate group-hover:text-[#001E80] transition-colors pr-4">{thread.title}</h3>
-                                                        <div className="flex items-center gap-2 mt-1">
-                                                            <span className="text-[9px] font-black uppercase tracking-widest text-gray-400">{new Date(thread.createdAt).toLocaleDateString()}</span>
-                                                            {thread.isCurated && (
-                                                                <span className="px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-[8px] font-black uppercase tracking-widest leading-none">Verified</span>
-                                                            )}
+                        <div className="space-y-12 pb-10">
+                            {/* MY THREADS (Authored) - only in moderate tab */}
+                            {activeTab === 'moderate' && activityThreads.some(t => t.author?._id === currentUser._id || t.author === currentUser._id) && (
+                                <div className="space-y-4">
+                                    <div className="px-8 flex items-center gap-3">
+                                        <div className="h-4 w-1 bg-[#001E80] rounded-full"></div>
+                                        <h4 className="text-[10px] font-black uppercase tracking-widest text-[#001E80]">My Threads</h4>
+                                    </div>
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left border-collapse">
+                                            <thead>
+                                                <tr className="bg-gray-50/50 border-b border-gray-100 text-[9px] font-black uppercase tracking-widest text-[#001E80]/40">
+                                                    <th className="py-3 px-6 w-1/3">Thread</th>
+                                                    <th className="py-3 px-6">Tags & Category</th>
+                                                    <th className="py-3 px-6 text-center w-24">Stats</th>
+                                                    <th className="py-3 px-6 text-right w-24">View</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="text-sm">
+                                                {activityThreads.filter(t => (t.author?._id || t.author) === currentUser._id || (t.author?._id || t.author) === currentUser.id).map((thread) => (
+                                                    <tr key={thread._id} onClick={() => navigate(`/resources/thread/${thread._id}`)} className="border-b border-gray-50 hover:bg-[#EAEEFE]/20 cursor-pointer transition-colors group">
+                                                        <td className="py-4 px-6 relative">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="flex-1 min-w-0">
+                                                                    <h3 className="font-bold text-gray-900 truncate group-hover:text-[#001E80]">{thread.title}</h3>
+                                                                    <div className="flex items-center gap-2 mt-1">
+                                                                        <span className="text-[9px] font-black uppercase tracking-widest text-gray-400">{new Date(thread.createdAt).toLocaleDateString()}</span>
+                                                                        {thread.isCurated && <span className="px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-[8px] font-black uppercase tracking-widest">Verified</span>}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td className="py-4 px-6">
+                                                            <div className="flex items-center gap-1.5 flex-wrap">
+                                                                {thread.tags?.slice(0, 2).map((tag, idx) => (
+                                                                    <span key={idx} className="px-2 py-1 bg-white border border-gray-100 text-gray-500 rounded text-[9px] font-bold uppercase tracking-wider">
+                                                                        {tag.replace(/^#(Subj|Comp|Prof)/, '#')}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+                                                        </td>
+                                                        <td className="py-4 px-6 text-center">
+                                                            <div className="flex items-center justify-center gap-2 text-gray-400 text-xs font-bold">
+                                                                <span title="Posts">💬 {thread.postCount || 0}</span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="py-4 px-6 text-right">
+                                                            <div className="flex items-center justify-end">
+                                                                <div className="w-8 h-8 rounded-full border border-gray-100 flex items-center justify-center group-hover:bg-[#001E80] transition-colors">
+                                                                    <FaChevronRight size={10} className="text-gray-300 group-hover:text-white" />
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* MODERATOR (Assigned, or all for paid/pinned tabs) */}
+                            <div className="space-y-4">
+                                <div className="px-8 flex items-center gap-3">
+                                    <div className="h-4 w-1 bg-[#001E80] rounded-full"></div>
+                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-[#001E80]">
+                                        {activeTab === 'moderate' ? 'Moderator Access' : (activeTab === 'paid' ? 'Paid Content' : 'Pinned for Quick Access')}
+                                    </h4>
+                                </div>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-left border-collapse">
+                                        <thead>
+                                            <tr className="bg-gray-50/50 border-b border-gray-100 text-[9px] font-black uppercase tracking-widest text-[#001E80]/40">
+                                                <th className="py-3 px-6 w-1/3">Thread</th>
+                                                <th className="py-3 px-6">{activeTab === 'moderate' ? 'Author' : 'Creator'} & Tags</th>
+                                                <th className="py-3 px-6 text-center w-24">Stats</th>
+                                                <th className="py-3 px-6 text-right w-24">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="text-sm">
+                                            {activityThreads
+                                                .filter(t => activeTab !== 'moderate' || (t.author?._id || t.author) !== currentUser._id)
+                                                .map((thread) => (
+                                                <tr
+                                                    key={thread._id}
+                                                    onClick={() => navigate(`/resources/thread/${thread._id}`)}
+                                                    className="border-b border-gray-50 hover:bg-[#EAEEFE]/20 cursor-pointer transition-colors group"
+                                                >
+                                                    <td className="py-4 px-6 relative">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="flex-1 min-w-0">
+                                                                <h3 className="font-bold text-gray-900 truncate group-hover:text-[#001E80] transition-colors pr-4">{thread.title}</h3>
+                                                                <div className="flex items-center gap-2 mt-1">
+                                                                    <span className="text-[9px] font-black uppercase tracking-widest text-gray-400">{new Date(thread.createdAt).toLocaleDateString()}</span>
+                                                                    {thread.isCurated && (
+                                                                        <span className="px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-[8px] font-black uppercase tracking-widest leading-none">Verified</span>
+                                                                    )}
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </div>
-                                            </td>
+                                                    </td>
 
-                                            <td className="py-4 px-6 relative">
-                                                <div className="block text-xs font-bold text-gray-700 mb-1">
-                                                    @{(thread.author && thread.author.username) ? thread.author.username : 'Unknown'}
-                                                </div>
-                                                <div className="flex items-center gap-1.5 flex-wrap">
-                                                    {thread.tags?.slice(0, 3).map((tag, idx) => (
-                                                        <span key={idx} className="px-2 py-1 bg-white border border-gray-100 text-gray-500 rounded text-[9px] font-bold uppercase tracking-wider whitespace-nowrap">
-                                                            {tag.replace(/^#(Subj|Comp|Prof)/, '#')}
-                                                        </span>
-                                                    ))}
-                                                    {thread.tags?.length > 3 && (
-                                                        <span className="px-2 py-1 bg-gray-50 text-gray-400 rounded text-[9px] font-bold uppercase tracking-wider">
-                                                            +{thread.tags.length - 3}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </td>
+                                                    <td className="py-4 px-6 relative">
+                                                        <div className="block text-xs font-bold text-gray-700 mb-1">
+                                                            @{(thread.author && thread.author.username) ? thread.author.username : 'Unknown'}
+                                                        </div>
+                                                        <div className="flex items-center gap-1.5 flex-wrap">
+                                                            {thread.tags?.slice(0, 3).map((tag, idx) => (
+                                                                <span key={idx} className="px-2 py-1 bg-white border border-gray-100 text-gray-500 rounded text-[9px] font-bold uppercase tracking-wider whitespace-nowrap">
+                                                                    {tag.replace(/^#(Subj|Comp|Prof)/, '#')}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    </td>
 
-                                            <td className="py-4 px-6 text-center">
-                                                <div className="flex items-center justify-center gap-3 text-gray-400">
-                                                    <span className="flex items-center gap-1 font-bold text-xs" title="Upvotes">
-                                                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                                                        {thread.upvoteCount || 0}
-                                                    </span>
-                                                    <span className="flex items-center gap-1 font-bold text-xs" title="Posts">
-                                                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
-                                                        {thread.postCount || 0}
-                                                    </span>
-                                                </div>
-                                            </td>
+                                                    <td className="py-4 px-6 text-center">
+                                                        <div className="flex items-center justify-center gap-3 text-gray-400">
+                                                            <span className="flex items-center gap-1 font-bold text-xs" title="Upvotes">
+                                                                <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                                                                {thread.upvoteCount || 0}
+                                                            </span>
+                                                            <span className="flex items-center gap-1 font-bold text-xs" title="Posts">
+                                                                <span className="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                                                                {thread.postCount || 0}
+                                                            </span>
+                                                        </div>
+                                                    </td>
 
-                                            <td className="py-4 px-6 text-right">
-                                                <div className="flex items-center justify-end gap-2">
-                                                    <div className="w-8 h-8 rounded-full border border-gray-100 flex items-center justify-center group-hover:border-[#001E80] group-hover:bg-[#001E80] transition-colors">
-                                                        <FaChevronRight size={10} className="text-gray-300 group-hover:text-white transition-colors" />
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                                    <td className="py-4 px-6 text-right">
+                                                        <div className="flex items-center justify-end gap-2">
+                                                            <div className="w-8 h-8 rounded-full border border-gray-100 flex items-center justify-center group-hover:border-[#001E80] group-hover:bg-[#001E80] transition-colors">
+                                                                <FaChevronRight size={10} className="text-gray-300 group-hover:text-white transition-colors" />
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     ) : (
                         <div className="text-center py-12 px-4 bg-gray-50/30">
