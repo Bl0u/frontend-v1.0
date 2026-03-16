@@ -16,21 +16,14 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000
 // TAB CONSTANTS
 // ───────────────────────────────────────
 const TABS = [
-    { key: 'overview', label: 'Overview' },
     { key: 'users', label: 'Users' },
-    { key: 'threads', label: 'Threads' },
-    { key: 'reports', label: 'Reports' },
-    { key: 'payments', label: 'Payments' },
-    { key: 'recruitment', label: 'Recruitment' },
-    { key: 'pitches', label: 'Manage Pitches' },
     { key: 'communities', label: 'Communities' },
-    { key: 'hub_setup', label: 'Hub Setup' },
 ];
 
-const AdminDashboard = () => {
+const ModeratorDashboard = () => {
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState('overview');
+    const [activeTab, setActiveTab] = useState('users');
     const [loading, setLoading] = useState(false);
 
     // Group Assignment state for new leads
@@ -75,7 +68,6 @@ const AdminDashboard = () => {
     const [paymentFilter, setPaymentFilter] = useState('');
     const [recruitmentFilter, setRecruitmentFilter] = useState('');
     const [userDetailsModal, setUserDetailsModal] = useState(null); // Full user object for details
-    const [viewRecruitmentModal, setViewRecruitmentModal] = useState(null); // Full recruitment app object
     const [starsModal, setStarsModal] = useState(null); // { userId, username, currentStars }
     const [starsAmount, setStarsAmount] = useState('');
     const [confirmDelete, setConfirmDelete] = useState(null); // { type: 'user'|'thread', id, name }
@@ -107,20 +99,13 @@ const AdminDashboard = () => {
 
     const LEVELS = ['Level 1', 'Level 2', 'Level 3', 'Level 4', 'Graduated'];
 
-    // Guard: redirect if not admin or moderator
+    // Guard: redirect if not moderator
     useEffect(() => {
-        if (user && !user.roles?.includes('admin') && !user.roles?.includes('moderator')) {
+        if (user && !user.roles?.includes('moderator') && !user.roles?.includes('admin')) {
             navigate('/home');
-            toast.error('Access denied');
+            toast.error('Access denied - Moderators only');
         }
     }, [user, navigate]);
-
-    // Force moderator to stay on communities tab
-    useEffect(() => {
-        if (user && !user.roles?.includes('admin') && user.roles?.includes('moderator')) {
-            if (activeTab !== 'communities') setActiveTab('communities');
-        }
-    }, [user, activeTab]);
 
     useEffect(() => {
         if (manageGroupModal) {
@@ -241,18 +226,10 @@ const AdminDashboard = () => {
 
     // Fetch data when tab changes
     useEffect(() => {
-        if (!user?.token || (!user.roles?.includes('admin') && !user.roles?.includes('moderator'))) return;
+        if (!user?.token || (!user.roles?.includes('moderator') && !user.roles?.includes('admin'))) return;
         
-        // Moderators only fetch communities
-        if (!user.roles?.includes('admin') && activeTab !== 'communities') return;
-
         switch (activeTab) {
-            case 'overview': fetchStats(); break;
             case 'users': fetchUsers(); break;
-            case 'threads': fetchThreads(); break;
-            case 'reports': fetchReports(); break;
-            case 'payments': fetchPayments(); break;
-            case 'recruitment': fetchRecruitment(); break;
             case 'communities': fetchCommunities(); fetchGroupConfigs(); break;
         }
     }, [activeTab, user?.token]);
@@ -818,12 +795,6 @@ const AdminDashboard = () => {
                                                 </button>
                                                 <button
                                                     className="admin-btn primary"
-                                                    onClick={() => setStarsModal({ userId: u._id, username: u.username, currentStars: u.stars || 0 })}
-                                                >
-                                                    ⭐ Stars
-                                                </button>
-                                                <button
-                                                    className="admin-btn primary"
                                                     style={{ background: '#001E80', color: 'white' }}
                                                     onClick={() => {
                                                         setPromoteModal({ userId: u._id, username: u.username, currentRole: u.role, roles: u.roles });
@@ -1151,16 +1122,13 @@ const AdminDashboard = () => {
                         <div className="admin-report-date" style={{ marginBottom: 12 }}>
                             Applied: {formatDate(app.createdAt)}
                         </div>
-                        <div className="admin-actions">
-                            <button className="admin-btn primary" onClick={() => setViewRecruitmentModal(app)}>View App</button>
-                            {app.status === 'pending' && (
-                                <>
-                                    <button className="admin-btn success" onClick={() => handleUpdateRecruitment(app._id, 'accepted')}>Accept</button>
-                                    <button className="admin-btn danger" onClick={() => handleUpdateRecruitment(app._id, 'rejected')}>Reject</button>
-                                    <button className="admin-btn" onClick={() => handleUpdateRecruitment(app._id, 'reviewed')}>Mark Reviewed</button>
-                                </>
-                            )}
-                        </div>
+                        {app.status === 'pending' && (
+                            <div className="admin-actions">
+                                <button className="admin-btn success" onClick={() => handleUpdateRecruitment(app._id, 'accepted')}>Accept</button>
+                                <button className="admin-btn danger" onClick={() => handleUpdateRecruitment(app._id, 'rejected')}>Reject</button>
+                                <button className="admin-btn" onClick={() => handleUpdateRecruitment(app._id, 'reviewed')}>Mark Reviewed</button>
+                            </div>
+                        )}
                     </div>
                 ))
             )}
@@ -1368,18 +1336,11 @@ const AdminDashboard = () => {
                                         <div className="flex gap-2 mb-4">
                                             <input 
                                                 type="text"
-                                                placeholder="Search or assign by @username..."
+                                                placeholder="Search user by exact username..."
                                                 value={userSearchText}
                                                 onChange={(e) => handleSearchUsers(e.target.value)}
                                                 className="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm"
                                             />
-                                            <button 
-                                                className="admin-btn primary !py-2 !px-4"
-                                                onClick={() => handleAssignMod(manageCommModal._id, null, userSearchText)}
-                                                disabled={!userSearchText || searchLoading}
-                                            >
-                                                Send
-                                            </button>
                                             {searchLoading && <div className="admin-spinner" style={{ width: 16, height: 16 }} />}
                                         </div>
 
@@ -1749,8 +1710,8 @@ const AdminDashboard = () => {
         <div className="admin-dashboard">
             {/* Header */}
             <div className="admin-header">
-                <h1>Admin Dashboard</h1>
-                <p className="admin-header-sub">Platform overview and management controls</p>
+                <h1>Moderator Dashboard</h1>
+                <p className="admin-header-sub">Communities and Users management controls</p>
             </div>
 
             {/* Tabs */}
@@ -2044,10 +2005,6 @@ const AdminDashboard = () => {
                                     <span className="admin-detail-label">City</span>
                                     <span className="admin-detail-value">{userDetailsModal.user?.city || '—'}</span>
                                 </div>
-                                <div className="admin-detail-item">
-                                    <span className="admin-detail-label">Stars Balance</span>
-                                    <span className="admin-detail-value" style={{ color: '#001E80', fontWeight: 900 }}>⭐ {userDetailsModal.user?.stars || 0}</span>
-                                </div>
                             </div>
 
                             {/* Activity Metrics */}
@@ -2115,33 +2072,6 @@ const AdminDashboard = () => {
                     </div>
                 </div>
             )}
-
-            {/* View Recruitment Application Modal */}
-            {viewRecruitmentModal && (
-                <div className="admin-modal-overlay" onClick={() => setViewRecruitmentModal(null)}>
-                    <div className="admin-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 600 }}>
-                        <div className="flex justify-between items-center mb-6">
-                            <div>
-                                <h3 className="admin-modal-title">Application Details</h3>
-                                <p className="admin-modal-subtitle">Applying for: <strong style={{ color: '#001E80', textTransform: 'uppercase' }}>{viewRecruitmentModal.type?.replace('_', ' ')}</strong></p>
-                            </div>
-                            <button className="admin-btn neutral" onClick={() => setViewRecruitmentModal(null)}>Close</button>
-                        </div>
-                        <div className="admin-detail-grid" style={{ gridTemplateColumns: '1fr', maxHeight: '60vh', overflowY: 'auto' }}>
-                            {Object.entries(viewRecruitmentModal.data || {}).map(([key, value]) => (
-                                <div key={key} className="admin-detail-item" style={{ flexDirection: 'column', alignItems: 'flex-start', borderBottom: '1px solid #eee', paddingBottom: '12px' }}>
-                                    <span className="admin-detail-label" style={{ marginBottom: '8px', textTransform: 'capitalize' }}>{key}</span>
-                                    <span className="admin-detail-value" style={{ whiteSpace: 'pre-wrap', lineHeight: '1.5' }}>
-                                        {key === 'linkedin' ? (
-                                            <a href={value} target="_blank" rel="noopener noreferrer" style={{ color: '#001E80', textDecoration: 'underline' }}>{value}</a>
-                                        ) : value?.toString() || '—'}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            )}
             {justPromotedLead && (
                 <PromoteLeadGroupsModal
                     isOpen={!!justPromotedLead}
@@ -2155,4 +2085,4 @@ const AdminDashboard = () => {
     );
 };
 
-export default AdminDashboard;
+export default ModeratorDashboard;

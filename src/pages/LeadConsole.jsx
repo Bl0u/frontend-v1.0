@@ -14,7 +14,7 @@ const LeadConsole = () => {
         const fetchConsoleData = async () => {
             try {
                 const recents = await chatService.getRecentChats(user.token);
-                const elite = recents.filter(c => c.chatType === 'group' && c.name.includes('Private Network'));
+                const elite = recents.filter(c => c.chatType === 'group' && (c.name.includes('Private Network') || (c.targetRoles && c.targetRoles.length > 0)));
                 setEliteGroups(elite);
                 setLoading(false);
             } catch (error) {
@@ -25,7 +25,7 @@ const LeadConsole = () => {
         fetchConsoleData();
     }, [user]);
 
-    if (!user || !['studentLead', 'mentor', 'admin', 'moderator'].some(r => user.roles?.includes(r))) {
+    if (!user || !['studentLead', 'mentor', 'admin'].some(r => user.roles?.includes(r))) {
         return <div className="p-20 text-center uppercase font-black text-[#001E80]">Access Denied: Elite Personnel Only</div>;
     }
 

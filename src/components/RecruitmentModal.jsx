@@ -22,6 +22,20 @@ const LeadIcon = ({ className }) => (
         <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89317 18.7122 8.75608 18.1676 9.45768C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
 );
+const UNIVERSITIES = [
+    'Cairo University', 'Alexandria University', 'Ain Shams University', 'Assiut University', 'Mansoura University',
+    'Zagazig University', 'Helwan University', 'Suez Canal University', '6th of October University',
+    'Misr University for Science and Technology', 'German University in Cairo (GUC)', 'American University in Cairo (AUC)',
+    'Al Alamein International University', 'Delta University for Science and Technology', 'British University in Egypt (BUE)',
+    'Arab Academy (AASTMT)', 'Nile University', 'E-JUST'
+];
+const COLLEGIES = [
+    'Engineering', 'Medicine', 'Pharmacy', 'Commerce', 'Arts', 'Law', 'Science',
+    'Computer and Information', 'Agriculture', 'Dentistry', 'Intelligent Systems', 'Nursing', 'Education',
+    'Economics and Political Science', 'Al-Alsun (Languages)', 'Mass Communication',
+    'Fine Arts', 'Applied Arts'
+];
+const LEVELS = ['Level 1', 'Level 2', 'Level 3', 'Level 4', 'Graduated'];
 
 const RecruitmentModal = ({ isOpen, onClose, user, type: initialType }) => {
     const [loading, setLoading] = useState(false);
@@ -238,38 +252,41 @@ const RecruitmentModal = ({ isOpen, onClose, user, type: initialType }) => {
                                             <div className="grid grid-cols-2 gap-4">
                                                 <div className="space-y-2">
                                                     <label className="text-[10px] font-black uppercase tracking-widest text-[#001E80] ml-2">University</label>
-                                                    <input
-                                                        type="text"
+                                                    <select
                                                         name="university"
-                                                        placeholder="University Name"
                                                         className="w-full p-4 bg-gray-50/50 border-2 border-transparent focus:border-[#001E80]/20 focus:bg-white rounded-2xl outline-none transition-all text-sm"
                                                         value={formData.university}
                                                         onChange={handleChange}
-                                                    />
+                                                    >
+                                                        <option value="">Select University</option>
+                                                        {UNIVERSITIES.map(uni => <option key={uni} value={uni}>{uni}</option>)}
+                                                    </select>
                                                 </div>
                                                 <div className="space-y-2">
                                                     <label className="text-[10px] font-black uppercase tracking-widest text-[#001E80] ml-2">Faculty</label>
-                                                    <input
-                                                        type="text"
+                                                    <select
                                                         name="faculty"
-                                                        placeholder="Faculty / Major"
                                                         className="w-full p-4 bg-gray-50/50 border-2 border-transparent focus:border-[#001E80]/20 focus:bg-white rounded-2xl outline-none transition-all text-sm"
                                                         value={formData.faculty}
                                                         onChange={handleChange}
-                                                    />
+                                                    >
+                                                        <option value="">Select Faculty</option>
+                                                        {COLLEGIES.map(col => <option key={col} value={col}>{col}</option>)}
+                                                    </select>
                                                 </div>
                                             </div>
                                             <div className="space-y-2">
                                                 <label className="text-[10px] font-black uppercase tracking-widest text-[#001E80] ml-2">Year / Level</label>
                                                 <div className="relative">
-                                                    <input
-                                                        type="text"
+                                                    <select
                                                         name="level"
-                                                        placeholder="e.g. 3rd Year, Level 400"
                                                         className="w-full p-4 pl-12 bg-gray-50/50 border-2 border-transparent focus:border-[#001E80]/20 focus:bg-white rounded-2xl outline-none transition-all text-sm"
                                                         value={formData.level}
                                                         onChange={handleChange}
-                                                    />
+                                                    >
+                                                        <option value="">Select Level</option>
+                                                        {LEVELS.map(lvl => <option key={lvl} value={lvl}>{lvl}</option>)}
+                                                    </select>
                                                     <FaUniversity className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                                                 </div>
                                             </div>

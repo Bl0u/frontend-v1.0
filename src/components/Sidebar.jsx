@@ -238,15 +238,23 @@ const Sidebar = () => {
                     </>
                 )}
 
-                {/* ── ADMIN (only for admins) ── */}
-                {user.roles?.includes('admin') && (
+                {/* ── ADMIN & MODERATOR ── */}
+                {(user.roles?.includes('admin') || user.roles?.includes('moderator')) && (
                     <>
-                        <div className="sidebar-section-label">Admin</div>
+                        <div className="sidebar-section-label">Management</div>
                         <nav className="sidebar-nav">
-                            <Link to="/admin" className={`sidebar-link ${isActive('/admin') ? 'active' : ''}`}>
-                                <span className="sidebar-link-icon"><FiShield /></span>
-                                <span className="sidebar-link-text">Dashboard</span>
-                            </Link>
+                            {user.roles?.includes('admin') && (
+                                <Link to="/admin" className={`sidebar-link ${isActive('/admin') ? 'active' : ''}`}>
+                                    <span className="sidebar-link-icon"><FiShield /></span>
+                                    <span className="sidebar-link-text">Admin Dashboard</span>
+                                </Link>
+                            )}
+                            {(user.roles?.includes('moderator') || user.roles?.includes('admin')) && (
+                                <Link to="/moderator" className={`sidebar-link ${isActive('/moderator') ? 'active' : ''}`}>
+                                    <span className="sidebar-link-icon"><FiShield /></span>
+                                    <span className="sidebar-link-text">Moderator Dashboard</span>
+                                </Link>
+                            )}
                         </nav>
                     </>
                 )}

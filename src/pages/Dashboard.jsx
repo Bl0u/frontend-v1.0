@@ -5,7 +5,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { API_BASE_URL } from '../config';
 
-import { FaExternalLinkAlt, FaUserFriends, FaBook, FaChevronRight } from 'react-icons/fa';
+import { FaExternalLinkAlt, FaUserFriends, FaBook, FaEdit, FaChevronRight } from 'react-icons/fa';
 import { FiZap } from 'react-icons/fi';
 import requestService from '../features/requests/requestService';
 import planService from '../features/plans/planService';
@@ -117,6 +117,32 @@ const Dashboard = () => {
         }
     };
 
+    const handleEditTitle = async (projectId, currentTitle) => {
+        const newTitle = window.prompt('Enter new project title:', currentTitle);
+        if (!newTitle || newTitle === currentTitle) return;
+        try {
+            await axios.put(`${API_BASE_URL}/api/requests/${projectId}/title`, { title: newTitle }, {
+                headers: { Authorization: `Bearer ${currentUser.token}` }
+            });
+            toast.success('Project title updated!');
+            const data = await requestService.getMyProjects(currentUser.token);
+            setProjects(data);
+        } catch (error) {
+            toast.error('Failed to update title');
+        }
+    };
+
+    const handleOpenProjectChat = async (projectId) => {
+        try {
+            const res = await axios.post(`${API_BASE_URL}/api/chat/project-chat`, { projectId }, {
+                headers: { Authorization: `Bearer ${currentUser.token}` }
+            });
+            navigate(`/chat?u=${res.data.groupId}&type=group`);
+        } catch (error) {
+            toast.error('Failed to open team chat');
+        }
+    };
+
     useEffect(() => {
         if (currentUser) fetchProfile();
     }, [currentUser]);
@@ -168,9 +194,8 @@ const Dashboard = () => {
             const fetchActivity = async () => {
                 setLoadingThreads(true);
                 try {
-                    const config = { headers: { Authorization: `Bearer ${currentUser.token}` } };
-                    const res = await axios.get(`${API_BASE_URL}/api/resources/activity?type=${activeTab}`, config);
-                    setActivityThreads(res.data);
+                    const data = await resourceService.getUserActivity(activeTab, currentUser.token);
+                    setActivityThreads(data);
                 } catch (error) {
                     toast.error(`Failed to load ${activeTab} threads`);
                 } finally {
@@ -448,13 +473,22 @@ const Dashboard = () => {
                                                 <FaBook size={14} />
                                             </button>
                                             {project.sender?._id === currentUser._id && (
-                                                <button
-                                                    onClick={() => handleCompleteProject(project._id)}
-                                                    className="p-2 text-green-400 hover:text-green-600 transition-colors"
-                                                    title="Mark Completed"
-                                                >
-                                                    <FiZap size={14} />
-                                                </button>
+                                                <>
+                                                    <button
+                                                        onClick={() => handleEditTitle(project._id, project.pitch?.Hook || project.pitch?.['The Hook (Short summary)'] || "Untitled Mission")}
+                                                        className="p-2 text-[#001E80]/40 hover:text-[#001E80] transition-colors"
+                                                        title="Edit Project Title"
+                                                    >
+                                                        <FaEdit size={12} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleCompleteProject(project._id)}
+                                                        className="p-2 text-green-400 hover:text-green-600 transition-colors"
+                                                        title="Mark Completed"
+                                                    >
+                                                        <FiZap size={14} />
+                                                    </button>
+                                                </>
                                             )}
                                         </div>
                                     </div>
@@ -562,11 +596,11 @@ const Dashboard = () => {
                                 {profile.partnerHistory.map((history, idx) => (
                                     <div key={idx} className="flex items-center gap-3 p-3 rounded-xl border border-dashed border-gray-200 opacity-60 hover:opacity-100 transition-opacity">
                                         <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center text-xs font-bold text-gray-400">
-                                            {history.user?.name?.charAt(0)}
+                                            {history.partnerName?.charAt(0) || '?'}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="font-bold text-gray-600 text-xs truncate">{history.user?.name}</p>
-                                            <p className="text-[10px] text-gray-400">{new Date(history.endedAt).toLocaleDateString()}</p>
+                                            <p className="font-bold text-gray-600 text-xs truncate">{history.partnerName || 'Unknown Partner'}</p>
+                                            <p className="text-[10px] text-gray-400">{history.endDate ? new Date(history.endDate).toLocaleDateString() : 'N/A'}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -785,11 +819,23 @@ const Dashboard = () => {
                                             <div className="p-6 flex-1">
                                                 <div className="flex items-center justify-between mb-4">
                                                     <div className="flex items-center gap-2">
-                                                        <span className="px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider bg-blue-50 text-blue-600 border border-blue-100">
-                                                            In Recruitment
+                                                        <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider border ${project.status === 'ongoing'
+                                                            ? 'bg-green-50 text-green-600 border-green-100'
+                                                            : 'bg-blue-50 text-blue-600 border-blue-100'
+                                                            }`}>
+                                                            {project.status === 'ongoing' ? 'Active Mission' : 'In Recruitment'}
                                                         </span>
                                                         {project.isProBono && (
                                                             <span className="px-2 py-0.5 rounded-md bg-pink-50 text-pink-500 text-[8px] font-black uppercase tracking-wider border border-pink-100">Pro-Bono</span>
+                                                        )}
+                                                        {project.sender?._id === currentUser._id && (
+                                                            <button
+                                                                onClick={() => handleEditTitle(project._id, project.pitch?.Hook || project.pitch?.['The Hook (Short summary)'] || "Untitled Mission")}
+                                                                className="p-1.5 text-[#001E80]/40 hover:text-[#001E80] transition-colors bg-gray-50 rounded-lg"
+                                                                title="Edit Project Title"
+                                                            >
+                                                                <FaEdit size={10} />
+                                                            </button>
                                                         )}
                                                     </div>
                                                     <div className="text-[10px] font-black text-[#001E80]/40 uppercase tracking-widest">
@@ -857,12 +903,12 @@ const Dashboard = () => {
                                                         </button>
                                                     )}
                                                 </div>
-                                                <Link
-                                                    to="/chat"
+                                                <button
+                                                    onClick={() => handleOpenProjectChat(project._id)}
                                                     className="text-[10px] font-black text-gray-500 uppercase tracking-widest hover:text-[#001E80] transition-colors"
                                                 >
                                                     Team Chat
-                                                </Link>
+                                                </button>
                                             </div>
                                         </div>
                                     ))}
@@ -1081,6 +1127,207 @@ const Dashboard = () => {
                     ) : (
                         <div className="text-center py-12">
                             <p className="text-gray-400 text-sm">You are not a moderator in any community yet.</p>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
+    // ─── ACTIVITY TABS (Moderate, Paid, Pinned) ───
+    if (['moderate', 'paid', 'pinned'].includes(activeTab)) {
+        const titleMap = {
+            'moderate': 'Moderate Threads',
+            'paid': 'Paid Threads',
+            'pinned': 'Pinned Threads'
+        };
+        const descriptionMap = {
+            'moderate': 'Threads you have been assigned to moderate.',
+            'paid': 'Premium threads you have purchased access to.',
+            'pinned': 'Threads you have bookmarked for quick access.'
+        };
+
+        return (
+            <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-500">
+                {/* Header */}
+                <div>
+                    <h1
+                        className="text-3xl font-black bg-gradient-to-b from-black to-[#001E80] bg-clip-text text-transparent pb-1 cursor-default"
+                        style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
+                    >
+                        {titleMap[activeTab]}
+                    </h1>
+                    <p className="text-[#010D3E]/50 text-sm font-medium mt-1 cursor-default">
+                        {descriptionMap[activeTab]}
+                    </p>
+                </div>
+
+                {/* Filter and Table View */}
+                <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden animate-in fade-in duration-500">
+                    <div className="px-8 py-6 border-b border-gray-50 flex flex-col gap-6">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-lg font-bold text-gray-800 flex items-center gap-3">
+                                <FaBook className="text-[#001E80]" /> Activity Threads
+                            </h3>
+                        </div>
+                    </div>
+
+                    {loadingThreads ? (
+                        <div className="flex items-center justify-center py-12">
+                            <div className="w-8 h-8 border-2 border-[#001E80]/20 border-t-[#001E80] rounded-full animate-spin"></div>
+                        </div>
+                    ) : activityThreads.length > 0 ? (
+                        <div className="space-y-12 pb-10">
+                            {/* MY THREADS (Authored) - only in moderate tab */}
+                            {activeTab === 'moderate' && activityThreads.some(t => t.author?._id === currentUser._id || t.author === currentUser._id) && (
+                                <div className="space-y-4">
+                                    <div className="px-8 flex items-center gap-3">
+                                        <div className="h-4 w-1 bg-[#001E80] rounded-full"></div>
+                                        <h4 className="text-[10px] font-black uppercase tracking-widest text-[#001E80]">My Threads</h4>
+                                    </div>
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left border-collapse">
+                                            <thead>
+                                                <tr className="bg-gray-50/50 border-b border-gray-100 text-[9px] font-black uppercase tracking-widest text-[#001E80]/40">
+                                                    <th className="py-3 px-6 w-1/3">Thread</th>
+                                                    <th className="py-3 px-6">Tags & Category</th>
+                                                    <th className="py-3 px-6 text-center w-24">Stats</th>
+                                                    <th className="py-3 px-6 text-right w-24">View</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="text-sm">
+                                                {activityThreads.filter(t => (t.author?._id || t.author) === (currentUser?._id || currentUser?.id)).map((thread) => (
+                                                    <tr key={thread._id} onClick={() => navigate(`/resources/thread/${thread._id}`)} className="border-b border-gray-50 hover:bg-[#EAEEFE]/20 cursor-pointer transition-colors group">
+                                                        <td className="py-4 px-6 relative">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="flex-1 min-w-0">
+                                                                    <h3 className="font-bold text-gray-900 truncate group-hover:text-[#001E80]">{thread.title}</h3>
+                                                                    <div className="flex items-center gap-2 mt-1">
+                                                                        <span className="text-[9px] font-black uppercase tracking-widest text-gray-400">{new Date(thread.createdAt).toLocaleDateString()}</span>
+                                                                        {thread.isCurated && <span className="px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-[8px] font-black uppercase tracking-widest">Verified</span>}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td className="py-4 px-6">
+                                                            <div className="flex items-center gap-1.5 flex-wrap">
+                                                                {thread.tags?.slice(0, 2).map((tag, idx) => (
+                                                                    <span key={idx} className="px-2 py-1 bg-white border border-gray-100 text-gray-500 rounded text-[9px] font-bold uppercase tracking-wider">
+                                                                        {tag.replace(/^#(Subj|Comp|Prof)/, '#')}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+                                                        </td>
+                                                        <td className="py-4 px-6 text-center">
+                                                            <div className="flex items-center justify-center gap-2 text-gray-400 text-xs font-bold">
+                                                                <span title="Posts">💬 {thread.postCount || 0}</span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="py-4 px-6 text-right">
+                                                            <div className="flex items-center justify-end">
+                                                                <div className="w-8 h-8 rounded-full border border-gray-100 flex items-center justify-center group-hover:bg-[#001E80] transition-colors">
+                                                                    <FaChevronRight size={10} className="text-gray-300 group-hover:text-white" />
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* MODERATOR (Assigned, or all for paid/pinned tabs) */}
+                            <div className="space-y-4">
+                                <div className="px-8 flex items-center gap-3">
+                                    <div className="h-4 w-1 bg-[#001E80] rounded-full"></div>
+                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-[#001E80]">
+                                        {activeTab === 'moderate' ? 'Moderate' : (activeTab === 'paid' ? 'Paid Content' : 'Pinned for Quick Access')}
+                                    </h4>
+                                </div>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-left border-collapse">
+                                        <thead>
+                                            <tr className="bg-gray-50/50 border-b border-gray-100 text-[9px] font-black uppercase tracking-widest text-[#001E80]/40">
+                                                <th className="py-3 px-6 w-1/3">Thread</th>
+                                                <th className="py-3 px-6">{activeTab === 'moderate' ? 'Author' : 'Creator'} & Tags</th>
+                                                <th className="py-3 px-6 text-center w-24">Stats</th>
+                                                <th className="py-3 px-6 text-right w-24">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="text-sm">
+                                            {activityThreads
+                                                .filter(t => activeTab !== 'moderate' || (t.author?._id || t.author) !== (currentUser?._id || currentUser?.id))
+                                                .map((thread) => (
+                                                <tr
+                                                    key={thread._id}
+                                                    onClick={() => navigate(`/resources/thread/${thread._id}`)}
+                                                    className="border-b border-gray-50 hover:bg-[#EAEEFE]/20 cursor-pointer transition-colors group"
+                                                >
+                                                    <td className="py-4 px-6 relative">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="flex-1 min-w-0">
+                                                                <h3 className="font-bold text-gray-900 truncate group-hover:text-[#001E80] transition-colors pr-4">{thread.title}</h3>
+                                                                <div className="flex items-center gap-2 mt-1">
+                                                                    <span className="text-[9px] font-black uppercase tracking-widest text-gray-400">{new Date(thread.createdAt).toLocaleDateString()}</span>
+                                                                    {thread.isCurated && (
+                                                                        <span className="px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-[8px] font-black uppercase tracking-widest leading-none">Verified</span>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+
+                                                    <td className="py-4 px-6 relative">
+                                                        <div className="block text-xs font-bold text-gray-700 mb-1">
+                                                            @{(thread.author && thread.author.username) ? thread.author.username : 'Unknown'}
+                                                        </div>
+                                                        <div className="flex items-center gap-1.5 flex-wrap">
+                                                            {thread.tags?.slice(0, 3).map((tag, idx) => (
+                                                                <span key={idx} className="px-2 py-1 bg-white border border-gray-100 text-gray-500 rounded text-[9px] font-bold uppercase tracking-wider whitespace-nowrap">
+                                                                    {tag.replace(/^#(Subj|Comp|Prof)/, '#')}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    </td>
+
+                                                    <td className="py-4 px-6 text-center">
+                                                        <div className="flex items-center justify-center gap-3 text-gray-400">
+                                                            <span className="flex items-center gap-1 font-bold text-xs" title="Upvotes">
+                                                                <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                                                                {thread.upvoteCount || 0}
+                                                            </span>
+                                                            <span className="flex items-center gap-1 font-bold text-xs" title="Posts">
+                                                                <span className="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                                                                {thread.postCount || 0}
+                                                            </span>
+                                                        </div>
+                                                    </td>
+
+                                                    <td className="py-4 px-6 text-right">
+                                                        <div className="flex items-center justify-end gap-2">
+                                                            <div className="w-8 h-8 rounded-full border border-gray-100 flex items-center justify-center group-hover:border-[#001E80] group-hover:bg-[#001E80] transition-colors">
+                                                                <FaChevronRight size={10} className="text-gray-300 group-hover:text-white transition-colors" />
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="text-center py-12 px-4 bg-gray-50/30">
+                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">No threads found for {titleMap[activeTab]}.</p>
+                            <button
+                                onClick={() => navigate('/resources')}
+                                className="bg-[#001E80] text-white px-6 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all shadow-md hover:bg-[#010D3E]"
+                            >
+                                Browse Hub
+                            </button>
                         </div>
                     )}
                 </div>

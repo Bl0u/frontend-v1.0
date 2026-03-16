@@ -1,13 +1,12 @@
 import { useState, useEffect, useContext, useRef } from 'react';
-import { useNavigate, Link, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import resourceService from '../features/resources/resourceService';
 import AuthContext from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import {
-    FaSearch, FaChevronRight, FaFilter,
-    FaBook, FaUsers, FaGraduationCap, FaBuilding, FaChalkboardTeacher, FaBookOpen, FaPenNib, FaRobot
+    FaSearch, FaChevronRight,
+    FaBook, FaUsers, FaGraduationCap, FaBuilding, FaChalkboardTeacher, FaBookOpen, FaPenNib
 } from 'react-icons/fa';
-import AIChatBot from '../components/AIChatBot';
 import { FilterBar } from '../components/FilterBar';
 import SearchableDropdown from '../components/SearchableDropdown';
 
@@ -19,6 +18,13 @@ const SUGGESTION_LISTS = {
         'Misr University for Science and Technology', 'German University in Cairo (GUC)', 'American University in Cairo (AUC)',
         'Al Alamein International University', 'Delta University for Science and Technology', 'British University in Egypt (BUE)'
     ],
+    College: [
+        'Engineering', 'Medicine', 'Pharmacy', 'Commerce', 'Arts', 'Law', 'Science',
+        'Computer and Information', 'Agriculture', 'Dentistry', 'Nursing', 'Education',
+        'Economics and Political Science', 'Al-Alsun (Languages)', 'Mass Communication',
+        'Fine Arts', 'Applied Arts'
+    ],
+    AcademicLevel: ['Level 1', 'Level 2', 'Level 3', 'Level 4', 'Graduated'],
     Professor: [
         'Dr. John Doe', 'Dr. Ahmed', 'Dr. Hesham', 'Dr. Sarah', 'Dr. Ibrahim'
     ],
@@ -36,24 +42,12 @@ const SUGGESTION_LISTS = {
     ]
 };
 
-const UNIVERSITIES_DATA = [
-    { name: 'Cairo University', shortName: 'CU', logo: '/assets/logos/Cairo_university.jpg' },
-    { name: 'Ain Shams University', shortName: 'ASU', logo: null },
-    { name: 'Arab Academy (AASTMT)', shortName: 'AAST', logo: '/assets/logos/Arab_Academy_for_Science_and_Technology_and_Maritime_Transport.jpg' },
-    { name: 'British University in Egypt', shortName: 'BUE', logo: '/assets/logos/British_University_in_Egypt.png' },
-    { name: 'German University in Cairo', shortName: 'GUC', logo: '/assets/logos/German_University_in_Cairo_Logo.jpg' },
-    { name: 'Nile University', shortName: 'NU', logo: '/assets/logos/Nile_University_Logo.png' },
-    { name: 'E-JUST', shortName: 'EJUST', logo: '/assets/logos/E-JUST_logo.png' },
-    { name: 'AIU', shortName: 'AIU', logo: '/assets/logos/AIU_Official_Logo_2.png' },
-    { name: 'Alexandria University', shortName: 'AU', logo: null },
-    { name: 'Mansoura University', shortName: 'MU', logo: null }
-];
-
 const FILTER_TYPES = [
     { id: 'University', icon: FaGraduationCap, placeholder: 'Search University...' },
     { id: 'Professor', icon: FaChalkboardTeacher, placeholder: 'Search Professor...' },
     { id: 'Subject', icon: FaBookOpen, placeholder: 'Search Subject...' },
-    { id: 'Company', icon: FaBuilding, placeholder: 'Search Company...' }
+    { id: 'Company', icon: FaBuilding, placeholder: 'Search Company...' },
+    { id: 'Position', icon: FaUsers, placeholder: 'Search Position...' }
 ];
 
 const ResourceHub = () => {
@@ -72,12 +66,13 @@ const ResourceHub = () => {
     const [activeFilterType, setActiveFilterType] = useState(null); // Which pill is open
     const [activeFilters, setActiveFilters] = useState({}); // e.g. { University: 'Cairo University', Subject: 'DSA' }
     const [uniqueTags, setUniqueTags] = useState([]); // Fetched unique tags
+    const [metadata, setMetadata] = useState({ companies: [], positions: [] });
 
     // Modal state for Submitting Contribution
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [createStep, setCreateStep] = useState(1);
     const [createData, setCreateData] = useState({
-        title: '', tags: '', category: 'college', university: '', college: '',
+        title: '', tags: '', category: 'college', university: '', college: '', academicLevel: '',
         professor: '', subject: '', company: '', position: '', isPaid: false, price: 0
     });
 
@@ -102,7 +97,9 @@ const ResourceHub = () => {
             const data = await resourceService.getThreads({
                 curated: activeTab === 'curated',
                 search: searchTerm,
-                tags: tagFilters || undefined // Multi-tag query from the newly updated backend
+                tags: tagFilters || undefined, // Multi-tag query from the newly updated backend
+                company: activeFilters.Company,
+                position: activeFilters.Position
             });
 
             setThreads(data);
@@ -120,17 +117,21 @@ const ResourceHub = () => {
         return () => clearTimeout(delaySearch);
     }, [activeTab, searchTerm, activeFilters]);
 
-    // Fetch unique tags on mount
+    // Fetch unique metadata on mount
     useEffect(() => {
-        const fetchTags = async () => {
+        const fetchMeta = async () => {
             try {
-                const tags = await resourceService.getUniqueTags();
+                const [tags, meta] = await Promise.all([
+                    resourceService.getUniqueTags(),
+                    resourceService.getResourceMetadata()
+                ]);
                 setUniqueTags(tags);
+                setMetadata(meta);
             } catch (error) {
-                console.error("Failed to load unique tags", error);
+                console.error("Failed to load metadata", error);
             }
         };
-        fetchTags();
+        fetchMeta();
     }, []);
 
     // Close suggestions if clicked outside
@@ -153,12 +154,7 @@ const ResourceHub = () => {
         const posParam = searchParams.get('position');
 
         const newFilters = {};
-
-        if (uniParam) {
-            // Check if it's a short name and map to full name
-            const university = UNIVERSITIES_DATA.find(u => u.shortName === uniParam || u.name === uniParam);
-            newFilters.University = university ? university.name : uniParam;
-        }
+        if (uniParam) newFilters.University = uniParam;
         if (subjParam) newFilters.Subject = subjParam;
         if (profParam) newFilters.Professor = profParam;
         if (compParam) newFilters.Company = compParam;
@@ -188,33 +184,16 @@ const ResourceHub = () => {
         });
     };
 
-    const handleUniversityClick = (uniName) => {
-        // Strip (ACRONYM) from display name for the filter pill text
-        const cleanName = uniName.replace(/ \(.*?\)/g, '');
-        handleApplyFilter('University', cleanName);
-    };
-
-    const handleAIApplyFilters = (aiFilters) => {
-        const newFilters = { ...activeFilters };
-        if (aiFilters.university) newFilters.University = aiFilters.university;
-        if (aiFilters.subject) newFilters.Subject = aiFilters.subject;
-        if (aiFilters.professor) newFilters.Professor = aiFilters.professor;
-        if (aiFilters.company) newFilters.Company = aiFilters.company;
-        if (aiFilters.position) newFilters.Position = aiFilters.position;
-        setActiveFilters(newFilters);
-        toast.info('AI Recommendations Applied');
-    };
-
-    // View Mode: Grid for default universities, otherwise Table.
-    const viewMode = (!searchTerm && Object.keys(activeFilters).length === 0) ? 'grid' : 'table';
+    // View Mode: Table is now always preferred for all intel exploration.
+    const viewMode = 'table';
 
     // Get dynamically filtered options based on db tags
     const dynamicSuggestions = {
         University: SUGGESTION_LISTS.University.filter(u => uniqueTags.includes(`#${u.replace(/\s+/g, '')}`)),
         Professor: uniqueTags.filter(t => t.startsWith('#Prof')).map(t => t.replace('#Prof', '')),
         Subject: uniqueTags.filter(t => t.startsWith('#Subj')).map(t => t.replace('#Subj', '')),
-        Company: uniqueTags.filter(t => t.startsWith('#Comp')).map(t => t.replace('#Comp', '')),
-        Position: uniqueTags.filter(t => !t.startsWith('#Subj') && !t.startsWith('#Comp') && !t.startsWith('#Prof') && t.startsWith('#') && t !== '#Interview').map(t => t.replace('#', ''))
+        Company: metadata.companies,
+        Position: metadata.positions
     };
 
     // Thread Creation
@@ -244,12 +223,17 @@ const ResourceHub = () => {
             formData.append('type', createData.category);
             formData.append('isPaid', createData.isPaid);
             if (createData.isPaid) formData.append('price', createData.price);
+            if (createData.university) formData.append('university', createData.university);
+            if (createData.college) formData.append('college', createData.college);
+            if (createData.academicLevel) formData.append('academicLevel', createData.academicLevel);
+            if (createData.company) formData.append('company', createData.company);
+            if (createData.position) formData.append('position', createData.position);
 
             await resourceService.createThread(formData, user.token);
             toast.success('Mission Briefing Synced');
             setShowCreateModal(false);
             setCreateStep(1);
-            setCreateData({ title: '', tags: '', category: 'college', university: '', college: '', professor: '', subject: '', company: '', position: '', isPaid: false, price: 0 })
+            setCreateData({ title: '', tags: '', category: 'college', university: '', college: '', academicLevel: '', professor: '', subject: '', company: '', position: '', isPaid: false, price: 0 })
             fetchThreads();
         } catch (error) {
             toast.error(error.response?.data?.message || 'Failed to create thread');
@@ -300,6 +284,22 @@ const ResourceHub = () => {
                                     placeholder="Select University"
                                     name="university"
                                 />
+                                <SearchableDropdown
+                                    label="College"
+                                    value={createData.college}
+                                    onChange={(e) => setCreateData({ ...createData, college: e.target.value })}
+                                    options={SUGGESTION_LISTS.College}
+                                    placeholder="Select College"
+                                    name="college"
+                                />
+                                <SearchableDropdown
+                                    label="Academic Level"
+                                    value={createData.academicLevel}
+                                    onChange={(e) => setCreateData({ ...createData, academicLevel: e.target.value })}
+                                    options={SUGGESTION_LISTS.AcademicLevel}
+                                    placeholder="Select Level"
+                                    name="academicLevel"
+                                />
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-black text-[#001E80] uppercase ml-2">Professor</label>
                                     <input
@@ -328,7 +328,7 @@ const ResourceHub = () => {
                                     <label className="text-[10px] font-black text-[#001E80] uppercase ml-2">Company</label>
                                     <input
                                         className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:ring-2 focus:ring-[#001E80]/20 focus:border-[#001E80] transition-all"
-                                        placeholder="Company Name"
+                                        placeholder="Company Name (e.g. Google, Valu)"
                                         value={createData.company}
                                         onChange={(e) => setCreateData({ ...createData, company: e.target.value })}
                                     />
@@ -337,7 +337,7 @@ const ResourceHub = () => {
                                     label="Position"
                                     value={createData.position}
                                     onChange={(e) => setCreateData({ ...createData, position: e.target.value })}
-                                    options={SUGGESTION_LISTS.Position}
+                                    options={[...new Set([...SUGGESTION_LISTS.Position, ...metadata.positions])]}
                                     placeholder="Software Engineer"
                                     name="position"
                                 />
@@ -414,6 +414,7 @@ const ResourceHub = () => {
                 </form>
             );
         }
+        return null;
     };
 
     return (
@@ -483,40 +484,18 @@ const ResourceHub = () => {
                 <div className="flex items-center justify-center py-32">
                     <div className="w-8 h-8 border-2 border-[#001E80]/20 border-t-[#001E80] rounded-full animate-spin"></div>
                 </div>
-            ) : viewMode === 'grid' ? (
-                /* Static Grid - no initial animation so it doesn't drop from bottom repetitively */
-                <div className="space-y-6">
-                    <h2 className="text-xl font-black text-gray-900 tracking-tight">Browse by University</h2>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                        {UNIVERSITIES_DATA.map((uni, idx) => (
-                            <div
-                                key={idx}
-                                onClick={() => handleUniversityClick(uni.name)}
-                                className="bg-white rounded-[1.5rem] border border-gray-100 p-5 flex flex-col items-center justify-center text-center gap-4 cursor-pointer hover:shadow-xl hover:border-[#001E80]/20 hover:-translate-y-1 transition-all duration-300 group h-36"
-                            >
-                                <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-gray-50 group-hover:bg-[#EAEEFE] transition-colors p-2 overflow-hidden shadow-sm">
-                                    {uni.logo ? (
-                                        <img src={uni.logo} alt={uni.shortName} className="max-w-full max-h-full object-contain" />
-                                    ) : (
-                                        <span className="text-sm font-black text-[#001E80]">{uni.shortName}</span>
-                                    )}
-                                </div>
-                                <h3 className="text-xs font-bold text-gray-800 leading-tight group-hover:text-[#001E80] transition-colors line-clamp-2">
-                                    {uni.name}
-                                </h3>
-                            </div>
-                        ))}
-                    </div>
-                </div>
             ) : (
                 /* Compact Table View */
                 <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden animate-in fade-in duration-300">
+                    <h2 className="px-8 py-6 text-xl font-black text-gray-900 tracking-tight border-b border-gray-100">
+                        {activeTab === 'curated' ? 'Verified Intelligence' : 'Community Intelligence'}
+                    </h2>
                     {threads.length > 0 ? (
                         <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="bg-gray-50/50 border-b border-gray-100 text-[9px] font-black uppercase tracking-widest text-gray-400">
-                                        <th className="py-3 px-5 rounded-tl-3xl uppercase">Thread info & Title</th>
+                                        <th className="py-3 px-5 uppercase">Thread info & Title</th>
                                         <th className="py-3 px-5">Creator</th>
                                         <th className="py-3 px-5">Context Tags</th>
                                         <th className="py-3 px-5 text-center">Metrics</th>
