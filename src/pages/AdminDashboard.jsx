@@ -1368,11 +1368,18 @@ const AdminDashboard = () => {
                                         <div className="flex gap-2 mb-4">
                                             <input 
                                                 type="text"
-                                                placeholder="Search user by exact username..."
+                                                placeholder="Search or assign by @username..."
                                                 value={userSearchText}
                                                 onChange={(e) => handleSearchUsers(e.target.value)}
                                                 className="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm"
                                             />
+                                            <button 
+                                                className="admin-btn primary !py-2 !px-4"
+                                                onClick={() => handleAssignMod(manageCommModal._id, null, userSearchText)}
+                                                disabled={!userSearchText || searchLoading}
+                                            >
+                                                Send
+                                            </button>
                                             {searchLoading && <div className="admin-spinner" style={{ width: 16, height: 16 }} />}
                                         </div>
 
