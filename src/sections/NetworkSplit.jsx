@@ -42,7 +42,7 @@ const ROLE_DATA = {
             { title: "Recommendation Letter", desc: "Top-performing leads can request a formal recommendation from the Hub team." },
             { title: "Leadership Experience", desc: "Manage a real community, coordinate resources, and build real-world skills." }
         ],
-        requirements: ["Current university student", "Active Hub user", "Reliable and consistent", "Passionate about helping peers"]
+        requirements: ["Current university student or any other institution", "Active Hub user", "Reliable and consistent", "Passionate about helping peers"]
     }
 };
 

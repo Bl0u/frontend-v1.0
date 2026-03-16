@@ -289,7 +289,7 @@ const StudentLeads = () => {
                         </h3>
                         <ul className="space-y-4 max-w-lg mx-auto">
                             {[
-                                "You're a current student in a recognized university or college.",
+                                "You're a current student in a recognized university, or any other institution.",
                                 "You're active on The Hub (or ready to become one of its most committed users).",
                                 "People come to you for advice, study notes, or group coordination.",
                                 "You're reliable and consistent — this is an ongoing commitment.",

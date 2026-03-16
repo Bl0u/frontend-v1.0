@@ -5,7 +5,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { API_BASE_URL } from '../config';
 
-import { FaExternalLinkAlt, FaUserFriends, FaBook, FaChevronRight } from 'react-icons/fa';
+import { FaExternalLinkAlt, FaUserFriends, FaBook, FaEdit, FaChevronRight } from 'react-icons/fa';
 import { FiZap } from 'react-icons/fi';
 import requestService from '../features/requests/requestService';
 import planService from '../features/plans/planService';
@@ -114,6 +114,32 @@ const Dashboard = () => {
             setProjects(data);
         } catch (error) {
             toast.error(error.response?.data?.message || 'Failed to complete project');
+        }
+    };
+
+    const handleEditTitle = async (projectId, currentTitle) => {
+        const newTitle = window.prompt('Enter new project title:', currentTitle);
+        if (!newTitle || newTitle === currentTitle) return;
+        try {
+            await axios.put(`${API_BASE_URL}/api/requests/${projectId}/title`, { title: newTitle }, {
+                headers: { Authorization: `Bearer ${currentUser.token}` }
+            });
+            toast.success('Project title updated!');
+            const data = await requestService.getMyProjects(currentUser.token);
+            setProjects(data);
+        } catch (error) {
+            toast.error('Failed to update title');
+        }
+    };
+
+    const handleOpenProjectChat = async (projectId) => {
+        try {
+            const res = await axios.post(`${API_BASE_URL}/api/chat/project-chat`, { projectId }, {
+                headers: { Authorization: `Bearer ${currentUser.token}` }
+            });
+            navigate(`/chat?u=${res.data.groupId}&type=group`);
+        } catch (error) {
+            toast.error('Failed to open team chat');
         }
     };
 
@@ -447,13 +473,22 @@ const Dashboard = () => {
                                                 <FaBook size={14} />
                                             </button>
                                             {project.sender?._id === currentUser._id && (
-                                                <button
-                                                    onClick={() => handleCompleteProject(project._id)}
-                                                    className="p-2 text-green-400 hover:text-green-600 transition-colors"
-                                                    title="Mark Completed"
-                                                >
-                                                    <FiZap size={14} />
-                                                </button>
+                                                <>
+                                                    <button
+                                                        onClick={() => handleEditTitle(project._id, project.pitch?.Hook || project.pitch?.['The Hook (Short summary)'] || "Untitled Mission")}
+                                                        className="p-2 text-[#001E80]/40 hover:text-[#001E80] transition-colors"
+                                                        title="Edit Project Title"
+                                                    >
+                                                        <FaEdit size={12} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleCompleteProject(project._id)}
+                                                        className="p-2 text-green-400 hover:text-green-600 transition-colors"
+                                                        title="Mark Completed"
+                                                    >
+                                                        <FiZap size={14} />
+                                                    </button>
+                                                </>
                                             )}
                                         </div>
                                     </div>
@@ -784,11 +819,23 @@ const Dashboard = () => {
                                             <div className="p-6 flex-1">
                                                 <div className="flex items-center justify-between mb-4">
                                                     <div className="flex items-center gap-2">
-                                                        <span className="px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider bg-blue-50 text-blue-600 border border-blue-100">
-                                                            In Recruitment
+                                                        <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-wider border ${project.status === 'ongoing'
+                                                            ? 'bg-green-50 text-green-600 border-green-100'
+                                                            : 'bg-blue-50 text-blue-600 border-blue-100'
+                                                            }`}>
+                                                            {project.status === 'ongoing' ? 'Active Mission' : 'In Recruitment'}
                                                         </span>
                                                         {project.isProBono && (
                                                             <span className="px-2 py-0.5 rounded-md bg-pink-50 text-pink-500 text-[8px] font-black uppercase tracking-wider border border-pink-100">Pro-Bono</span>
+                                                        )}
+                                                        {project.sender?._id === currentUser._id && (
+                                                            <button
+                                                                onClick={() => handleEditTitle(project._id, project.pitch?.Hook || project.pitch?.['The Hook (Short summary)'] || "Untitled Mission")}
+                                                                className="p-1.5 text-[#001E80]/40 hover:text-[#001E80] transition-colors bg-gray-50 rounded-lg"
+                                                                title="Edit Project Title"
+                                                            >
+                                                                <FaEdit size={10} />
+                                                            </button>
                                                         )}
                                                     </div>
                                                     <div className="text-[10px] font-black text-[#001E80]/40 uppercase tracking-widest">
@@ -856,12 +903,12 @@ const Dashboard = () => {
                                                         </button>
                                                     )}
                                                 </div>
-                                                <Link
-                                                    to="/chat"
+                                                <button
+                                                    onClick={() => handleOpenProjectChat(project._id)}
                                                     className="text-[10px] font-black text-gray-500 uppercase tracking-widest hover:text-[#001E80] transition-colors"
                                                 >
                                                     Team Chat
-                                                </Link>
+                                                </button>
                                             </div>
                                         </div>
                                     ))}
