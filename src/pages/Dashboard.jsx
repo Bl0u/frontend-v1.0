@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import { API_BASE_URL } from '../config';
 
 import { FaExternalLinkAlt, FaUserFriends, FaBook, FaEdit, FaChevronRight } from 'react-icons/fa';
-import { FiZap } from 'react-icons/fi';
+import { FiZap, FiCreditCard } from 'react-icons/fi';
 import requestService from '../features/requests/requestService';
 import planService from '../features/plans/planService';
 import resourceService from '../features/resources/resourceService';
@@ -42,6 +42,8 @@ const Dashboard = () => {
     const [projects, setProjects] = useState([]);
     const [loadingThreads, setLoadingThreads] = useState(false);
     const [loadingProjects, setLoadingProjects] = useState(false);
+    const [myEarnings, setMyEarnings] = useState([]); // V2.2: Revenue history
+    const [loadingEarnings, setLoadingEarnings] = useState(false);
 
     // Communities State
     const [myCommunities, setMyCommunities] = useState({ communities: [], groups: [] });
@@ -203,6 +205,26 @@ const Dashboard = () => {
                 }
             };
             fetchActivity();
+        }
+    }, [activeTab, currentUser]);
+
+    // Fetch Earnings
+    useEffect(() => {
+        if (activeTab === 'earnings' && currentUser) {
+            const fetchEarnings = async () => {
+                setLoadingEarnings(true);
+                try {
+                    const { data } = await axios.get(`${API_BASE_URL}/api/resources/earnings/mine`, {
+                        headers: { Authorization: `Bearer ${currentUser.token}` }
+                    });
+                    setMyEarnings(data);
+                } catch (error) {
+                    toast.error('Failed to load earnings history');
+                } finally {
+                    setLoadingEarnings(false);
+                }
+            };
+            fetchEarnings();
         }
     }, [activeTab, currentUser]);
 
@@ -1328,6 +1350,114 @@ const Dashboard = () => {
                             >
                                 Browse Hub
                             </button>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
+    // ─── EARNINGS TAB ───────────────────────────────────
+    if (activeTab === 'earnings') {
+        const totalEarned = myEarnings.reduce((sum, e) => sum + (e.myShare || 0), 0);
+        return (
+            <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-500">
+                {/* Header */}
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#EAEEFE] to-white p-10 border border-[#001E80]/5">
+                    <div className="relative z-10 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+                        <div>
+                            <p className="text-[#001E80]/50 text-sm font-semibold tracking-wide uppercase mb-2">Monetization</p>
+                            <h1
+                                className="text-4xl md:text-5xl font-black bg-gradient-to-b from-black to-[#001E80] bg-clip-text text-transparent pb-1 leading-tight"
+                                style={{ fontFamily: 'Zuume-Bold', letterSpacing: '0.5px' }}
+                            >
+                                My Earnings
+                            </h1>
+                            <p className="text-[#010D3E]/60 mt-2 font-medium">
+                                Transparent breakdown of your revenue from paid threads and contributions.
+                            </p>
+                        </div>
+                        <div className="bg-white/80 backdrop-blur-sm border border-[#001E80]/10 rounded-2xl p-6 shadow-sm min-w-[200px]">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-[#001E80]/40 mb-1">Total Stars Earned</p>
+                            <p className="text-3xl font-black text-[#001E80]">⭐ {totalEarned}</p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Earnings Table */}
+                <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden animate-in fade-in duration-500">
+                    <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between">
+                        <h3 className="text-lg font-bold text-gray-800 flex items-center gap-3">
+                            <FiCreditCard className="text-[#001E80]" /> Transaction History
+                        </h3>
+                        <span className="bg-[#EAEEFE] px-3 py-1 rounded-full text-xs font-bold text-[#001E80]">
+                            {myEarnings.length} Transactions
+                        </span>
+                    </div>
+
+                    {loadingEarnings ? (
+                        <div className="flex items-center justify-center py-20">
+                            <div className="w-8 h-8 border-2 border-[#001E80]/20 border-t-[#001E80] rounded-full animate-spin"></div>
+                        </div>
+                    ) : myEarnings.length > 0 ? (
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="bg-gray-50/50 border-b border-gray-100 text-[9px] font-black uppercase tracking-widest text-[#001E80]/40">
+                                        <th className="py-3 px-6">Thread Details</th>
+                                        <th className="py-3 px-6">Source</th>
+                                        <th className="py-3 px-6 text-center">My Share</th>
+                                        <th className="py-3 px-6 text-center">Role</th>
+                                        <th className="py-3 px-6 text-right">Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="text-sm">
+                                    {myEarnings.map((e, idx) => (
+                                        <tr key={idx} className="border-b border-gray-50 hover:bg-[#EAEEFE]/10 transition-colors">
+                                            <td className="py-4 px-6">
+                                                <Link to={`/resources/thread/${e.thread?._id}`} className="font-bold text-gray-900 hover:text-[#001E80] transition-colors leading-tight block truncate max-w-[250px]">
+                                                    {e.thread?.title || 'Unknown Thread'}
+                                                </Link>
+                                                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block mt-1">Total Sale: {e.totalPaid} stars</span>
+                                            </td>
+                                            <td className="py-4 px-6">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-[10px] font-bold text-gray-500">
+                                                        {e.buyer?.name?.charAt(0) || 'U'}
+                                                    </div>
+                                                    <span className="text-gray-600 font-medium text-xs">@{e.buyer?.username}</span>
+                                                </div>
+                                            </td>
+                                            <td className="py-4 px-6 text-center">
+                                                <span className="bg-green-100 text-green-700 px-2.5 py-1 rounded-lg text-xs font-black">
+                                                    ⭐ {e.myShare}
+                                                </span>
+                                            </td>
+                                            <td className="py-4 px-6 text-center">
+                                                <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-md ${e.myRole === 'author' ? 'bg-indigo-50 text-[#001E80]' : 'bg-amber-50 text-amber-600'}`}>
+                                                    {e.myRole}
+                                                </span>
+                                            </td>
+                                            <td className="py-4 px-6 text-right text-xs text-gray-400 font-medium">
+                                                {new Date(e.createdAt).toLocaleDateString()}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : (
+                        <div className="py-20 text-center flex flex-col items-center justify-center">
+                            <div className="w-16 h-16 bg-[#EAEEFE] rounded-full flex items-center justify-center text-[#001E80] mb-4">
+                                <FiCreditCard size={24} />
+                            </div>
+                            <h4 className="font-bold text-gray-800">No earnings record yet</h4>
+                            <p className="text-sm text-gray-400 mt-1 max-w-xs mx-auto">
+                                publish high-quality threads or contribute to missions to start earning stars!
+                            </p>
+                            <Link to="/resources" className="mt-6 inline-block bg-[#001E80] text-white px-6 py-2.5 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all shadow-md hover:bg-[#010D3E]">
+                                Go to Hub
+                            </Link>
                         </div>
                     )}
                 </div>

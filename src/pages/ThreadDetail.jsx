@@ -48,6 +48,12 @@ const ThreadDetail = () => {
     const [showPriceModal, setShowPriceModal] = useState(false);
     const [priceData, setPriceData] = useState({ isPaid: false, price: 0 });
 
+    // V2.2: Earnings config
+    const [earningsEnabled, setEarningsEnabled] = useState(false);
+    const [earnerSharePercent, setEarnerSharePercent] = useState(10);
+    const [participatingEarners, setParticipatingEarners] = useState([]);
+    const [earnerUsernameInput, setEarnerUsernameInput] = useState('');
+
     const [error, setError] = useState(null);
     const [hasAccess, setHasAccess] = useState(true); // V2.0: Track if user has access to paid content
     const [purchasing, setPurchasing] = useState(false); // V2.0: Track purchase in progress
@@ -62,6 +68,16 @@ const ThreadDetail = () => {
             setHasAccess(data.hasAccess !== false); // V2.0: Backend returns hasAccess flag
             setIsPinned(data.isPinned || false);
             setEditData({ title: data.thread.title, tags: data.thread.tags?.join(', ') || '' });
+            // V2.2: Sync earnings config from backend
+            setEarningsEnabled(data.thread.earningsConfig?.enabled || false);
+            setEarnerSharePercent(data.thread.earningsConfig?.earnerSharePercent ?? 10);
+            setParticipatingEarners(
+                (data.thread.earningsConfig?.participatingEarners || []).map(e => ({
+                    _id: e._id || e,
+                    name: e.name || '',
+                    username: e.username || ''
+                }))
+            );
             setLoading(false);
         } catch (error) {
             console.error('Thread fetch error:', error);
@@ -260,6 +276,87 @@ const ThreadDetail = () => {
             toast.error(error.response?.data?.message || 'Failed to update pricing');
         }
     };
+
+    // V2.2: Earnings config helpers
+    const earnerConfigPayload = () => ({
+        enabled: earningsEnabled,
+        earnerSharePercent,
+        participatingEarners: participatingEarners.map(e => e._id || e)
+    });
+
+    const handleToggleEarningsSharing = async () => {
+        const newEnabled = !earningsEnabled;
+        setEarningsEnabled(newEnabled);
+        try {
+            const config = { headers: { Authorization: `Bearer ${user.token}` } };
+            await axios.put(`${API_BASE_URL}/api/resources/thread/${id}/earnings-config`,
+                { ...earnerConfigPayload(), enabled: newEnabled }, config);
+            toast.success(newEnabled ? '💰 Revenue sharing enabled' : 'Revenue sharing disabled');
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Failed to toggle');
+            setEarningsEnabled(!newEnabled); // revert
+        }
+    };
+
+    const handleToggleEarner = (earnerObj) => {
+        setParticipatingEarners(prev => {
+            const exists = prev.some(e => (e._id || e) === (earnerObj._id || earnerObj));
+            return exists
+                ? prev.filter(e => (e._id || e) !== (earnerObj._id || earnerObj))
+                : [...prev, earnerObj];
+        });
+    };
+
+    const handleAddEarnerByUsername = async (e) => {
+        e.preventDefault();
+        if (!earnerUsernameInput.trim()) return;
+        try {
+            const config = { headers: { Authorization: `Bearer ${user.token}` } };
+            const clean = earnerUsernameInput.replace('@', '').trim();
+            const { data } = await axios.get(
+                `${API_BASE_URL}/api/admin/users?search=${clean}`, config
+            );
+            const found = (data.users || data)?.find(
+                u => u.username?.toLowerCase() === clean.toLowerCase()
+            );
+            if (!found) return toast.error(`User '@${clean}' not found`);
+            if (participatingEarners.some(e => (e._id || e) === found._id)) {
+                return toast.info('Already in earners list');
+            }
+            setParticipatingEarners(prev => [...prev, { _id: found._id, name: found.name, username: found.username }]);
+            setEarnerUsernameInput('');
+        } catch {
+            toast.error('Search failed — make sure admin API is accessible');
+        }
+    };
+
+    const handleRemoveEarner = (earnerId) => {
+        setParticipatingEarners(prev => prev.filter(e => (e._id || e) !== earnerId));
+    };
+
+    const handleSaveEarningsConfig = async () => {
+        if (earningsSharingEnabled_hasEarners && earnerSharePercent > 0) {
+            const pool = Math.floor((thread?.price || 0) * earnerSharePercent / 100);
+            if (pool < participatingEarners.length) {
+                return toast.error(
+                    `${earnerSharePercent}% of ${thread.price}⭐ = ${pool} star(s) — not enough to give 1⭐ each to ${participatingEarners.length} earner(s). Raise %, price, or reduce earners.`
+                );
+            }
+        }
+        try {
+            const config = { headers: { Authorization: `Bearer ${user.token}` } };
+            await axios.put(
+                `${API_BASE_URL}/api/resources/thread/${id}/earnings-config`,
+                earnerConfigPayload(), config
+            );
+            toast.success('✅ Revenue config saved!');
+            fetchDetail();
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Failed to save config');
+        }
+    };
+
+    const earningsSharingEnabled_hasEarners = earningsEnabled && participatingEarners.length > 0;
 
     // Loading and error states
     if (loading) {
@@ -672,6 +769,119 @@ const ThreadDetail = () => {
                                                     <button type="submit" className="bg-gray-900 text-white p-2 rounded-lg">+</button>
                                                 </form>
                                             </div>
+
+                                            {/* V2.2: Revenue Sharing Panel — owner + paid threads only */}
+                                            {thread.isPaid && (
+                                                <div className="pt-4 border-t border-gray-50">
+                                                    {/* Toggle Header */}
+                                                    <div className="flex items-center justify-between mb-3">
+                                                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">💰 Revenue Sharing</p>
+                                                        <button
+                                                            onClick={handleToggleEarningsSharing}
+                                                            className={`relative w-10 h-5 rounded-full transition-all focus:outline-none ${earningsEnabled ? 'bg-green-500' : 'bg-gray-200'}`}
+                                                            title={earningsEnabled ? 'Disable revenue sharing' : 'Enable revenue sharing'}
+                                                        >
+                                                            <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all ${earningsEnabled ? 'left-5' : 'left-0.5'}`} />
+                                                        </button>
+                                                    </div>
+
+                                                    {earningsEnabled && (
+                                                        <div className="space-y-4">
+                                                            {/* Earner Share % */}
+                                                            <div>
+                                                                <label className="text-[9px] font-black text-gray-400 uppercase block mb-1">Earner Share %</label>
+                                                                <div className="flex items-center gap-2">
+                                                                    <input
+                                                                        type="number" min="1" max="90"
+                                                                        value={earnerSharePercent}
+                                                                        onChange={(e) => setEarnerSharePercent(Number(e.target.value))}
+                                                                        className="w-16 bg-gray-50 border border-gray-200 rounded-lg px-2 py-1 text-sm font-black text-center outline-none"
+                                                                    />
+                                                                    <span className="text-[9px] text-gray-400 font-bold">% — Platform: 10% fixed</span>
+                                                                </div>
+                                                                <p className="text-[9px] text-green-600 font-bold mt-1">
+                                                                    Your cut: {Math.max(0, 90 - (earnerSharePercent || 0))}% ≈ {Math.floor((thread.price || 0) * Math.max(0, 90 - (earnerSharePercent || 0)) / 100)} ⭐/sale
+                                                                </p>
+                                                            </div>
+
+                                                            {/* Thread Moderators Checklist */}
+                                                            {thread.moderators?.length > 0 && (
+                                                                <div>
+                                                                    <p className="text-[9px] text-gray-400 font-black uppercase mb-2">Thread Moderators</p>
+                                                                    {thread.moderators.map(mod => {
+                                                                        const enrolled = participatingEarners.some(e => (e._id || e) === mod._id);
+                                                                        const perEarner = participatingEarners.length > 0
+                                                                            ? Math.floor((thread.price || 0) * (earnerSharePercent || 0) / 100 / participatingEarners.length) : 0;
+                                                                        return (
+                                                                            <label key={mod._id} className="flex items-center gap-2 cursor-pointer py-1 group">
+                                                                                <input
+                                                                                    type="checkbox"
+                                                                                    checked={enrolled}
+                                                                                    onChange={() => handleToggleEarner(mod)}
+                                                                                    className="rounded"
+                                                                                />
+                                                                                <span className="text-xs font-bold text-gray-700 flex-1">{mod.name}</span>
+                                                                                {enrolled && (
+                                                                                    <span className="text-[9px] text-green-500 font-bold">≈{perEarner}⭐/sale</span>
+                                                                                )}
+                                                                            </label>
+                                                                        );
+                                                                    })}
+                                                                </div>
+                                                            )}
+
+                                                            {/* Add Any Username */}
+                                                            <div>
+                                                                <p className="text-[9px] text-gray-400 font-black uppercase mb-2">Add Any Contributor</p>
+                                                                <form onSubmit={handleAddEarnerByUsername} className="flex gap-2">
+                                                                    <input
+                                                                        className="flex-1 bg-gray-50 border border-gray-100 rounded-lg px-3 py-1.5 text-[10px] font-bold outline-none focus:bg-white"
+                                                                        placeholder="@username"
+                                                                        value={earnerUsernameInput}
+                                                                        onChange={(e) => setEarnerUsernameInput(e.target.value)}
+                                                                    />
+                                                                    <button type="submit" className="bg-gray-900 text-white px-3 py-1.5 rounded-lg text-[10px] font-black">+</button>
+                                                                </form>
+                                                            </div>
+
+                                                            {/* Current Earners List */}
+                                                            {participatingEarners.length > 0 && (
+                                                                <div>
+                                                                    <p className="text-[9px] text-gray-400 font-black uppercase mb-2">Earners ({participatingEarners.length})</p>
+                                                                    <div className="space-y-1">
+                                                                        {participatingEarners.map(earner => (
+                                                                            <div key={earner._id || earner} className="flex items-center justify-between py-1">
+                                                                                <div>
+                                                                                    <span className="text-xs font-bold text-gray-700">{earner.name || earner.username || earner._id}</span>
+                                                                                    {earner.username && <span className="text-[9px] text-gray-400 ml-1">@{earner.username}</span>}
+                                                                                </div>
+                                                                                <button
+                                                                                    onClick={() => handleRemoveEarner(earner._id || earner)}
+                                                                                    className="text-red-300 hover:text-red-500 text-xs ml-2"
+                                                                                >✕</button>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            )}
+
+                                                            <button
+                                                                onClick={handleSaveEarningsConfig}
+                                                                className="w-full py-2 rounded-xl bg-green-50 text-green-700 font-black text-[9px] uppercase tracking-widest hover:bg-green-100 transition-all"
+                                                            >
+                                                                Save Revenue Config
+                                                            </button>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Always-visible breakdown */}
+                                                    <div className="mt-3 bg-gray-50 rounded-xl p-3 text-[9px] text-gray-500 space-y-1">
+                                                        <p>Author: <strong className="text-gray-800">{earningsEnabled ? Math.max(0, 90 - (earnerSharePercent || 0)) : 90}%</strong></p>
+                                                        <p>Contributors: <strong className="text-gray-800">{earningsEnabled ? (earnerSharePercent || 0) : 0}%</strong></p>
+                                                        <p>Platform: <strong className="text-gray-800">10%</strong> (fixed)</p>
+                                                    </div>
+                                                </div>
+                                            )}
                                         </>
                                     )}
                                 </div>

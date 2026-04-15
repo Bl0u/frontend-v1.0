@@ -522,6 +522,12 @@ const ResourceHub = () => {
                                                             ⭐ {thread.price}
                                                         </span>
                                                     )}
+                                                    {thread.earningsConfig?.enabled && (
+                                                        <span className="px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-[8px] font-black uppercase tracking-widest flex items-center gap-0.5"
+                                                            title="This thread shares revenue with contributors">
+                                                            💰 Revenue
+                                                        </span>
+                                                    )}
                                                 </div>
                                                 <h3 className="text-sm font-bold text-gray-800 line-clamp-1 group-hover:text-[#001E80] transition-colors pr-4">{thread.title}</h3>
                                             </td>

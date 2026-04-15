@@ -138,10 +138,13 @@ const AdminCommunities = ({ user }) => {
             const { data } = await axios.get(`${API_BASE_URL}/api/requests/received`, {
                 headers: { Authorization: `Bearer ${user.token}` }
             });
-            // Filter requests for this specific community or group
-            const filtered = data.filter(req => 
-                req.status === 'pending' && 
-                (type === 'community' ? req.community === id : req.groupChat?._id === id)
+            // Fix: use .toString() on both sides to handle ObjectId vs string mismatch
+            const filtered = data.filter(req =>
+                req.status === 'pending' &&
+                (type === 'community'
+                    ? req.community?.toString() === id?.toString()
+                    : (req.groupChat?._id || req.groupChat)?.toString() === id?.toString()
+                )
             );
             setPendingRequests(filtered);
         } catch (error) {
