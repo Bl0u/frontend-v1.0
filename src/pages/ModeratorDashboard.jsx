@@ -18,7 +18,6 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000
 const TABS = [
     { key: 'users', label: 'Users' },
     { key: 'communities', label: 'Communities' },
-    { key: 'earnings', label: '💰 Earnings' },
 ];
 
 const ModeratorDashboard = () => {
@@ -38,7 +37,6 @@ const ModeratorDashboard = () => {
     const [payments, setPayments] = useState({ payments: [], total: 0, page: 1, totalPages: 1 });
     const [recruitment, setRecruitment] = useState([]);
     const [communities, setCommunities] = useState([]);
-    const [myEarnings, setMyEarnings] = useState([]); // V2.2: Personal earnings history
 
     // — Community Modals —
     const [viewGroupsModal, setViewGroupsModal] = useState(null); 
@@ -226,19 +224,6 @@ const ModeratorDashboard = () => {
         }
     }, [user?.token]);
 
-    const fetchMyEarnings = useCallback(async () => {
-        setLoading(true);
-        try {
-            const { data } = await axios.get(`${API_BASE_URL}/api/resources/earnings/mine`, {
-                headers: { Authorization: `Bearer ${user.token}` }
-            });
-            setMyEarnings(data);
-        } catch (err) {
-            toast.error('Failed to load earnings');
-        } finally {
-            setLoading(false);
-        }
-    }, [user?.token]);
 
     // Fetch data when tab changes
     useEffect(() => {
@@ -247,7 +232,6 @@ const ModeratorDashboard = () => {
         switch (activeTab) {
             case 'users': fetchUsers(); break;
             case 'communities': fetchCommunities(); fetchGroupConfigs(); break;
-            case 'earnings': fetchMyEarnings(); break;
         }
     }, [activeTab, user?.token]);
 
@@ -1762,65 +1746,6 @@ const ModeratorDashboard = () => {
             {activeTab === 'pitches' && <PitchModuleManager token={user.token} />}
             {activeTab === 'communities' && renderCommunities()}
             {activeTab === 'hub_setup' && renderHubSetup()}
-            {activeTab === 'earnings' && (
-                <div style={{ padding: '2rem 0' }}>
-                    <h2 style={{ fontWeight: 900, fontSize: '1.4rem', marginBottom: '0.5rem' }}>💰 My Earnings</h2>
-                    <p style={{ color: 'rgba(0,0,0,0.4)', fontSize: '0.8rem', marginBottom: '2rem' }}>Stars you've earned from threads where you are an author or revenue-sharing contributor.</p>
-                    {loading ? (
-                        <div style={{ textAlign: 'center', padding: '3rem', color: '#aaa' }}>Loading earnings...</div>
-                    ) : myEarnings.length === 0 ? (
-                        <div style={{ textAlign: 'center', padding: '3rem', color: '#aaa' }}>
-                            <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>💸</div>
-                            <p style={{ fontWeight: 700 }}>No earnings yet</p>
-                            <p style={{ fontSize: '0.75rem' }}>Contribute to paid threads or enable revenue sharing on your own threads to start earning.</p>
-                        </div>
-                    ) : (
-                        <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #f0f0f0', overflow: 'hidden' }}>
-                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
-                                <thead>
-                                    <tr style={{ background: '#f8f9ff', borderBottom: '1px solid #eef0ff' }}>
-                                        <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 800, color: '#001E80', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.05em' }}>Thread</th>
-                                        <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 800, color: '#001E80', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.05em' }}>Buyer</th>
-                                        <th style={{ padding: '12px 16px', textAlign: 'center', fontWeight: 800, color: '#001E80', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.05em' }}>My Cut</th>
-                                        <th style={{ padding: '12px 16px', textAlign: 'center', fontWeight: 800, color: '#001E80', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.05em' }}>Role</th>
-                                        <th style={{ padding: '12px 16px', textAlign: 'right', fontWeight: 800, color: '#001E80', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.05em' }}>Date</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {myEarnings.map((e, i) => (
-                                        <tr key={e._id} style={{ borderBottom: '1px solid #f5f5f5', background: i % 2 === 0 ? '#fff' : '#fafbff' }}>
-                                            <td style={{ padding: '12px 16px', fontWeight: 700 }}>
-                                                <a href={`/resources/thread/${e.thread?._id}`} style={{ color: '#001E80', textDecoration: 'none' }} target="_blank" rel="noreferrer">
-                                                    {e.thread?.title || 'Unknown Thread'}
-                                                </a>
-                                                <div style={{ fontSize: '0.7rem', color: '#aaa', marginTop: 2 }}>⭐ Price: {e.totalPaid} stars</div>
-                                            </td>
-                                            <td style={{ padding: '12px 16px', color: '#555' }}>@{e.buyer?.username || '—'}</td>
-                                            <td style={{ padding: '12px 16px', textAlign: 'center' }}>
-                                                <span style={{ background: '#e8fff0', color: '#00a854', fontWeight: 800, padding: '4px 10px', borderRadius: 8, fontSize: '0.8rem' }}>
-                                                    ⭐ {e.myShare}
-                                                </span>
-                                            </td>
-                                            <td style={{ padding: '12px 16px', textAlign: 'center' }}>
-                                                <span style={{ background: e.myRole === 'author' ? '#eaeefe' : '#fff8e1', color: e.myRole === 'author' ? '#001E80' : '#f59e0b', fontSize: '0.7rem', fontWeight: 800, padding: '3px 8px', borderRadius: 6, textTransform: 'uppercase' }}>
-                                                    {e.myRole}
-                                                </span>
-                                            </td>
-                                            <td style={{ padding: '12px 16px', textAlign: 'right', color: '#aaa', fontSize: '0.75rem' }}>
-                                                {new Date(e.createdAt).toLocaleDateString()}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                            <div style={{ padding: '12px 16px', background: '#f8f9ff', borderTop: '1px solid #eef0ff', display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', fontWeight: 700 }}>
-                                <span style={{ color: '#555' }}>Total transactions: <strong>{myEarnings.length}</strong></span>
-                                <span style={{ color: '#00a854' }}>Total earned: <strong>⭐ {myEarnings.reduce((sum, e) => sum + (e.myShare || 0), 0)} stars</strong></span>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            )}
 
             {/* Stars Modal */}
             {starsModal && (
